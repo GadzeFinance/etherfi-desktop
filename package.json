@@ -18,11 +18,11 @@
     "dist-linux": "npm run test && npm run prod-build && electron-builder --linux",
     "dist-windows": "npm run prod-build && electron-builder --windows",
     "dist-all": "npm run test && npm run prod-build && electron-builder --mac --linux --windows",
-    "test": "mocha"
+    "test": ""
   },
   "build": {
-    "productName": "YourProductName",
-    "appId": "com.yourcompany|electron.yourproductname",
+    "productName": "etherfi-desktop",
+    "appId": "com.etherfi.etherfi-desktop",
     "directories": {
       "buildResources": "resources"
     },
@@ -52,31 +52,6 @@
       ]
     }
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/reZach/secure-electron-template.git"
-  },
-  "keywords": [
-    "electron",
-    "security",
-    "secure",
-    "template",
-    "javascript",
-    "react",
-    "redux",
-    "webpack",
-    "i18n",
-    "boilerplate"
-  ],
-  "author": "reZach",
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/reZach/secure-electron-template/issues"
-  },
-  "homepage": "https://github.com/reZach/secure-electron-template#readme",
-  "browserslist": [
-    "last 2 Chrome versions"
-  ],
   "devDependencies": {
     "@babel/core": "^7.18.9",
     "@babel/plugin-syntax-dynamic-import": "^7.8.3",
