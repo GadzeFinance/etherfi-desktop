@@ -19,3 +19,10 @@ npm run preprod
 npm run prod
 
 ```
+
+## How to build for distribution: 
+Note: make sure you run 'npm install' before attempting to run the application
+```bash
+npm run dist
+
+```

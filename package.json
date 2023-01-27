@@ -1,18 +1,38 @@
 {
   "name": "etherfi-desktop",
   "version": "0.0.1",
-  "description": "",
+  "description": "etherfi-desktop application",
   "main": "app/electron/main.js",
   "private": true,
-  "directories": {
-    "doc": "docs",
-    "test": "test"
-  },
   "scripts": {
     "dev-server": "webpack serve --mode development --config ./webpack.development.js",
     "dev": "cross-env NODE_ENV=development electron .",
     "preprod": "webpack --mode production --config ./webpack.production.js",
-    "prod": "cross-env NODE_ENV=production electron ."
+    "prod": "cross-env NODE_ENV=production electron .",
+    "postinstall": "electron-builder install-app-deps",
+    "pack": "electron-builder --dir",
+    "dist": "electron-builder"
+  },
+  "build": {
+    "productName": "etherfi-desktop",
+    "appId": "com.etherfi.etherfi-desktop",
+    "directories": {
+      "buildResources": "resources"
+    },
+    "win": {
+      "target": [
+        "nsis",
+        "msi"
+      ]
+    },
+    "linux": {
+      "target": [
+        "deb",
+        "rpm",
+        "snap",
+        "AppImage"
+      ]
+    }
   },
   "repository": {
     "type": "git",
@@ -30,6 +50,7 @@
     "cross-env": "^7.0.3",
     "css-loader": "^6.7.3",
     "electron": "^22.1.0",
+    "electron-builder": "^23.1.0",
     "html-loader": "^4.2.0",
     "html-webpack-plugin": "^5.5.0",
     "style-loader": "^3.3.1",
