@@ -1,0 +1,28 @@
+{
+  "name": "etherfi-desktop",
+  "version": "0.0.1",
+  "description": "",
+  "main": "index.js",
+  "private": true,
+  "directories": {
+    "doc": "docs",
+    "test": "test"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/GadzeFinance/etherfi-desktop.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/GadzeFinance/etherfi-desktop/issues"
+  },
+  "homepage": "https://github.com/GadzeFinance/etherfi-desktop#readme",
+  "devDependencies": {
+    "electron": "^22.1.0"
+  }
+}
