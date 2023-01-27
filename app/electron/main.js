@@ -9,7 +9,8 @@ function createWindow() {
     const window = new BrowserWindow({
         width: 800,
         height: 600,
-        show: false
+        show: false,
+        contextIsolation: true, 
     });
 
     // Event listeners on the window
@@ -21,6 +22,8 @@ function createWindow() {
     // Load our HTML file
     if (isDevelopment) {
         window.loadURL("http://localhost:40992");
+        window.webContents.openDevTools();
+
     } else {
         console.log("Running Prod");
         window.loadFile("app/dist/index.html");

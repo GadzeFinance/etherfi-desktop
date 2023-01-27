@@ -35,7 +35,12 @@ module.exports = {
                     "style-loader",
                     "css-loader"
                 ]
-            }
+            },
+                // loads common image formats
+            {
+                test: /\.(svg|png|jpg|gif)$/,
+                type: "asset/inline"
+            },
         ]
     },
     plugins: [
