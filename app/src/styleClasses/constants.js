@@ -11,5 +11,6 @@ export const COLORS = {
     etherFiRed: '#ED7171',
     tabSelectionBlue: '#3A3479',
     tabBackground: '#2B2852',
-    primaryBlue: '#5581E7'
+    primaryBlue: '#5581E7',
+    lightPurple: '#474276'
   }
