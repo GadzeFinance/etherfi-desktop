@@ -9,8 +9,12 @@ const NodeOperatorTab = ({ tabIndex }) => {
     const [bidPrice, setBidPrice] = useState(0.01);
 
     const generateBidRequest = () => {
-        // Validate the bid Size and Bid Price values
-
+        // TODO: Validate the bid Size and Bid Price values
+        window.api.receiveBidFileInfo((event, arg) => {
+            console.log("BACK HERE???")
+            console.log(arg)
+        })
+        window.api.reqPublicBidFile(bidSize, bidPrice);
         // Send Request to backend to make the keys
 
         // 

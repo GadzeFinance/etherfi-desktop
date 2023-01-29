@@ -13,7 +13,7 @@ const StakerTab = ({ tabIndex }) => {
         <ScaleFade initialScale={0.5} in={tabIndex === 0}>
         <UploadFile notifyFileChange={setNumFiles}/>
           <Center>
-            <Input placeholder="validator key" />
+            <Input placeholder="Wallet Address" />
           </Center>
         </ScaleFade>
     </Box>

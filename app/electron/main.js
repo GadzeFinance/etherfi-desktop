@@ -1,7 +1,12 @@
 const {
     app,
-    BrowserWindow
+    BrowserWindow,
+    ipcMain
 } = require("electron");
+
+const path = require("path");
+
+const {buildPublicBidJson} = require('./listeners');
 const isDevelopment = process.env.NODE_ENV === "development";
 
 function createWindow() {
@@ -10,7 +15,11 @@ function createWindow() {
         width: 800,
         height: 600,
         show: false,
-        contextIsolation: true, 
+        webPreferences: {
+            contextIsolation: true,
+            enableRemoteModule: false,
+            preload: path.join(__dirname, "preload.js")
+        }
     });
 
     // Event listeners on the window
@@ -52,3 +61,6 @@ app.on("window-all-closed", function () {
         app.quit();
     }
 });
+
+
+ipcMain.on("req-public-bid-file", buildPublicBidJson);       
