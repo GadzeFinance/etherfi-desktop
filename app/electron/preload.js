@@ -14,4 +14,3 @@ contextBridge.exposeInMainWorld("api", {
         ipcRenderer.once("receive-public-bid-file", (event, ...args) => func(event, ...args));       
     }
 });
-c
