@@ -11,7 +11,7 @@
     "prod": "cross-env NODE_ENV=production electron .",
     "postinstall": "electron-builder install-app-deps",
     "pack": "electron-builder --dir",
-    "dist": "electron-builder",
+    "dist": "electron-builder --universal",
     "run": "osascript -e 'tell app \"Terminal\" to do script \"cd ~/Code/etherfi-desktop && npm run dev-server\"' && npm run dev"
   },
   "build": {
@@ -19,6 +19,12 @@
     "appId": "com.etherfi.etherfi-desktop",
     "directories": {
       "buildResources": "resources"
+    },
+    "mac": {
+      "target": [
+        "pkg"
+      ],
+      "entitlements": "entitlements.mac.plist"
     },
     "win": {
       "target": [
@@ -73,6 +79,7 @@
     "framer-motion": "^8.5.4",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "react-dropzone": "^14.2.3"
+    "react-dropzone": "^14.2.3",
+    "zod": "^3.20.2"
   }
 }

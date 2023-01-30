@@ -1,5 +1,5 @@
 import {COLORS} from './constants';
-const raisedWidgetStyle = {
+const widgetBoxStyle = {
     maxW: '800px',
     minH: '40px',
     // px: '12px',
@@ -13,5 +13,5 @@ const raisedWidgetStyle = {
     // bg:'#2b2852'
   }
   
-  export default raisedWidgetStyle
+  export default widgetBoxStyle
   

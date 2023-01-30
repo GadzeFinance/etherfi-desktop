@@ -1,9 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { Box, Center, ScaleFade, Input } from '@chakra-ui/react'
-import raisedWidgetStyle from '../../styleClasses/raisedWidgetStyle'
-import { Button, ButtonGroup } from '@chakra-ui/react'
-import { Text } from '@chakra-ui/react'
-
+import { Box, Center, ScaleFade, Input, Button, Text } from '@chakra-ui/react'
+import raisedWidgetStyle from '../../styleClasses/widgetBoxStyle'
 
 const StakerTab = ({ tabIndex }) => {
   const [stakerAddress, setStakerAddress] = React.useState('')
