@@ -6,7 +6,10 @@ const EC = require('elliptic').ec
 const genKey = () => {
     const curve = new EC('secp256k1')
     while (true) {
-        const privateKey = new BN(crypto.randomBytes(Math.ceil(curve.n.bitLength() / 8)))
+        const x = crypto.randomBytes(Math.ceil(curve.n.bitLength() / 8))
+        console.log ("THIS")
+        console.log(x)
+        const privateKey = new BN(x)
         if (!privateKey.isZero() && privateKey.cmp(curve.n) < 0) return privateKey
     }
 }
@@ -38,5 +41,5 @@ function decrypt(text, ENCRYPTION_KEY) {
 module.exports = { 
     genKey,
     encrypt, 
-    decrypt 
+    decrypt,
 };

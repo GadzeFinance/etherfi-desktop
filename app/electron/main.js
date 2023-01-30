@@ -6,7 +6,7 @@ const {
 
 const path = require("path");
 
-const {buildPublicBidJson} = require('./listeners');
+const {buildPublicBidJson, testWholeEncryptDecryptFlow} = require('./listeners');
 const isDevelopment = process.env.NODE_ENV === "development";
 
 function createWindow() {
