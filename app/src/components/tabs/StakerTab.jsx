@@ -27,7 +27,7 @@ const StakerTab = ({ tabIndex }) => {
     setDepositedStakes(stakes);
   }
 
-  const generateKeys = () => {
+  const encryptKeys = () => {
 
   }
 
@@ -74,12 +74,12 @@ const StakerTab = ({ tabIndex }) => {
           />
 
         <Center>
-          <Button colorScheme='blue' align='center' onClick={generateKeys}>Generate Keys</Button>
+          <Button colorScheme='blue' align='center' onClick={encryptKeys}>Encrypt Keys</Button>
         </Center>
 
         <Center>
-          <Button colorScheme='blue' align='center' onClick={generateKeys}>Export stakeRequest.json</Button>
-          <Button colorScheme='blue' align='center' onClick={generateKeys}>Export stakePrivate.json</Button>
+          <Button colorScheme='blue' align='center' onClick={exportStakeRequest}>Export stakeRequest.json</Button>
+          <Button colorScheme='blue' align='center' onClick={exportStakePrivate}>Export stakePrivate.json</Button>
         </Center>
 
         </ScaleFade>
