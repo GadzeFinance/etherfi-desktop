@@ -1,10 +1,32 @@
 const { genKey, encrypt, decrypt } = require('./utils.js/encryptionUtils');
-const {saveFile, chooseSavePath} = require('./utils.js/saveFile.js')
+const {saveFile, selectFiles, chooseSavePath} = require('./utils.js/saveFile.js')
 const EC = require('elliptic').ec
 const BN = require('bn.js')
+var fs = require('fs');
 
 
 
+const listenSelectFiles = async (event, arg) => {
+    let result = await selectFiles()
+    event.sender.send("receive-selected-files-paths", result.filePaths)
+}
+
+const listenBuildStakerJson = async (event, arg) => {
+    const validatorKeyFilePaths = arg[0]
+    const depositDataFilePath = arg[1]
+    const password = arg[2]
+
+    const validatorKeyStoreJSON = validatorKeyFilePaths.map(
+        filePath => JSON.parse(fs.readFileSync(filePath))
+    )
+    const depositDataJSON = JSON.parse(fs.readFileSync(depositDataFilePath));
+
+    const stakeRequestJSON = {}
+    const stakePrivateJSON = {}
+
+    // Do Cool Things and Save the resulting files
+    // using {validatorKeyStoreJSON, depositDataJSON, password}
+}
 
 const buildPublicBidJson = async (event, arg) => {
     const curve = new EC('secp256k1') // secp
@@ -129,4 +151,4 @@ const testWholeEncryptDecryptFlow = (event, arg) => {
 // }
 
 
-module.exports = {buildPublicBidJson, testWholeEncryptDecryptFlow}
+module.exports = {listenSelectFiles, listenBuildStakerJson, buildPublicBidJson, testWholeEncryptDecryptFlow}
