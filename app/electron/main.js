@@ -5,9 +5,9 @@ const {
 } = require("electron");
 
 const path = require("path");
-
-const {listenSelectFiles, listenBuildStakerJson, buildPublicBidJson, testWholeEncryptDecryptFlow} = require('./listeners');
 const isDevelopment = process.env.NODE_ENV === "development";
+const {listenSelectFiles, listenBuildStakerJson, buildPublicBidJson, testWholeEncryptDecryptFlow, genStakeRequest} = require('./listeners');
+
 
 function createWindow() {
     // Create a new window
@@ -15,6 +15,7 @@ function createWindow() {
         width: 800,
         height: 600,
         show: false,
+        nodeIntegration: false, 
         webPreferences: {
             contextIsolation: true,
             enableRemoteModule: false,
@@ -62,7 +63,8 @@ app.on("window-all-closed", function () {
     }
 });
 
-
-ipcMain.on("req-public-bid-file", buildPublicBidJson);       
+// Register IPC Listeners
+ipcMain.on("req-public-bid-file", buildPublicBidJson);   
+ipcMain.on("gen-stake-request" , genStakeRequest);   
 ipcMain.on("req-select-files", listenSelectFiles);
 ipcMain.on("req-build-staker-file", listenBuildStakerJson);
