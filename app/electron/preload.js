@@ -21,5 +21,8 @@ contextBridge.exposeInMainWorld("api", {
     },
     reqBuildStakerFile: function(validatorKeyFilePaths, depositDataFilePath, password){
         ipcRenderer.send("req-build-staker-file", [validatorKeyFilePaths, depositDataFilePath, password]);
-    }
+    },
+    genStakeRequest: function(walletAddress){
+        ipcRenderer.send("gen-stake-request", walletAddress);
+    },
 });

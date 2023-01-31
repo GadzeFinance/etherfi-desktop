@@ -1,17 +1,5 @@
 import { z, ZodError } from 'zod'
 
-// export interface ParsedDepositData {
-//   pubkey: string
-//   withdrawal_credentials: string
-//   amount: number
-//   signature: string
-//   deposit_message_root: string
-//   deposit_data_root: string
-//   fork_version: string
-//   network_name: string
-//   deposit_cli_version: string
-// }
-
 /*
   the zod schema below should be able to validate most parts of the deposit data
   example deposit data:
@@ -40,7 +28,6 @@ export const SCHEMAS = {
         privKeyArray: z.string().array().nonempty(),
     }).required()
 }
-
 
 async function parseJsonFile(file) {
   return new Promise((resolve, reject) => {
@@ -80,9 +67,4 @@ export const validateUploadedFiles = async (files, expectedFile, schema) => {
 
 const convertZodErrors = (error) => {
     return error.issues.map(i => `field=${i.path[0]}, value=${i.message}`)
-}
-
-const validateSchema = (parseJsonFile, fileType) => {
-
-
 }

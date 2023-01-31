@@ -2,8 +2,8 @@ const { genKey, encrypt, decrypt } = require('./utils.js/encryptionUtils');
 const {saveFile, selectFiles, chooseSavePath} = require('./utils.js/saveFile.js')
 const EC = require('elliptic').ec
 const BN = require('bn.js')
-var fs = require('fs');
-
+const fs = require('fs');
+const path = require('path')
 
 
 const listenSelectFiles = async (event, arg) => {
@@ -86,6 +86,81 @@ const buildPublicBidJson = async (event, arg) => {
 
 }
 
+// Assumption: the folder that is passed in contains only one deposit data file and more than one keystore file
+// We are also assuming that the deposit data file starts with "deposit_data" and keystore file starts with "keystore"
+const genStakeRequest = (event, arg) => {
+    const NUM_VALIDATORS = 10
+    const [walletAddress] = arg
+    const nodeOperatorFiles = fs.readdirSync(path.resolve(__dirname, '../test/nodeOperatorFiles'))
+    const validatorKeysDir = fs.readdirSync(path.resolve(__dirname, '../test/validator_keys'))
+    console.log(nodeOperatorFiles)
+    console.log(validatorKeysDir)
+
+    // get the file name for the deposit data
+    let depositDataFilePath = ""
+    for (var fileName of validatorKeysDir) {
+        if (fileName.includes("deposit_data")) {
+            depositDataFilePath = path.resolve(__dirname, `../test/validator_keys/${fileName}`)
+        }
+    }
+    // Read the deposit data file
+    const rawDepositData = fs.readFileSync(depositDataFilePath)
+    const depositDataList = JSON.parse(rawDepositData);
+
+    // const depositDataKeyStoreObj = {}
+    // for (var fileName of validatorKeysDir) {
+    //     if (fileName.includes("keystore")) {
+    //         const keystorePath = path.resolve(__dirname, `../test/validator_keys/${fileName}`)
+    //         const rawKeystore = fs.readFileSync(keystorePath)
+    //         const validatorKey = JSON.parse(rawKeystore);
+    //         const validatorKeyPubKey = validatorKey.pubkey
+    //         for (var deposit)
+    //         depositDataKeyStoreObj[validatorKey.pubkey] = {}
+    //         depositDataKeyStoreObj[validatorKey.pubkey]["validatorKey"] = validatorKey
+    //     }
+    // }
+
+    // parse the depositData and fill out the depositPubKeyToKeyMap 
+
+    // for (var depositData of depositDataList) {
+    //     depositPubKeyToKeyMap[depositData.pubkey] = depositData
+
+    //     // get the correct validator Key for this deposit data
+    //     for (var fileName of )
+    // }
+
+    // Read the bidRequest file to get nodeOperatorPubKeys
+    const rawBidRequest = fs.readFileSync(path.resolve(__dirname, '../test/nodeOperatorFiles/bidRequest.json'))
+    const bidRequest = JSON.parse(rawBidRequest);
+    console.log(bidRequest.pubKeyArray)
+    console.log(depositPubKeyToKeyMap)
+    
+    const stakeRequestList = []
+
+
+
+    const SCHEMA = 
+        [
+            {
+                depositData: {},
+                encryptedValidatorKey: "", // ??? How to store?
+                encryptedPassword: "",
+                stakerPubEncryptionKey: "",
+                // NEED SOMETHING TO INDEX What nodeOperator pubKey should be used to decrypt
+                // Going to use nodeOperatorPubKey right now. Can be changed to "stakeID" later
+                nodeOperatorPublicEncryptionKey: ""
+            }
+        ]
+    // This function is generating the stakeReqJSON
+    // for each of the keystores I want too:
+    // get the deposit data for that keystore: 
+
+
+
+    //TODO: Use wallet address to get the list of stakes and the private keys to use for each of the stakes
+
+}
+
 const testWholeEncryptDecryptFlow = (event, arg) => {
     const AlicePrivateKey = genKey()
     // curve.g.mul(key) -- publicKey
@@ -151,4 +226,4 @@ const testWholeEncryptDecryptFlow = (event, arg) => {
 // }
 
 
-module.exports = {listenSelectFiles, listenBuildStakerJson, buildPublicBidJson, testWholeEncryptDecryptFlow}
+module.exports = {listenSelectFiles, listenBuildStakerJson, buildPublicBidJson, testWholeEncryptDecryptFlow, genStakeRequest}

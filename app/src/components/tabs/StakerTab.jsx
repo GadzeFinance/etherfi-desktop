@@ -42,6 +42,12 @@ const StakerTab = ({ tabIndex }) => {
     window.api.reqBuildStakerFile(validatorKeyFilePaths, depositDataFilePath, password);
   }
 
+    const generateStakeRequest = () => {
+        // We should get the number 
+        const walletAddr = "0x0102934902394" // stub -->
+        window.api.genStakeRequest(walletAddr)
+    }
+
   return (
     <Center>
     <Box maxW={'800px'} sx={raisedWidgetStyle}>
