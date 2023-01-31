@@ -78,16 +78,11 @@ const UploadFile = (props) => {
                 </div>
             )}
             {hasUploaded && (
-                <div>
-                {/* <IconFile key={index} /> */}
-                {/* <Flex gap='20px' padding='20px' justify={'center'} align={'center'} background={'#474276'} borderRadius='xl' height={'56px'}> */}
-                {/* <IconTrash /> */}
-                {acceptedFiles.map((x, index) => 
-                    <Text key={index} flex='auto' color={'#FFF'}>{acceptedFiles[index].name}</Text>
-                )
-                }
-                {/* </Flex> */}
-                </div>
+                <Flex gap='20px' padding='20px' justify={'center'} align={'center'} background={'#474276'} borderRadius='xl' height={'56px'}>
+                    <IconFile />
+                    <Text flex='auto' color={'#FFF'}>{acceptedFiles[0].name}</Text>
+                    <IconTrash />
+                </Flex>
             )}
         </>
     );
