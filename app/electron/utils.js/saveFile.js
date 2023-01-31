@@ -10,4 +10,11 @@ module.exports = {
             fs.writeFileSync(filePath, JSON.stringify(JSONfile), 'utf-8');            
         });
     },
+    selectFiles: async function () {
+        loadOptions = {
+            filters: [{name: 'json', extensions: ['json']}],
+            properties: ['openFile', 'multiSelections']
+        }
+        return await dialog.showOpenDialog(loadOptions);
+    }
 }
