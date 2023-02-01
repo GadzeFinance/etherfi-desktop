@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { Box, Center, ScaleFade, Input, Button, Text } from '@chakra-ui/react'
 import raisedWidgetStyle from '../../styleClasses/widgetBoxStyle'
+import { Bid, useGetCompetingBidsQuery, useGetUserBidsQuery } from '../../clients/subgraph/generated.ts'
+
 
 const StakerTab = ({ tabIndex }) => {
   const [stakerAddress, setStakerAddress] = React.useState('')
@@ -8,7 +10,14 @@ const StakerTab = ({ tabIndex }) => {
   const [password, setPassword] = useState('');
   const [validatorKeyFilePaths, setValidatorKeyFilePaths] = useState([])
   const [depositDataFilePath, setDepositDatafilePath] = useState('')
-
+  const { data: userBids, loading: userLoading } = useGetUserBidsQuery({
+    variables: { user: "0x7631FCf7D45D821cB5FA688fADa7bbc76714B771" || '' },
+    pollInterval: 2000,
+  })
+  const { data: notUserBids, loading: competingLoading } = useGetCompetingBidsQuery({
+    variables: { user: "0x7631FCf7D45D821cB5FA688fADa7bbc76714B771" || '' },
+    pollInterval: 2000,
+  })
   const handleStakerAddressChange = (event) => setStakerAddress(event.target.value)
   const handlePasswordChange = (event) => setPassword(event.target.value)
 
@@ -39,8 +48,11 @@ const StakerTab = ({ tabIndex }) => {
   }
 
   const buildStakerRequest = () => {
+    console.log(userBids)
+    console.log(notUserBids)
     if (!validatorKeyFilePaths || !depositDataFilePath || !password) {
         console.log("Please enter all the required information")
+        return
     }
     window.api.reqBuildStakerFile(validatorKeyFilePaths, depositDataFilePath, password);
   }

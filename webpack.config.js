@@ -16,9 +16,17 @@ module.exports = {
                 include: [path.resolve(__dirname, "app/src")],
                 loader: "babel-loader",
                 resolve: {
-                    extensions: [".js", ".jsx", ".json"]
+                    extensions: [".js", ".jsx", ".json", "ts"]
                 }
             },
+            {
+                test: /\.tsx?$/,
+                use: 'ts-loader',
+                exclude: /node_modules/,
+                resolve: {
+                    extensions: [".js", ".jsx", ".json", "ts"]
+                }
+              },
             {
                 // loads .html files
                 test: /\.(html)$/,
