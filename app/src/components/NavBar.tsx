@@ -7,7 +7,7 @@ import tabButtonStyle from '../styleClasses/tabButtonStyle'
 import EtherFiLogo from '../assets/geo-logo-colour-landscape.png'
 
 
-const NavBar = () => {
+const NavBar: React.FC = () => {
     return (
         <nav>
             <Flex height={'54px'} mx='40px'>

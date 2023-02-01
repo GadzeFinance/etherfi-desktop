@@ -2,7 +2,7 @@
   "name": "etherfi-desktop",
   "version": "0.0.1",
   "description": "etherfi-desktop application",
-  "main": "app/electron/main.js",
+  "main": "./app/electron/main.js",
   "private": true,
   "scripts": {
     "dev-server": "webpack serve --mode development --config ./webpack.development.js",
@@ -53,6 +53,8 @@
   },
   "homepage": "https://github.com/GadzeFinance/etherfi-desktop#readme",
   "devDependencies": {
+    "@types/react": "^18.0.27",
+    "@types/react-dom": "^18.0.10",
     "babel-loader": "^9.1.2",
     "cross-env": "^7.0.3",
     "css-loader": "^6.7.3",

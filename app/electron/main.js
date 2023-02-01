@@ -17,6 +17,8 @@ function createWindow() {
         show: false,
         nodeIntegration: false, 
         webPreferences: {
+            sandbox: true,
+            devtools:true,
             contextIsolation: true,
             enableRemoteModule: false,
             preload: path.join(__dirname, "preload.js")
@@ -66,4 +68,4 @@ app.on("window-all-closed", function () {
 // Register IPC Listeners
 ipcMain.on("req-public-bid-file", buildPublicBidJson);   
 ipcMain.on("req-select-files", listenSelectFiles);
-ipcMain.on("req-build-public-staker-file", testWholeEncryptDecryptFlow);
+ipcMain.on("req-build-public-staker-file", listenBuildStakerJson);
