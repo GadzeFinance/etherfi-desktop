@@ -2,7 +2,6 @@ import React, {useState} from 'react';
 import { Box, Center, ScaleFade, Button, VStack } from '@chakra-ui/react';
 import raisedWidgetStyle from '../../styleClasses/widgetBoxStyle';
 import BidInput from '../BidInput';
-import UploadFile from '../UploadFile';
 import {validateUploadedFiles, SCHEMAS} from '../../utils/schemaValidations';
 
 
@@ -69,7 +68,7 @@ const NodeOperatorTab = ({ tabIndex }) => {
                     <Center color="white">
                         Step 2
                     </Center>
-                    <UploadFile notifyFileChange={async (files) => {
+                    {/* <UploadFile notifyFileChange={async (files) => {
                                     if (files.length > 0) {
                                         // setHasFile(true)
                                         const result = await validateUploadedFiles(files, "ValidatorKeys", SCHEMAS.EncryptedValidatorKeys)
@@ -82,10 +81,10 @@ const NodeOperatorTab = ({ tabIndex }) => {
                                         // setValidationErrors([])
                                     }
                                 }}      
-                    />
+                    /> */}
                 </Box>
                 <Box>
-                <UploadFile notifyFileChange={(val) => console.log(val)}/>
+                {/* <UploadFile notifyFileChange={(val) => console.log(val)}/> */}
                 </Box>
                     <Box>
                     <Center>
