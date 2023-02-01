@@ -38,15 +38,12 @@ const StakerTab = ({ tabIndex }) => {
     window.api.reqSelectFiles();    
   }
 
-  const buildStakerFile = () => {
+  const buildStakerRequest = () => {
+    if (!validatorKeyFilePaths || !depositDataFilePath || !password) {
+        console.log("Please enter all the required information")
+    }
     window.api.reqBuildStakerFile(validatorKeyFilePaths, depositDataFilePath, password);
   }
-
-    const generateStakeRequest = () => {
-        // We should get the number 
-        const walletAddr = "0x0102934902394" // stub -->
-        window.api.genStakeRequest(walletAddr)
-    }
 
   return (
     <Center>
@@ -88,7 +85,7 @@ const StakerTab = ({ tabIndex }) => {
 
         <Text color="red.500" fontSize='xl'> 5. Finally, Encrypt them securely!</Text>
         <Center>
-          <Button colorScheme='blue' align='center' onClick={buildStakerFile}>Encrypt</Button>
+          <Button colorScheme='blue' align='center' onClick={buildStakerRequest}>Encrypt</Button>
         </Center>
 
         </ScaleFade>

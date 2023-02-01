@@ -6,7 +6,7 @@ const {
 
 const path = require("path");
 const isDevelopment = process.env.NODE_ENV === "development";
-const {listenSelectFiles, listenBuildStakerJson, buildPublicBidJson, testWholeEncryptDecryptFlow, genStakeRequest} = require('./listeners');
+const {listenSelectFiles, listenBuildStakerJson, buildPublicBidJson, testWholeEncryptDecryptFlow} = require('./listeners');
 
 
 function createWindow() {
@@ -65,6 +65,5 @@ app.on("window-all-closed", function () {
 
 // Register IPC Listeners
 ipcMain.on("req-public-bid-file", buildPublicBidJson);   
-ipcMain.on("gen-stake-request" , genStakeRequest);   
 ipcMain.on("req-select-files", listenSelectFiles);
-ipcMain.on("req-build-staker-file", listenBuildStakerJson);
+ipcMain.on("req-build-public-staker-file", testWholeEncryptDecryptFlow);
