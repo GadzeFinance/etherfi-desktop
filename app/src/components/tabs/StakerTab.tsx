@@ -1,11 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import { Box, Center, ScaleFade, Input, Button, Text } from '@chakra-ui/react'
 import raisedWidgetStyle from '../../styleClasses/widgetBoxStyle'
-import { Bid, useGetCompetingBidsQuery, useGetUserBidsQuery } from '../../clients/subgraph/generated.ts'
+import { Bid, useGetCompetingBidsQuery, useGetUserBidsQuery } from '../../clients/subgraph/generated'
 
+interface TabProps {
+  tabIndex: number;
+}
 
-const StakerTab = ({ tabIndex }) => {
-  const [stakerAddress, setStakerAddress] = React.useState('')
+const StakerTab: React.FC<TabProps> = ({ tabIndex }: TabProps) => {
+  const [stakerAddress, setStakerAddress] = useState<string>('')
   const [depositedStakes, setDepositedStakes] = useState([])
   const [password, setPassword] = useState('');
   const [validatorKeyFilePaths, setValidatorKeyFilePaths] = useState([])
@@ -18,8 +21,8 @@ const StakerTab = ({ tabIndex }) => {
     variables: { user: "0x7631FCf7D45D821cB5FA688fADa7bbc76714B771" || '' },
     pollInterval: 2000,
   })
-  const handleStakerAddressChange = (event) => setStakerAddress(event.target.value)
-  const handlePasswordChange = (event) => setPassword(event.target.value)
+  const handleStakerAddressChange = (event: React.ChangeEvent<HTMLInputElement>) => setStakerAddress(event.target.value)
+  const handlePasswordChange = (event: React.ChangeEvent<HTMLInputElement>) => setPassword(event.target.value)
 
   const getDepositedStakes = () => {
     // let stakes = Get the list of Stake structs such that 
@@ -32,7 +35,7 @@ const StakerTab = ({ tabIndex }) => {
   }
 
   const selectValidatorKeyFiles = () => {
-    window.api.receiveSelectedFilesPaths((event, files) => {
+    window.api.receiveSelectedFilesPaths((event:Electron.IpcMainEvent , files: [string]) => {
       console.log(files)
       setValidatorKeyFilePaths(files)
     })
@@ -40,7 +43,7 @@ const StakerTab = ({ tabIndex }) => {
   }
 
   const selectDepositDataFile = () => {
-    window.api.receiveSelectedFilesPaths((event, files) => {
+    window.api.receiveSelectedFilesPaths((event: Electron.IpcMainEvent, files: [string]) => {
       console.log(files)
       setDepositDatafilePath(files[0])
     })
@@ -79,12 +82,12 @@ const StakerTab = ({ tabIndex }) => {
         
         <Text color="red.500" fontSize='xl'> 2. Input Validator Key Files </Text>
         <Center>
-        <Button colorScheme='blue' align='center' onClick={selectValidatorKeyFiles}>Select Validator KeyStore File ("keystore-m_...") </Button>
+        <Button colorScheme='blue' onClick={selectValidatorKeyFiles}>Select Validator KeyStore File ("keystore-m_...") </Button>
         </Center>
 
         <Text color="red.500" fontSize='xl'> 3. Input Deposit Data File </Text>
         <Center>
-        <Button colorScheme='blue' align='center' onClick={selectDepositDataFile}>Select DepositData Files ("deposit_data-...")</Button>
+        <Button colorScheme='blue' onClick={selectDepositDataFile}>Select DepositData Files ("deposit_data-...")</Button>
         </Center>
 
         <Text color="red.500" fontSize='xl'> 4. Input Password used to generate the validator keys and deposit data </Text>
@@ -97,7 +100,7 @@ const StakerTab = ({ tabIndex }) => {
 
         <Text color="red.500" fontSize='xl'> 5. Finally, Encrypt them securely!</Text>
         <Center>
-          <Button colorScheme='blue' align='center' onClick={buildStakerRequest}>Encrypt</Button>
+          <Button colorScheme='blue' onClick={buildStakerRequest}>Encrypt</Button>
         </Center>
 
         </ScaleFade>

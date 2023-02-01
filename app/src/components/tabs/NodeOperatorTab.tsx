@@ -4,8 +4,12 @@ import raisedWidgetStyle from '../../styleClasses/widgetBoxStyle';
 import BidInput from '../BidInput';
 import {validateUploadedFiles, SCHEMAS} from '../../utils/schemaValidations';
 
+interface TabProps {
+    tabIndex: number;
+  }
+  
 
-const NodeOperatorTab = ({ tabIndex }) => {
+const NodeOperatorTab: React.FC<TabProps> = ({ tabIndex }: TabProps) => {
     const [bidSize, setBidSize] = useState(1);
     const [bidPrice, setBidPrice] = useState(0.01);
     const [encryptedValKeysFile, setEncryptedValKeysFile] = useState()
@@ -13,8 +17,9 @@ const NodeOperatorTab = ({ tabIndex }) => {
 
     const generateBidRequest = () => {
         // TODO: Validate the bid Size and Bid Price values
-        window.api.receiveBidFileInfo((event, arg) => {
+        window.api.receiveBidFileInfo((event:any, arg: any) => {
             // What should we get back here// if anything?
+            console.log(event)
             console.log(arg)
         })
         // Send request to backend to make the files
@@ -22,15 +27,26 @@ const NodeOperatorTab = ({ tabIndex }) => {
     }
 
 
-
-
   return (
+    <>
+    <p>hello</p>
     <Center>
-        <ScaleFade initialScale={0.5} in={tabIndex === 1}>
-            <VStack
+         <ScaleFade initialScale={0.5} in={tabIndex === 1}>
+             <Box>
+
+             </Box>
+         </ScaleFade>
+    </Center>
+    </>
+  )
+}
+
+export default NodeOperatorTab
+
+{/* <VStack
                 spacing={4}
                 align='stretch'
-            >
+    >
             <Box maxW={'800px'} sx={raisedWidgetStyle} bg="#2b2852">
                 <VStack
                     spacing={4}
@@ -56,47 +72,14 @@ const NodeOperatorTab = ({ tabIndex }) => {
                     <Button bg="green" color="white" onClick={generateBidRequest}>Generate Bid Request</Button>
                     </Center>
                 </Box>
-                </VStack>
-            </Box>
-            {/* STEP 2 */}
-            <Box maxW={'800px'} sx={raisedWidgetStyle} bg="#2b2852">
-                <VStack
-                    spacing={4}
-                    align='stretch'
-                >
-                <Box>
-                    <Center color="white">
-                        Step 2
-                    </Center>
-                    {/* <UploadFile notifyFileChange={async (files) => {
-                                    if (files.length > 0) {
-                                        // setHasFile(true)
-                                        const result = await validateUploadedFiles(files, "ValidatorKeys", SCHEMAS.EncryptedValidatorKeys)
-                                        console.log(result)
-                                        console.log("RESULT!!")
-                                        // setValidationErrors(result.errors)
-                                    } else {
-                                        const x = 10
-                                        // setHasFile(false)
-                                        // setValidationErrors([])
-                                    }
-                                }}      
-                    /> */}
-                </Box>
-                <Box>
-                {/* <UploadFile notifyFileChange={(val) => console.log(val)}/> */}
-                </Box>
-                    <Box>
-                    <Center>
-                    <Button bg="green" color="white" onClick={null}>Decrypt Validator Keys</Button>
-                    </Center>
-                </Box>
-                </VStack>
-            </Box>
-            </VStack>
-        </ScaleFade>
-    </Center>
-  )
-}
-
-export default NodeOperatorTab
+            </VStack> */}
+            
+    {/* <Box maxW={'800px'} sx={raisedWidgetStyle} bg="#2b2852">
+    <VStack
+        spacing={4}
+        align='stretch'
+    >
+    </VStack>
+    
+    </Box>
+    </VStack> */}
