@@ -1,9 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { Box, Center, ScaleFade, Input } from '@chakra-ui/react'
-import raisedWidgetStyle from '../../styleClasses/raisedWidgetStyle'
-import { Button, ButtonGroup } from '@chakra-ui/react'
-import { Text } from '@chakra-ui/react'
-
+import { Box, Center, ScaleFade, Input, Button, Text } from '@chakra-ui/react'
+import raisedWidgetStyle from '../../styleClasses/widgetBoxStyle'
 
 const StakerTab = ({ tabIndex }) => {
   const [stakerAddress, setStakerAddress] = React.useState('')
@@ -41,7 +38,10 @@ const StakerTab = ({ tabIndex }) => {
     window.api.reqSelectFiles();    
   }
 
-  const buildStakerFile = () => {
+  const buildStakerRequest = () => {
+    if (!validatorKeyFilePaths || !depositDataFilePath || !password) {
+        console.log("Please enter all the required information")
+    }
     window.api.reqBuildStakerFile(validatorKeyFilePaths, depositDataFilePath, password);
   }
 
@@ -85,7 +85,7 @@ const StakerTab = ({ tabIndex }) => {
 
         <Text color="red.500" fontSize='xl'> 5. Finally, Encrypt them securely!</Text>
         <Center>
-          <Button colorScheme='blue' align='center' onClick={buildStakerFile}>Encrypt</Button>
+          <Button colorScheme='blue' align='center' onClick={buildStakerRequest}>Encrypt</Button>
         </Center>
 
         </ScaleFade>
