@@ -20,6 +20,6 @@ contextBridge.exposeInMainWorld("api", {
         ipcRenderer.once("receive-selected-files-paths", (event, ...args) => func(event, ...args));       
     },
     reqBuildStakerFile: function(validatorKeyFilePaths, depositDataFilePath, password){
-        ipcRenderer.send("req-build-staker-file", [validatorKeyFilePaths, depositDataFilePath, password]);
-    }
+        ipcRenderer.send("req-build-public-staker-file", [validatorKeyFilePaths, depositDataFilePath, password]);
+    },
 });
