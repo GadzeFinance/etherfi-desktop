@@ -3,6 +3,7 @@ const {
     contextBridge
 } = require("electron");
 
+
 // Expose protected methods off of window (ie.
 // window.api.sendToA) in order to use ipcRenderer
 // without exposing the entire object
@@ -22,4 +23,11 @@ contextBridge.exposeInMainWorld("api", {
     reqBuildStakerFile: function(validatorKeyFilePaths, depositDataFilePath, password){
         ipcRenderer.send("req-build-public-staker-file", [validatorKeyFilePaths, depositDataFilePath, password]);
     },
+    reqNewMnemonic: function(language){
+        ipcRenderer.send("req-new-mnemonic", [language]);
+    },
+    receiveKeyGenerationConfirmation: function(func){
+        ipcRenderer.on("receive-key-gen-confirmation", (event, ...args) => func(event, ...args));       
+    },
 });
+

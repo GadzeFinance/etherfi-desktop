@@ -70,6 +70,10 @@ const StakerTab: React.FC<TabProps> = ({ tabIndex }: TabProps) => {
   }
 
   const buildStakerRequest = () => {
+    window.api.receiveKeyGenerationConfirmation((event:Electron.IpcMainEvent , args: [string]) => {
+      console.log(args)
+    })
+    window.api.reqNewMnemonic("english")
     // console.log("user Bids")
     // console.log(userBids)
     // console.log("Not User Bids")
@@ -84,6 +88,7 @@ const StakerTab: React.FC<TabProps> = ({ tabIndex }: TabProps) => {
         console.log("Please enter all the required information")
         return
     }
+
     window.api.reqBuildStakerFile(validatorKeyFilePaths, depositDataFilePath, password);
   }
 
