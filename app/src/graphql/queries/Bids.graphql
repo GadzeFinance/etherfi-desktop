@@ -17,6 +17,7 @@ query GetAllBids {
     blockTimestamp
     transactionHash
     status
+    bidderPublicKey
   }
 }
 
@@ -30,11 +31,13 @@ query GetUserBids($user: Bytes) {
     blockTimestamp
     transactionHash
     status
+    bidderPublicKey
   }
 }
 
+
 query GetCompetingBids($user: Bytes) {
-  bids(where: { bidder_not: $user }){
+  bids(where: { bidder_not: $user }) {
     id
     amount
     bidId
@@ -43,5 +46,20 @@ query GetCompetingBids($user: Bytes) {
     blockTimestamp
     transactionHash
     status
+    bidderPublicKey
+  }
+}
+
+query GetBidById($bidId: BigInt) {
+  bids(where: { bidId: $bidId }) {
+    id
+    amount
+    bidId
+    bidder
+    blockNumber
+    blockTimestamp
+    transactionHash
+    status
+    bidderPublicKey
   }
 }

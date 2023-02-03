@@ -12,7 +12,9 @@
     "postinstall": "electron-builder install-app-deps",
     "pack": "electron-builder --dir",
     "dist": "electron-builder --universal",
-    "run": "osascript -e 'tell app \"Terminal\" to do script \"cd ~/Code/etherfi-desktop && npm run dev-server\"' && npm run dev"
+    "run": "osascript -e 'tell app \"Terminal\" to do script \"cd ~/Code/etherfi-desktop && npm run dev-server\"' && npm run dev",
+    "codegen": "graphql-codegen --config codegen.ts",
+    "codegen:watch": "graphql-codegen --config codegen.ts --watch"
   },
   "build": {
     "productName": "etherfi-desktop",
@@ -78,13 +80,18 @@
     "@chakra-ui/react": "^2.4.9",
     "@emotion/react": "^11.10.5",
     "@emotion/styled": "^11.10.5",
+    "@graphql-codegen/cli": "^2.16.5",
+    "@graphql-codegen/typescript-operations": "^2.5.13",
+    "@graphql-codegen/typescript-react-apollo": "^3.3.7",
     "bn": "^1.0.5",
     "elliptic": "^6.5.4",
     "ethers": "^5.7.2",
     "framer-motion": "^8.5.4",
+    "node-pty": "^0.10.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-dropzone": "^14.2.3",
+    "xterm": "^5.1.0",
     "zod": "^3.20.2"
   }
 }

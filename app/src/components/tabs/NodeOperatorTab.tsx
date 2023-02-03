@@ -28,58 +28,69 @@ const NodeOperatorTab: React.FC<TabProps> = ({ tabIndex }: TabProps) => {
 
 
   return (
-    <>
-    <p>hello</p>
     <Center>
-         <ScaleFade initialScale={0.5} in={tabIndex === 1}>
-             <Box>
+        <ScaleFade initialScale={0.5} in={tabIndex === 1}>
 
+            <Box maxW={'800px'} sx={raisedWidgetStyle} bg="#2b2852">
+            <VStack
+                spacing={4}
+                align='stretch'
+            >
+             <Box>
+                 <Center color="white">
+                     Step 1
+                 </Center>
+                 <BidInput placeholder="Bid Size:" value={bidSize}
+                         setter={setBidSize} MIN={1} MAX={100}
+                         increment={1}
+                 />
              </Box>
-         </ScaleFade>
-    </Center>
-    </>
+             <Box>
+                 <BidInput placeholder="Bid Price:" value={bidPrice}
+                         setter={setBidPrice} MIN={0.01} MAX={100}
+                         increment={0.01}
+                 />
+             </Box>
+             <Box>
+                <Center>
+                    <Button bg="green" color="white" onClick={generateBidRequest}>Generate Bid Request</Button>
+                </Center>
+            </Box>
+            </VStack>
+            </Box>
+             <Box maxW={'800px'} sx={raisedWidgetStyle} bg="#2b2852">
+             <VStack
+                 spacing={4}
+                 align='stretch'
+             >
+
+
+            </VStack>
+             </Box>
+
+            </ScaleFade>
+        </Center>
   )
+
 }
 
 export default NodeOperatorTab
 
-{/* <VStack
-                spacing={4}
-                align='stretch'
-    >
-            <Box maxW={'800px'} sx={raisedWidgetStyle} bg="#2b2852">
-                <VStack
-                    spacing={4}
-                    align='stretch'
-                >
-                <Box>
-                    <Center color="white">
-                        Step 1
-                    </Center>
-                    <BidInput placeholder="Bid Size:" value={bidSize}
-                            setter={setBidSize} MIN={1} MAX={100}
-                            increment={1}
-                    />
-                </Box>
-                <Box>
-                    <BidInput placeholder="Bid Price:" value={bidPrice}
-                            setter={setBidPrice} MIN={0.01} MAX={100}
-                            increment={0.01}
-                    />
-                </Box>
-                    <Box>
-                    <Center>
-                    <Button bg="green" color="white" onClick={generateBidRequest}>Generate Bid Request</Button>
-                    </Center>
-                </Box>
-            </VStack> */}
-            
-    {/* <Box maxW={'800px'} sx={raisedWidgetStyle} bg="#2b2852">
-    <VStack
-        spacing={4}
-        align='stretch'
-    >
-    </VStack>
-    
-    </Box>
-    </VStack> */}
+                //  <Button bg="green" color="white" onClick={generateBidRequest}>Generate Bid Request</Button>
+                //  </Center>
+                // </Box>
+//          </VStack> 
+         
+//  <Box maxW={'800px'} sx={raisedWidgetStyle} bg="#2b2852">
+//  <VStack
+//      spacing={4}
+//      align='stretch'
+//  >
+//  </VStack>
+ 
+//  </Box>
+//  </VStack> 
+//              </Box>
+//          </ScaleFade>
+//     </Center>
+//     </>
