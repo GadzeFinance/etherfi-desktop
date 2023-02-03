@@ -2,9 +2,19 @@ import React from 'react';
 import { NumberInput, Button, Flex, NumberInputField,Text, VStack, Box, StackDivider} from '@chakra-ui/react';
 import { COLORS } from '../styleClasses/constants';
 
-const BidInput = ({placeholder, value, setter, increment, MIN, MAX}) => {
+interface BidData {
+    placeholder: string,
+    value: number,
+    setter: (value: number) => void,
+    increment: number, 
+    MIN: number, 
+    MAX: number
+  }
+  
 
-    const modifyValue = (newValue) => {
+const BidInput: React.FC<BidData> = ({placeholder, value, setter, increment, MIN, MAX} : BidData) => {
+
+    const modifyValue = (newValue: number) => {
         if (value >= MIN && value <= MAX) {
             setter(newValue);
         } else if (value > MAX) {
@@ -26,7 +36,7 @@ const BidInput = ({placeholder, value, setter, increment, MIN, MAX}) => {
         </Box>
         <Box h='40px'>
         <Flex alignItems="center">
-        <NumberInput min={MIN} max={MAX} color="white" value={value} onChange={(newValue) => modifyValue(newValue)}>
+        <NumberInput min={MIN} max={MAX} color="white" value={value} onChange={(valAsString:string, valueAsNumber: number ) => modifyValue(valueAsNumber)}>
                 <NumberInputField />
             </NumberInput>
             <Button variant="outline" onClick={() => {if (value > MIN) setter(value-increment)}} color={COLORS.etherFiRed}>-</Button>

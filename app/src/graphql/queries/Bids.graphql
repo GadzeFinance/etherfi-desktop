@@ -1,0 +1,65 @@
+fragment BaseBid on Bid {
+  id
+  amount
+  bidId
+  bidder
+  status
+  transactionHash
+}
+
+query GetAllBids {
+  bids {
+    id
+    amount
+    bidId
+    bidder
+    blockNumber
+    blockTimestamp
+    transactionHash
+    status
+    bidderPublicKey
+  }
+}
+
+query GetUserBids($user: Bytes) {
+  bids(where: { bidder: $user }) {
+    id
+    amount
+    bidId
+    bidder
+    blockNumber
+    blockTimestamp
+    transactionHash
+    status
+    bidderPublicKey
+  }
+}
+
+
+query GetCompetingBids($user: Bytes) {
+  bids(where: { bidder_not: $user }) {
+    id
+    amount
+    bidId
+    bidder
+    blockNumber
+    blockTimestamp
+    transactionHash
+    status
+    bidderPublicKey
+  }
+}
+
+query GetBidById($bidId: BigInt) {
+  bids(where: { bidId: $bidId }) {
+    id
+    amount
+    bidId
+    bidder
+    blockNumber
+    blockTimestamp
+    transactionHash
+    status
+    bidderPublicKey
+  }
+}
