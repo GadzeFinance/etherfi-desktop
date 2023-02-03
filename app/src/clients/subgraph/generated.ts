@@ -23,6 +23,7 @@ export type Bid = {
   amount: Scalars['BigInt'];
   bidId: Scalars['BigInt'];
   bidder: Scalars['Bytes'];
+  bidderPublicKey: Scalars['Bytes'];
   blockNumber: Scalars['BigInt'];
   blockTimestamp: Scalars['BigInt'];
   id: Scalars['ID'];
@@ -33,7 +34,7 @@ export type Bid = {
 export enum BidStatus {
   Active = 'ACTIVE',
   Cancelled = 'CANCELLED',
-  Fulfilled = 'FULFILLED'
+  Won = 'WON'
 }
 
 export type Bid_Filter = {
@@ -47,6 +48,7 @@ export type Bid_Filter = {
   amount_lte?: InputMaybe<Scalars['BigInt']>;
   amount_not?: InputMaybe<Scalars['BigInt']>;
   amount_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  and?: InputMaybe<Array<InputMaybe<Bid_Filter>>>;
   bidId?: InputMaybe<Scalars['BigInt']>;
   bidId_gt?: InputMaybe<Scalars['BigInt']>;
   bidId_gte?: InputMaybe<Scalars['BigInt']>;
@@ -56,6 +58,16 @@ export type Bid_Filter = {
   bidId_not?: InputMaybe<Scalars['BigInt']>;
   bidId_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   bidder?: InputMaybe<Scalars['Bytes']>;
+  bidderPublicKey?: InputMaybe<Scalars['Bytes']>;
+  bidderPublicKey_contains?: InputMaybe<Scalars['Bytes']>;
+  bidderPublicKey_gt?: InputMaybe<Scalars['Bytes']>;
+  bidderPublicKey_gte?: InputMaybe<Scalars['Bytes']>;
+  bidderPublicKey_in?: InputMaybe<Array<Scalars['Bytes']>>;
+  bidderPublicKey_lt?: InputMaybe<Scalars['Bytes']>;
+  bidderPublicKey_lte?: InputMaybe<Scalars['Bytes']>;
+  bidderPublicKey_not?: InputMaybe<Scalars['Bytes']>;
+  bidderPublicKey_not_contains?: InputMaybe<Scalars['Bytes']>;
+  bidderPublicKey_not_in?: InputMaybe<Array<Scalars['Bytes']>>;
   bidder_contains?: InputMaybe<Scalars['Bytes']>;
   bidder_gt?: InputMaybe<Scalars['Bytes']>;
   bidder_gte?: InputMaybe<Scalars['Bytes']>;
@@ -89,6 +101,7 @@ export type Bid_Filter = {
   id_lte?: InputMaybe<Scalars['ID']>;
   id_not?: InputMaybe<Scalars['ID']>;
   id_not_in?: InputMaybe<Array<Scalars['ID']>>;
+  or?: InputMaybe<Array<InputMaybe<Bid_Filter>>>;
   status?: InputMaybe<BidStatus>;
   status_in?: InputMaybe<Array<BidStatus>>;
   status_not?: InputMaybe<BidStatus>;
@@ -109,134 +122,11 @@ export enum Bid_OrderBy {
   Amount = 'amount',
   BidId = 'bidId',
   Bidder = 'bidder',
+  BidderPublicKey = 'bidderPublicKey',
   BlockNumber = 'blockNumber',
   BlockTimestamp = 'blockTimestamp',
   Id = 'id',
   Status = 'status',
-  TransactionHash = 'transactionHash'
-}
-
-export type BiddingDisabled = {
-  __typename?: 'BiddingDisabled';
-  blockNumber: Scalars['BigInt'];
-  blockTimestamp: Scalars['BigInt'];
-  id: Scalars['Bytes'];
-  transactionHash: Scalars['Bytes'];
-  winner: Scalars['Bytes'];
-};
-
-export type BiddingDisabled_Filter = {
-  /** Filter for the block changed event. */
-  _change_block?: InputMaybe<BlockChangedFilter>;
-  blockNumber?: InputMaybe<Scalars['BigInt']>;
-  blockNumber_gt?: InputMaybe<Scalars['BigInt']>;
-  blockNumber_gte?: InputMaybe<Scalars['BigInt']>;
-  blockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  blockNumber_lt?: InputMaybe<Scalars['BigInt']>;
-  blockNumber_lte?: InputMaybe<Scalars['BigInt']>;
-  blockNumber_not?: InputMaybe<Scalars['BigInt']>;
-  blockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  blockTimestamp?: InputMaybe<Scalars['BigInt']>;
-  blockTimestamp_gt?: InputMaybe<Scalars['BigInt']>;
-  blockTimestamp_gte?: InputMaybe<Scalars['BigInt']>;
-  blockTimestamp_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  blockTimestamp_lt?: InputMaybe<Scalars['BigInt']>;
-  blockTimestamp_lte?: InputMaybe<Scalars['BigInt']>;
-  blockTimestamp_not?: InputMaybe<Scalars['BigInt']>;
-  blockTimestamp_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  id?: InputMaybe<Scalars['Bytes']>;
-  id_contains?: InputMaybe<Scalars['Bytes']>;
-  id_gt?: InputMaybe<Scalars['Bytes']>;
-  id_gte?: InputMaybe<Scalars['Bytes']>;
-  id_in?: InputMaybe<Array<Scalars['Bytes']>>;
-  id_lt?: InputMaybe<Scalars['Bytes']>;
-  id_lte?: InputMaybe<Scalars['Bytes']>;
-  id_not?: InputMaybe<Scalars['Bytes']>;
-  id_not_contains?: InputMaybe<Scalars['Bytes']>;
-  id_not_in?: InputMaybe<Array<Scalars['Bytes']>>;
-  transactionHash?: InputMaybe<Scalars['Bytes']>;
-  transactionHash_contains?: InputMaybe<Scalars['Bytes']>;
-  transactionHash_gt?: InputMaybe<Scalars['Bytes']>;
-  transactionHash_gte?: InputMaybe<Scalars['Bytes']>;
-  transactionHash_in?: InputMaybe<Array<Scalars['Bytes']>>;
-  transactionHash_lt?: InputMaybe<Scalars['Bytes']>;
-  transactionHash_lte?: InputMaybe<Scalars['Bytes']>;
-  transactionHash_not?: InputMaybe<Scalars['Bytes']>;
-  transactionHash_not_contains?: InputMaybe<Scalars['Bytes']>;
-  transactionHash_not_in?: InputMaybe<Array<Scalars['Bytes']>>;
-  winner?: InputMaybe<Scalars['Bytes']>;
-  winner_contains?: InputMaybe<Scalars['Bytes']>;
-  winner_gt?: InputMaybe<Scalars['Bytes']>;
-  winner_gte?: InputMaybe<Scalars['Bytes']>;
-  winner_in?: InputMaybe<Array<Scalars['Bytes']>>;
-  winner_lt?: InputMaybe<Scalars['Bytes']>;
-  winner_lte?: InputMaybe<Scalars['Bytes']>;
-  winner_not?: InputMaybe<Scalars['Bytes']>;
-  winner_not_contains?: InputMaybe<Scalars['Bytes']>;
-  winner_not_in?: InputMaybe<Array<Scalars['Bytes']>>;
-};
-
-export enum BiddingDisabled_OrderBy {
-  BlockNumber = 'blockNumber',
-  BlockTimestamp = 'blockTimestamp',
-  Id = 'id',
-  TransactionHash = 'transactionHash',
-  Winner = 'winner'
-}
-
-export type BiddingEnabled = {
-  __typename?: 'BiddingEnabled';
-  blockNumber: Scalars['BigInt'];
-  blockTimestamp: Scalars['BigInt'];
-  id: Scalars['Bytes'];
-  transactionHash: Scalars['Bytes'];
-};
-
-export type BiddingEnabled_Filter = {
-  /** Filter for the block changed event. */
-  _change_block?: InputMaybe<BlockChangedFilter>;
-  blockNumber?: InputMaybe<Scalars['BigInt']>;
-  blockNumber_gt?: InputMaybe<Scalars['BigInt']>;
-  blockNumber_gte?: InputMaybe<Scalars['BigInt']>;
-  blockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  blockNumber_lt?: InputMaybe<Scalars['BigInt']>;
-  blockNumber_lte?: InputMaybe<Scalars['BigInt']>;
-  blockNumber_not?: InputMaybe<Scalars['BigInt']>;
-  blockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  blockTimestamp?: InputMaybe<Scalars['BigInt']>;
-  blockTimestamp_gt?: InputMaybe<Scalars['BigInt']>;
-  blockTimestamp_gte?: InputMaybe<Scalars['BigInt']>;
-  blockTimestamp_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  blockTimestamp_lt?: InputMaybe<Scalars['BigInt']>;
-  blockTimestamp_lte?: InputMaybe<Scalars['BigInt']>;
-  blockTimestamp_not?: InputMaybe<Scalars['BigInt']>;
-  blockTimestamp_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  id?: InputMaybe<Scalars['Bytes']>;
-  id_contains?: InputMaybe<Scalars['Bytes']>;
-  id_gt?: InputMaybe<Scalars['Bytes']>;
-  id_gte?: InputMaybe<Scalars['Bytes']>;
-  id_in?: InputMaybe<Array<Scalars['Bytes']>>;
-  id_lt?: InputMaybe<Scalars['Bytes']>;
-  id_lte?: InputMaybe<Scalars['Bytes']>;
-  id_not?: InputMaybe<Scalars['Bytes']>;
-  id_not_contains?: InputMaybe<Scalars['Bytes']>;
-  id_not_in?: InputMaybe<Array<Scalars['Bytes']>>;
-  transactionHash?: InputMaybe<Scalars['Bytes']>;
-  transactionHash_contains?: InputMaybe<Scalars['Bytes']>;
-  transactionHash_gt?: InputMaybe<Scalars['Bytes']>;
-  transactionHash_gte?: InputMaybe<Scalars['Bytes']>;
-  transactionHash_in?: InputMaybe<Array<Scalars['Bytes']>>;
-  transactionHash_lt?: InputMaybe<Scalars['Bytes']>;
-  transactionHash_lte?: InputMaybe<Scalars['Bytes']>;
-  transactionHash_not?: InputMaybe<Scalars['Bytes']>;
-  transactionHash_not_contains?: InputMaybe<Scalars['Bytes']>;
-  transactionHash_not_in?: InputMaybe<Array<Scalars['Bytes']>>;
-};
-
-export enum BiddingEnabled_OrderBy {
-  BlockNumber = 'blockNumber',
-  BlockTimestamp = 'blockTimestamp',
-  Id = 'id',
   TransactionHash = 'transactionHash'
 }
 
@@ -250,95 +140,106 @@ export type Block_Height = {
   number_gte?: InputMaybe<Scalars['Int']>;
 };
 
-export type Deposit = {
-  __typename?: 'Deposit';
+/** Defines the order direction, either ascending or descending */
+export enum OrderDirection {
+  Asc = 'asc',
+  Desc = 'desc'
+}
+
+export type Query = {
+  __typename?: 'Query';
+  /** Access to subgraph metadata */
+  _meta?: Maybe<_Meta_>;
+  bid?: Maybe<Bid>;
+  bids: Array<Bid>;
+  stake?: Maybe<Stake>;
+  stakes: Array<Stake>;
+  validator?: Maybe<Validator>;
+  validators: Array<Validator>;
+};
+
+
+export type Query_MetaArgs = {
+  block?: InputMaybe<Block_Height>;
+};
+
+
+export type QueryBidArgs = {
+  block?: InputMaybe<Block_Height>;
+  id: Scalars['ID'];
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type QueryBidsArgs = {
+  block?: InputMaybe<Block_Height>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<Bid_OrderBy>;
+  orderDirection?: InputMaybe<OrderDirection>;
+  skip?: InputMaybe<Scalars['Int']>;
+  subgraphError?: _SubgraphErrorPolicy_;
+  where?: InputMaybe<Bid_Filter>;
+};
+
+
+export type QueryStakeArgs = {
+  block?: InputMaybe<Block_Height>;
+  id: Scalars['ID'];
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type QueryStakesArgs = {
+  block?: InputMaybe<Block_Height>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<Stake_OrderBy>;
+  orderDirection?: InputMaybe<OrderDirection>;
+  skip?: InputMaybe<Scalars['Int']>;
+  subgraphError?: _SubgraphErrorPolicy_;
+  where?: InputMaybe<Stake_Filter>;
+};
+
+
+export type QueryValidatorArgs = {
+  block?: InputMaybe<Block_Height>;
+  id: Scalars['ID'];
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type QueryValidatorsArgs = {
+  block?: InputMaybe<Block_Height>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<Validator_OrderBy>;
+  orderDirection?: InputMaybe<OrderDirection>;
+  skip?: InputMaybe<Scalars['Int']>;
+  subgraphError?: _SubgraphErrorPolicy_;
+  where?: InputMaybe<Validator_Filter>;
+};
+
+export type Stake = {
+  __typename?: 'Stake';
   blockNumber: Scalars['BigInt'];
   blockTimestamp: Scalars['BigInt'];
-  depositId: Scalars['BigInt'];
   id: Scalars['ID'];
+  phase: StakePhases;
   sender: Scalars['Bytes'];
-  status: DepositStatus;
+  stakeId: Scalars['BigInt'];
   transactionHash: Scalars['Bytes'];
   value: Scalars['BigInt'];
+  winningBidId: Scalars['BigInt'];
 };
 
-export type DepositAddressSet = {
-  __typename?: 'DepositAddressSet';
-  blockNumber: Scalars['BigInt'];
-  blockTimestamp: Scalars['BigInt'];
-  depositContractAddress: Scalars['Bytes'];
-  id: Scalars['Bytes'];
-  transactionHash: Scalars['Bytes'];
-};
-
-export type DepositAddressSet_Filter = {
-  /** Filter for the block changed event. */
-  _change_block?: InputMaybe<BlockChangedFilter>;
-  blockNumber?: InputMaybe<Scalars['BigInt']>;
-  blockNumber_gt?: InputMaybe<Scalars['BigInt']>;
-  blockNumber_gte?: InputMaybe<Scalars['BigInt']>;
-  blockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  blockNumber_lt?: InputMaybe<Scalars['BigInt']>;
-  blockNumber_lte?: InputMaybe<Scalars['BigInt']>;
-  blockNumber_not?: InputMaybe<Scalars['BigInt']>;
-  blockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  blockTimestamp?: InputMaybe<Scalars['BigInt']>;
-  blockTimestamp_gt?: InputMaybe<Scalars['BigInt']>;
-  blockTimestamp_gte?: InputMaybe<Scalars['BigInt']>;
-  blockTimestamp_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  blockTimestamp_lt?: InputMaybe<Scalars['BigInt']>;
-  blockTimestamp_lte?: InputMaybe<Scalars['BigInt']>;
-  blockTimestamp_not?: InputMaybe<Scalars['BigInt']>;
-  blockTimestamp_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  depositContractAddress?: InputMaybe<Scalars['Bytes']>;
-  depositContractAddress_contains?: InputMaybe<Scalars['Bytes']>;
-  depositContractAddress_gt?: InputMaybe<Scalars['Bytes']>;
-  depositContractAddress_gte?: InputMaybe<Scalars['Bytes']>;
-  depositContractAddress_in?: InputMaybe<Array<Scalars['Bytes']>>;
-  depositContractAddress_lt?: InputMaybe<Scalars['Bytes']>;
-  depositContractAddress_lte?: InputMaybe<Scalars['Bytes']>;
-  depositContractAddress_not?: InputMaybe<Scalars['Bytes']>;
-  depositContractAddress_not_contains?: InputMaybe<Scalars['Bytes']>;
-  depositContractAddress_not_in?: InputMaybe<Array<Scalars['Bytes']>>;
-  id?: InputMaybe<Scalars['Bytes']>;
-  id_contains?: InputMaybe<Scalars['Bytes']>;
-  id_gt?: InputMaybe<Scalars['Bytes']>;
-  id_gte?: InputMaybe<Scalars['Bytes']>;
-  id_in?: InputMaybe<Array<Scalars['Bytes']>>;
-  id_lt?: InputMaybe<Scalars['Bytes']>;
-  id_lte?: InputMaybe<Scalars['Bytes']>;
-  id_not?: InputMaybe<Scalars['Bytes']>;
-  id_not_contains?: InputMaybe<Scalars['Bytes']>;
-  id_not_in?: InputMaybe<Array<Scalars['Bytes']>>;
-  transactionHash?: InputMaybe<Scalars['Bytes']>;
-  transactionHash_contains?: InputMaybe<Scalars['Bytes']>;
-  transactionHash_gt?: InputMaybe<Scalars['Bytes']>;
-  transactionHash_gte?: InputMaybe<Scalars['Bytes']>;
-  transactionHash_in?: InputMaybe<Array<Scalars['Bytes']>>;
-  transactionHash_lt?: InputMaybe<Scalars['Bytes']>;
-  transactionHash_lte?: InputMaybe<Scalars['Bytes']>;
-  transactionHash_not?: InputMaybe<Scalars['Bytes']>;
-  transactionHash_not_contains?: InputMaybe<Scalars['Bytes']>;
-  transactionHash_not_in?: InputMaybe<Array<Scalars['Bytes']>>;
-};
-
-export enum DepositAddressSet_OrderBy {
-  BlockNumber = 'blockNumber',
-  BlockTimestamp = 'blockTimestamp',
-  DepositContractAddress = 'depositContractAddress',
-  Id = 'id',
-  TransactionHash = 'transactionHash'
-}
-
-export enum DepositStatus {
-  Active = 'ACTIVE',
+export enum StakePhases {
   Cancelled = 'CANCELLED',
-  Fulfilled = 'FULFILLED'
+  Deposited = 'DEPOSITED',
+  ValidatorRegistered = 'VALIDATOR_REGISTERED'
 }
 
-export type Deposit_Filter = {
+export type Stake_Filter = {
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<Stake_Filter>>>;
   blockNumber?: InputMaybe<Scalars['BigInt']>;
   blockNumber_gt?: InputMaybe<Scalars['BigInt']>;
   blockNumber_gte?: InputMaybe<Scalars['BigInt']>;
@@ -355,14 +256,6 @@ export type Deposit_Filter = {
   blockTimestamp_lte?: InputMaybe<Scalars['BigInt']>;
   blockTimestamp_not?: InputMaybe<Scalars['BigInt']>;
   blockTimestamp_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  depositId?: InputMaybe<Scalars['BigInt']>;
-  depositId_gt?: InputMaybe<Scalars['BigInt']>;
-  depositId_gte?: InputMaybe<Scalars['BigInt']>;
-  depositId_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  depositId_lt?: InputMaybe<Scalars['BigInt']>;
-  depositId_lte?: InputMaybe<Scalars['BigInt']>;
-  depositId_not?: InputMaybe<Scalars['BigInt']>;
-  depositId_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   id?: InputMaybe<Scalars['ID']>;
   id_gt?: InputMaybe<Scalars['ID']>;
   id_gte?: InputMaybe<Scalars['ID']>;
@@ -371,6 +264,11 @@ export type Deposit_Filter = {
   id_lte?: InputMaybe<Scalars['ID']>;
   id_not?: InputMaybe<Scalars['ID']>;
   id_not_in?: InputMaybe<Array<Scalars['ID']>>;
+  or?: InputMaybe<Array<InputMaybe<Stake_Filter>>>;
+  phase?: InputMaybe<StakePhases>;
+  phase_in?: InputMaybe<Array<StakePhases>>;
+  phase_not?: InputMaybe<StakePhases>;
+  phase_not_in?: InputMaybe<Array<StakePhases>>;
   sender?: InputMaybe<Scalars['Bytes']>;
   sender_contains?: InputMaybe<Scalars['Bytes']>;
   sender_gt?: InputMaybe<Scalars['Bytes']>;
@@ -381,10 +279,14 @@ export type Deposit_Filter = {
   sender_not?: InputMaybe<Scalars['Bytes']>;
   sender_not_contains?: InputMaybe<Scalars['Bytes']>;
   sender_not_in?: InputMaybe<Array<Scalars['Bytes']>>;
-  status?: InputMaybe<DepositStatus>;
-  status_in?: InputMaybe<Array<DepositStatus>>;
-  status_not?: InputMaybe<DepositStatus>;
-  status_not_in?: InputMaybe<Array<DepositStatus>>;
+  stakeId?: InputMaybe<Scalars['BigInt']>;
+  stakeId_gt?: InputMaybe<Scalars['BigInt']>;
+  stakeId_gte?: InputMaybe<Scalars['BigInt']>;
+  stakeId_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  stakeId_lt?: InputMaybe<Scalars['BigInt']>;
+  stakeId_lte?: InputMaybe<Scalars['BigInt']>;
+  stakeId_not?: InputMaybe<Scalars['BigInt']>;
+  stakeId_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   transactionHash?: InputMaybe<Scalars['Bytes']>;
   transactionHash_contains?: InputMaybe<Scalars['Bytes']>;
   transactionHash_gt?: InputMaybe<Scalars['Bytes']>;
@@ -403,32 +305,126 @@ export type Deposit_Filter = {
   value_lte?: InputMaybe<Scalars['BigInt']>;
   value_not?: InputMaybe<Scalars['BigInt']>;
   value_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  winningBidId?: InputMaybe<Scalars['BigInt']>;
+  winningBidId_gt?: InputMaybe<Scalars['BigInt']>;
+  winningBidId_gte?: InputMaybe<Scalars['BigInt']>;
+  winningBidId_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  winningBidId_lt?: InputMaybe<Scalars['BigInt']>;
+  winningBidId_lte?: InputMaybe<Scalars['BigInt']>;
+  winningBidId_not?: InputMaybe<Scalars['BigInt']>;
+  winningBidId_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
 };
 
-export enum Deposit_OrderBy {
+export enum Stake_OrderBy {
   BlockNumber = 'blockNumber',
   BlockTimestamp = 'blockTimestamp',
-  DepositId = 'depositId',
   Id = 'id',
+  Phase = 'phase',
   Sender = 'sender',
-  Status = 'status',
+  StakeId = 'stakeId',
   TransactionHash = 'transactionHash',
-  Value = 'value'
+  Value = 'value',
+  WinningBidId = 'winningBidId'
 }
 
-export type MerkleUpdated = {
-  __typename?: 'MerkleUpdated';
-  blockNumber: Scalars['BigInt'];
-  blockTimestamp: Scalars['BigInt'];
-  id: Scalars['Bytes'];
-  newMerkle: Scalars['Bytes'];
-  oldMerkle: Scalars['Bytes'];
-  transactionHash: Scalars['Bytes'];
+export type Subscription = {
+  __typename?: 'Subscription';
+  /** Access to subgraph metadata */
+  _meta?: Maybe<_Meta_>;
+  bid?: Maybe<Bid>;
+  bids: Array<Bid>;
+  stake?: Maybe<Stake>;
+  stakes: Array<Stake>;
+  validator?: Maybe<Validator>;
+  validators: Array<Validator>;
 };
 
-export type MerkleUpdated_Filter = {
+
+export type Subscription_MetaArgs = {
+  block?: InputMaybe<Block_Height>;
+};
+
+
+export type SubscriptionBidArgs = {
+  block?: InputMaybe<Block_Height>;
+  id: Scalars['ID'];
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type SubscriptionBidsArgs = {
+  block?: InputMaybe<Block_Height>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<Bid_OrderBy>;
+  orderDirection?: InputMaybe<OrderDirection>;
+  skip?: InputMaybe<Scalars['Int']>;
+  subgraphError?: _SubgraphErrorPolicy_;
+  where?: InputMaybe<Bid_Filter>;
+};
+
+
+export type SubscriptionStakeArgs = {
+  block?: InputMaybe<Block_Height>;
+  id: Scalars['ID'];
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type SubscriptionStakesArgs = {
+  block?: InputMaybe<Block_Height>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<Stake_OrderBy>;
+  orderDirection?: InputMaybe<OrderDirection>;
+  skip?: InputMaybe<Scalars['Int']>;
+  subgraphError?: _SubgraphErrorPolicy_;
+  where?: InputMaybe<Stake_Filter>;
+};
+
+
+export type SubscriptionValidatorArgs = {
+  block?: InputMaybe<Block_Height>;
+  id: Scalars['ID'];
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type SubscriptionValidatorsArgs = {
+  block?: InputMaybe<Block_Height>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<Validator_OrderBy>;
+  orderDirection?: InputMaybe<OrderDirection>;
+  skip?: InputMaybe<Scalars['Int']>;
+  subgraphError?: _SubgraphErrorPolicy_;
+  where?: InputMaybe<Validator_Filter>;
+};
+
+export type Validator = {
+  __typename?: 'Validator';
+  blockNumber: Scalars['BigInt'];
+  blockTimestamp: Scalars['BigInt'];
+  encryptedValidatorKey: Scalars['Bytes'];
+  encryptedValidatorKeyPassword: Scalars['Bytes'];
+  id: Scalars['ID'];
+  phase: ValidatorPhase;
+  stakeId: Scalars['BigInt'];
+  stakerPublicKey: Scalars['Bytes'];
+  transactionHash: Scalars['Bytes'];
+  wanningBidId: Scalars['BigInt'];
+  withdrawSafe?: Maybe<Scalars['Bytes']>;
+};
+
+export enum ValidatorPhase {
+  Accepted = 'ACCEPTED',
+  Exited = 'EXITED',
+  HandoverReady = 'HANDOVER_READY',
+  Running = 'RUNNING',
+  Slashed = 'SLASHED'
+}
+
+export type Validator_Filter = {
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<Validator_Filter>>>;
   blockNumber?: InputMaybe<Scalars['BigInt']>;
   blockNumber_gt?: InputMaybe<Scalars['BigInt']>;
   blockNumber_gte?: InputMaybe<Scalars['BigInt']>;
@@ -445,36 +441,57 @@ export type MerkleUpdated_Filter = {
   blockTimestamp_lte?: InputMaybe<Scalars['BigInt']>;
   blockTimestamp_not?: InputMaybe<Scalars['BigInt']>;
   blockTimestamp_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  id?: InputMaybe<Scalars['Bytes']>;
-  id_contains?: InputMaybe<Scalars['Bytes']>;
-  id_gt?: InputMaybe<Scalars['Bytes']>;
-  id_gte?: InputMaybe<Scalars['Bytes']>;
-  id_in?: InputMaybe<Array<Scalars['Bytes']>>;
-  id_lt?: InputMaybe<Scalars['Bytes']>;
-  id_lte?: InputMaybe<Scalars['Bytes']>;
-  id_not?: InputMaybe<Scalars['Bytes']>;
-  id_not_contains?: InputMaybe<Scalars['Bytes']>;
-  id_not_in?: InputMaybe<Array<Scalars['Bytes']>>;
-  newMerkle?: InputMaybe<Scalars['Bytes']>;
-  newMerkle_contains?: InputMaybe<Scalars['Bytes']>;
-  newMerkle_gt?: InputMaybe<Scalars['Bytes']>;
-  newMerkle_gte?: InputMaybe<Scalars['Bytes']>;
-  newMerkle_in?: InputMaybe<Array<Scalars['Bytes']>>;
-  newMerkle_lt?: InputMaybe<Scalars['Bytes']>;
-  newMerkle_lte?: InputMaybe<Scalars['Bytes']>;
-  newMerkle_not?: InputMaybe<Scalars['Bytes']>;
-  newMerkle_not_contains?: InputMaybe<Scalars['Bytes']>;
-  newMerkle_not_in?: InputMaybe<Array<Scalars['Bytes']>>;
-  oldMerkle?: InputMaybe<Scalars['Bytes']>;
-  oldMerkle_contains?: InputMaybe<Scalars['Bytes']>;
-  oldMerkle_gt?: InputMaybe<Scalars['Bytes']>;
-  oldMerkle_gte?: InputMaybe<Scalars['Bytes']>;
-  oldMerkle_in?: InputMaybe<Array<Scalars['Bytes']>>;
-  oldMerkle_lt?: InputMaybe<Scalars['Bytes']>;
-  oldMerkle_lte?: InputMaybe<Scalars['Bytes']>;
-  oldMerkle_not?: InputMaybe<Scalars['Bytes']>;
-  oldMerkle_not_contains?: InputMaybe<Scalars['Bytes']>;
-  oldMerkle_not_in?: InputMaybe<Array<Scalars['Bytes']>>;
+  encryptedValidatorKey?: InputMaybe<Scalars['Bytes']>;
+  encryptedValidatorKeyPassword?: InputMaybe<Scalars['Bytes']>;
+  encryptedValidatorKeyPassword_contains?: InputMaybe<Scalars['Bytes']>;
+  encryptedValidatorKeyPassword_gt?: InputMaybe<Scalars['Bytes']>;
+  encryptedValidatorKeyPassword_gte?: InputMaybe<Scalars['Bytes']>;
+  encryptedValidatorKeyPassword_in?: InputMaybe<Array<Scalars['Bytes']>>;
+  encryptedValidatorKeyPassword_lt?: InputMaybe<Scalars['Bytes']>;
+  encryptedValidatorKeyPassword_lte?: InputMaybe<Scalars['Bytes']>;
+  encryptedValidatorKeyPassword_not?: InputMaybe<Scalars['Bytes']>;
+  encryptedValidatorKeyPassword_not_contains?: InputMaybe<Scalars['Bytes']>;
+  encryptedValidatorKeyPassword_not_in?: InputMaybe<Array<Scalars['Bytes']>>;
+  encryptedValidatorKey_contains?: InputMaybe<Scalars['Bytes']>;
+  encryptedValidatorKey_gt?: InputMaybe<Scalars['Bytes']>;
+  encryptedValidatorKey_gte?: InputMaybe<Scalars['Bytes']>;
+  encryptedValidatorKey_in?: InputMaybe<Array<Scalars['Bytes']>>;
+  encryptedValidatorKey_lt?: InputMaybe<Scalars['Bytes']>;
+  encryptedValidatorKey_lte?: InputMaybe<Scalars['Bytes']>;
+  encryptedValidatorKey_not?: InputMaybe<Scalars['Bytes']>;
+  encryptedValidatorKey_not_contains?: InputMaybe<Scalars['Bytes']>;
+  encryptedValidatorKey_not_in?: InputMaybe<Array<Scalars['Bytes']>>;
+  id?: InputMaybe<Scalars['ID']>;
+  id_gt?: InputMaybe<Scalars['ID']>;
+  id_gte?: InputMaybe<Scalars['ID']>;
+  id_in?: InputMaybe<Array<Scalars['ID']>>;
+  id_lt?: InputMaybe<Scalars['ID']>;
+  id_lte?: InputMaybe<Scalars['ID']>;
+  id_not?: InputMaybe<Scalars['ID']>;
+  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
+  or?: InputMaybe<Array<InputMaybe<Validator_Filter>>>;
+  phase?: InputMaybe<ValidatorPhase>;
+  phase_in?: InputMaybe<Array<ValidatorPhase>>;
+  phase_not?: InputMaybe<ValidatorPhase>;
+  phase_not_in?: InputMaybe<Array<ValidatorPhase>>;
+  stakeId?: InputMaybe<Scalars['BigInt']>;
+  stakeId_gt?: InputMaybe<Scalars['BigInt']>;
+  stakeId_gte?: InputMaybe<Scalars['BigInt']>;
+  stakeId_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  stakeId_lt?: InputMaybe<Scalars['BigInt']>;
+  stakeId_lte?: InputMaybe<Scalars['BigInt']>;
+  stakeId_not?: InputMaybe<Scalars['BigInt']>;
+  stakeId_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  stakerPublicKey?: InputMaybe<Scalars['Bytes']>;
+  stakerPublicKey_contains?: InputMaybe<Scalars['Bytes']>;
+  stakerPublicKey_gt?: InputMaybe<Scalars['Bytes']>;
+  stakerPublicKey_gte?: InputMaybe<Scalars['Bytes']>;
+  stakerPublicKey_in?: InputMaybe<Array<Scalars['Bytes']>>;
+  stakerPublicKey_lt?: InputMaybe<Scalars['Bytes']>;
+  stakerPublicKey_lte?: InputMaybe<Scalars['Bytes']>;
+  stakerPublicKey_not?: InputMaybe<Scalars['Bytes']>;
+  stakerPublicKey_not_contains?: InputMaybe<Scalars['Bytes']>;
+  stakerPublicKey_not_in?: InputMaybe<Array<Scalars['Bytes']>>;
   transactionHash?: InputMaybe<Scalars['Bytes']>;
   transactionHash_contains?: InputMaybe<Scalars['Bytes']>;
   transactionHash_gt?: InputMaybe<Scalars['Bytes']>;
@@ -485,284 +502,39 @@ export type MerkleUpdated_Filter = {
   transactionHash_not?: InputMaybe<Scalars['Bytes']>;
   transactionHash_not_contains?: InputMaybe<Scalars['Bytes']>;
   transactionHash_not_in?: InputMaybe<Array<Scalars['Bytes']>>;
+  wanningBidId?: InputMaybe<Scalars['BigInt']>;
+  wanningBidId_gt?: InputMaybe<Scalars['BigInt']>;
+  wanningBidId_gte?: InputMaybe<Scalars['BigInt']>;
+  wanningBidId_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  wanningBidId_lt?: InputMaybe<Scalars['BigInt']>;
+  wanningBidId_lte?: InputMaybe<Scalars['BigInt']>;
+  wanningBidId_not?: InputMaybe<Scalars['BigInt']>;
+  wanningBidId_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  withdrawSafe?: InputMaybe<Scalars['Bytes']>;
+  withdrawSafe_contains?: InputMaybe<Scalars['Bytes']>;
+  withdrawSafe_gt?: InputMaybe<Scalars['Bytes']>;
+  withdrawSafe_gte?: InputMaybe<Scalars['Bytes']>;
+  withdrawSafe_in?: InputMaybe<Array<Scalars['Bytes']>>;
+  withdrawSafe_lt?: InputMaybe<Scalars['Bytes']>;
+  withdrawSafe_lte?: InputMaybe<Scalars['Bytes']>;
+  withdrawSafe_not?: InputMaybe<Scalars['Bytes']>;
+  withdrawSafe_not_contains?: InputMaybe<Scalars['Bytes']>;
+  withdrawSafe_not_in?: InputMaybe<Array<Scalars['Bytes']>>;
 };
 
-export enum MerkleUpdated_OrderBy {
+export enum Validator_OrderBy {
   BlockNumber = 'blockNumber',
   BlockTimestamp = 'blockTimestamp',
+  EncryptedValidatorKey = 'encryptedValidatorKey',
+  EncryptedValidatorKeyPassword = 'encryptedValidatorKeyPassword',
   Id = 'id',
-  NewMerkle = 'newMerkle',
-  OldMerkle = 'oldMerkle',
-  TransactionHash = 'transactionHash'
+  Phase = 'phase',
+  StakeId = 'stakeId',
+  StakerPublicKey = 'stakerPublicKey',
+  TransactionHash = 'transactionHash',
+  WanningBidId = 'wanningBidId',
+  WithdrawSafe = 'withdrawSafe'
 }
-
-/** Defines the order direction, either ascending or descending */
-export enum OrderDirection {
-  Asc = 'asc',
-  Desc = 'desc'
-}
-
-export type Query = {
-  __typename?: 'Query';
-  /** Access to subgraph metadata */
-  _meta?: Maybe<_Meta_>;
-  bid?: Maybe<Bid>;
-  biddingDisabled?: Maybe<BiddingDisabled>;
-  biddingDisableds: Array<BiddingDisabled>;
-  biddingEnabled?: Maybe<BiddingEnabled>;
-  biddingEnableds: Array<BiddingEnabled>;
-  bids: Array<Bid>;
-  deposit?: Maybe<Deposit>;
-  depositAddressSet?: Maybe<DepositAddressSet>;
-  depositAddressSets: Array<DepositAddressSet>;
-  deposits: Array<Deposit>;
-  merkleUpdated?: Maybe<MerkleUpdated>;
-  merkleUpdateds: Array<MerkleUpdated>;
-};
-
-
-export type Query_MetaArgs = {
-  block?: InputMaybe<Block_Height>;
-};
-
-
-export type QueryBidArgs = {
-  block?: InputMaybe<Block_Height>;
-  id: Scalars['ID'];
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type QueryBiddingDisabledArgs = {
-  block?: InputMaybe<Block_Height>;
-  id: Scalars['ID'];
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type QueryBiddingDisabledsArgs = {
-  block?: InputMaybe<Block_Height>;
-  first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<BiddingDisabled_OrderBy>;
-  orderDirection?: InputMaybe<OrderDirection>;
-  skip?: InputMaybe<Scalars['Int']>;
-  subgraphError?: _SubgraphErrorPolicy_;
-  where?: InputMaybe<BiddingDisabled_Filter>;
-};
-
-
-export type QueryBiddingEnabledArgs = {
-  block?: InputMaybe<Block_Height>;
-  id: Scalars['ID'];
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type QueryBiddingEnabledsArgs = {
-  block?: InputMaybe<Block_Height>;
-  first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<BiddingEnabled_OrderBy>;
-  orderDirection?: InputMaybe<OrderDirection>;
-  skip?: InputMaybe<Scalars['Int']>;
-  subgraphError?: _SubgraphErrorPolicy_;
-  where?: InputMaybe<BiddingEnabled_Filter>;
-};
-
-
-export type QueryBidsArgs = {
-  block?: InputMaybe<Block_Height>;
-  first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<Bid_OrderBy>;
-  orderDirection?: InputMaybe<OrderDirection>;
-  skip?: InputMaybe<Scalars['Int']>;
-  subgraphError?: _SubgraphErrorPolicy_;
-  where?: InputMaybe<Bid_Filter>;
-};
-
-
-export type QueryDepositArgs = {
-  block?: InputMaybe<Block_Height>;
-  id: Scalars['ID'];
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type QueryDepositAddressSetArgs = {
-  block?: InputMaybe<Block_Height>;
-  id: Scalars['ID'];
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type QueryDepositAddressSetsArgs = {
-  block?: InputMaybe<Block_Height>;
-  first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<DepositAddressSet_OrderBy>;
-  orderDirection?: InputMaybe<OrderDirection>;
-  skip?: InputMaybe<Scalars['Int']>;
-  subgraphError?: _SubgraphErrorPolicy_;
-  where?: InputMaybe<DepositAddressSet_Filter>;
-};
-
-
-export type QueryDepositsArgs = {
-  block?: InputMaybe<Block_Height>;
-  first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<Deposit_OrderBy>;
-  orderDirection?: InputMaybe<OrderDirection>;
-  skip?: InputMaybe<Scalars['Int']>;
-  subgraphError?: _SubgraphErrorPolicy_;
-  where?: InputMaybe<Deposit_Filter>;
-};
-
-
-export type QueryMerkleUpdatedArgs = {
-  block?: InputMaybe<Block_Height>;
-  id: Scalars['ID'];
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type QueryMerkleUpdatedsArgs = {
-  block?: InputMaybe<Block_Height>;
-  first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<MerkleUpdated_OrderBy>;
-  orderDirection?: InputMaybe<OrderDirection>;
-  skip?: InputMaybe<Scalars['Int']>;
-  subgraphError?: _SubgraphErrorPolicy_;
-  where?: InputMaybe<MerkleUpdated_Filter>;
-};
-
-export type Subscription = {
-  __typename?: 'Subscription';
-  /** Access to subgraph metadata */
-  _meta?: Maybe<_Meta_>;
-  bid?: Maybe<Bid>;
-  biddingDisabled?: Maybe<BiddingDisabled>;
-  biddingDisableds: Array<BiddingDisabled>;
-  biddingEnabled?: Maybe<BiddingEnabled>;
-  biddingEnableds: Array<BiddingEnabled>;
-  bids: Array<Bid>;
-  deposit?: Maybe<Deposit>;
-  depositAddressSet?: Maybe<DepositAddressSet>;
-  depositAddressSets: Array<DepositAddressSet>;
-  deposits: Array<Deposit>;
-  merkleUpdated?: Maybe<MerkleUpdated>;
-  merkleUpdateds: Array<MerkleUpdated>;
-};
-
-
-export type Subscription_MetaArgs = {
-  block?: InputMaybe<Block_Height>;
-};
-
-
-export type SubscriptionBidArgs = {
-  block?: InputMaybe<Block_Height>;
-  id: Scalars['ID'];
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type SubscriptionBiddingDisabledArgs = {
-  block?: InputMaybe<Block_Height>;
-  id: Scalars['ID'];
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type SubscriptionBiddingDisabledsArgs = {
-  block?: InputMaybe<Block_Height>;
-  first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<BiddingDisabled_OrderBy>;
-  orderDirection?: InputMaybe<OrderDirection>;
-  skip?: InputMaybe<Scalars['Int']>;
-  subgraphError?: _SubgraphErrorPolicy_;
-  where?: InputMaybe<BiddingDisabled_Filter>;
-};
-
-
-export type SubscriptionBiddingEnabledArgs = {
-  block?: InputMaybe<Block_Height>;
-  id: Scalars['ID'];
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type SubscriptionBiddingEnabledsArgs = {
-  block?: InputMaybe<Block_Height>;
-  first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<BiddingEnabled_OrderBy>;
-  orderDirection?: InputMaybe<OrderDirection>;
-  skip?: InputMaybe<Scalars['Int']>;
-  subgraphError?: _SubgraphErrorPolicy_;
-  where?: InputMaybe<BiddingEnabled_Filter>;
-};
-
-
-export type SubscriptionBidsArgs = {
-  block?: InputMaybe<Block_Height>;
-  first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<Bid_OrderBy>;
-  orderDirection?: InputMaybe<OrderDirection>;
-  skip?: InputMaybe<Scalars['Int']>;
-  subgraphError?: _SubgraphErrorPolicy_;
-  where?: InputMaybe<Bid_Filter>;
-};
-
-
-export type SubscriptionDepositArgs = {
-  block?: InputMaybe<Block_Height>;
-  id: Scalars['ID'];
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type SubscriptionDepositAddressSetArgs = {
-  block?: InputMaybe<Block_Height>;
-  id: Scalars['ID'];
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type SubscriptionDepositAddressSetsArgs = {
-  block?: InputMaybe<Block_Height>;
-  first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<DepositAddressSet_OrderBy>;
-  orderDirection?: InputMaybe<OrderDirection>;
-  skip?: InputMaybe<Scalars['Int']>;
-  subgraphError?: _SubgraphErrorPolicy_;
-  where?: InputMaybe<DepositAddressSet_Filter>;
-};
-
-
-export type SubscriptionDepositsArgs = {
-  block?: InputMaybe<Block_Height>;
-  first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<Deposit_OrderBy>;
-  orderDirection?: InputMaybe<OrderDirection>;
-  skip?: InputMaybe<Scalars['Int']>;
-  subgraphError?: _SubgraphErrorPolicy_;
-  where?: InputMaybe<Deposit_Filter>;
-};
-
-
-export type SubscriptionMerkleUpdatedArgs = {
-  block?: InputMaybe<Block_Height>;
-  id: Scalars['ID'];
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type SubscriptionMerkleUpdatedsArgs = {
-  block?: InputMaybe<Block_Height>;
-  first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<MerkleUpdated_OrderBy>;
-  orderDirection?: InputMaybe<OrderDirection>;
-  skip?: InputMaybe<Scalars['Int']>;
-  subgraphError?: _SubgraphErrorPolicy_;
-  where?: InputMaybe<MerkleUpdated_Filter>;
-};
 
 export type _Block_ = {
   __typename?: '_Block_';
@@ -803,21 +575,52 @@ export type BaseBidFragment = { __typename?: 'Bid', id: string, amount: any, bid
 export type GetAllBidsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type GetAllBidsQuery = { __typename?: 'Query', bids: Array<{ __typename?: 'Bid', id: string, amount: any, bidId: any, bidder: any, blockNumber: any, blockTimestamp: any, transactionHash: any, status: BidStatus }> };
+export type GetAllBidsQuery = { __typename?: 'Query', bids: Array<{ __typename?: 'Bid', id: string, amount: any, bidId: any, bidder: any, blockNumber: any, blockTimestamp: any, transactionHash: any, status: BidStatus, bidderPublicKey: any }> };
 
 export type GetUserBidsQueryVariables = Exact<{
   user?: InputMaybe<Scalars['Bytes']>;
 }>;
 
 
-export type GetUserBidsQuery = { __typename?: 'Query', bids: Array<{ __typename?: 'Bid', id: string, amount: any, bidId: any, bidder: any, blockNumber: any, blockTimestamp: any, transactionHash: any, status: BidStatus }> };
+export type GetUserBidsQuery = { __typename?: 'Query', bids: Array<{ __typename?: 'Bid', id: string, amount: any, bidId: any, bidder: any, blockNumber: any, blockTimestamp: any, transactionHash: any, status: BidStatus, bidderPublicKey: any }> };
 
 export type GetCompetingBidsQueryVariables = Exact<{
   user?: InputMaybe<Scalars['Bytes']>;
 }>;
 
 
-export type GetCompetingBidsQuery = { __typename?: 'Query', bids: Array<{ __typename?: 'Bid', id: string, amount: any, bidId: any, bidder: any, blockNumber: any, blockTimestamp: any, transactionHash: any, status: BidStatus }> };
+export type GetCompetingBidsQuery = { __typename?: 'Query', bids: Array<{ __typename?: 'Bid', id: string, amount: any, bidId: any, bidder: any, blockNumber: any, blockTimestamp: any, transactionHash: any, status: BidStatus, bidderPublicKey: any }> };
+
+export type GetBidByIdQueryVariables = Exact<{
+  bidId?: InputMaybe<Scalars['BigInt']>;
+}>;
+
+
+export type GetBidByIdQuery = { __typename?: 'Query', bids: Array<{ __typename?: 'Bid', id: string, amount: any, bidId: any, bidder: any, blockNumber: any, blockTimestamp: any, transactionHash: any, status: BidStatus, bidderPublicKey: any }> };
+
+export type GetAllStakesQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type GetAllStakesQuery = { __typename?: 'Query', stakes: Array<{ __typename?: 'Stake', id: string, stakeId: any, sender: any, value: any, blockTimestamp: any, blockNumber: any, phase: StakePhases, transactionHash: any }> };
+
+export type GetStakesByAddressQueryVariables = Exact<{
+  stakerAddress?: InputMaybe<Scalars['Bytes']>;
+}>;
+
+
+export type GetStakesByAddressQuery = { __typename?: 'Query', stakes: Array<{ __typename?: 'Stake', id: string, stakeId: any, sender: any, value: any, blockTimestamp: any, blockNumber: any, phase: StakePhases, transactionHash: any }> };
+
+export type GetDepositedStakesByAddressQueryVariables = Exact<{
+  stakerAddress?: InputMaybe<Scalars['Bytes']>;
+}>;
+
+
+export type GetDepositedStakesByAddressQuery = { __typename?: 'Query', stakes: Array<{ __typename?: 'Stake', id: string, stakeId: any, sender: any, value: any, blockTimestamp: any, blockNumber: any, phase: StakePhases, transactionHash: any }> };
+
+export type GetAllValidatorsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type GetAllValidatorsQuery = { __typename?: 'Query', validators: Array<{ __typename?: 'Validator', id: string, wanningBidId: any, stakeId: any, encryptedValidatorKey: any, encryptedValidatorKeyPassword: any, stakerPublicKey: any, phase: ValidatorPhase, blockNumber: any, blockTimestamp: any, transactionHash: any, withdrawSafe?: any | null }> };
 
 export const BaseBidFragmentDoc = gql`
     fragment BaseBid on Bid {
@@ -840,6 +643,7 @@ export const GetAllBidsDocument = gql`
     blockTimestamp
     transactionHash
     status
+    bidderPublicKey
   }
 }
     `;
@@ -881,6 +685,7 @@ export const GetUserBidsDocument = gql`
     blockTimestamp
     transactionHash
     status
+    bidderPublicKey
   }
 }
     `;
@@ -923,6 +728,7 @@ export const GetCompetingBidsDocument = gql`
     blockTimestamp
     transactionHash
     status
+    bidderPublicKey
   }
 }
     `;
@@ -954,3 +760,215 @@ export function useGetCompetingBidsLazyQuery(baseOptions?: Apollo.LazyQueryHookO
 export type GetCompetingBidsQueryHookResult = ReturnType<typeof useGetCompetingBidsQuery>;
 export type GetCompetingBidsLazyQueryHookResult = ReturnType<typeof useGetCompetingBidsLazyQuery>;
 export type GetCompetingBidsQueryResult = Apollo.QueryResult<GetCompetingBidsQuery, GetCompetingBidsQueryVariables>;
+export const GetBidByIdDocument = gql`
+    query GetBidById($bidId: BigInt) {
+  bids(where: {bidId: $bidId}) {
+    id
+    amount
+    bidId
+    bidder
+    blockNumber
+    blockTimestamp
+    transactionHash
+    status
+    bidderPublicKey
+  }
+}
+    `;
+
+/**
+ * __useGetBidByIdQuery__
+ *
+ * To run a query within a React component, call `useGetBidByIdQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetBidByIdQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetBidByIdQuery({
+ *   variables: {
+ *      bidId: // value for 'bidId'
+ *   },
+ * });
+ */
+export function useGetBidByIdQuery(baseOptions?: Apollo.QueryHookOptions<GetBidByIdQuery, GetBidByIdQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetBidByIdQuery, GetBidByIdQueryVariables>(GetBidByIdDocument, options);
+      }
+export function useGetBidByIdLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetBidByIdQuery, GetBidByIdQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetBidByIdQuery, GetBidByIdQueryVariables>(GetBidByIdDocument, options);
+        }
+export type GetBidByIdQueryHookResult = ReturnType<typeof useGetBidByIdQuery>;
+export type GetBidByIdLazyQueryHookResult = ReturnType<typeof useGetBidByIdLazyQuery>;
+export type GetBidByIdQueryResult = Apollo.QueryResult<GetBidByIdQuery, GetBidByIdQueryVariables>;
+export const GetAllStakesDocument = gql`
+    query GetAllStakes {
+  stakes {
+    id
+    stakeId
+    sender
+    value
+    blockTimestamp
+    blockNumber
+    phase
+    transactionHash
+  }
+}
+    `;
+
+/**
+ * __useGetAllStakesQuery__
+ *
+ * To run a query within a React component, call `useGetAllStakesQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetAllStakesQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetAllStakesQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useGetAllStakesQuery(baseOptions?: Apollo.QueryHookOptions<GetAllStakesQuery, GetAllStakesQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetAllStakesQuery, GetAllStakesQueryVariables>(GetAllStakesDocument, options);
+      }
+export function useGetAllStakesLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetAllStakesQuery, GetAllStakesQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetAllStakesQuery, GetAllStakesQueryVariables>(GetAllStakesDocument, options);
+        }
+export type GetAllStakesQueryHookResult = ReturnType<typeof useGetAllStakesQuery>;
+export type GetAllStakesLazyQueryHookResult = ReturnType<typeof useGetAllStakesLazyQuery>;
+export type GetAllStakesQueryResult = Apollo.QueryResult<GetAllStakesQuery, GetAllStakesQueryVariables>;
+export const GetStakesByAddressDocument = gql`
+    query GetStakesByAddress($stakerAddress: Bytes) {
+  stakes(where: {sender: $stakerAddress}) {
+    id
+    stakeId
+    sender
+    value
+    blockTimestamp
+    blockNumber
+    phase
+    transactionHash
+  }
+}
+    `;
+
+/**
+ * __useGetStakesByAddressQuery__
+ *
+ * To run a query within a React component, call `useGetStakesByAddressQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetStakesByAddressQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetStakesByAddressQuery({
+ *   variables: {
+ *      stakerAddress: // value for 'stakerAddress'
+ *   },
+ * });
+ */
+export function useGetStakesByAddressQuery(baseOptions?: Apollo.QueryHookOptions<GetStakesByAddressQuery, GetStakesByAddressQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetStakesByAddressQuery, GetStakesByAddressQueryVariables>(GetStakesByAddressDocument, options);
+      }
+export function useGetStakesByAddressLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetStakesByAddressQuery, GetStakesByAddressQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetStakesByAddressQuery, GetStakesByAddressQueryVariables>(GetStakesByAddressDocument, options);
+        }
+export type GetStakesByAddressQueryHookResult = ReturnType<typeof useGetStakesByAddressQuery>;
+export type GetStakesByAddressLazyQueryHookResult = ReturnType<typeof useGetStakesByAddressLazyQuery>;
+export type GetStakesByAddressQueryResult = Apollo.QueryResult<GetStakesByAddressQuery, GetStakesByAddressQueryVariables>;
+export const GetDepositedStakesByAddressDocument = gql`
+    query GetDepositedStakesByAddress($stakerAddress: Bytes) {
+  stakes(where: {sender: $stakerAddress, phase: DEPOSITED}) {
+    id
+    stakeId
+    sender
+    value
+    blockTimestamp
+    blockNumber
+    phase
+    transactionHash
+  }
+}
+    `;
+
+/**
+ * __useGetDepositedStakesByAddressQuery__
+ *
+ * To run a query within a React component, call `useGetDepositedStakesByAddressQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetDepositedStakesByAddressQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetDepositedStakesByAddressQuery({
+ *   variables: {
+ *      stakerAddress: // value for 'stakerAddress'
+ *   },
+ * });
+ */
+export function useGetDepositedStakesByAddressQuery(baseOptions?: Apollo.QueryHookOptions<GetDepositedStakesByAddressQuery, GetDepositedStakesByAddressQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetDepositedStakesByAddressQuery, GetDepositedStakesByAddressQueryVariables>(GetDepositedStakesByAddressDocument, options);
+      }
+export function useGetDepositedStakesByAddressLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetDepositedStakesByAddressQuery, GetDepositedStakesByAddressQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetDepositedStakesByAddressQuery, GetDepositedStakesByAddressQueryVariables>(GetDepositedStakesByAddressDocument, options);
+        }
+export type GetDepositedStakesByAddressQueryHookResult = ReturnType<typeof useGetDepositedStakesByAddressQuery>;
+export type GetDepositedStakesByAddressLazyQueryHookResult = ReturnType<typeof useGetDepositedStakesByAddressLazyQuery>;
+export type GetDepositedStakesByAddressQueryResult = Apollo.QueryResult<GetDepositedStakesByAddressQuery, GetDepositedStakesByAddressQueryVariables>;
+export const GetAllValidatorsDocument = gql`
+    query GetAllValidators {
+  validators {
+    id
+    wanningBidId
+    stakeId
+    encryptedValidatorKey
+    encryptedValidatorKeyPassword
+    stakerPublicKey
+    phase
+    blockNumber
+    blockTimestamp
+    transactionHash
+    withdrawSafe
+  }
+}
+    `;
+
+/**
+ * __useGetAllValidatorsQuery__
+ *
+ * To run a query within a React component, call `useGetAllValidatorsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetAllValidatorsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetAllValidatorsQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useGetAllValidatorsQuery(baseOptions?: Apollo.QueryHookOptions<GetAllValidatorsQuery, GetAllValidatorsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetAllValidatorsQuery, GetAllValidatorsQueryVariables>(GetAllValidatorsDocument, options);
+      }
+export function useGetAllValidatorsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetAllValidatorsQuery, GetAllValidatorsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetAllValidatorsQuery, GetAllValidatorsQueryVariables>(GetAllValidatorsDocument, options);
+        }
+export type GetAllValidatorsQueryHookResult = ReturnType<typeof useGetAllValidatorsQuery>;
+export type GetAllValidatorsLazyQueryHookResult = ReturnType<typeof useGetAllValidatorsLazyQuery>;
+export type GetAllValidatorsQueryResult = Apollo.QueryResult<GetAllValidatorsQuery, GetAllValidatorsQueryVariables>;

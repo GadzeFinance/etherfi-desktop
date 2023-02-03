@@ -1,10 +1,8 @@
 /* eslint-disable no-var */
 import { ApolloClient, NormalizedCacheObject, InMemoryCache } from '@apollo/client'
 
-// import { SUBGRAPH_URL } from '../../constants/env'
-const SUBGRAPH_URL = 'https://api.studio.thegraph.com/query/31389/etherfi/0.0.7'
-// /Users/nickykhorasani/Code/etherfi-desktop/app/src/constants/env.ts
-// /Users/nickykhorasani/Code/etherfi-desktop/app/src/clients/subgraph/index.ts
+import { SUBGRAPH_URL } from '../../constants/env'
+
 const SUBGRAPH_MODE = process.env.NODE_ENV || 'development'
 
 declare global {

@@ -1,26 +1,45 @@
 import React, { useEffect, useState } from 'react';
 import { Box, Center, ScaleFade, Input, Button, Text } from '@chakra-ui/react'
 import raisedWidgetStyle from '../../styleClasses/widgetBoxStyle'
-import { Bid, useGetCompetingBidsQuery, useGetUserBidsQuery } from '../../clients/subgraph/generated'
-
+import {useGetCompetingBidsQuery, useGetUserBidsQuery, useGetDepositedStakesByAddressQuery, useGetBidByIdQuery, useGetStakesByAddressQuery, useGetAllStakesQuery } from '../../clients/subgraph/generated'
 interface TabProps {
   tabIndex: number;
 }
 
 const StakerTab: React.FC<TabProps> = ({ tabIndex }: TabProps) => {
-  const [stakerAddress, setStakerAddress] = useState<string>('')
+  const [stakerAddress, setStakerAddress] = useState<string>('0x2Fc348E6505BA471EB21bFe7a50298fd1f02DBEA')
   const [depositedStakes, setDepositedStakes] = useState([])
   const [password, setPassword] = useState('');
   const [validatorKeyFilePaths, setValidatorKeyFilePaths] = useState([])
   const [depositDataFilePath, setDepositDatafilePath] = useState('')
   const { data: userBids, loading: userLoading } = useGetUserBidsQuery({
-    variables: { user: "0x7631FCf7D45D821cB5FA688fADa7bbc76714B771" || '' },
+    variables: { user: "0x2Fc348E6505BA471EB21bFe7a50298fd1f02DBEA" || '' },
     pollInterval: 2000,
   })
   const { data: notUserBids, loading: competingLoading } = useGetCompetingBidsQuery({
-    variables: { user: "0x7631FCf7D45D821cB5FA688fADa7bbc76714B771" || '' },
+    variables: { user: "" || '' },
     pollInterval: 2000,
   })
+  // const user = "0x7631FCf7D45D821cB5FA688fADa7bbc76714B771"
+  const { data: stakes, loading: stakesLoading } = useGetDepositedStakesByAddressQuery({
+    variables: { stakerAddress: stakerAddress },
+    pollInterval: 2000,
+  })
+
+  const { data: stakesByAddres } = useGetStakesByAddressQuery({
+    variables: { stakerAddress: stakerAddress },
+    pollInterval: 2000,
+  })
+  
+
+  const { data: bid } = useGetBidByIdQuery({
+    variables: { bidId: 2 },
+    pollInterval: 2000,
+  })
+  const { data: allStakes } = useGetAllStakesQuery({
+    pollInterval: 2000,
+  })
+  
   const handleStakerAddressChange = (event: React.ChangeEvent<HTMLInputElement>) => setStakerAddress(event.target.value)
   const handlePasswordChange = (event: React.ChangeEvent<HTMLInputElement>) => setPassword(event.target.value)
 
@@ -51,8 +70,16 @@ const StakerTab: React.FC<TabProps> = ({ tabIndex }: TabProps) => {
   }
 
   const buildStakerRequest = () => {
-    console.log(userBids)
-    console.log(notUserBids)
+    // console.log("user Bids")
+    // console.log(userBids)
+    // console.log("Not User Bids")
+    // console.log(notUserBids)
+    // console.log("stakes by Address and phase == depositied")
+    // console.log(stakes)
+    // console.log("Stakes by address")
+    // console.log(allStakes)
+    // console.log("bid id == 2")
+    // console.log(bid)
     if (!validatorKeyFilePaths || !depositDataFilePath || !password) {
         console.log("Please enter all the required information")
         return
