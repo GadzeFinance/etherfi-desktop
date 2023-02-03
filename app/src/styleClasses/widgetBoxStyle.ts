@@ -9,7 +9,6 @@ const widgetBoxStyle = {
     border: '1px solid',
     borderColor: COLORS.lightPurple,
     padding: '24px',
-    borderRadius: '16px',
     // bg:'#2b2852'
   }
   

@@ -1,0 +1,38 @@
+query GetAllStakes {
+  stakes {
+    id
+    stakeId
+    sender
+    value
+    blockTimestamp
+    blockNumber
+    phase
+    transactionHash
+  }
+}
+
+query GetStakesByAddress($stakerAddress: Bytes) {
+  stakes(where: { sender: $stakerAddress }) {
+    id
+    stakeId
+    sender
+    value
+    blockTimestamp
+    blockNumber
+    phase
+    transactionHash
+  }
+}
+
+query GetDepositedStakesByAddress($stakerAddress: Bytes) {
+  stakes(where: { sender: $stakerAddress, phase: DEPOSITED }) {
+    id
+    stakeId
+    sender
+    value
+    blockTimestamp
+    blockNumber
+    phase
+    transactionHash
+  }
+}
