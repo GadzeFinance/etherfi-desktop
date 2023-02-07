@@ -2,7 +2,7 @@
   "name": "etherfi-desktop",
   "version": "0.0.1",
   "description": "etherfi-desktop application",
-  "main": "./app/electron/main.js",
+  "main": "./src/electron/main.js",
   "private": true,
   "scripts": {
     "dev-server": "webpack serve --mode development --config ./webpack.development.js",
@@ -14,7 +14,9 @@
     "dist": "electron-builder --universal",
     "run": "osascript -e 'tell app \"Terminal\" to do script \"cd ~/Code/etherfi-desktop && npm run dev-server\"' && npm run dev",
     "codegen": "graphql-codegen --config codegen.ts",
-    "codegen:watch": "graphql-codegen --config codegen.ts --watch"
+    "codegen:watch": "graphql-codegen --config codegen.ts --watch",
+    "buildcli": "src/scripts/bundle_proxy_linux.sh",
+    "buildcliwin": "src/scripts/bundle_proxy_win.bat"
   },
   "build": {
     "productName": "etherfi-desktop",
