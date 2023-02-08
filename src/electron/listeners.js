@@ -1,4 +1,5 @@
 const {encrypt, decrypt } = require('./utils/encryptionUtils');
+const {createMnemonic, generateKeys, validateMnemonic} = require('./utils/Eth2Deposit.js')
 const {saveFile, selectFiles, chooseSavePath} = require('./utils/saveFile.js')
 const EC = require('elliptic').ec
 const fs = require('fs');
@@ -60,6 +61,18 @@ const genNodeOperatorKeystores = async (event, arg) => {
     // Send response to the front end? Maybe this should be the file names/locations?
     event.sender.send("receive-public-bid-file", publicFileJSON)
 }
+
+const genMnemonic = async (event, arg) => {
+    console.log("Generating Mnemonic")
+    const language = arg[0]
+    const mnemonic = await createMnemonic(language)
+    event.sender.send("receive-new-mnemonic", [mnemonic])
+}
+
+// const path = '/Users/nickykhorasani/Desktop/validator_keys/2'
+// const accounts = ["0x7631FCf7D45D821cB5FA688fADa7bbc76714B771", "0x2Fc348E6505BA471EB21bFe7a50298fd1f02DBEA"]
+// await generateKeys(result.mnemonic, 0, 1, 'goerli', "password", accounts[0], path)
+// event.sender.send("receive-key-gen-confirmation", ["path:",path])
 
 const listenSelectFiles = async (event, arg) => {
     let result = await selectFiles()
@@ -186,4 +199,10 @@ const testWholeEncryptDecryptFlow = (event, arg) => {
 }
 
 
-module.exports = {listenSelectFiles, listenBuildStakerJson, genNodeOperatorKeystores, testWholeEncryptDecryptFlow}
+module.exports = {
+    genNodeOperatorKeystores,
+    genMnemonic,
+    listenSelectFiles, 
+    listenBuildStakerJson, 
+    testWholeEncryptDecryptFlow
+}
