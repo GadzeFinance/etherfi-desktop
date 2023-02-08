@@ -126,7 +126,7 @@ const createMnemonic = async (event, arg) => {
   let executable = "";
   let args = [];
   let env = process.env;
-  event.sender.send("receive-key-gen-confirmation", ["env", env])
+  // event.sender.send("receive-key-gen-confirmation", ["env", env])
 
 
   if (await doesFileExist(BUNDLED_SFE_PATH)) {
@@ -154,8 +154,9 @@ const createMnemonic = async (event, arg) => {
   event.sender.send("receive-key-gen-confirmation", ["mnemonic:", mnemonicResultString])
 
   const result = JSON.parse(mnemonicResultString);
-  const path = '/Users/nickykhorasani/Desktop/validator_keys'
-  await generateKeys(result.mnemonic, 1, 1, 'goerli', "password", "0x2Fc348E6505BA471EB21bFe7a50298fd1f02DBEA", path)
+  const path = '/Users/nickykhorasani/Desktop/validator_keys/2'
+  const accounts = ["0x7631FCf7D45D821cB5FA688fADa7bbc76714B771", "0x2Fc348E6505BA471EB21bFe7a50298fd1f02DBEA"]
+  await generateKeys(result.mnemonic, 0, 1, 'goerli', "password", accounts[0], path)
   event.sender.send("receive-key-gen-confirmation", ["path:",path])
   return result.mnemonic;
 }
