@@ -38,8 +38,8 @@ const ETH2_DEPOSIT_DIR_NAME = "staking-deposit-cli-2.4.0";
  * the current machine.
  */
 console.log(__dirname)
-const ETH2_DEPOSIT_CLI_PATH = path.join(__dirname, "../vendors", ETH2_DEPOSIT_DIR_NAME);
-const SCRIPTS_PATH = path.join(__dirname, "../scripts");
+const ETH2_DEPOSIT_CLI_PATH = path.join(__dirname, "../../vendors", ETH2_DEPOSIT_DIR_NAME);
+const SCRIPTS_PATH = path.join(__dirname, "../../scripts");
 const REQUIREMENTS_PATH = path.join(ETH2_DEPOSIT_CLI_PATH, "requirements.txt");
 const WORD_LIST_PATH = path.join(ETH2_DEPOSIT_CLI_PATH, "staking_deposit", "key_handling",
   "key_derivation", "word_lists");
@@ -119,16 +119,10 @@ const getPythonPath = async () => {
  * 
  * @returns Returns a Promise<string> that includes the mnemonic.
  */
-const createMnemonic = async (event, arg) => {
-  event.sender.send("receive-key-gen-confirmation", ["HERE"])
-  console.log("HERE?")
-  const language = arg[0];
+const createMnemonic = async (language) => {
   let executable = "";
   let args = [];
   let env = process.env;
-  // event.sender.send("receive-key-gen-confirmation", ["env", env])
-
-
   if (await doesFileExist(BUNDLED_SFE_PATH)) {
     executable = BUNDLED_SFE_PATH;
     args = [CREATE_MNEMONIC_SUBCOMMAND, BUNDLED_DIST_WORD_LIST_PATH, "--language", language];
@@ -139,25 +133,16 @@ const createMnemonic = async (event, arg) => {
     if (!await requireDepositPackages()) {
       throw new Error("Failed to generate mnemonic, don't have the required packages.");
     }
-    event.sender.send("receive-key-gen-confirmation", ["IN HERE???", env])
     env.PYTHONPATH = await getPythonPath();
   
     executable = PYTHON_EXE;
     args = [ETH2DEPOSIT_PROXY_PATH, CREATE_MNEMONIC_SUBCOMMAND, WORD_LIST_PATH, "--language",
       language];
   }
-  event.sender.send("receive-key-gen-confirmation", ["This one", args])
-  console.log(args)
+  console.log("Calling Python to generate mnemonic")
   const { stdout, stderr } = await execFileProm(executable, args, {env: env});
   const mnemonicResultString = stdout.toString();
-  console.log(mnemonicResultString)
-  event.sender.send("receive-key-gen-confirmation", ["mnemonic:", mnemonicResultString])
-
   const result = JSON.parse(mnemonicResultString);
-  const path = '/Users/nickykhorasani/Desktop/validator_keys/2'
-  const accounts = ["0x7631FCf7D45D821cB5FA688fADa7bbc76714B771", "0x2Fc348E6505BA471EB21bFe7a50298fd1f02DBEA"]
-  await generateKeys(result.mnemonic, 0, 1, 'goerli', "password", accounts[0], path)
-  event.sender.send("receive-key-gen-confirmation", ["path:",path])
   return result.mnemonic;
 }
 
