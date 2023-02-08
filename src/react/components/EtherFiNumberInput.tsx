@@ -2,7 +2,7 @@ import React from 'react';
 import { NumberInput, Button, Flex, NumberInputField,Text, VStack, Box, StackDivider} from '@chakra-ui/react';
 import { COLORS } from '../styleClasses/constants';
 
-interface BidData {
+interface InputData {
     placeholder: string,
     value: number,
     setter: (value: number) => void,
@@ -12,7 +12,7 @@ interface BidData {
   }
   
 
-const BidInput: React.FC<BidData> = ({placeholder, value, setter, increment, MIN, MAX} : BidData) => {
+const EtherFiNumberInput: React.FC<InputData> = ({placeholder, value, setter, increment, MIN, MAX} : InputData) => {
 
     const modifyValue = (newValue: number) => {
         if (value >= MIN && value <= MAX) {
@@ -51,4 +51,4 @@ const BidInput: React.FC<BidData> = ({placeholder, value, setter, increment, MIN
     )
 }
 
-export default BidInput
+export default EtherFiNumberInput
