@@ -1,21 +1,20 @@
-const {encrypt, decrypt } = require('./utils.js/encryptionUtils');
-const {saveFile, selectFiles, chooseSavePath} = require('./utils.js/saveFile.js')
+const {encrypt, decrypt } = require('./utils/encryptionUtils');
+const {saveFile, selectFiles, chooseSavePath} = require('./utils/saveFile.js')
 const EC = require('elliptic').ec
 const fs = require('fs');
 const path = require('path')
 
 
-const buildPublicBidJson = async (event, arg) => {
+const genNodeOperatorKeystores = async (event, arg) => {
     const curve = new EC('secp256k1')
-    const [bidSize, bidPrice] = arg;
-    console.log(bidSize, bidPrice)
+    const [numKeys, walletAddress] = arg
 
-    const bidRequestJSON = {}
-    const nodeOperatorKeysJSON = {}
+    const publicFileJSON = {}
+    const privateFileJSON = {}
 
     const privKeyArray = []
     const pubKeyArray = []
-    for(var i = 0; i < bidSize; i++) {
+    for(var i = 0; i < numKeys; i++) {
         // create new key pair for each bid
         const keyPair = curve.genKeyPair()
 
@@ -26,41 +25,40 @@ const buildPublicBidJson = async (event, arg) => {
         pubKeyArray.push(pub)
     }
 
-    // Create bidRequestJSON object
-    bidRequestJSON["bidSize"] = bidSize
-    bidRequestJSON["bidPrice"] = bidPrice
-    bidRequestJSON["pubKeyArray"] = pubKeyArray
+    // Create publicFileJSON object
+    publicFileJSON["walletAddress"] = walletAddress
+    publicFileJSON["pubKeyArray"] = pubKeyArray
 
-    // Create nodeOperatorKeysJSON object
-    nodeOperatorKeysJSON["pubKeyArray"] = pubKeyArray
-    nodeOperatorKeysJSON["privKeyArray"] = privKeyArray
+    // Create privateFileJSON object
+    privateFileJSON["pubKeyArray"] = pubKeyArray
+    privateFileJSON["privKeyArray"] = privKeyArray
 
 
-    // save bidRequestJSON
-    const bidRequestTimeStamp = new Date().toISOString().slice(0,-5)
-    const bidRequestFileName = "bidRequest-" + bidRequestTimeStamp
+    // save publicEtherfiKeystore
+    const publicFileTimeStamp = new Date().toISOString().slice(0,-5)
+    const publicFileName = "publicEtherfiKeystore-" + publicFileTimeStamp
     var saveOptions = {
-        title: "Save bidRequestJSON file",
-        defaultPath : bidRequestFileName,
-        buttonLabel: "Save Bid Request",
+        title: "Save publicEtherfiEncryptionKeys",
+        defaultPath : publicFileName,
+        buttonLabel: "Save",
 
     }
-    await saveFile(bidRequestJSON, saveOptions)
+    await saveFile(publicFileJSON, saveOptions)
 
-    // save nodeoperatorKeysJSON
-    const nodeOperatorKeysTimeStamp = new Date().toISOString().slice(0,-5)
-    const nodeOperatorKeysFileName = "nodeOperatorKeys-" + nodeOperatorKeysTimeStamp
+    // save privateEtherfiKeystore
+    const privateFileTimeStamp = new Date().toISOString().slice(0,-5)
+    const privateFileName = "privateEtherfiKeystore-" + privateFileTimeStamp
     saveOptions = {
-            title: "Save nodeOperatorKeys file",
-            defaultPath : nodeOperatorKeysFileName,
-            buttonLabel: "Save Node Operator Keys",
+            title: "Save privateEtherfiKeystore file",
+            defaultPath : privateFileName,
+            buttonLabel: "Save",
     
     }
-    await saveFile(nodeOperatorKeysJSON, saveOptions)
+    await saveFile(privateFileJSON, saveOptions)
 
+    // TODO: show on the front end 
     // Send response to the front end? Maybe this should be the file names/locations?
-    event.sender.send("receive-public-bid-file", bidRequestJSON)
-
+    event.sender.send("receive-public-bid-file", publicFileJSON)
 }
 
 const listenSelectFiles = async (event, arg) => {
@@ -188,4 +186,4 @@ const testWholeEncryptDecryptFlow = (event, arg) => {
 }
 
 
-module.exports = {listenSelectFiles, listenBuildStakerJson, buildPublicBidJson, testWholeEncryptDecryptFlow}
+module.exports = {listenSelectFiles, listenBuildStakerJson, genNodeOperatorKeystores, testWholeEncryptDecryptFlow}

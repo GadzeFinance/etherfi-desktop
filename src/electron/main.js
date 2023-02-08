@@ -6,8 +6,8 @@ const {
 
 const path = require("path");
 const isDevelopment = process.env.NODE_ENV === "development";
-const {listenSelectFiles, listenBuildStakerJson, buildPublicBidJson, testWholeEncryptDecryptFlow} = require('./listeners');
-const {createMnemonic, generateKeys, validateMnemonic} = require('./Eth2Deposit.js')
+const {listenSelectFiles, listenBuildStakerJson, genNodeOperatorKeystores, testWholeEncryptDecryptFlow} = require('./listeners');
+const {createMnemonic, generateKeys, validateMnemonic} = require('./utils/Eth2Deposit.js')
 
 
 function createWindow() {
@@ -75,7 +75,7 @@ app.on("window-all-closed", function () {
 
 
 // Register IPC Listeners
-ipcMain.on("req-public-bid-file", buildPublicBidJson);   
+ipcMain.on("req-gen-node-operator-keys", genNodeOperatorKeystores);   
 ipcMain.on("req-select-files", listenSelectFiles);
 ipcMain.on("req-build-public-staker-file", listenBuildStakerJson);
 ipcMain.on("req-new-mnemonic", createMnemonic);
