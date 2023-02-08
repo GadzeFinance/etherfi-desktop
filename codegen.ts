@@ -1,13 +1,13 @@
 import { CodegenConfig } from '@graphql-codegen/cli'
 
-import { SUBGRAPH_URL } from './app/src/constants/env'
+import { SUBGRAPH_URL } from './src/react/constants/env'
 
 const config: CodegenConfig = {
   overwrite: true,
   schema: SUBGRAPH_URL,
-  documents: './app/src/graphql/**/*.graphql',
+  documents: './src/react/graphql/**/*.graphql',
   generates: {
-    './app/src/clients/subgraph/generated.ts': {
+    './src/react/clients/subgraph/generated.ts': {
       plugins: ['typescript', 'typescript-operations', 'typescript-react-apollo'],
     },
   },

@@ -2,7 +2,7 @@
   "name": "etherfi-desktop",
   "version": "0.0.1",
   "description": "etherfi-desktop application",
-  "main": "./app/electron/main.js",
+  "main": "./src/electron/main.js",
   "private": true,
   "scripts": {
     "dev-server": "webpack serve --mode development --config ./webpack.development.js",
@@ -14,7 +14,9 @@
     "dist": "electron-builder --universal",
     "run": "osascript -e 'tell app \"Terminal\" to do script \"cd ~/Code/etherfi-desktop && npm run dev-server\"' && npm run dev",
     "codegen": "graphql-codegen --config codegen.ts",
-    "codegen:watch": "graphql-codegen --config codegen.ts --watch"
+    "codegen:watch": "graphql-codegen --config codegen.ts --watch",
+    "buildcli": "src/scripts/bundle_proxy_linux.sh",
+    "buildcliwin": "src/scripts/bundle_proxy_win.bat"
   },
   "build": {
     "productName": "etherfi-desktop",
@@ -57,6 +59,7 @@
   "devDependencies": {
     "@types/react": "^18.0.27",
     "@types/react-dom": "^18.0.10",
+    "@types/tmp": "^0.2.3",
     "babel-loader": "^9.1.2",
     "cross-env": "^7.0.3",
     "css-loader": "^6.7.3",
@@ -91,6 +94,7 @@
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-dropzone": "^14.2.3",
+    "tmp": "^0.2.1",
     "xterm": "^5.1.0",
     "zod": "^3.20.2"
   }

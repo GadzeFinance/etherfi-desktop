@@ -2,9 +2,9 @@ const HtmlWebpackPlugin = require("html-webpack-plugin");
 const path = require("path");
 
 module.exports = {
-    entry: "./app/src/index.tsx",
+    entry: "./src/react/index.tsx",
     output: {
-        path: path.resolve(__dirname, "app/dist"),
+        path: path.resolve(__dirname, "src/dist"),
         filename: "bundle.js",
     },
 
@@ -13,7 +13,7 @@ module.exports = {
             // loads .js/jsx files
             {
                 test: /\.jsx?$/,
-                include: [path.resolve(__dirname, "app/src")],
+                include: [path.resolve(__dirname, "src/react")],
                 loader: "babel-loader",
                 resolve: {
                     extensions: [".js", ".jsx", ".json", ".ts", ".tsx"]
@@ -30,7 +30,7 @@ module.exports = {
             {
                 // loads .html files
                 test: /\.(html)$/,
-                include: [path.resolve(__dirname, "app/src")],
+                include: [path.resolve(__dirname, "src/react")],
                 use: {
                     loader: "html-loader"
                 }
@@ -38,7 +38,7 @@ module.exports = {
             {
                 // loads .css files
                 test: /\.css$/,
-                include: [path.resolve(__dirname, "app/src")],
+                include: [path.resolve(__dirname, "src/react")],
                 use: [                    
                     "style-loader",
                     "css-loader"
@@ -53,7 +53,7 @@ module.exports = {
     },
     plugins: [
         new HtmlWebpackPlugin({
-            template: path.resolve(__dirname, "app/src/index.html"),
+            template: path.resolve(__dirname, "src/react/index.html"),
             filename: "index.html"
         })
     ]
