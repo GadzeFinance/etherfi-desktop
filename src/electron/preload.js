@@ -32,6 +32,9 @@ contextBridge.exposeInMainWorld("api", {
     reqGenValidatorKeysAndEncrypt: function(walletAddress, mnemonic, password, folder){
         ipcRenderer.send("req-gen-val-keys-and-encrypt", [walletAddress, mnemonic, password, folder]);
     },
+    receiveKeyGenConfirmation: function(func){
+        ipcRenderer.once("receive-key-gen-confirmation", (event, ...args) => func(event, ...args));       
+    },
 
     reqBuildStakerFile: function(validatorKeyFilePaths, depositDataFilePath, password){
         ipcRenderer.send("req-build-public-staker-file", [validatorKeyFilePaths, depositDataFilePath, password]);
