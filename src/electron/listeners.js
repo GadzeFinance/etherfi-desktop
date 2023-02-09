@@ -95,7 +95,8 @@ const genMnemonic = async (event, arg) => {
 const genValidatorKeysAndEncrypt = async (event, arg) => {
     console.log("genEncryptedKeys: Start")
     var [walletAddress, mnemonic, password, folder] = arg
-    folder += "/etherfi_keys"
+    const timeStamp = new Date().toISOString().slice(0,-5)
+    folder += `/etherfi_keys-${timeStamp}`
 
     const {data} = await getDepositedStakesForAddressQuery(walletAddress);
     // TODO: CHECK FOR ERRORS in a nicer way
@@ -104,8 +105,6 @@ const genValidatorKeysAndEncrypt = async (event, arg) => {
     }
     const count = data.stakes.length
     const nodeOperatorPublicKeys = data.stakes.map((stake) => stake.winningBid.bidderPublicKey)
-    console.log(nodeOperatorPublicKeys)
-    return 
 
 
     const index = 1
@@ -113,36 +112,34 @@ const genValidatorKeysAndEncrypt = async (event, arg) => {
     const eth1_withdrawal_address = walletAddress// TODO: update this
 
     await generateKeys(mnemonic, index, count, network, password, eth1_withdrawal_address, folder)
-    event.sender.send("receive-key-gen-confirmation", [])
 
     // now we need to encrypt the keys and generate "stakeRequest.json"
     await _encryptValidatorKeys(folder, password, nodeOperatorPublicKeys)
+
+    // Send back the folder where everything is save
+    event.sender.send("receive-key-gen-confirmation", [folder])
+
 
 
     console.log("genEncryptedKeys: End")
 }
 
 /* Helper method that gets the deposit data and keystores from the files that were generated */
-const _getDepositDataAndKeystoresJSON = (folderPath) => {
+const _getDepositDataAndKeystoresJSON = async (folderPath) => {
     const depositDataFilePaths = []
     const validatorKeyFilePaths =  []
         
-    fs.readdir(folderPath, function (err, files) {
-        if (err) {
-            return console.log('Unable to scan directory: ' + err);
+    fs.readdirSync(folderPath).forEach(fileName => {
+        if (fileName.includes("deposit_data")) {
+            depositDataFilePaths.push(`${folderPath}/${fileName}`)
+        } else if (fileName.includes("keystore")) {
+            validatorKeyFilePaths.push(`${folderPath}/${fileName}`)
+        } else {
+            console.log(`Unexpected File: ${fileName}`)
         }
-        files.forEach(function (fileName) {
-            if (fileName.includes("deposit_data")) {
-                depositDataFilePaths.push(`${folderPath}/${fileName}`)
-            } else if (fileName.includes("keystore")) {
-                validatorKeyFilePaths.push(`${folderPath}/${fileName}`)
-            } else {
-                console.log(`Unexpected File: ${fileName}`)
-            }
-        });
     });
-
-    if (depositDataFilePaths.length !== 1) {
+    console.log(depositDataFilePaths)
+    if (depositDataFilePaths.length != 1) {
         console.error("ERROR: Multiple deposit data files")
     }
     const depositDataList = JSON.parse(fs.readFileSync(depositDataFilePaths[0]))
@@ -161,7 +158,7 @@ const _getDepositDataAndKeystoresJSON = (folderPath) => {
 
 const _encryptValidatorKeys = async (folderPath, password, nodeOperatorPubKeys) => {
     // need to convert the folder path to a list of keystore paths and a deposit data file path
-    const {depositDataList, validatorKeystoreList} = _getDepositDataAndKeystoresJSON(folderPath);
+    const {depositDataList, validatorKeystoreList} = await _getDepositDataAndKeystoresJSON(folderPath);
 
     const curve = new EC('secp256k1')
 
