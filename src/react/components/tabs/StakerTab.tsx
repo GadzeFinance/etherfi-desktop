@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Box, Center, ScaleFade, Input, Button, Text } from '@chakra-ui/react'
 import raisedWidgetStyle from '../../styleClasses/widgetBoxStyle'
-import {useGetCompetingBidsQuery, useGetUserBidsQuery, useGetDepositedStakesByAddressQuery, useGetBidByIdQuery, useGetStakesByAddressQuery, useGetAllStakesQuery } from '../../clients/subgraph/generated'
+
 interface TabProps {
   tabIndex: number;
 }

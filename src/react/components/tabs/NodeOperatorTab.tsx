@@ -2,7 +2,6 @@ import React, {useState} from 'react';
 import { Box, Center, ScaleFade, Button, VStack } from '@chakra-ui/react';
 import raisedWidgetStyle from '../../styleClasses/widgetBoxStyle';
 import EtherFiNumberInput from '../EtherFiNumberInput';
-import {validateUploadedFiles, SCHEMAS} from '../../utils/schemaValidations';
 
 interface TabProps {
     tabIndex: number;
