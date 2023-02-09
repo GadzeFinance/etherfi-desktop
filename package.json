@@ -90,11 +90,14 @@
     "elliptic": "^6.5.4",
     "ethers": "^5.7.2",
     "framer-motion": "^8.5.4",
+    "graphql": "^16.6.0",
+    "isomorphic-unfetch": "^4.0.2",
     "node-pty": "^0.10.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-dropzone": "^14.2.3",
     "tmp": "^0.2.1",
+    "urql": "^3.0.3",
     "xterm": "^5.1.0",
     "zod": "^3.20.2"
   }

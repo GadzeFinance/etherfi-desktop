@@ -2,7 +2,6 @@ import React, {useState} from 'react';
 import { Box, Center, ScaleFade, Button, VStack } from '@chakra-ui/react';
 import raisedWidgetStyle from '../../styleClasses/widgetBoxStyle';
 import EtherFiNumberInput from '../EtherFiNumberInput';
-import {validateUploadedFiles, SCHEMAS} from '../../utils/schemaValidations';
 
 interface TabProps {
     tabIndex: number;
@@ -17,13 +16,15 @@ const NodeOperatorTab: React.FC<TabProps> = ({ tabIndex }: TabProps) => {
 
     const generateKeys = () => {
         // Send request to backend to make the public and private key files
-        console.log(connectedWallet)
+        console.log(`connectedWallet: ${connectedWallet}`)
         window.api.reqGenNodeOperatorKeys(numKeys, connectedWallet);
     }
 
 
   return (
     <Center>
+    <Button bg="green" color="white" onClick={generateKeys}>Generate Keystores</Button>
+
         <ScaleFade initialScale={0.5} in={tabIndex === 1}>
 
             <Box maxW={'800px'} sx={raisedWidgetStyle} bg="#2b2852">
