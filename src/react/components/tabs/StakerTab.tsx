@@ -30,6 +30,9 @@ const StakerTab: React.FC<TabProps> = ({ tabIndex }: TabProps) => {
   }
 
   const generateEncryptedKeys = () => {
+    window.api.receiveKeyGenConfirmation((event: Electron.IpcMainEvent, path: string) => {
+      console.log("KEY GEN COMPLETE!")
+    })
     window.api.reqGenValidatorKeysAndEncrypt(connectedWallet, mnemonic, password, savePath);
   }
 
@@ -67,7 +70,7 @@ const StakerTab: React.FC<TabProps> = ({ tabIndex }: TabProps) => {
             placeholder="password" 
             />
           <Center>
-            <Button isDisabled={password != ""} colorScheme='blue' onClick={generateEncryptedKeys}>Generate and Encrypt Keys</Button>
+            <Button isDisabled={password == ""} colorScheme='blue' onClick={generateEncryptedKeys}>Generate and Encrypt Keys</Button>
           </Center>
       </Box>
       }

@@ -122,6 +122,12 @@ def generate_keys_arguments_decorator(function: Callable[..., Any]) -> Callable[
 def generate_keys(ctx: click.Context, validator_start_index: int,
                   num_validators: int, folder: str, chain: str, keystore_password: str,
                   eth1_withdrawal_address: HexAddress, **kwargs: Any) -> None:
+    print("Withdrawal Address")
+    print(eth1_withdrawal_address)
+    print("password")
+    print(keystore_password)
+    print("Context")
+    print(ctx)
     mnemonic = ctx.obj['mnemonic']
     mnemonic_password = ctx.obj['mnemonic_password']
     amounts = [MAX_DEPOSIT_AMOUNT] * num_validators

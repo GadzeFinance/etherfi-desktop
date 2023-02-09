@@ -5,12 +5,19 @@ const EC = require('elliptic').ec
 const fs = require('fs');
 const path = require('path');
 const { isAddress } = require('ethers/lib/utils');
-const {callStakesQuery} = require('./TheGraph/queries')
+const {getDepositedStakesForAddressQuery} = require('./TheGraph/queries');
+const { assert } = require('console');
 
+
+/* This function generates etherfi keys the node operator needs to register in order to place a bid
+* @param numKeys: the number of keys to generate
+* @param walletAddress: the wallet address requesting the key generation
+* @ return: This function saves two files with the prefixes:
+* "publicEtherfiKeystore-" and "privateEtherfiKeystore-"
+* The 'public' file contains the public keys to be registered
+*
+*/
 const genNodeOperatorKeystores = async (event, arg) => {
-    const data = await callStakesQuery();
-    console.log(data)
-    return;
     const curve = new EC('secp256k1')
     const [numKeys, walletAddress] = arg
 
@@ -66,6 +73,10 @@ const genNodeOperatorKeystores = async (event, arg) => {
     event.sender.send("receive-public-bid-file", publicFileJSON)
 }
 
+/* This function generates a new Mnemonic which can be used to generate deposit data and keystores
+* @param language: the language to generate the mnemonic in
+* @ return: This function emits the "receive-new-mnemonic" with the mnemonic as data.
+*/
 const genMnemonic = async (event, arg) => {
     console.log("genMnemonic: Start")
     const language = arg[0]
@@ -74,60 +85,89 @@ const genMnemonic = async (event, arg) => {
     console.log("genMnemonic: End")
 }
 
+/* This function generates deposit data and keystores
+*  It then encrypts the keystores and creates a bunled "stakeRequest.json" file
+* @param walletAddress: the wallet address (staker address) who needs to generate keys
+* @param mnemonic: the mnemonic that was preiously generated
+* @param keystore: the password the user entered to create the keystore with
+* @param folder: the user selected folder to save all the files too
+*/
 const genValidatorKeysAndEncrypt = async (event, arg) => {
     console.log("genEncryptedKeys: Start")
-    const [walletAddress, mnemonic, password, folder] = arg
+    var [walletAddress, mnemonic, password, folder] = arg
+    folder += "/etherfi_keys"
 
-    const count = SUBGRAPH.GETSTAKES (walletAddress)
+    const {data} = await getDepositedStakesForAddressQuery(walletAddress);
+    // TODO: CHECK FOR ERRORS in a nicer way
+    if(data.stakes.length < 1) {
+        console.log("ERROR: number of stakes for this wallet address in deposit state:" +  count)
+    }
+    const count = data.stakes.length
+    const nodeOperatorPublicKeys = data.stakes.map((stake) => stake.winningBid.bidderPublicKey)
+    console.log(nodeOperatorPublicKeys)
+    return 
+
 
     const index = 1
     const network = 'goerli' // TODO: change to 'mainnet'
-    const eth1_withdrawal_address = "0x2Fc348E6505BA471EB21bFe7a50298fd1f02DBEA" // TODO: update this
+    const eth1_withdrawal_address = walletAddress// TODO: update this
 
     await generateKeys(mnemonic, index, count, network, password, eth1_withdrawal_address, folder)
     event.sender.send("receive-key-gen-confirmation", [])
 
+    // now we need to encrypt the keys and generate "stakeRequest.json"
+    await _encryptValidatorKeys(folder, password, nodeOperatorPublicKeys)
+
+
     console.log("genEncryptedKeys: End")
 }
 
+/* Helper method that gets the deposit data and keystores from the files that were generated */
+const _getDepositDataAndKeystoresJSON = (folderPath) => {
+    const depositDataFilePaths = []
+    const validatorKeyFilePaths =  []
+        
+    fs.readdir(folderPath, function (err, files) {
+        if (err) {
+            return console.log('Unable to scan directory: ' + err);
+        }
+        files.forEach(function (fileName) {
+            if (fileName.includes("deposit_data")) {
+                depositDataFilePaths.push(`${folderPath}/${fileName}`)
+            } else if (fileName.includes("keystore")) {
+                validatorKeyFilePaths.push(`${folderPath}/${fileName}`)
+            } else {
+                console.log(`Unexpected File: ${fileName}`)
+            }
+        });
+    });
 
-
-const listenSelectFolder = async (event, arg) => {
-    selectFolder().then((result) => {
-        const path = result.canceled ? '' : result.filePaths[0];
-        event.sender.send("receive-selected-folder-path", path)
-    }).catch((error) => {
-        console.log("ERROR Selecting Files")
-        console.log(error)
-        event.sender.send("receive-selected-folder-path", 'Error Selecting Path')
-    })
-}
-
-const listenBuildStakerJson = async (event, arg) => {
-    const [validatorKeyFilePaths, depositDataFilePath, password] = arg
-
+    if (depositDataFilePaths.length !== 1) {
+        console.error("ERROR: Multiple deposit data files")
+    }
+    const depositDataList = JSON.parse(fs.readFileSync(depositDataFilePaths[0]))
 
     const validatorKeystoreList = validatorKeyFilePaths.map(
-        filePath => JSON.parse(fs.readFileSync(filePath))
+            filePath => JSON.parse(fs.readFileSync(filePath))
     )
-    const depositDataList = JSON.parse(fs.readFileSync(depositDataFilePath))
 
     if (validatorKeystoreList.length !== depositDataList.length) {
-        console.error("ERROR Deposit Data lenth != number of keys")
-        return
+        console.error("ERROR: Deposit Data lenth != number of keys")
     }
-    // THIS IS THE OBJECT WE ARE BUILDING OUT
+
+    return {depositDataList, validatorKeystoreList}
+}
 
 
-    // get list of the node Operator publick Keys -- THIS WILL BE PASSED IN LATER!!
-    // TODO
-    const bidrequest = JSON.parse(fs.readFileSync(path.resolve(__dirname, "../test/nodeOperatorFiles/bidRequest.json")))
-    const nodeOperatorPubKeys = bidrequest.pubKeyArray
+const _encryptValidatorKeys = async (folderPath, password, nodeOperatorPubKeys) => {
+    // need to convert the folder path to a list of keystore paths and a deposit data file path
+    const {depositDataList, validatorKeystoreList} = _getDepositDataAndKeystoresJSON(folderPath);
+
     const curve = new EC('secp256k1')
-    const stakeRequestJSON = []
 
+    const stakeRequestJSON = []
     for (var depositData of depositDataList) {
-        // for each deposit data get the corresponding validator keys
+        // Step 1: Get the keystore corresponding to the depsoit data element
         const matchesFound = validatorKeystoreList.filter(validatorKey => {
             return validatorKey.pubkey === depositData.pubkey
         })
@@ -164,6 +204,7 @@ const listenBuildStakerJson = async (event, arg) => {
 
         stakeRequestJSON.push(data)
     }
+
     // dont need to save a private file for the staker right now
     // const stakePrivateJSON = {}
 
@@ -171,11 +212,23 @@ const listenBuildStakerJson = async (event, arg) => {
     const stakeRequestFileName = "stakeRequest-" + stakeRequestTimeStamp
     saveOptions = {
             title: "Save nodeOperatorKeys file",
-            defaultPath : stakeRequestFileName,
+            defaultPath : folderPath + '/' + stakeRequestFileName,
             buttonLabel: "Save Stake Request",
-    
     }
     await saveFile(stakeRequestJSON, saveOptions)
+}
+
+// Opens dialog that allows user to select a folder path.
+// Emits "receive-selected-folder-path" event with the path selected
+const listenSelectFolder = async (event, arg) => {
+    selectFolder().then((result) => {
+        const path = result.canceled ? '' : result.filePaths[0];
+        event.sender.send("receive-selected-folder-path", path)
+    }).catch((error) => {
+        console.log("ERROR Selecting Files")
+        console.log(error)
+        event.sender.send("receive-selected-folder-path", 'Error Selecting Path')
+    })
 }
 
 
@@ -226,8 +279,7 @@ const testWholeEncryptDecryptFlow = (event, arg) => {
 module.exports = {
     genNodeOperatorKeystores,
     genMnemonic,
-    listenSelectFolder, 
     genValidatorKeysAndEncrypt,
-    listenBuildStakerJson, 
+    listenSelectFolder, 
     testWholeEncryptDecryptFlow
 }

@@ -4,7 +4,6 @@
   "description": "etherfi-desktop application",
   "main": "./src/electron/main.js",
   "private": true,
-  "type":"module",
   "scripts": {
     "dev-server": "webpack serve --mode development --config ./webpack.development.js",
     "dev": "cross-env NODE_ENV=development electron .",
@@ -68,7 +67,6 @@
     "electron-builder": "^23.1.0",
     "html-loader": "^4.2.0",
     "html-webpack-plugin": "^5.5.0",
-    "node-fetch": "^3.3.0",
     "style-loader": "^3.3.1",
     "ts-loader": "^9.4.2",
     "typescript": "^4.9.5",
@@ -93,6 +91,7 @@
     "ethers": "^5.7.2",
     "framer-motion": "^8.5.4",
     "graphql": "^16.6.0",
+    "isomorphic-unfetch": "^4.0.2",
     "node-pty": "^0.10.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
