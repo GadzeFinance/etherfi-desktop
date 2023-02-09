@@ -23,8 +23,6 @@ const NodeOperatorTab: React.FC<TabProps> = ({ tabIndex }: TabProps) => {
 
   return (
     <Center>
-    <Button bg="green" color="white" onClick={generateKeys}>Generate Keystores</Button>
-
         <ScaleFade initialScale={0.5} in={tabIndex === 1}>
 
             <Box maxW={'800px'} sx={raisedWidgetStyle} bg="#2b2852">
@@ -63,7 +61,7 @@ const NodeOperatorTab: React.FC<TabProps> = ({ tabIndex }: TabProps) => {
             </ScaleFade>
         </Center>
   )
-
 }
+
 
 export default NodeOperatorTab

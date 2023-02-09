@@ -1,6 +1,15 @@
 import React from 'react';
-import { NumberInput, Button, Flex, NumberInputField,Text, VStack, Box, StackDivider} from '@chakra-ui/react';
+import { 
+    NumberInput,
+    Button,
+    Flex,
+    NumberInputField,
+    Text, 
+    VStack, 
+    Box
+} from '@chakra-ui/react';
 import { COLORS } from '../styleClasses/constants';
+
 
 interface InputData {
     placeholder: string,
@@ -10,7 +19,6 @@ interface InputData {
     MIN: number, 
     MAX: number
   }
-  
 
 const EtherFiNumberInput: React.FC<InputData> = ({placeholder, value, setter, increment, MIN, MAX} : InputData) => {
 
@@ -50,5 +58,6 @@ const EtherFiNumberInput: React.FC<InputData> = ({placeholder, value, setter, in
         </>       
     )
 }
+
 
 export default EtherFiNumberInput

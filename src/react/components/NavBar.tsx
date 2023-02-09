@@ -1,8 +1,5 @@
-import { Flex, Tab, TabList, Image, Center } from '@chakra-ui/react'
 import React from 'react'
-
-
-// import EtherFiLogo from '../../assets/geo-logo-colour-landscape@2x.png'
+import { Flex, Tab, TabList, Image, Center } from '@chakra-ui/react'
 import tabButtonStyle from '../styleClasses/tabButtonStyle'
 import EtherFiLogo from '../assets/geo-logo-colour-landscape.png'
 
@@ -24,7 +21,6 @@ const NavBar: React.FC = () => {
         </nav>
     )
 }
-
 
 
 export default NavBar
