@@ -14,3 +14,4 @@ export const COLORS = {
     primaryBlue: '#5581E7',
     lightPurple: '#474276'
   }
+  
