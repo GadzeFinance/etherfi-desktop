@@ -139,7 +139,6 @@ const createMnemonic = async (language) => {
     args = [ETH2DEPOSIT_PROXY_PATH, CREATE_MNEMONIC_SUBCOMMAND, WORD_LIST_PATH, "--language",
       language];
   }
-  console.log("Calling Python to generate mnemonic")
   const { stdout, stderr } = await execFileProm(executable, args, {env: env});
   const mnemonicResultString = stdout.toString();
   const result = JSON.parse(mnemonicResultString);

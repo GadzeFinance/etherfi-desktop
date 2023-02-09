@@ -9,8 +9,8 @@ const isDevelopment = process.env.NODE_ENV === "development";
 const { 
     genNodeOperatorKeystores,
     genMnemonic,
-    listenSelectFiles,
-    listenBuildStakerJson, 
+    listenSelectFolder,
+    genValidatorKeysAndEncrypt,
     testWholeEncryptDecryptFlow
 } = require('./listeners');
 
@@ -49,10 +49,10 @@ function createWindow() {
     /**
      * Set the Permission Request Handler to deny all permissions requests
      */
-    // app.webContents.session.setPermissionRequestHandler((webContents, permission, callback) => {
-    //     console.log("HERE?")
-    //     return callback(false);
-    // });
+    window.webContents.session.setPermissionRequestHandler((webContents, permission, callback) => {
+        console.log("HERE?")
+        return callback(false);
+    });
 }
 
 // This method is called when Electron
@@ -82,6 +82,8 @@ app.on("window-all-closed", function () {
 // Register IPC Listeners
 ipcMain.on("req-gen-node-operator-keys", genNodeOperatorKeystores);  
 ipcMain.on("req-new-mnemonic", genMnemonic);
+ipcMain.on("req-select-folder", listenSelectFolder);
+ipcMain.on("req-gen-val-keys-and-encrypt", genValidatorKeysAndEncrypt);
 
-ipcMain.on("req-select-files", listenSelectFiles);
-ipcMain.on("req-build-public-staker-file", listenBuildStakerJson);
+
+// ipcMain.on("req-build-public-staker-file", listenBuildStakerJson);
