@@ -1,12 +1,16 @@
 const {encrypt, decrypt } = require('./utils/encryptionUtils');
 const {createMnemonic, generateKeys, validateMnemonic} = require('./utils/Eth2Deposit.js')
-const {saveFile, selectFiles, chooseSavePath} = require('./utils/saveFile.js')
+const {saveFile, selectFolder} = require('./utils/saveFile.js')
 const EC = require('elliptic').ec
 const fs = require('fs');
-const path = require('path')
-
+const path = require('path');
+const { isAddress } = require('ethers/lib/utils');
+const {callStakesQuery} = require('./TheGraph/queries')
 
 const genNodeOperatorKeystores = async (event, arg) => {
+    const data = await callStakesQuery();
+    console.log(data)
+    return;
     const curve = new EC('secp256k1')
     const [numKeys, walletAddress] = arg
 
@@ -63,20 +67,40 @@ const genNodeOperatorKeystores = async (event, arg) => {
 }
 
 const genMnemonic = async (event, arg) => {
-    console.log("Generating Mnemonic")
+    console.log("genMnemonic: Start")
     const language = arg[0]
     const mnemonic = await createMnemonic(language)
     event.sender.send("receive-new-mnemonic", [mnemonic])
+    console.log("genMnemonic: End")
 }
 
-// const path = '/Users/nickykhorasani/Desktop/validator_keys/2'
-// const accounts = ["0x7631FCf7D45D821cB5FA688fADa7bbc76714B771", "0x2Fc348E6505BA471EB21bFe7a50298fd1f02DBEA"]
-// await generateKeys(result.mnemonic, 0, 1, 'goerli', "password", accounts[0], path)
-// event.sender.send("receive-key-gen-confirmation", ["path:",path])
+const genValidatorKeysAndEncrypt = async (event, arg) => {
+    console.log("genEncryptedKeys: Start")
+    const [walletAddress, mnemonic, password, folder] = arg
 
-const listenSelectFiles = async (event, arg) => {
-    let result = await selectFiles()
-    event.sender.send("receive-selected-files-paths", result.filePaths)
+    const count = SUBGRAPH.GETSTAKES (walletAddress)
+
+    const index = 1
+    const network = 'goerli' // TODO: change to 'mainnet'
+    const eth1_withdrawal_address = "0x2Fc348E6505BA471EB21bFe7a50298fd1f02DBEA" // TODO: update this
+
+    await generateKeys(mnemonic, index, count, network, password, eth1_withdrawal_address, folder)
+    event.sender.send("receive-key-gen-confirmation", [])
+
+    console.log("genEncryptedKeys: End")
+}
+
+
+
+const listenSelectFolder = async (event, arg) => {
+    selectFolder().then((result) => {
+        const path = result.canceled ? '' : result.filePaths[0];
+        event.sender.send("receive-selected-folder-path", path)
+    }).catch((error) => {
+        console.log("ERROR Selecting Files")
+        console.log(error)
+        event.sender.send("receive-selected-folder-path", 'Error Selecting Path')
+    })
 }
 
 const listenBuildStakerJson = async (event, arg) => {
@@ -202,7 +226,8 @@ const testWholeEncryptDecryptFlow = (event, arg) => {
 module.exports = {
     genNodeOperatorKeystores,
     genMnemonic,
-    listenSelectFiles, 
+    listenSelectFolder, 
+    genValidatorKeysAndEncrypt,
     listenBuildStakerJson, 
     testWholeEncryptDecryptFlow
 }

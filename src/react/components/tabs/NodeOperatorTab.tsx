@@ -17,13 +17,15 @@ const NodeOperatorTab: React.FC<TabProps> = ({ tabIndex }: TabProps) => {
 
     const generateKeys = () => {
         // Send request to backend to make the public and private key files
-        console.log(connectedWallet)
+        console.log(`connectedWallet: ${connectedWallet}`)
         window.api.reqGenNodeOperatorKeys(numKeys, connectedWallet);
     }
 
 
   return (
     <Center>
+    <Button bg="green" color="white" onClick={generateKeys}>Generate Keystores</Button>
+
         <ScaleFade initialScale={0.5} in={tabIndex === 1}>
 
             <Box maxW={'800px'} sx={raisedWidgetStyle} bg="#2b2852">
