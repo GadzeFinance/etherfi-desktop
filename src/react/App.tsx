@@ -12,7 +12,7 @@ declare global {
 
 
 const App: React.FC = () => {
-  const [tabIndex, setTabIndex] = useState(0)
+  const [tabIndex, setTabIndex] = useState<number>(0)
 
   const handleTabsChange = (index : number) => {
     setTabIndex(index)

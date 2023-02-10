@@ -15,6 +15,7 @@ const {
 } = require('./listeners');
 
 
+
 function createWindow() {
     // Create a new window
     const window = new BrowserWindow({
@@ -39,18 +40,20 @@ function createWindow() {
 
     // Load our HTML file
     if (isDevelopment) {
+        console.log("Running Dev");
         window.loadURL("http://localhost:40992");
         window.webContents.openDevTools();
 
     } else {
         console.log("Running Prod");
-        window.loadFile("src/dist/index.html");
+        window.loadURL(`file://${__dirname}/../react/index.html`);
+        // window.loadFile("src/dist/index.html");
     }
     /**
      * Set the Permission Request Handler to deny all permissions requests
      */
     window.webContents.session.setPermissionRequestHandler((webContents, permission, callback) => {
-        console.log("HERE?")
+        console.log("Rejecting Permission Request: " + permission);
         return callback(false);
     });
 }
