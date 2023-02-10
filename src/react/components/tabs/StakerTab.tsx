@@ -13,10 +13,12 @@ const StakerTab: React.FC<TabProps> = ({ tabIndex }: TabProps) => {
   const [savePath, setSavePath] = useState<string>("")
   
   const receiveLogs = () => {
+    console.log("Enabling backend logs")
     window.api.receiveLogs((event: Electron.IpcMainEvent, log: string) => {
       console.log(log)
     })
-  } 
+  }
+  
   const generateMnemonic = () => {
     window.api.receiveNewMnemonic((event:Electron.IpcMainEvent , args: [string]) => {
       const newMnemonic = args[0];

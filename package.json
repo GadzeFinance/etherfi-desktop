@@ -2,11 +2,11 @@
   "name": "etherfi-desktop",
   "version": "0.0.1",
   "description": "etherfi-desktop application",
-  "main": "./src/electron/main.js",
+  "main": "./build/electron/main.js",
   "private": true,
   "scripts": {
     "dev-server": "webpack serve --mode development --config ./webpack.development.js",
-    "dev": "cross-env NODE_ENV=development electron .",
+    "dev": "cross-env NODE_ENV=development electron ./src/electron/main.js",
     "postinstall": "electron-builder install-app-deps",
     "buildNode": "webpack --config webpack.react.config.js --config webpack.electron.config.js",
     "buildcli": "src/scripts/bundle_proxy_linux.sh",

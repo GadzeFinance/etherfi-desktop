@@ -103,12 +103,12 @@ const genValidatorKeysAndEncrypt = async (event, arg) => {
     walletAddress = "0xcd5ebc2dd4cb3dc52ac66ceecc72c838b40a5931"
     const timeStamp = new Date().toISOString().slice(0,-5)
     folder += `/etherfi_keys-${timeStamp}`
-    // event.sender.send("push-logs", "HEREEEE")
     const {data} = await getDepositedStakesForAddressQuery(walletAddress);
     console.log(data)
     // TODO: CHECK FOR ERRORS in a nicer way
     if(data.stakes.length < 1) {
-        console.log("ERROR: number of stakes for this wallet address in deposit state: " +  data.stakes.length)
+        const error = "ERROR: number of stakes for this wallet address in deposit state: " +  data.stakes.length
+        event.sender.send("push-logs", error)
         return
     }
     const count = data.stakes.length
