@@ -7,42 +7,37 @@
   "scripts": {
     "dev-server": "webpack serve --mode development --config ./webpack.development.js",
     "dev": "cross-env NODE_ENV=development electron .",
-    "preprod": "webpack --mode production --config ./webpack.production.js",
-    "prod": "cross-env NODE_ENV=production electron .",
     "postinstall": "electron-builder install-app-deps",
-    "pack": "electron-builder --dir",
-    "dist": "electron-builder --universal",
-    "run": "osascript -e 'tell app \"Terminal\" to do script \"cd ~/Code/etherfi-desktop && npm run dev-server\"' && npm run dev",
-    "codegen": "graphql-codegen --config codegen.ts",
-    "codegen:watch": "graphql-codegen --config codegen.ts --watch",
+    "buildNode": "webpack --config webpack.react.config.js --config webpack.electron.config.js",
     "buildcli": "src/scripts/bundle_proxy_linux.sh",
-    "buildcliwin": "src/scripts/bundle_proxy_win.bat"
+    "buildcliwin": "src/scripts/bundle_proxy_win.bat",
+    "prod": "cross-env NODE_ENV=production electron ./build/electron/main.js",
+    "pack": "electron-builder --dir",
+    "dist": "electron-builder"
   },
   "build": {
     "productName": "etherfi-desktop",
     "appId": "com.etherfi.etherfi-desktop",
-    "directories": {
-      "buildResources": "resources"
-    },
+    "files": [
+      "build/**/*",
+      "package.json"
+    ],
+    "extraFiles": [
+      "build/bin/*",
+      "build/word_lists/*",
+      "resources/icon.png"
+    ],
     "mac": {
-      "target": [
-        "pkg"
-      ],
-      "entitlements": "entitlements.mac.plist"
-    },
-    "win": {
-      "target": [
-        "nsis",
-        "msi"
-      ]
+      "category": "public.app-category.utilities",
+      "icon": "resources/icon.icns"
     },
     "linux": {
-      "target": [
-        "deb",
-        "rpm",
-        "snap",
-        "AppImage"
-      ]
+      "target": "AppImage",
+      "icon": "resources/icon.png"
+    },
+    "win": {
+      "target": "portable",
+      "icon": "resources/icon.ico"
     }
   },
   "repository": {
@@ -64,7 +59,7 @@
     "cross-env": "^7.0.3",
     "css-loader": "^6.7.3",
     "electron": "^22.1.0",
-    "electron-builder": "^22.10.3",
+    "electron-builder": "^23.0.2",
     "html-loader": "^4.2.0",
     "html-webpack-plugin": "^5.5.0",
     "style-loader": "^3.3.1",
@@ -86,8 +81,10 @@
     "elliptic": "^6.5.4",
     "ethers": "^5.7.2",
     "framer-motion": "^8.5.4",
+    "git-revision-webpack-plugin": "^5.0.0",
     "graphql": "^16.6.0",
-    "isomorphic-unfetch": "^4.0.2",
+    "isomorphic-unfetch": "3",
+    "node-fetch": "^2.6.9",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-dropzone": "^14.2.3",

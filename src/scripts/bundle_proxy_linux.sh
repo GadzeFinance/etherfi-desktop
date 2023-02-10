@@ -9,7 +9,7 @@ if [ -f ~/.bash_aliases ]; then
 fi
 
 SCRIPTPATH="$( cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
-
+echo $SCRIPTPATH
 EDCDIR=staking-deposit-cli-2.4.0
 
 TARGETPACKAGESPATH=$SCRIPTPATH/../../dist/packages
