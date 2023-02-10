@@ -35,9 +35,9 @@ contextBridge.exposeInMainWorld("api", {
     receiveKeyGenConfirmation: function(func){
         ipcRenderer.once("receive-key-gen-confirmation", (event, ...args) => func(event, ...args));       
     },
-
-    reqBuildStakerFile: function(validatorKeyFilePaths, depositDataFilePath, password){
-        ipcRenderer.send("req-build-public-staker-file", [validatorKeyFilePaths, depositDataFilePath, password]);
+    receiveLogs: function(func){
+        ipcRenderer.on("push-logs", (event, ...args) => func(event, ...args));       
     },
+
 });
 

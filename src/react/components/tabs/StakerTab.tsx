@@ -11,7 +11,12 @@ const StakerTab: React.FC<TabProps> = ({ tabIndex }: TabProps) => {
   const [mnemonic, setMnemonic] = useState<string>("") // hardcoded for now
   const [password, setPassword] = useState<string>("");
   const [savePath, setSavePath] = useState<string>("")
-
+  
+  const receiveLogs = () => {
+    window.api.receiveLogs((event: Electron.IpcMainEvent, log: string) => {
+      console.log(log)
+    })
+  } 
   const generateMnemonic = () => {
     window.api.receiveNewMnemonic((event:Electron.IpcMainEvent , args: [string]) => {
       const newMnemonic = args[0];
@@ -38,6 +43,7 @@ const StakerTab: React.FC<TabProps> = ({ tabIndex }: TabProps) => {
 
   return (
     <Center>
+    <Button colorScheme='blue' onClick={receiveLogs}>Listen For Logs</Button>
     <ScaleFade initialScale={0.5} in={tabIndex === 0}>
       <Box maxW={'800px'} sx={raisedWidgetStyle}>
       <Text color="White" fontSize='xl'> Step 1: Generate Mnemonic and save it somewhere safe"  </Text>

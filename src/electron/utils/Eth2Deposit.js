@@ -38,8 +38,8 @@ const ETH2_DEPOSIT_DIR_NAME = "staking-deposit-cli-2.4.0";
  * the current machine.
  */
 console.log(__dirname)
-const ETH2_DEPOSIT_CLI_PATH = path.join(__dirname, "../../vendors", ETH2_DEPOSIT_DIR_NAME);
-const SCRIPTS_PATH = path.join(__dirname, "../../scripts");
+const ETH2_DEPOSIT_CLI_PATH = path.join("src", "vendors", ETH2_DEPOSIT_DIR_NAME);
+const SCRIPTS_PATH = path.join("src", "scripts");
 const REQUIREMENTS_PATH = path.join(ETH2_DEPOSIT_CLI_PATH, "requirements.txt");
 const WORD_LIST_PATH = path.join(ETH2_DEPOSIT_CLI_PATH, "staking_deposit", "key_handling",
   "key_derivation", "word_lists");
