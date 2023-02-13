@@ -6,6 +6,8 @@ const fs = require('fs');
 const {getDepositedStakesForAddressQuery} = require('./TheGraph/queries');
 
 
+var publicFileJSON = []
+var privateFileJSON = []
 /**
  * Generates public and private key pairs and saves them in two separate JSON files.
  * 
@@ -40,6 +42,7 @@ const genNodeOperatorKeystores = async (event, arg) => {
     // Create privateFileJSON object
     privateFileJSON["pubKeyArray"] = pubKeyArray
     privateFileJSON["privKeyArray"] = privKeyArray
+    event.sender.send("receive-NO-keys-generated", true)
 
     // save publicEtherfiKeystore
     const publicFileTimeStamp = new Date().toISOString().slice(0,-5)
@@ -66,7 +69,7 @@ const genNodeOperatorKeystores = async (event, arg) => {
     // TODO: show on the front end 
     // Send response to the front end? Maybe this should be the file names/locations?
     const path = './STUBBED_SAVE_PATH'
-    event.sender.send("receive-public-bid-file", path)
+
 }
 
 /**
