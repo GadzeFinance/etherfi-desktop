@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Box, Center, ScaleFade, Input, Button, Text } from '@chakra-ui/react'
-import raisedWidgetStyle from '../../styleClasses/widgetBoxStyle'
+import widgetBoxStyle from '../../styleClasses/widgetBoxStyle'
+import GenEncryptedKeysWizard from '../Wizard/GenEncryptedKeysWizard'
 
 interface TabProps {
   tabIndex: number;
@@ -42,50 +43,59 @@ const StakerTab: React.FC<TabProps> = ({ tabIndex }: TabProps) => {
     window.api.reqGenValidatorKeysAndEncrypt(connectedWallet, mnemonic, password, savePath);
   }
 
-
   return (
-    <Center>
-    <Button colorScheme='blue' onClick={receiveLogs}>Listen For Logs</Button>
     <ScaleFade initialScale={0.5} in={tabIndex === 0}>
-      <Box maxW={'800px'} sx={raisedWidgetStyle}>
-      <Text color="White" fontSize='xl'> Step 1: Generate Mnemonic and save it somewhere safe"  </Text>
-        <Center>
-          <Button colorScheme='blue' onClick={generateMnemonic}>Generate Mnemonic</Button>
-        </Center>
-        <Center>
-          <Text color="white">Mnemonic: {mnemonic}</Text>
-        </Center>
-      </Box>
-      {mnemonic && 
-        <Box maxW={'800px'} sx={raisedWidgetStyle}>
-          <Text color="White" fontSize='xl'> Step 2: Select Path to save files too"  </Text>
-          <Center>
-            <Button colorScheme='blue' onClick={selectSavePath}>Select Path</Button>
-          </Center>
-          <Center>
-          <Text color="white">Path: {savePath}</Text>
-        </Center>
-      </Box>
-      }
-      {savePath && 
-        <Box maxW={'800px'} sx={raisedWidgetStyle}>
-          <Text color="White" fontSize='xl'> Step 3: Input password and press "Generate and Encrypt Keys"  </Text>
-          <Input variant='filled' 
-            color="red.500"
-            value={password} 
-            onChange={(e) => {console.log(password.length); setPassword(e.target.value)}} 
-            placeholder="password" 
-            />
-          <Center>
-            <Button isDisabled={password.length != 8} colorScheme='blue' onClick={generateEncryptedKeys}>Generate and Encrypt Keys</Button>
-          </Center>
-      </Box>
-      }
-
-      </ScaleFade>
+    <Center sx={widgetBoxStyle}>
+      <GenEncryptedKeysWizard navigateTo={(x)=>console.log(x)} />
     </Center>
+  </ScaleFade>
   )
 }
 
 
 export default StakerTab
+
+// return (
+
+    
+//   <Center>
+//   <Button colorScheme='blue' onClick={receiveLogs}>Listen For Logs</Button>
+//   <ScaleFade initialScale={0.5} in={tabIndex === 0}>
+//     <Box maxW={'800px'} sx={raisedWidgetStyle}>
+//     <Text color="White" fontSize='xl'> Step 1: Generate Mnemonic and save it somewhere safe"  </Text>
+//       <Center>
+//         <Button colorScheme='blue' onClick={generateMnemonic}>Generate Mnemonic</Button>
+//       </Center>
+//       <Center>
+//         <Text color="white">Mnemonic: {mnemonic}</Text>
+//       </Center>
+//     </Box>
+//     {mnemonic && 
+//       <Box maxW={'800px'} sx={raisedWidgetStyle}>
+//         <Text color="White" fontSize='xl'> Step 2: Select Path to save files too"  </Text>
+//         <Center>
+//           <Button colorScheme='blue' onClick={selectSavePath}>Select Path</Button>
+//         </Center>
+//         <Center>
+//         <Text color="white">Path: {savePath}</Text>
+//       </Center>
+//     </Box>
+//     }
+//     {savePath && 
+//       <Box maxW={'800px'} sx={raisedWidgetStyle}>
+//         <Text color="White" fontSize='xl'> Step 3: Input password and press "Generate and Encrypt Keys"  </Text>
+//         <Input variant='filled' 
+//           color="red.500"
+//           value={password} 
+//           onChange={(e) => {console.log(password.length); setPassword(e.target.value)}} 
+//           placeholder="password" 
+//           />
+//         <Center>
+//           <Button isDisabled={password.length != 8} colorScheme='blue' onClick={generateEncryptedKeys}>Generate and Encrypt Keys</Button>
+//         </Center>
+//     </Box>
+//     }
+
+//     </ScaleFade>
+//   </Center>
+// )

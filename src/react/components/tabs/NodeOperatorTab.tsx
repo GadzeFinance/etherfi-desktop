@@ -20,7 +20,6 @@ const NodeOperatorTab: React.FC<TabProps> = ({ tabIndex }: TabProps) => {
     <>
         <GenerateKeysWidget/>
        
-    
     </>
         
   )

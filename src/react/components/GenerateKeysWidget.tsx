@@ -33,7 +33,7 @@ const GenerateKeysWidget: React.FC = () => {
 
   return (
     <Center>
-        <Box maxW={'800px'} sx={raisedWidgetStyle} bg="#2b2852">
+        <Box sx={raisedWidgetStyle} bg="#2b2852">
         <VStack
             spacing={4}
             align='stretch'
@@ -45,7 +45,7 @@ const GenerateKeysWidget: React.FC = () => {
         </HStack>
         </Box>
 
-        <Box maxW={'800px'} sx={darkBoxWithBorderStyle} bg="#2b2852">
+        <Box sx={darkBoxWithBorderStyle} bg="#2b2852">
         <HStack spacing='5px'mb="5px">
         <Text fontSize='14px' as='b' color="white">Number of Keys</Text>
         <Text fontSize='11px' color={COLORS.textSecondary}>(10000 max)</Text>
