@@ -12,6 +12,10 @@ contextBridge.exposeInMainWorld("api", {
     reqGenNodeOperatorKeys: function(numKeys, connectedWallet){
         ipcRenderer.send("req-gen-node-operator-keys", [numKeys, connectedWallet]);
     },
+    // Function called when node operator keys are generated.
+    receiveNOKeysConfirmation: function(func){
+        ipcRenderer.once("receive-NO-keys-generated", (event, ...args) => func(event, ...args));       
+    },
     // Function to request a new mnemonic to be created. (Staker Tab)
     reqNewMnemonic: function(language){
         ipcRenderer.send("req-new-mnemonic", [language]);
