@@ -13,8 +13,8 @@ const NavBar: React.FC = () => {
                 </Center>
                 <Center height={'full'} flex='auto'>
                     <TabList color='white'>
-                        <Tab sx={tabButtonStyle}>Staker!</Tab>
-                        <Tab sx={tabButtonStyle}> Node Operator!</Tab>
+                        <Tab sx={tabButtonStyle}>Staker</Tab>
+                        <Tab sx={tabButtonStyle}> Node Operator</Tab>
                     </TabList>
                 </Center>
             </Flex>
