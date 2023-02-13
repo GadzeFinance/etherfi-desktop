@@ -6,8 +6,10 @@ const fs = require('fs');
 const {getDepositedStakesForAddressQuery} = require('./TheGraph/queries');
 
 
+// 
 var publicFileJSON = []
 var privateFileJSON = []
+
 /**
  * Generates public and private key pairs and saves them in two separate JSON files.
  * 
@@ -51,7 +53,6 @@ const genNodeOperatorKeystores = async (event, arg) => {
         title: "Save publicEtherfiEncryptionKeys",
         defaultPath : publicFileName,
         buttonLabel: "Save",
-
     }
     await saveFile(publicFileJSON, saveOptions)
 
@@ -103,10 +104,13 @@ const genMnemonic = async (event, arg) => {
 const genValidatorKeysAndEncrypt = async (event, arg) => {
     console.log("genEncryptedKeys: Start")
     var [walletAddress, mnemonic, password, folder] = arg
+
     walletAddress = "0xcd5ebc2dd4cb3dc52ac66ceecc72c838b40a5931"
     const timeStamp = new Date().toISOString().slice(0,-5)
     folder += `/etherfi_keys-${timeStamp}`
+
     const {data} = await getDepositedStakesForAddressQuery(walletAddress);
+    
     console.log(data)
     // TODO: CHECK FOR ERRORS in a nicer way
     if(data.stakes.length < 1) {
