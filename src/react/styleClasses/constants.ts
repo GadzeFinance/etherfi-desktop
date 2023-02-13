@@ -12,6 +12,9 @@ export const COLORS = {
     tabSelectionBlue: '#3A3479',
     tabBackground: '#2B2852',
     primaryBlue: '#5581E7',
-    lightPurple: '#474276'
+    lightPurple: '#474276',
+    borderColor: '#474276',
+    darkBoxWithBorderColor: '#211F45',
+    textSecondary: '#DCD2E9'
   }
   

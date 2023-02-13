@@ -73,11 +73,11 @@ const StakerTab: React.FC<TabProps> = ({ tabIndex }: TabProps) => {
           <Input variant='filled' 
             color="red.500"
             value={password} 
-            onChange={(e) => setPassword(e.target.value)} 
+            onChange={(e) => {console.log(password.length); setPassword(e.target.value)}} 
             placeholder="password" 
             />
           <Center>
-            <Button isDisabled={password == ""} colorScheme='blue' onClick={generateEncryptedKeys}>Generate and Encrypt Keys</Button>
+            <Button isDisabled={password.length != 8} colorScheme='blue' onClick={generateEncryptedKeys}>Generate and Encrypt Keys</Button>
           </Center>
       </Box>
       }
