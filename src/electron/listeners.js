@@ -10,13 +10,15 @@ const {getDepositedStakesForAddressQuery} = require('./TheGraph/queries');
  * Generates public and private key pairs and saves them in two separate JSON files.
  * 
  * @param {Object} event - An event object that is used to send data to the front end.
- * @param {Array} arg - An array containing two elements: `numKeys` and `walletAddress`.
+ * @param {Array} arg - An array containing two elements: `numKeys` and `saveFolder`.
  * 
  * @returns {undefined} Sends a message to the frontend with the path to where the files were saved
+ * @returns {void} Sends a "receive-NO-keys-generated" event to the frontend process with paths to the generated files.
  */
 const genNodeOperatorKeystores = async (event, arg) => {
+    console.log("genNodeOperatorKeystores: Start")
     const curve = new EC('secp256k1')
-    const [numKeys, walletAddress] = arg
+    const [numKeys, saveFolder] = arg
 
     const publicFileJSON = {}
     const privateFileJSON = {}
@@ -33,39 +35,36 @@ const genNodeOperatorKeystores = async (event, arg) => {
         privKeyArray.push(keyPair.getPrivate().toString()) // do this in a more secure way? 
         pubKeyArray.push(pub)
     }
+
     // Create publicFileJSON object
-    publicFileJSON["walletAddress"] = walletAddress
     publicFileJSON["pubKeyArray"] = pubKeyArray
+    // save publicEtherfiKeystore
+    const publicFileTimeStamp = new Date().toISOString().slice(0,-5)
+    const publicFileName = "publicEtherfiKeystore-" + publicFileTimeStamp
+    const pubKeysFilePath = `${saveFolder}/${publicFileName}.json`
+
+    fs.writeFileSync(pubKeysFilePath, JSON.stringify(publicFileJSON), 'utf-8', (err) => {
+        if (err) {
+            console.error(err);
+            return;
+    }})
 
     // Create privateFileJSON object
     privateFileJSON["pubKeyArray"] = pubKeyArray
     privateFileJSON["privKeyArray"] = privKeyArray
-    event.sender.send("receive-NO-keys-generated", true)
-
-    // save publicEtherfiKeystore
-    const publicFileTimeStamp = new Date().toISOString().slice(0,-5)
-    const publicFileName = "publicEtherfiKeystore-" + publicFileTimeStamp
-    var saveOptions = {
-        title: "Save publicEtherfiEncryptionKeys",
-        defaultPath : publicFileName,
-        buttonLabel: "Save",
-    }
-    await saveFile(publicFileJSON, saveOptions)
-
     // save privateEtherfiKeystore
     const privateFileTimeStamp = new Date().toISOString().slice(0,-5)
     const privateFileName = "privateEtherfiKeystore-" + privateFileTimeStamp
-    saveOptions = {
-            title: "Save privateEtherfiKeystore file",
-            defaultPath : privateFileName,
-            buttonLabel: "Save",
-    
-    }
-    await saveFile(privateFileJSON, saveOptions)
+    const privKeysFilePath = `${saveFolder}/${privateFileName}.json`
 
-    // TODO: show on the front end 
-    // Send response to the front end? Maybe this should be the file names/locations?
-    const path = './STUBBED_SAVE_PATH'
+    fs.writeFileSync(privKeysFilePath, JSON.stringify(privateFileJSON), 'utf-8', (err) => {
+        if (err) {
+          console.error(err);
+          return;
+    }})
+    // Send the file paths back to frontend
+    event.sender.send("receive-NO-keys-generated", [pubKeysFilePath, privKeysFilePath])
+    console.log("genNodeOperatorKeystores: End")
 
 }
 
@@ -74,7 +73,7 @@ const genNodeOperatorKeystores = async (event, arg) => {
  *
  * @param {Object} event - Electron's event object used for inter-process communication.
  * @param {Array} arg - Array containing language used to generate the mnemonic.
- * @returns {void} Sends a "receive-new-mnemonic" event to the main process with the generated mnemonic as argument.
+ * @returns {void} Sends a "receive-new-mnemonic" event to the frontend process with the generated mnemonic as argument.
  */
 const genMnemonic = async (event, arg) => {
     console.log("genMnemonic: Start")
@@ -85,7 +84,7 @@ const genMnemonic = async (event, arg) => {
 }
 
 /**
- * Generates and encrypts the validator keys for a given wallet address and mnemonic
+ * Generates and encrypts the validator keys for a given stakeInfo.json file and mnemonic
  *
  * @param {object} event - Event object
  * @param {Array} arg - An array that contains the following elements:

@@ -9,8 +9,8 @@ const {
 // without exposing the entire object
 contextBridge.exposeInMainWorld("api", {
     // Function used in Node Operator Tab to generate public keys that will be registerd and private keys for decrypting
-    reqGenNodeOperatorKeys: function(numKeys, connectedWallet){
-        ipcRenderer.send("req-gen-node-operator-keys", [numKeys, connectedWallet]);
+    reqGenNodeOperatorKeys: function(numKeys, saveFolder){
+        ipcRenderer.send("req-gen-node-operator-keys", [numKeys, saveFolder]);
     },
     // Function called when node operator keys are generated.
     receiveNOKeysConfirmation: function(func){
