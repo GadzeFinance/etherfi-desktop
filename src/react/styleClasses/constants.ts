@@ -15,6 +15,7 @@ export const COLORS = {
     lightPurple: '#474276',
     borderColor: '#474276',
     darkBoxWithBorderColor: '#211F45',
-    textSecondary: '#DCD2E9'
+    textSecondary: '#DCD2E9',
+    successGreen: '#308c7c',
   }
   
