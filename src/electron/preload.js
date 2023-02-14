@@ -24,17 +24,24 @@ contextBridge.exposeInMainWorld("api", {
     receiveNewMnemonic: function(func){
         ipcRenderer.once("receive-new-mnemonic", (event, ...args) => func(event, ...args));       
     },
-    // Function to select a file path 
-    reqSelectFolder: function(){
-        ipcRenderer.send("req-select-folder", []);
+    // Function to select a Folder path 
+    reqSelectFolderPath: function(){
+        ipcRenderer.send("req-select-folder-path", []);
     },
     // Function to receive the selected folder path in the front end
     receiveSelectedFolderPath: function(func){
         ipcRenderer.once("receive-selected-folder-path", (event, ...args) => func(event, ...args));       
     },
-
-    reqGenValidatorKeysAndEncrypt: function(walletAddress, mnemonic, password, folder){
-        ipcRenderer.send("req-gen-val-keys-and-encrypt", [walletAddress, mnemonic, password, folder]);
+    // Function to select a file path 
+    reqSelectFilePath: function(){
+        ipcRenderer.send("req-select-file-path", []);
+    },
+    // Function to receive the selected folder path in the front end
+    receiveSelectedFilePath: function(func){
+        ipcRenderer.once("receive-selected-file-path", (event, ...args) => func(event, ...args));       
+    },
+    reqGenValidatorKeysAndEncrypt: function(mnemonic, password, folder, stakeInfoPath){
+        ipcRenderer.send("req-gen-val-keys-and-encrypt", [mnemonic, password, folder, stakeInfoPath]);
     },
     receiveKeyGenConfirmation: function(func){
         ipcRenderer.once("receive-key-gen-confirmation", (event, ...args) => func(event, ...args));       

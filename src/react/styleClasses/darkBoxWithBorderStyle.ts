@@ -1,7 +1,6 @@
 import { COLORS } from './constants'
 
 const darkBoxWithBorderStyle = {
-    maxW: '800px',
     minH: '40px',
     h: '100%',
     borderRadius: '20px',
