@@ -6,8 +6,6 @@ import { Box, Center, ScaleFade, Button, VStack, Text, HStack, Flex, NumberInput
 } from '@chakra-ui/react';
 import raisedWidgetStyle from '../styleClasses/widgetBoxStyle';
 import darkBoxWithBorderStyle from '../styleClasses/darkBoxWithBorderStyle';
-
-import EtherFiNumberInput from './EtherFiNumberInput';
 import { COLORS } from '../styleClasses/constants';
 
 
