@@ -1,14 +1,10 @@
 const {encrypt, decrypt } = require('./utils/encryptionUtils');
 const {createMnemonic, generateKeys, validateMnemonic} = require('./utils/Eth2Deposit.js')
-const {saveFile, selectFolder} = require('./utils/saveFile.js')
+const {saveFile, selectFolder, selectJsonFile} = require('./utils/saveFile.js')
 const EC = require('elliptic').ec
 const fs = require('fs');
 const {getDepositedStakesForAddressQuery} = require('./TheGraph/queries');
 
-
-// 
-var publicFileJSON = []
-var privateFileJSON = []
 
 /**
  * Generates public and private key pairs and saves them in two separate JSON files.
@@ -93,38 +89,31 @@ const genMnemonic = async (event, arg) => {
  *
  * @param {object} event - Event object
  * @param {Array} arg - An array that contains the following elements:
- *   arg[0]: {String} walletAddress - The wallet address
- *   arg[1]: {String} mnemonic - The mnemonic seed phrase
- *   arg[2]: {String} password - The password for encrypting the validator keys
- *   arg[3]: {String} folder - The folder where the generated files will be saved
+ *   arg[0]: {String} mnemonic - The mnemonic seed phrase
+ *   arg[1]: {String} password - The password for encrypting the validator keys
+ *   arg[2]: {String} folder - The folder where the generated files will be saved
+ *   arg[3]: {String} stakeInfoPath - The path to the stakeInfo.json file
  *
  * @return {object} - Sends an event `receive-key-gen-confirmation` with a single argument, 
  *   an array containing the folder path where the generated keys are saved.
  */
 const genValidatorKeysAndEncrypt = async (event, arg) => {
     console.log("genEncryptedKeys: Start")
-    var [walletAddress, mnemonic, password, folder] = arg
+    var [mnemonic, password, folder, stakeInfoPath] = arg
 
-    walletAddress = "0xcd5ebc2dd4cb3dc52ac66ceecc72c838b40a5931"
+    // get the data from stakeInfoPath
+    const stakeInfo = JSON.parse(fs.readFileSync(stakeInfoPath))
+    const count = stakeInfo.length
+    const nodeOperatorPublicKeys = stakeInfo.map((stake) => stake.bidderPublicKey)
+    const eth1_withdrawal_address = stakeInfo[0].withdrawalSafeAddress;
+    console.log(stakeInfo)
+
+
     const timeStamp = new Date().toISOString().slice(0,-5)
     folder += `/etherfi_keys-${timeStamp}`
 
-    const {data} = await getDepositedStakesForAddressQuery(walletAddress);
-    
-    console.log(data)
-    // TODO: CHECK FOR ERRORS in a nicer way
-    if(data.stakes.length < 1) {
-        const error = "ERROR: number of stakes for this wallet address in deposit state: " +  data.stakes.length
-        event.sender.send("push-logs", error)
-        return
-    }
-    const count = data.stakes.length
-    const nodeOperatorPublicKeys = data.stakes.map((stake) => stake.winningBid.bidderPublicKey)
-
-
     const index = 1
     const network = 'goerli' // TODO: change to 'mainnet'
-    const eth1_withdrawal_address = walletAddress// TODO: update this
 
     await generateKeys(mnemonic, index, count, network, password, eth1_withdrawal_address, folder)
 
@@ -235,12 +224,13 @@ const _encryptValidatorKeys = async (folderPath, password, nodeOperatorPubKeys) 
 
     const stakeRequestTimeStamp = new Date().toISOString().slice(0,-5)
     const stakeRequestFileName = "stakeRequest-" + stakeRequestTimeStamp
-    saveOptions = {
-            title: "Save nodeOperatorKeys file",
-            defaultPath : folderPath + '/' + stakeRequestFileName,
-            buttonLabel: "Save Stake Request",
-    }
-    await saveFile(stakeRequestJSON, saveOptions)
+    const filePath = `${folderPath}/${stakeRequestFileName}.json`
+
+    fs.writeFileSync(filePath, JSON.stringify(stakeRequestJSON), 'utf-8', (err) => {
+        if (err) {
+          console.error(err);
+          return;
+    }})
 }
 
 /**
@@ -258,6 +248,24 @@ const listenSelectFolder = async (event, arg) => {
         console.log("ERROR Selecting Files")
         console.log(error)
         event.sender.send("receive-selected-folder-path", 'Error Selecting Path')
+    })
+}
+
+/**
+ * Opens dialog that allows user to select a file.
+ * 
+ * @emits "receive-selected-folder-path" event with the selected folder path
+ * 
+ * @returns {undefined} No return value. Emits "receive-selected-folder-path" event with selected folder path
+ */
+const listenSelectJsonFile = async (event, arg) => {
+    selectJsonFile().then((result) => {
+        const path = result.canceled ? '' : result.filePaths[0];
+        event.sender.send("receive-selected-file-path", path)
+    }).catch((error) => {
+        console.log("ERROR Selecting Files")
+        console.log(error)
+        event.sender.send("receive-selected-file-path", 'Error Selecting Path')
     })
 }
 
@@ -309,6 +317,7 @@ module.exports = {
     genNodeOperatorKeystores,
     genMnemonic,
     genValidatorKeysAndEncrypt,
-    listenSelectFolder, 
+    listenSelectFolder,
+    listenSelectJsonFile,
     testWholeEncryptDecryptFlow
 }

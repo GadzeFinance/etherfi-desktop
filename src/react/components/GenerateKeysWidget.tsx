@@ -28,8 +28,8 @@ const GenerateKeysWidget: React.FC = () => {
         window.api.receiveSelectedFolderPath((event: Electron.IpcMainEvent, path: string) => {
           setSavePath(path)
         })
-        window.api.reqSelectFolder();    
-      }
+        window.api.reqSelectFolderPath();    
+    }
 
   return (
     <Center>

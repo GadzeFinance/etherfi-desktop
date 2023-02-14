@@ -1,20 +1,6 @@
 [
     {
-        "stakerAddress": "0x2Fc348E6505BA471EB21bFe7a50298fd1f02DBEA",
         "bidderPublicKey": "0x2Fc348E6505BA471EB21bFe7a50298fd1f02DBEA",
         "withdrawalSafeAddress": "0x2Fc348E6505BA471EB21bFe7a50298fd1f02DBEA"
-
-    },
-    {
-        "stakerAddress": "0x2Fc348E6505BA471EB21bFe7a50298fd1f02DBEA",
-        "bidderPublicKey": "0x2Fc348E6505BA471EB21bFe7a50298fd1f02DBEA",
-        "withdrawalSafeAddress": "0x2Fc348E6505BA471EB21bFe7a50298fd1f02DBEA"
-
-    },
-    {
-        "stakerAddress": "0x2Fc348E6505BA471EB21bFe7a50298fd1f02DBEA",
-        "bidderPublicKey": "0x2Fc348E6505BA471EB21bFe7a50298fd1f02DBEA",
-        "withdrawalSafeAddress": "0x2Fc348E6505BA471EB21bFe7a50298fd1f02DBEA"
-
     }
 ]
