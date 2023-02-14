@@ -109,6 +109,22 @@ const theme = extendTheme({
           bg: 'green.main',
           textColor: 'white',
           _hover: { bg: 'green.light' },
+        },
+        'white-button-generate': {
+          minW:"170px",
+          bg: 'white',
+          textColor: 'black',
+          _hover: { bg: "#00F17D" },
+          _disabled: {
+            bg:"red.dark",
+          },
+        },
+        'white-button': {
+
+          minW:"170px",
+          bg: 'white',
+          textColor: 'black',
+          _hover: { bg: 'grey' },
         }
       },
     },

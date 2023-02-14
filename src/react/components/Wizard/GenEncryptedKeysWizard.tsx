@@ -18,9 +18,6 @@ const steps = [
   { label: 'Generate Mnemonic', content },
   { label: 'Set Password', content },
   { label: 'Create & Encrypt Validator Keys', content },
-  // { label: 'Deposit ETH', content },
-  // { label: 'Encrypt Validator Key', content },
-  // { label: 'Upload Encrypted Key', content },
 ]
 
 interface WizardProps {
