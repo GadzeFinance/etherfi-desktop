@@ -6,8 +6,6 @@ import { Box, Center, ScaleFade, Button, VStack, Text, HStack, Flex, NumberInput
 } from '@chakra-ui/react';
 import raisedWidgetStyle from '../styleClasses/widgetBoxStyle';
 import darkBoxWithBorderStyle from '../styleClasses/darkBoxWithBorderStyle';
-
-import EtherFiNumberInput from './EtherFiNumberInput';
 import { COLORS } from '../styleClasses/constants';
 
 
@@ -28,12 +26,12 @@ const GenerateKeysWidget: React.FC = () => {
         window.api.receiveSelectedFolderPath((event: Electron.IpcMainEvent, path: string) => {
           setSavePath(path)
         })
-        window.api.reqSelectFolder();    
-      }
+        window.api.reqSelectFolderPath();    
+    }
 
   return (
     <Center>
-        <Box maxW={'800px'} sx={raisedWidgetStyle} bg="#2b2852">
+        <Box sx={raisedWidgetStyle} bg="#2b2852">
         <VStack
             spacing={4}
             align='stretch'
@@ -45,7 +43,7 @@ const GenerateKeysWidget: React.FC = () => {
         </HStack>
         </Box>
 
-        <Box maxW={'800px'} sx={darkBoxWithBorderStyle} bg="#2b2852">
+        <Box sx={darkBoxWithBorderStyle} bg="#2b2852">
         <HStack spacing='5px'mb="5px">
         <Text fontSize='14px' as='b' color="white">Number of Keys</Text>
         <Text fontSize='11px' color={COLORS.textSecondary}>(10000 max)</Text>
