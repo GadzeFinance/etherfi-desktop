@@ -1,8 +1,8 @@
 import React, { useState } from 'react'
-import { Button, Flex, Text, Center } from '@chakra-ui/react'
-import { ExternalLinkIcon } from '@chakra-ui/icons'
+import {Flex, Text } from '@chakra-ui/react'
 import DisplayMnemonic from '../DisplayMnemonic'
-import WizardNavigatorProps from '../WizardNavigator'
+import WizardNavigator from '../WizardNavigator'
+
 
 interface StepGenerateMnemonicProps {
   goNextStep: () => void
@@ -44,22 +44,14 @@ const StepGenerateMnemonic: React.FC<StepGenerateMnemonicProps> = (props) => {
         We have successfully received your deposit of ___ ETH!
         Click the button below to generate your mnemonic which will be used to generate your validator keys.
       </Text>
-        <Center>
-        <Button variant="wizard-button-generate"
-           maxWidth={'300px'} 
-           size={'sm'} onClick={generateMnemonic}
-           isLoading={generating}
-           loadingText='Generating'>
-          Generete Mnemonic
-        </Button>
-        </Center>
-        <WizardNavigatorProps goBackStep={props.goBackStep} goNextStep={props.goNextStep} nextText="Proceed" backText="Go Back" />
+        <WizardNavigator backVisible={true} goBackStep={props.goBackStep} nextVisible={true} goNextStep={generateMnemonic}  nextText="Generate Mnemonic" backText="Go Back" 
+        nextProps={{isLoading:generating, loadingText:'Generating', variant:"wizard-button-generate"}}/>
         </>
         }
         {props.mnemonic && (
         <>
           <DisplayMnemonic mnemonic={props.mnemonic}/>
-          <WizardNavigatorProps goBackStep={props.goBackStep} goNextStep={props.goNextStep} nextText="next" backText="back" />
+          <WizardNavigator backVisible={true} goBackStep={() => {props.setMnemonic("")}} nextVisible={true} goNextStep={props.goNextStep}  nextText="Proceed" backText="Go Back" />
         </>)
         }
     </Flex>
@@ -67,4 +59,3 @@ const StepGenerateMnemonic: React.FC<StepGenerateMnemonicProps> = (props) => {
 }
 
 export default StepGenerateMnemonic
-

@@ -10,6 +10,7 @@ const {
     genNodeOperatorKeystores,
     genMnemonic,
     listenSelectFolder,
+    listenSelectJsonFile,
     genValidatorKeysAndEncrypt,
     testWholeEncryptDecryptFlow
 } = require('./listeners');
@@ -85,7 +86,8 @@ app.on("window-all-closed", function () {
 // Register IPC Listeners
 ipcMain.on("req-gen-node-operator-keys", genNodeOperatorKeystores);  
 ipcMain.on("req-new-mnemonic", genMnemonic);
-ipcMain.on("req-select-folder", listenSelectFolder);
+ipcMain.on("req-select-folder-path", listenSelectFolder);
+ipcMain.on("req-select-file-path", listenSelectJsonFile);
 ipcMain.on("req-gen-val-keys-and-encrypt", genValidatorKeysAndEncrypt);
 
 

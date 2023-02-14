@@ -1,19 +1,23 @@
 import React, {useState} from 'react'
 import { Center, Flex } from '@chakra-ui/react'
 import { Step, Steps, useSteps } from 'chakra-ui-steps'
-import StepUploadStakeInfo from './Steps/StepUploadStakeInfo'
+// STEP 1:
+import StepSelectStakeInfoPath from './Steps/StepSelectStakeInfoPath'
+// STEP 2:
 import StepGenerateMnemonic from './Steps/StepGenerateMnemonic'
-import StepGenerateKeys from './Steps/StepGenerateKeys'
-import StepSuccess from './Steps/StepSuccess'
-import StepUploadKeys from './Steps/StepUploadKeys'
+// STEP 3:
+import StepGetPassword from './Steps/StepGetPassword'
+//STEP 4: 
+import StepGenerateValKeysAndEncrypt from './Steps/StepGenerateValKeysAndEncrypt'
+
 
 const content = <Flex py={4}></Flex>
 
 const steps = [
   { label: 'Upload StakeInfo.json', content },
   { label: 'Generate Mnemonic', content },
-  { label: 'Step 3', content },
-  { label: 'Step 4', content },
+  { label: 'Set Password', content },
+  { label: 'Create & Encrypt Validator Keys', content },
   // { label: 'Deposit ETH', content },
   // { label: 'Encrypt Validator Key', content },
   // { label: 'Upload Encrypted Key', content },
@@ -28,7 +32,10 @@ const GenEncryptedKeysWizard: React.FC<WizardProps> = (props) => {
   const { nextStep, prevStep, activeStep } = useSteps({
     initialStep: 0,
   })
+  const [stakeInfoPath, setStakeInfoPath] = React.useState<string>("");
   const [mnemonic, setMnemonic] = React.useState<string>("");
+  const [password, setPassword] = React.useState<string>("");
+  const [savePath, setSavePath] = React.useState<string>("");
 
   return (
     <Center>
@@ -52,10 +59,15 @@ const GenEncryptedKeysWizard: React.FC<WizardProps> = (props) => {
         </Steps>
       </Flex>
       <Flex flexDir="column" width="100%">
-        {activeStep === 0 && <StepUploadStakeInfo goNextStep={nextStep} />}
-        {activeStep === 1 && <StepGenerateMnemonic goBackStep={prevStep} goNextStep={nextStep} mnemonic={mnemonic} setMnemonic={setMnemonic} />}
-        {activeStep === 3 && <StepUploadKeys goNextStep={nextStep} />}
-        {activeStep === 4 && <StepSuccess navigateTo={props.navigateTo} />}
+
+        {activeStep === 0 && <StepSelectStakeInfoPath  goBackStep={prevStep} goNextStep={nextStep} stakeInfoPath={stakeInfoPath} setStakeInfoPath={setStakeInfoPath} />}
+        {activeStep === 1 && <StepGenerateMnemonic     goBackStep={prevStep} goNextStep={nextStep} mnemonic={mnemonic} setMnemonic={setMnemonic} />}
+        {activeStep === 2 && <StepGetPassword          goBackStep={prevStep} goNextStep={nextStep} password={password} setPassword={setPassword} />}
+        {activeStep === 3 && <StepGenerateValKeysAndEncrypt goBackStep={prevStep} goNextStep={nextStep}
+                                                            savePath={savePath} setSavePath={setSavePath}
+                                                            stakeInfoPath={stakeInfoPath}
+                                                            mnemonic={mnemonic} password={password}
+        />}
       </Flex>
     </Flex>
     </Center>
