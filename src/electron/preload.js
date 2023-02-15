@@ -46,6 +46,15 @@ contextBridge.exposeInMainWorld("api", {
     receiveKeyGenConfirmation: function(func){
         ipcRenderer.once("receive-key-gen-confirmation", (event, ...args) => func(event, ...args));       
     },
+    reqDecryptValidatorKeys: function(encryptedValidatorKeysFilePath, privateKeysFilePath, saveFolder){
+        ipcRenderer.send("req-decrypt-val-keys", [encryptedValidatorKeysFilePath, privateKeysFilePath, saveFolder]);
+    },
+    receiveDecryptComplete: function(func){
+        ipcRenderer.once("receive-decrypt-val-keys-complete", (event, ...args) => func(event, ...args));       
+    },
+
+
+    // Function to set up log listener
     receiveLogs: function(func){
         ipcRenderer.on("push-logs", (event, ...args) => func(event, ...args));       
     },

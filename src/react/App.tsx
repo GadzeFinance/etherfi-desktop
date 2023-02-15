@@ -1,12 +1,12 @@
-import React, {useState} from "react";
+import React, { useState } from "react";
 import { Tabs, Center, TabPanel, TabPanels } from '@chakra-ui/react'
-import NavBar from "./components/NavBar";
+import NavBar from "./components/Nav/NavBar";
 import StakerTab from "./components/tabs/stakerTab";
 import NodeOperatorTab from "./components/tabs/nodeOperatorTab";
 
 declare global {
   interface Window {
-      api:any;
+    api: any;
   }
 }
 
@@ -14,9 +14,15 @@ declare global {
 const App: React.FC = () => {
   const [tabIndex, setTabIndex] = useState<number>(0)
 
-  const handleTabsChange = (index : number) => {
+  const handleTabsChange = (index: number) => {
     setTabIndex(index)
   }
+
+  const options = {
+    0: "Generate Keys",
+    1: "Decrypt Keys"
+  }
+  const [selectedOption, setSelectedOption] = useState(0);
 
   return (
     <div>
@@ -28,16 +34,16 @@ const App: React.FC = () => {
         flexDirection={'column'}
         height="100vh"
       >
-        <NavBar />
+        <NavBar nodeOperatorOptions={[0, 1]} setNodeOperatorOption={setSelectedOption} selectedOption={selectedOption} />
         <Center flex="auto">
-            <TabPanels>
-              <TabPanel>
-                <StakerTab tabIndex={tabIndex} />
-              </TabPanel>
-              <TabPanel>
-                <NodeOperatorTab tabIndex={tabIndex} />
-              </TabPanel>
-            </TabPanels>
+          <TabPanels>
+            <TabPanel>
+              <StakerTab tabIndex={tabIndex} />
+            </TabPanel>
+            <TabPanel>
+              <NodeOperatorTab tabIndex={tabIndex} selectedOption={selectedOption} />
+            </TabPanel>
+          </TabPanels>
         </Center>
       </Tabs>
     </div>

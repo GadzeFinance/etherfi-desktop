@@ -24,7 +24,8 @@ const Colors = {
   },
   green: {
     main: '#008000',
-    light: '#2EAA50'
+    light: '#2EAA50',
+    successLight: '#00F17D'
   },
   red: '#ED7171',
 }
@@ -105,19 +106,11 @@ const theme = extendTheme({
           textColor: 'white',
           _hover: { bg: 'red' },
         },
-        'wizard-button-generate': {
-          bg: 'green.main',
-          textColor: 'white',
-          _hover: { bg: 'green.light' },
-        },
         'white-button-generate': {
           minW:"170px",
           bg: 'white',
           textColor: 'black',
-          _hover: { bg: "#00F17D" },
-          _disabled: {
-            bg:"red.dark",
-          },
+          _hover: { bg: "green.successLight" },
         },
         'white-button': {
 

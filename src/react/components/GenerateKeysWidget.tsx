@@ -94,7 +94,7 @@ const GenerateKeysWidget: React.FC = () => {
                         <Box>
                             <Center>
                                 <HStack spacing='10px' mb="5px">
-                                    <Button variant="white-button" onClick={selectSavePath}>{savePath ? "Change Path" : "Select Path"}</Button>
+                                    <Button variant="white-button" onClick={selectSavePath}>{savePath ? "Change Path" : "Select Save Path"}</Button>
                                     <Button variant="white-button-generate" isDisabled={Number(numKeys) < 1 || Number(numKeys) > Number(MAX_KEYS) || savePath == ""}
                                         _disabled={{ bg: "grey.dark", _hover: { bg: "grey.dark" } }} onClick={generateKeys}>
                                         Generate Keys

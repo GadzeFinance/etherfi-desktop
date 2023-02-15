@@ -1,15 +1,23 @@
 import React from 'react';
 import GenerateKeysWidget from '../GenerateKeysWidget';
+import DecryptValidatorKeysWidget from '../DecryptValidatorKeysWidget';
 
-interface TabProps {
-    tabIndex: number;
-  }
+interface NodeOperatorTabProps {
+  tabIndex: number;
+  selectedOption: number,
+}
 
-const NodeOperatorTab: React.FC<TabProps> = ({ tabIndex }: TabProps) => {
+const nodeOperatorOptions = {
+  0: "Generate Keys",
+  1: "Decrypt Keys",
+}
+
+const NodeOperatorTab: React.FC<NodeOperatorTabProps> = ({ tabIndex, selectedOption }: NodeOperatorTabProps) => {
 
   return (
     <>
-        <GenerateKeysWidget/>
+      {selectedOption === 0 && <GenerateKeysWidget />}
+      {selectedOption === 1 && <DecryptValidatorKeysWidget />}
     </>
   )
 }
