@@ -2,6 +2,7 @@ const {encrypt, decrypt } = require('./utils/encryptionUtils');
 const {createMnemonic, generateKeys, validateMnemonic} = require('./utils/Eth2Deposit.js')
 const {saveFile, selectFolder, selectJsonFile} = require('./utils/saveFile.js')
 const EC = require('elliptic').ec
+const BN = require('bn.js');
 const fs = require('fs');
 const {getDepositedStakesForAddressQuery} = require('./TheGraph/queries');
 
@@ -153,7 +154,12 @@ const _getDepositDataAndKeystoresJSON = async (folderPath) => {
     const depositDataList = JSON.parse(fs.readFileSync(depositDataFilePaths[0]))
 
     const validatorKeystoreList = validatorKeyFilePaths.map(
-            filePath => JSON.parse(fs.readFileSync(filePath))
+        filePath => { 
+            return {
+                keystoreName: filePath.split("/").pop(),
+                keystoreData: JSON.parse(fs.readFileSync(filePath))
+            }
+        }
     )
 
     if (validatorKeystoreList.length !== depositDataList.length) {
@@ -181,8 +187,8 @@ const _encryptValidatorKeys = async (folderPath, password, nodeOperatorPubKeys) 
     const stakeRequestJSON = []
     for (var depositData of depositDataList) {
         // Step 1: Get the keystore corresponding to the depsoit data element
-        const matchesFound = validatorKeystoreList.filter(validatorKey => {
-            return validatorKey.pubkey === depositData.pubkey
+        const matchesFound = validatorKeystoreList.filter(keyStoreObj => {
+            return keyStoreObj.keystoreData.pubkey === depositData.pubkey
         })
 
         if (matchesFound.length !== 1) { 
@@ -191,7 +197,8 @@ const _encryptValidatorKeys = async (folderPath, password, nodeOperatorPubKeys) 
             console.log(matchesFound)
             return
         }
-        const validatorKey = JSON.stringify(matchesFound[0])
+        const validatorKey = JSON.stringify(matchesFound[0].keystoreData)
+        const keystoreName = matchesFound[0].keystoreName
         // create new keyPair
 
         // Step 2: Encrypt validator keys 
@@ -199,23 +206,23 @@ const _encryptValidatorKeys = async (folderPath, password, nodeOperatorPubKeys) 
         const nodeOperatorPubKeyHex = nodeOperatorPubKeys.pop()
         const nodeOperatorPubKeyPoint = curve.keyFromPublic(nodeOperatorPubKeyHex, 'hex').getPublic();
 
+        // Step 3: generate staker keys and derive shared secret
         const stakerKeyPair = curve.genKeyPair()
         const stakerPrivKey = stakerKeyPair.getPrivate()
 
         const stakerSharedSecret = nodeOperatorPubKeyPoint.mul(stakerPrivKey).getX()
-        const encryptedValidatorKey = encrypt(validatorKey, stakerSharedSecret.toArrayLike(Buffer, 'be', 32))
-        const encryptedPassword = encrypt(password, stakerSharedSecret.toArrayLike(Buffer, 'be', 32))
-        const stakerPubKeyHex = stakerKeyPair.getPublic().encode('hex')
 
-        const data = {
-            depositData: depositData, 
-            encryptedValidatorKey: encryptedValidatorKey,
-            encryptedPassword:encryptedPassword,
-            stakerPublicKey: stakerPubKeyHex, 
+        // Step 4: encrypt data and store it in the stakeReqeustJSON arrays
+        const stakeRequestItem = {
+            depositData: depositData,
+            encryptedKeystoreName: encrypt(keystoreName, stakerSharedSecret.toArrayLike(Buffer, 'be', 32)),
+            encryptedValidatorKey: encrypt(validatorKey, stakerSharedSecret.toArrayLike(Buffer, 'be', 32)),
+            encryptedPassword: encrypt(password, stakerSharedSecret.toArrayLike(Buffer, 'be', 32)),
+            stakerPublicKey: stakerKeyPair.getPublic().encode('hex'),
             nodeOperatorPublicKey: nodeOperatorPubKeyHex
         }
 
-        stakeRequestJSON.push(data)
+        stakeRequestJSON.push(stakeRequestItem)
     }
 
     // dont need to save a private file for the staker right now
@@ -268,6 +275,68 @@ const listenSelectJsonFile = async (event, arg) => {
     })
 }
 
+
+const decryptValidatorKeys = async (event, arg) => {
+    console.log("decryptValidatorKeys: Start")
+    const [encryptedValidatorKeysFilePath, privateKeysFilePath, chosenFolder] = arg
+
+    const encryptedValidatorKeysJson = JSON.parse(fs.readFileSync(encryptedValidatorKeysFilePath))
+    const privateKeysJson = JSON.parse(fs.readFileSync(privateKeysFilePath))
+
+    const curve = new EC('secp256k1')
+    const keystoreToPassword = {
+        keystoreArray: [],
+        passwordArray: [],
+    }
+
+    // create folder to store filess
+    const saveFolder = `${chosenFolder}/etherfi_validator_keys`
+    if (!fs.existsSync(saveFolder)) {
+        fs.mkdirSync(saveFolder);
+      }
+
+    // For each of the validator keys
+    for (var encryptedValKey of encryptedValidatorKeysJson) {
+        // Step 1: get the staker public key and convert it to a point
+        const stakerPublicKeyHex = encryptedValKey["stakerPublicKey"]
+        const receivedStakerPubKeyPoint = curve.keyFromPublic(stakerPublicKeyHex, 'hex').getPublic()
+
+        // Step 2: get the correct node Operator Private Key and convert it to a Big Number
+        const keyIndex = privateKeysJson["pubKeyArray"].indexOf(encryptedValKey["nodeOperatorPublicKey"])
+        const nodeOperatorPrivKeyString = privateKeysJson["privKeyArray"][keyIndex]
+        const nodeOperatorPrivKey = new BN(nodeOperatorPrivKeyString)
+
+        // Step 3: Generate shared secret and decrypt the message
+        const nodeOperatorSharedSecret = receivedStakerPubKeyPoint.mul(nodeOperatorPrivKey).getX()
+        const validatorKeyString = decrypt(encryptedValKey["encryptedValidatorKey"], nodeOperatorSharedSecret.toArrayLike(Buffer, 'be', 32))
+        const validatorKeyPassword = decrypt(encryptedValKey["encryptedPassword"], nodeOperatorSharedSecret.toArrayLike(Buffer, 'be', 32))
+        const keystoreName = decrypt(encryptedValKey["encryptedKeystoreName"], nodeOperatorSharedSecret.toArrayLike(Buffer, 'be', 32))
+
+        // Save keystore file
+        const keyStorePath = `${saveFolder}/${keystoreName}`
+        fs.writeFileSync(keyStorePath, validatorKeyString, 'utf-8', (err) => {
+            if (err) {
+                console.error(err);
+                return;
+        }})
+        keystoreToPassword["keystoreArray"].push(keystoreName)
+        keystoreToPassword["passwordArray"].push(validatorKeyPassword)
+    }
+    
+    const keystoreToPasswordFile = `${saveFolder}/keystore_to_password.json`
+    fs.writeFileSync(keystoreToPasswordFile, JSON.stringify(keystoreToPassword), 'utf-8', (err) => {
+        if (err) {
+            console.error(err);
+            return;
+    }})
+
+    event.sender.send("receive-decrypt-val-keys-complete", [saveFolder])
+    console.log("decryptValidatorKeys: End")
+
+}
+
+
+
 // Test Function
 const testWholeEncryptDecryptFlow = (event, arg) => {
 
@@ -318,5 +387,6 @@ module.exports = {
     genValidatorKeysAndEncrypt,
     listenSelectFolder,
     listenSelectJsonFile,
+    decryptValidatorKeys,
     testWholeEncryptDecryptFlow
 }

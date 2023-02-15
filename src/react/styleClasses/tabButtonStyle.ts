@@ -2,9 +2,11 @@ import { COLORS } from './constants'
 
 const tabButtonStyle = {
     height: '36px',
-    width: '150px',
+    width: '180px',
     borderRadius: '0.375rem',
-    _selected: { bg: COLORS.tabSelectionBlue },
+    bg: "rgba(0, 0, 0, 0)",
+    _selected: { bg: COLORS.tabSelectionBlue, _hover: {bg: COLORS.tabSelectionBlue}},
+    _hover: { bg: "rgba(0, 0, 0, 0)" },
     fontSize: '15px',
     color: 'white'
 }
