@@ -12,6 +12,7 @@ const {
     listenSelectFolder,
     listenSelectJsonFile,
     genValidatorKeysAndEncrypt,
+    decryptValidatorKeys,
     testWholeEncryptDecryptFlow
 } = require('./listeners');
 
@@ -89,6 +90,8 @@ ipcMain.on("req-new-mnemonic", genMnemonic);
 ipcMain.on("req-select-folder-path", listenSelectFolder);
 ipcMain.on("req-select-file-path", listenSelectJsonFile);
 ipcMain.on("req-gen-val-keys-and-encrypt", genValidatorKeysAndEncrypt);
+ipcMain.on("req-decrypt-val-keys", decryptValidatorKeys);
+
 
 
 // ipcMain.on("req-build-public-staker-file", listenBuildStakerJson);
