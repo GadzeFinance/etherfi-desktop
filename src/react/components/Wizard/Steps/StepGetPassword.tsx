@@ -6,17 +6,17 @@ import { COLORS } from '../../../styleClasses/constants'
 interface StepGetPasswordProps {
   goNextStep: () => void
   goBackStep: () => void,
-  password: string, 
+  password: string,
   setPassword: (password: string) => void
 }
 
 const StepGetPassword: React.FC<StepGetPasswordProps> = (props) => {
-    const [showPassword, setShowPassword] = React.useState(false)
+  const [showPassword, setShowPassword] = React.useState(false)
 
-    const updatePassword = (newPassword:string) => {
-        // TODO: NEED TO VALIDATE PASSWORD
-        props.setPassword(newPassword)
-    }
+  const updatePassword = (newPassword: string) => {
+    // TODO: NEED TO VALIDATE PASSWORD
+    props.setPassword(newPassword)
+  }
 
   return (
     <Flex
@@ -32,24 +32,24 @@ const StepGetPassword: React.FC<StepGetPasswordProps> = (props) => {
         Enter Password
       </Text>
       <Text color="white" opacity={'0.7'}>
-        Please enter a password to create your validator keystores. 
+        Please enter a password to create your validator keystores.
       </Text>
       <InputGroup>
         <Input borderColor={COLORS.lightPurple} color="white"
-        placeholder='Enter password'
-        type={showPassword ? 'text' : 'password'}
-        value={props.password}
-        onChange={(e) => {updatePassword(e.target.value)}}
+          placeholder='Enter password'
+          type={showPassword ? 'text' : 'password'}
+          value={props.password}
+          onChange={(e) => { updatePassword(e.target.value) }}
 
         />
         <InputRightElement width='4.5rem'>
-            <Button h='1.75rem' size='sm' onClick={() => {setShowPassword(!showPassword)}}>
+          <Button h='1.75rem' size='sm' onClick={() => { setShowPassword(!showPassword) }}>
             {showPassword ? 'Hide' : 'Show'}
-        </Button>
+          </Button>
         </InputRightElement>
-        </InputGroup>
+      </InputGroup>
 
-        <WizardNavigator backVisible={true} goBackStep={props.goBackStep} nextVisible={true} goNextStep={props.goNextStep} nextProps={{isDisabled:props.password.length < 8}} nextText="Proceed" backText="Go Back" />
+      {/* <WizardNavigator backVisible={true} goBackStep={props.goBackStep} nextVisible={true} goNextStep={props.goNextStep} nextProps={{isDisabled:props.password.length < 8}} nextText="Proceed" backText="Go Back" /> */}
 
     </Flex>
   )

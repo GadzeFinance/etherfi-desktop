@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { Button, Flex, Text, Center } from '@chakra-ui/react'
-import {COLORS} from '../../../styleClasses/constants'
+import { COLORS } from '../../../styleClasses/constants'
 import WizardNavigator from '../WizardNavigator'
 
 interface StepGenerateValKeysAndEncryptProps {
@@ -22,7 +22,7 @@ const StepGenerateValKeysAndEncrypt: React.FC<StepGenerateValKeysAndEncryptProps
     window.api.receiveSelectedFolderPath((event: Electron.IpcMainEvent, path: string) => {
       props.setSavePath(path)
     })
-    window.api.reqSelectFolderPath();    
+    window.api.reqSelectFolderPath();
   }
 
   const generateEncryptedKeys = () => {
@@ -51,21 +51,22 @@ const StepGenerateValKeysAndEncrypt: React.FC<StepGenerateValKeysAndEncryptProps
       </Text>
       {!keysGenerated && (
         <>
-        <Text color="white" opacity={'0.7'}>
-          Select a folder to save your validator keystores and etherfi encrypted keys.
-        </Text>
-        <Center mt="5px">
-              <Button colorScheme='blue' onClick={selectSavePath}>Select Path</Button>
-        </Center>
-        {props.savePath &&
-          <>
-            <Text fontSize='14px' as='b' color="white">Selected Path:</Text>
-            <Text fontSize='14px' color={COLORS.textSecondary}>{props.savePath}</Text>
-          </>
-        }
-      <WizardNavigator backVisible={true} goBackStep={props.goBackStep} nextVisible={true} goNextStep={generateEncryptedKeys} backText="Go Back" nextText="Generate & Encrypt Keys" 
-                       nextProps={{isLoading:generatingKeys, loadingText:'Generating', variant:"wizard-button-generate", isDisabled:!props.savePath}}/>
-      </>
+          <Text color="white" opacity={'0.7'}>
+            Select a folder to save your validator keystores and etherfi encrypted keys.
+          </Text>
+          <Center mt="5px">
+            <Button colorScheme='blue' onClick={selectSavePath}>Select Path</Button>
+          </Center>
+          {props.savePath &&
+            <>
+              <Text fontSize='14px' as='b' color="white">Selected Path:</Text>
+              <Text fontSize='14px' color={COLORS.textSecondary}>{props.savePath}</Text>
+            </>
+          }
+          {/* <WizardNavigator backVisible={true} goBackStep={props.goBackStep} nextVisible={true} goNextStep={generateEncryptedKeys} backText="Go Back" nextText="Generate & Encrypt Keys" 
+                       nextProps={{isLoading:generatingKeys, loadingText:'Generating', variant:"wizard-button-generate", isDisabled:!props.savePath}}/> */}
+          {/* <WizardNavigator > */}
+        </>
       )
       } {
         keysGenerated && (
