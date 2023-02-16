@@ -24,6 +24,30 @@ const StepGenerateMnemonic: React.FC<StepGenerateMnemonicProps> = (props) => {
     setGenerating(true)
   }
 
+  const backDetails = {
+    text: "Back",
+    visible: true,
+  }
+
+  const backProps = {
+    onClick: props.goBackStep,
+    variant: "back-button",
+  }
+
+  const nextDetails = {
+    text: "Generate Mnemonic",
+    visible: true,
+  }
+
+  const nextProps = {
+    // isDisabled: !props.stakeInfoPath,
+    onClick: generateMnemonic,
+    variant: "white-button",
+    isLoading: generating,
+    loadingText: 'Generating'
+  }
+
+
   return (
     <Flex
       padding={'24px'}
@@ -44,14 +68,16 @@ const StepGenerateMnemonic: React.FC<StepGenerateMnemonicProps> = (props) => {
             We have successfully received your deposit of ___ ETH!
             Click the button below to generate your mnemonic which will be used to generate your validator keys.
           </Text>
-          <WizardNavigator backVisible={true} goBackStep={props.goBackStep} nextVisible={true} goNextStep={generateMnemonic} nextText="Generate Mnemonic" backText="Go Back"
-            nextProps={{ isLoading: generating, loadingText: 'Generating', variant: "white-button-generate" }} />
+          <WizardNavigator nextProps={nextProps} backProps={backProps} nextDetails={nextDetails} backDetails={backDetails} />
+
+          {/* <WizardNavigator backDetails={backDetails} backVisible={true} goBackStep={props.goBackStep} nextVisible={true} goNextStep={generateMnemonic} nextText="Generate Mnemonic" backText="Go Back"
+            nextProps={{ isLoading: generating, loadingText: 'Generating', variant: "white-button-generate" }} /> */}
         </>
       }
       {props.mnemonic && (
         <>
           <DisplayMnemonic mnemonic={props.mnemonic} />
-          <WizardNavigator backVisible={true} goBackStep={() => { props.setMnemonic("") }} nextVisible={true} goNextStep={props.goNextStep} nextText="Proceed" backText="Go Back" />
+          {/* <WizardNavigator backVisible={true} goBackStep={() => { props.setMnemonic("") }} nextVisible={true} goNextStep={props.goNextStep} nextText="Proceed" backText="Go Back" /> */}
         </>)
       }
     </Flex>
