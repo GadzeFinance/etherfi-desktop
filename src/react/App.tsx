@@ -22,8 +22,9 @@ const App: React.FC = () => {
     0: "Generate Keys",
     1: "Decrypt Keys"
   }
+  const nodeOperatorOptions = [0, 1]
+  
   const [selectedOption, setSelectedOption] = useState(0);
-
   return (
     <div>
       <Tabs
@@ -34,7 +35,7 @@ const App: React.FC = () => {
         flexDirection={'column'}
         height="100vh"
       >
-        <NavBar nodeOperatorOptions={[0, 1]} setNodeOperatorOption={setSelectedOption} selectedOption={selectedOption} />
+        <NavBar setNodeOperatorOption={setSelectedOption} selectedOption={selectedOption} />
         <Center flex="auto">
           <TabPanels>
             <TabPanel>

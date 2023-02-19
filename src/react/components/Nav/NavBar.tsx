@@ -20,12 +20,16 @@ import { COLORS } from '../../styleClasses/constants'
 import { ChevronDownIcon, ChevronUpIcon } from '@chakra-ui/icons'
 
 interface NavBarProps {
-    nodeOperatorOptions: Array<number>,
     setNodeOperatorOption: (option: number) => void,
     selectedOption: number
 }
 
-const NavBar: React.FC<NavBarProps> = ({ nodeOperatorOptions, setNodeOperatorOption, selectedOption }: NavBarProps) => {
+const dropDownOptions = {
+    "Generate Keys": 0,
+    "Decrypt Keys": 1
+}
+
+const NavBar: React.FC<NavBarProps> = ({ setNodeOperatorOption, selectedOption }: NavBarProps) => {
 
     const NodeOperatorTab = React.forwardRef((props, ref: any) => {
         const tabProps = useTab({ ...props, ref })
@@ -36,12 +40,6 @@ const NavBar: React.FC<NavBarProps> = ({ nodeOperatorOptions, setNodeOperatorOpt
         // 1. Reuse the `useTab` hook
         const isSelected = !!tabProps['aria-selected']
 
-        // 2. Hook into the Tabs `size`, `variant`, props
-        // const styles = useMultiStyleConfig('Tabs', tabProps)
-        //     <Box as='span' mr='2'>
-        //     {isSelected ? '😎' : '😐'}
-        // </Box>
-        // {tabProps.children}
         return (
             <Menu  >
                 {({ isOpen }) => (
@@ -50,10 +48,10 @@ const NavBar: React.FC<NavBarProps> = ({ nodeOperatorOptions, setNodeOperatorOpt
                             Node Operator
                         </MenuButton>
                         <MenuList sx={{ border: "0px", width: "10px", bg: COLORS.tabSelectionBlue }} fontSize="16px">
-                            <MenuItem bg={COLORS.tabSelectionBlue} color={selectedOption === 0 ? "white" : COLORS.textSecondary} _hover={{ textDecoration: "underline", color: "white" }} onClick={() => handleOptionSelect(nodeOperatorOptions[0])}>
+                            <MenuItem bg={COLORS.tabSelectionBlue} color={selectedOption === 0 ? "white" : COLORS.textSecondary} _hover={{ textDecoration: "underline", color: "white" }} onClick={() => handleOptionSelect(dropDownOptions["Generate Keys"])}>
                                 Generate keys
                             </MenuItem>
-                            <MenuItem bg={COLORS.tabSelectionBlue} color={selectedOption === 1 ? "white" : COLORS.textSecondary} _hover={{ textDecoration: "underline", color: "white" }} onClick={() => handleOptionSelect(nodeOperatorOptions[1])}>
+                            <MenuItem bg={COLORS.tabSelectionBlue} color={selectedOption === 1 ? "white" : COLORS.textSecondary} _hover={{ textDecoration: "underline", color: "white" }} onClick={() => handleOptionSelect(dropDownOptions["Decrypt Keys"])}>
                                 Decrypt
                             </MenuItem>
                         </MenuList>
@@ -63,7 +61,6 @@ const NavBar: React.FC<NavBarProps> = ({ nodeOperatorOptions, setNodeOperatorOpt
             </Menu >
         )
     })
-
 
     return (
         <nav>
@@ -86,16 +83,3 @@ const NavBar: React.FC<NavBarProps> = ({ nodeOperatorOptions, setNodeOperatorOpt
 
 
 export default NavBar
-
-
-{/* <Grid templateColumns='repeat(5, 1fr)' gap={6}>
-<GridItem w='100%' h='10' bg='blue.500'>
-    <Tab sx={tabButtonStyle}>Encrypt Validator Keys</Tab>
-</GridItem>
-<GridItem w='100%' h='10' bg='blue.500'>
-    <Tab sx={tabButtonStyle}>Generate Encryption Keys</Tab>
-</GridItem>
-<GridItem w='100%' h='10' bg='blue.500'>
-    <Tab sx={tabButtonStyle}> Decrypt Validator Keys</Tab>
-</GridItem>
-</Grid> */}

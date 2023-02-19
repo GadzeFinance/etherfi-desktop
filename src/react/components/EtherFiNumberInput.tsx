@@ -1,11 +1,11 @@
 import React from 'react';
-import { 
+import {
     NumberInput,
     Button,
     Flex,
     NumberInputField,
-    Text, 
-    VStack, 
+    Text,
+    VStack,
     Box
 } from '@chakra-ui/react';
 import { COLORS } from '../styleClasses/constants';
@@ -15,12 +15,12 @@ interface InputData {
     placeholder: string,
     value: number,
     setter: (value: number) => void,
-    increment: number, 
-    MIN: number, 
+    increment: number,
+    MIN: number,
     MAX: number
-  }
+}
 
-const EtherFiNumberInput: React.FC<InputData> = ({placeholder, value, setter, increment, MIN, MAX} : InputData) => {
+const EtherFiNumberInput: React.FC<InputData> = ({ placeholder, value, setter, increment, MIN, MAX }: InputData) => {
 
     const modifyValue = (newValue: number) => {
         if (value >= MIN && value <= MAX) {
@@ -30,32 +30,31 @@ const EtherFiNumberInput: React.FC<InputData> = ({placeholder, value, setter, in
         } else {
             setter(MIN)
         }
-
     }
 
-    return (          
+    return (
         <>
-        <VStack
-        spacing={0}
-        align='stretch'
-        >
-        <Box h='40px'>
-        <Text  as='b' color="white">{placeholder}</Text>
-        </Box>
-        <Box h='40px'>
-        <Flex alignItems="center">
-        <NumberInput min={MIN} max={MAX} color="white" value={value} onChange={(valAsString:string, valueAsNumber: number ) => modifyValue(valueAsNumber)}>
-                <NumberInputField />
-            </NumberInput>
-            <Button variant="outline" onClick={() => {if (value > MIN) setter(value-increment)}} color={COLORS.etherFiRed}>-</Button>
+            <VStack
+                spacing={0}
+                align='stretch'
+            >
+                <Box h='40px'>
+                    <Text as='b' color="white">{placeholder}</Text>
+                </Box>
+                <Box h='40px'>
+                    <Flex alignItems="center">
+                        <NumberInput min={MIN} max={MAX} color="white" value={value} onChange={(valAsString: string, valueAsNumber: number) => modifyValue(valueAsNumber)}>
+                            <NumberInputField />
+                        </NumberInput>
+                        <Button variant="outline" onClick={() => { if (value > MIN) setter(value - increment) }} color={COLORS.etherFiRed}>-</Button>
 
-            <Button variant="outline" onClick={() => {if (value < MAX) setter(value+increment)}} color="rgb(0, 241, 125)">+</Button>
-            </Flex>  
-        </Box>
-        </VStack>
-  
+                        <Button variant="outline" onClick={() => { if (value < MAX) setter(value + increment) }} color="rgb(0, 241, 125)">+</Button>
+                    </Flex>
+                </Box>
+            </VStack>
 
-        </>       
+
+        </>
     )
 }
 

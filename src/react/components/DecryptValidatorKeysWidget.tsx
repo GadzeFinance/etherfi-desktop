@@ -63,14 +63,18 @@ const DecryptValidatorKeysWidget: React.FC = () => {
                                         <Text fontSize='14px' as='b' color="white">Etherfi Private Keys</Text>
                                         <SelectFile setFilePath={setPrivKeysFilePath} filePath={privKeysFilePath} />
                                     </Box>
-
+                                    <Box>
+                                        <Text color="white" opacity={'0.7'} align="center">
+                                            {savePath}
+                                        </Text>
+                                    </Box>
                                 </VStack>
                             </Box>
                             <Box>
                                 <Center>
                                     <HStack spacing='10px' mb="5px">
                                         <Button variant="white-button" onClick={selectSavePath}>{savePath ? "Change Path" : "Select Save Path"}</Button>
-                                        <Button variant="white-button-generate" isDisabled={false}
+                                        <Button variant="white-button" isDisabled={!savePath || !encryptedValKeysFilePath || !privKeysFilePath}
                                             _disabled={{ bg: "grey.dark", _hover: { bg: "grey.dark" } }} onClick={decryptValidatorKeys}>
                                             Decrypt Validator Keys
                                         </Button>
