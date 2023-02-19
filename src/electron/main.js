@@ -1,7 +1,9 @@
 const {
     app,
     BrowserWindow,
-    ipcMain
+    ipcMain,
+    clipboard,
+    shell
 } = require("electron");
 
 const path = require("path");
@@ -91,6 +93,16 @@ ipcMain.on("req-select-folder-path", listenSelectFolder);
 ipcMain.on("req-select-file-path", listenSelectJsonFile);
 ipcMain.on("req-gen-val-keys-and-encrypt", genValidatorKeysAndEncrypt);
 ipcMain.on("req-decrypt-val-keys", decryptValidatorKeys);
+
+ipcMain.on("copy-to-clipboard", (event, arg) => {
+    const text = arg[0]
+    clipboard.writeText(text)
+})
+ipcMain.on("req-open-folder", (event, arg) => {
+    const folder = arg[0]
+    shell.openPath(folder)
+})
+
 
 
 

@@ -1,6 +1,7 @@
 const {
     ipcRenderer,
-    contextBridge
+    contextBridge,
+    clipboard
 } = require("electron");
 
 
@@ -52,12 +53,19 @@ contextBridge.exposeInMainWorld("api", {
     receiveDecryptComplete: function(func){
         ipcRenderer.once("receive-decrypt-val-keys-complete", (event, ...args) => func(event, ...args));       
     },
-
-
+    // Function to open a folder in the OS native file viewer
+    reqOpenFolder: function(folder){
+        ipcRenderer.send("req-open-folder", [folder]);
+    },
     // Function to set up log listener
     receiveLogs: function(func){
         ipcRenderer.on("push-logs", (event, ...args) => func(event, ...args));       
     },
+    // Function to copy Mnemonic to clipboard 
+    copyToClipBoard: function(text){
+        ipcRenderer.send("copy-to-clipboard", [text]);
+    },
+
 
 });
 
