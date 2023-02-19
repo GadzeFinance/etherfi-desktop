@@ -6,9 +6,13 @@ import StepSelectStakeInfoPath from './Steps/StepSelectStakeInfoPath'
 // STEP 2:
 import StepGenerateMnemonic from './Steps/StepGenerateMnemonic'
 // STEP 3:
-import StepGetPassword from './Steps/StepGetPassword'
+import StepCreatePassword from './Steps/StepCreatePassword'
 //STEP 4: 
-import StepGenerateValKeysAndEncrypt from './Steps/StepGenerateValKeysAndEncrypt'
+import StepCreateKeys from './Steps/StepCreateKeys'
+//STEP 5:
+import StepFinish from './Steps/StepFinish'
+
+
 
 
 const content = <Flex py={4}></Flex>
@@ -18,7 +22,7 @@ const steps = [
   { label: 'Generate Mnemonic', content },
   { label: 'Create Password', content },
   { label: 'Create Keys', content },
-  { label: 'Download StakeRequest.json', content },
+  { label: 'Finish', content },
 ]
 
 interface WizardProps {
@@ -31,7 +35,7 @@ const GenEncryptedKeysWizard: React.FC<WizardProps> = (props) => {
     initialStep: 0,
   })
   const [stakeInfoPath, setStakeInfoPath] = React.useState<string>("");
-  const [mnemonic, setMnemonic] = React.useState<string>("");
+  const [mnemonic, setMnemonic] = React.useState<string>("memory cargo burger orbit child symptom powder nation trap inside rent lawsuit prevent clump price false poem express picnic magic cousin question chat side");
   const [password, setPassword] = React.useState<string>("");
   const [savePath, setSavePath] = React.useState<string>("");
 
@@ -60,15 +64,16 @@ const GenEncryptedKeysWizard: React.FC<WizardProps> = (props) => {
 
           {activeStep === 0 && <StepSelectStakeInfoPath goBackStep={prevStep} goNextStep={nextStep} stakeInfoPath={stakeInfoPath} setStakeInfoPath={setStakeInfoPath} />}
           {activeStep === 1 && <StepGenerateMnemonic goBackStep={prevStep} goNextStep={nextStep} mnemonic={mnemonic} setMnemonic={setMnemonic} />}
-          {activeStep === 2 && <StepGetPassword goBackStep={prevStep} goNextStep={nextStep} password={password} setPassword={setPassword} />}
-          {activeStep === 3 && <StepGenerateValKeysAndEncrypt goBackStep={prevStep} goNextStep={nextStep}
+          {activeStep === 2 && <StepCreatePassword goBackStep={prevStep} goNextStep={nextStep} password={password} setPassword={setPassword} />}
+          {activeStep === 3 && <StepCreateKeys goBackStep={prevStep} goNextStep={nextStep}
             savePath={savePath} setSavePath={setSavePath}
             stakeInfoPath={stakeInfoPath}
             mnemonic={mnemonic} password={password}
           />}
+          {activeStep === 4 && < StepFinish savePath={savePath} />}
         </Flex>
       </Flex>
-    </Center>
+    </Center >
   )
 }
 

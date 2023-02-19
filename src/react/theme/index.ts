@@ -9,6 +9,7 @@ const Colors = {
     light: '#9DC2FF',
     main: '#5581E7',
     dark: '#2264D1',
+    secondary: '#88ACFF',
   },
   purple: {
     light: '#474276',
@@ -16,6 +17,7 @@ const Colors = {
     dark: '#2B2852',
     darker: '#602BA7',
     primary: '#9F62F2',
+    darkBackground: '#211F45',
   },
   black: '#000',
   white: '#FFF',
@@ -32,7 +34,10 @@ const Colors = {
     light: '#2EAA50',
     successLight: '#00F17D',
   },
-  red: '#ED7171',
+  red: {
+    primary: '#ED7171',
+    warning: '#F94545',
+  },
 }
 
 const CustomSteps = {
@@ -41,9 +46,9 @@ const CustomSteps = {
     return {
       ...StepsTheme.baseStyle(props),
       color: 'black',
-      inactiveColor: 'red',
+      inactiveColor: 'red.primary',
       base: {
-        inactiveColor: 'red',
+        inactiveColor: 'red.primary',
       },
       icon: {
         ...StepsTheme.baseStyle(props).icon,
@@ -62,12 +67,12 @@ const CustomSteps = {
       },
       stepIconContainer: {
         ...StepsTheme.baseStyle(props).stepIconContainer,
-        bg: 'red',
+        bg: 'red.primary',
         _activeStep: {
-          bg: 'red',
+          bg: 'red.primary',
         },
         _highlighted: {
-          bg: 'red',
+          bg: 'red.primary',
         },
       },
     }
@@ -96,23 +101,38 @@ const theme = extendTheme({
     }),
   },
   components: {
+    Icon: {
+      variants: {
+        'clickable-icon': {
+          borderRadius: '20%',
+          _hover: {
+            color: 'white',
+            boxShadow: '0 0 20px grey',
+            bg: 'grey.transparent',
+          },
+          _active: { bg: 'grey.transparent' },
+          color: 'blue.secondary',
+        },
+      },
+    },
+    Text: {
+      variants: {
+        'warning-text': {
+          color: 'red.warning',
+          fontSize: '12px',
+        },
+      },
+    },
     Button: {
       variants: {
-        'table-button-dark': {
-          bg: 'purple.light',
-          _hover: { bg: 'red' },
-        },
-        'table-button-action-complete': {
-          bg: 'green',
-          textColor: 'white',
-        },
         'wizard-nav-button': {
           bg: 'blue.main',
           textColor: 'white',
-          _hover: { bg: 'red' },
+          _hover: { bg: 'red.primary' },
         },
         'white-button': {
-          minW: '170px',
+          fontSize: '14px',
+          minW: '150px',
           bg: 'white',
           textColor: 'grey.primary',
           _hover: {
@@ -128,11 +148,25 @@ const theme = extendTheme({
           _disabled: { bg: 'grey.transparent' },
         },
         'back-button': {
+          fontSize: '14px',
+          minW: '150px',
           bg: 'grey.transparent',
           textColor: 'white',
           _hover: { bg: 'grey.light' },
           _active: {
             bg: 'grey.transparent',
+            textColor: 'purple.dark',
+          },
+          'browse-buttondddd': {
+            textColor: 'white',
+          },
+        },
+        'browse-folder-button': {
+          textColor: 'white',
+          border: '2px solid white',
+          _hover: { bg: 'grey.light' },
+          _active: {
+            bg: 'white',
             textColor: 'purple.dark',
           },
         },
