@@ -15,6 +15,28 @@ interface StepSelectStakeInfoPathProps {
 
 const StepSelectStakeInfoPath: React.FC<StepSelectStakeInfoPathProps> = (props) => {
 
+  const backDetails = {
+    text: "back",
+    visible: false,
+  }
+
+  const backProps = {
+    onClick: props.goBackStep,
+    variant: "white-button",
+  }
+
+  const nextDetails = {
+    text: "Proceed",
+    visible: true,
+  }
+
+  const nextProps = {
+    isDisabled: !props.stakeInfoPath,
+    onClick: props.goNextStep,
+    variant: "white-button",
+  }
+
+
   return (
     <Flex
       padding={'24px'}
@@ -34,7 +56,7 @@ const StepSelectStakeInfoPath: React.FC<StepSelectStakeInfoPathProps> = (props) 
       <Center mt="5px">
         <SelectFile filePath={props.stakeInfoPath} setFilePath={props.setStakeInfoPath} />
       </Center>
-      <WizardNavigator nextVisible={props.stakeInfoPath !== ""} goBackStep={props.goBackStep} goNextStep={props.goNextStep} nextText="Proceed" backText="Go Back" />
+      <WizardNavigator nextProps={nextProps} backProps={backProps} nextDetails={nextDetails} backDetails={backDetails} />
     </Flex>
   )
 }
