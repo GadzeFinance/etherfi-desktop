@@ -9,6 +9,7 @@ import successBoxStyle from '../styleClasses/successBoxStyle';
 import darkBoxWithBorderStyle from '../styleClasses/darkBoxWithBorderStyle';
 import { COLORS } from '../styleClasses/constants';
 import SavedFileBox from './SavedFileBox'
+import PasswordInput from './PasswordInput'
 
 
 const MAX_KEYS = "10000"
@@ -19,6 +20,8 @@ const GenerateKeysWidget: React.FC = () => {
     const [keysGenerated, setKeysGenerated] = useState<boolean>(false)
     const [pubKeysFilePath, setPubKeysFilePath] = useState<string>("")
     const [privKeysFilePath, setPrivKeysFilePath] = useState<string>("")
+    const [privKeysPassword, setPrivKeysPassword] = useState<string>("")
+    const [isPrivKeysPasswordValid, setIsPrivKeysPasswordValid] = useState<boolean>(false)
 
 
 
@@ -29,7 +32,7 @@ const GenerateKeysWidget: React.FC = () => {
             setKeysGenerated(true)
         })
         // Send request to backend to make the public and private key files
-        window.api.reqGenNodeOperatorKeys(numKeys, savePath);
+        window.api.reqGenNodeOperatorKeys(numKeys, savePath, privKeysPassword);
     }
 
     const selectSavePath = () => {
@@ -45,6 +48,8 @@ const GenerateKeysWidget: React.FC = () => {
         setKeysGenerated(false)
         setPubKeysFilePath("")
         setPrivKeysFilePath("")
+        setPrivKeysPassword("")
+        setIsPrivKeysPasswordValid(false)
     }
 
     return (
@@ -79,6 +84,7 @@ const GenerateKeysWidget: React.FC = () => {
                                     <InputRightElement children={<Box height="32px" width="50px" mr="44px" onClick={() => setNumKeys(MAX_KEYS)}><Button bg={COLORS.primaryBlue}>Max</Button></Box>} />
                                 </NumberInput>
                             </InputGroup>
+                            <PasswordInput password={privKeysPassword} setPassword={setPrivKeysPassword} isPasswordValid={isPrivKeysPasswordValid} setIsPasswordValid={setIsPrivKeysPasswordValid} />
                             {savePath &&
                                 <VStack
                                     mt="10px"
@@ -95,7 +101,7 @@ const GenerateKeysWidget: React.FC = () => {
                             <Center>
                                 <HStack spacing='10px' mb="5px">
                                     <Button variant="white-button" onClick={selectSavePath}>{savePath ? "Change Path" : "Select Save Path"}</Button>
-                                    <Button variant="white-button" isDisabled={Number(numKeys) < 1 || Number(numKeys) > Number(MAX_KEYS) || savePath == ""}
+                                    <Button variant="white-button" isDisabled={Number(numKeys) < 1 || Number(numKeys) > Number(MAX_KEYS) || savePath == "" || !isPrivKeysPasswordValid}
                                         onClick={generateKeys}>
                                         Generate Keys
                                     </Button>

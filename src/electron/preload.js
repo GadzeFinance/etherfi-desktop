@@ -10,8 +10,8 @@ const {
 // without exposing the entire object
 contextBridge.exposeInMainWorld("api", {
     // Function used in Node Operator Tab to generate public keys that will be registerd and private keys for decrypting
-    reqGenNodeOperatorKeys: function(numKeys, saveFolder){
-        ipcRenderer.send("req-gen-node-operator-keys", [numKeys, saveFolder]);
+    reqGenNodeOperatorKeys: function(numKeys, saveFolder, privKeysPassword){
+        ipcRenderer.send("req-gen-node-operator-keys", [numKeys, saveFolder, privKeysPassword]);
     },
     // Function called when node operator keys are generated.
     receiveNOKeysConfirmation: function(func){
@@ -47,8 +47,8 @@ contextBridge.exposeInMainWorld("api", {
     receiveKeyGenConfirmation: function(func){
         ipcRenderer.once("receive-key-gen-confirmation", (event, ...args) => func(event, ...args));       
     },
-    reqDecryptValidatorKeys: function(encryptedValidatorKeysFilePath, privateKeysFilePath, saveFolder){
-        ipcRenderer.send("req-decrypt-val-keys", [encryptedValidatorKeysFilePath, privateKeysFilePath, saveFolder]);
+    reqDecryptValidatorKeys: function(encryptedValidatorKeysFilePath, privateKeysFilePath, privKeysPassword, saveFolder){
+        ipcRenderer.send("req-decrypt-val-keys", [encryptedValidatorKeysFilePath, privateKeysFilePath, privKeysPassword, saveFolder]);
     },
     receiveDecryptComplete: function(func){
         ipcRenderer.once("receive-decrypt-val-keys-complete", (event, ...args) => func(event, ...args));       
