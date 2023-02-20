@@ -35,9 +35,11 @@ const GenEncryptedKeysWizard: React.FC<WizardProps> = (props) => {
     initialStep: 0,
   })
   const [stakeInfoPath, setStakeInfoPath] = React.useState<string>("");
-  const [mnemonic, setMnemonic] = React.useState<string>("memory cargo burger orbit child symptom powder nation trap inside rent lawsuit prevent clump price false poem express picnic magic cousin question chat side");
+  const [mnemonic, setMnemonic] = React.useState<string>("");
   const [password, setPassword] = React.useState<string>("");
   const [savePath, setSavePath] = React.useState<string>("");
+  const [keysGenerated, setKeysGenerated] = useState(false)
+  const [filesCreatedPath, setFilesCreatedPath] = useState("")
 
   return (
     <Center>
@@ -67,10 +69,12 @@ const GenEncryptedKeysWizard: React.FC<WizardProps> = (props) => {
           {activeStep === 2 && <StepCreatePassword goBackStep={prevStep} goNextStep={nextStep} password={password} setPassword={setPassword} />}
           {activeStep === 3 && <StepCreateKeys goBackStep={prevStep} goNextStep={nextStep}
             savePath={savePath} setSavePath={setSavePath}
+            keysGenerated={keysGenerated} setKeysGenerated={setKeysGenerated}
+            filesCreatedPath={filesCreatedPath} setFilesCreatedPath={setFilesCreatedPath}
             stakeInfoPath={stakeInfoPath}
             mnemonic={mnemonic} password={password}
           />}
-          {activeStep === 4 && < StepFinish savePath={savePath} />}
+          {activeStep === 4 && < StepFinish goBackStep={prevStep} />}
         </Flex>
       </Flex>
     </Center >

@@ -7,12 +7,9 @@ import {
 import raisedWidgetStyle from '../styleClasses/widgetBoxStyle';
 import successBoxStyle from '../styleClasses/successBoxStyle';
 import darkBoxWithBorderStyle from '../styleClasses/darkBoxWithBorderStyle';
-import { COLORS } from '../styleClasses/constants';
-import SavedFileBox from './SavedFileBox'
 import SelectFile from './SelectFile'
 
 
-const MAX_KEYS = "10000"
 
 const DecryptValidatorKeysWidget: React.FC = () => {
     const [numKeys, setNumKeys] = useState<string>("500");

@@ -95,8 +95,8 @@ const GenerateKeysWidget: React.FC = () => {
                             <Center>
                                 <HStack spacing='10px' mb="5px">
                                     <Button variant="white-button" onClick={selectSavePath}>{savePath ? "Change Path" : "Select Save Path"}</Button>
-                                    <Button variant="white-button-generate" isDisabled={Number(numKeys) < 1 || Number(numKeys) > Number(MAX_KEYS) || savePath == ""}
-                                        _disabled={{ bg: "grey.dark", _hover: { bg: "grey.dark" } }} onClick={generateKeys}>
+                                    <Button variant="white-button" isDisabled={Number(numKeys) < 1 || Number(numKeys) > Number(MAX_KEYS) || savePath == ""}
+                                        onClick={generateKeys}>
                                         Generate Keys
                                     </Button>
                                 </HStack>
@@ -109,10 +109,10 @@ const GenerateKeysWidget: React.FC = () => {
             {keysGenerated && (
                 <Box sx={successBoxStyle} bg="#2b2852">
                     <VStack
-                        spacing={4}
+                        spacing={3}
                         align='stretch'
                     >
-                        <Box>
+                        <Box p='10px'>
                             <HStack spacing='10px'>
                                 <Text fontSize='18px' as='b' color="white">Saved</Text>
                                 <Text fontSize='14px' color={COLORS.textSecondary}>The key files have been saved to your machine</Text>
