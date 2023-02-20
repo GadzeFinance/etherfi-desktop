@@ -20,7 +20,7 @@ const crypto = require('crypto');
 const genNodeOperatorKeystores = async (event, arg) => {
     console.log("genNodeOperatorKeystores: Start")
     const curve = new EC('secp256k1')
-    const [numKeys, saveFolder] = arg
+    const [numKeys, saveFolder, privKeysPassword] = arg
 
     const publicFileJSON = {}
     const privateKeysJSON = {}
@@ -59,7 +59,7 @@ const genNodeOperatorKeystores = async (event, arg) => {
     const privateFileName = "privateEtherfiKeystore-" + privateFileTimeStamp
     const privKeysFilePath = `${saveFolder}/${privateFileName}.json`
 
-    const encryptedPrivateKeysJSON = encryptPrivateKeys(privateKeysJSON, "THIS_IS_THE_PASSWORD")
+    const encryptedPrivateKeysJSON = encryptPrivateKeys(privateKeysJSON, privKeysPassword)
 
     fs.writeFileSync(privKeysFilePath, JSON.stringify(encryptedPrivateKeysJSON), 'utf-8', (err) => {
         if (err) {
@@ -72,9 +72,9 @@ const genNodeOperatorKeystores = async (event, arg) => {
 
 }
 
-const encryptPrivateKeys = (jsonData, password) => {
+const encryptPrivateKeys = (jsonData, privKeysPassword) => {
     const salt = crypto.randomBytes(16);
-    const key = crypto.pbkdf2Sync(password, salt, 100000, 32, 'sha256');
+    const key = crypto.pbkdf2Sync(privKeysPassword, salt, 100000, 32, 'sha256');
     const iv = crypto.randomBytes(16);
     const cipher = crypto.createCipheriv('aes-256-cbc', key, iv);
     const dataBuffer = Buffer.from(JSON.stringify(jsonData), 'utf8')
@@ -87,11 +87,11 @@ const encryptPrivateKeys = (jsonData, password) => {
     return encryptedJSON;
 }
 
-const decryptPrivateKeys = (privateKeysJSON, password) => {
+const decryptPrivateKeys = (privateKeysJSON, privKeysPassword) => {
     const iv = Buffer.from(privateKeysJSON.iv, 'hex');
     const salt = Buffer.from(privateKeysJSON.salt, 'hex');
     const encryptedData = Buffer.from(privateKeysJSON.data, 'hex');
-    const key = crypto.pbkdf2Sync(password, salt, 100000, 32, 'sha256');
+    const key = crypto.pbkdf2Sync(privKeysPassword, salt, 100000, 32, 'sha256');
     const decipher = crypto.createDecipheriv('aes-256-cbc', key, iv);
     const decryptedData = Buffer.concat([decipher.update(encryptedData), decipher.final()]);
     console.log(decryptedData.toString('utf8'));
@@ -309,12 +309,12 @@ const listenSelectJsonFile = async (event, arg) => {
 
 const decryptValidatorKeys = async (event, arg) => {
     console.log("decryptValidatorKeys: Start")
-    const [encryptedValidatorKeysFilePath, privateKeysFilePath, chosenFolder] = arg
+    const [encryptedValidatorKeysFilePath, privateKeysFilePath, privKeysPassword,chosenFolder] = arg
 
     const encryptedValidatorKeysJson = JSON.parse(fs.readFileSync(encryptedValidatorKeysFilePath))
     const encrpytedPrivateKeysJson = JSON.parse(fs.readFileSync(privateKeysFilePath))
     
-    const privateKeysJson = decryptPrivateKeys(encrpytedPrivateKeysJson, "THIS_IS_THE_PASSWORD")
+    const privateKeysJson = decryptPrivateKeys(encrpytedPrivateKeysJson, privKeysPassword)
 
     const curve = new EC('secp256k1')
     const keystoreToPassword = {
