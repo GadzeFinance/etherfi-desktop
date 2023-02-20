@@ -1,4 +1,5 @@
 import React from 'react';
+import { ScaleFade } from '@chakra-ui/react'
 import GenerateKeysWidget from '../GenerateKeysWidget';
 import DecryptValidatorKeysWidget from '../DecryptValidatorKeysWidget';
 
@@ -16,8 +17,11 @@ const NodeOperatorTab: React.FC<NodeOperatorTabProps> = ({ tabIndex, selectedOpt
 
   return (
     <>
-      {selectedOption === 0 && <GenerateKeysWidget />}
-      {selectedOption === 1 && <DecryptValidatorKeysWidget />}
+      <ScaleFade initialScale={0.5} in={tabIndex === 1}>
+        {selectedOption === 0 && <GenerateKeysWidget />}
+        {selectedOption === 1 && <DecryptValidatorKeysWidget />}
+      </ScaleFade>
+
     </>
   )
 }

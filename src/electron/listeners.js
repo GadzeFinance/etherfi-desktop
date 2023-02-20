@@ -4,7 +4,8 @@ const {saveFile, selectFolder, selectJsonFile} = require('./utils/saveFile.js')
 const EC = require('elliptic').ec
 const BN = require('bn.js');
 const fs = require('fs');
-const {getDepositedStakesForAddressQuery} = require('./TheGraph/queries');
+const crypto = require('crypto');
+
 
 
 /**
@@ -19,10 +20,10 @@ const {getDepositedStakesForAddressQuery} = require('./TheGraph/queries');
 const genNodeOperatorKeystores = async (event, arg) => {
     console.log("genNodeOperatorKeystores: Start")
     const curve = new EC('secp256k1')
-    const [numKeys, saveFolder] = arg
+    const [numKeys, saveFolder, privKeysPassword] = arg
 
     const publicFileJSON = {}
-    const privateFileJSON = {}
+    const privateKeysJSON = {}
 
     const privKeyArray = []
     const pubKeyArray = []
@@ -50,15 +51,17 @@ const genNodeOperatorKeystores = async (event, arg) => {
             return;
     }})
 
-    // Create privateFileJSON object
-    privateFileJSON["pubKeyArray"] = pubKeyArray
-    privateFileJSON["privKeyArray"] = privKeyArray
+    // Create privateKeysJSON object
+    privateKeysJSON["pubKeyArray"] = pubKeyArray
+    privateKeysJSON["privKeyArray"] = privKeyArray
     // save privateEtherfiKeystore
     const privateFileTimeStamp = new Date().toISOString().slice(0,-5)
     const privateFileName = "privateEtherfiKeystore-" + privateFileTimeStamp
     const privKeysFilePath = `${saveFolder}/${privateFileName}.json`
 
-    fs.writeFileSync(privKeysFilePath, JSON.stringify(privateFileJSON), 'utf-8', (err) => {
+    const encryptedPrivateKeysJSON = encryptPrivateKeys(privateKeysJSON, privKeysPassword)
+
+    fs.writeFileSync(privKeysFilePath, JSON.stringify(encryptedPrivateKeysJSON), 'utf-8', (err) => {
         if (err) {
           console.error(err);
           return;
@@ -67,6 +70,34 @@ const genNodeOperatorKeystores = async (event, arg) => {
     event.sender.send("receive-NO-keys-generated", [pubKeysFilePath, privKeysFilePath])
     console.log("genNodeOperatorKeystores: End")
 
+}
+
+const encryptPrivateKeys = (jsonData, privKeysPassword) => {
+    const salt = crypto.randomBytes(16);
+    const key = crypto.pbkdf2Sync(privKeysPassword, salt, 100000, 32, 'sha256');
+    const iv = crypto.randomBytes(16);
+    const cipher = crypto.createCipheriv('aes-256-cbc', key, iv);
+    const dataBuffer = Buffer.from(JSON.stringify(jsonData), 'utf8')
+    const encryptedData = Buffer.concat([cipher.update(dataBuffer), cipher.final()]);
+    const encryptedJSON = {
+        iv: iv.toString('hex'),
+        salt: salt.toString('hex'),
+        data: encryptedData.toString('hex')
+    };
+    return encryptedJSON;
+}
+
+const decryptPrivateKeys = (privateKeysJSON, privKeysPassword) => {
+    const iv = Buffer.from(privateKeysJSON.iv, 'hex');
+    const salt = Buffer.from(privateKeysJSON.salt, 'hex');
+    const encryptedData = Buffer.from(privateKeysJSON.data, 'hex');
+    const key = crypto.pbkdf2Sync(privKeysPassword, salt, 100000, 32, 'sha256');
+    const decipher = crypto.createDecipheriv('aes-256-cbc', key, iv);
+    const decryptedData = Buffer.concat([decipher.update(encryptedData), decipher.final()]);
+    console.log(decryptedData.toString('utf8'));
+    decryptedDataJSON = JSON.parse(decryptedData.toString('utf8'))
+    console.log(decryptedDataJSON)
+    return decryptedDataJSON
 }
 
 /**
@@ -278,10 +309,12 @@ const listenSelectJsonFile = async (event, arg) => {
 
 const decryptValidatorKeys = async (event, arg) => {
     console.log("decryptValidatorKeys: Start")
-    const [encryptedValidatorKeysFilePath, privateKeysFilePath, chosenFolder] = arg
+    const [encryptedValidatorKeysFilePath, privateKeysFilePath, privKeysPassword,chosenFolder] = arg
 
     const encryptedValidatorKeysJson = JSON.parse(fs.readFileSync(encryptedValidatorKeysFilePath))
-    const privateKeysJson = JSON.parse(fs.readFileSync(privateKeysFilePath))
+    const encrpytedPrivateKeysJson = JSON.parse(fs.readFileSync(privateKeysFilePath))
+    
+    const privateKeysJson = decryptPrivateKeys(encrpytedPrivateKeysJson, privKeysPassword)
 
     const curve = new EC('secp256k1')
     const keystoreToPassword = {
