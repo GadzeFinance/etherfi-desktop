@@ -1,9 +1,12 @@
 import React, { useState } from 'react'
-import { Button, Flex, Text, Center } from '@chakra-ui/react'
+import { Button, Flex, Text, Center, VStack, Box, HStack } from '@chakra-ui/react'
 import WizardNavigator from '../WizardNavigator'
 import IconKey from '../../Icons/IconKey'
 import EtherFiSpinner from '../../EtherFiSpinner'
-
+import IconCheckMark from '../../Icons/IconCheckMark'
+import IconSavedFile from '../../Icons/IconSavedFile'
+import successBoxStyle from '../../../styleClasses/successBoxStyle'
+import { COLORS } from '../../../styleClasses/constants'
 
 
 interface StepCreateKeysProps {
@@ -14,12 +17,15 @@ interface StepCreateKeysProps {
   mnemonic: string,
   password: string,
   stakeInfoPath: Object,
+  keysGenerated: boolean,
+  setKeysGenerated: (generated: boolean) => void,
+  filesCreatedPath: string
+  setFilesCreatedPath: (path: string) => void,
 }
 
 const StepCreateKeys: React.FC<StepCreateKeysProps> = (props) => {
 
   const [generatingKeys, setGeneratingKeys] = useState(false)
-  const [keysGenerated, setKeysGenerated] = useState(false)
 
   const selectSavePath = () => {
     window.api.receiveSelectedFolderPath((event: Electron.IpcMainEvent, path: string) => {
@@ -32,12 +38,16 @@ const StepCreateKeys: React.FC<StepCreateKeysProps> = (props) => {
     window.api.receiveKeyGenConfirmation((event: Electron.IpcMainEvent, path: string) => {
       console.log("KEY GEN COMPLETE!")
       console.log("Files saved too: " + path)
+      props.setFilesCreatedPath(path[0])
       setGeneratingKeys(false)
-      setKeysGenerated(true)
-      props.goNextStep()
+      props.setKeysGenerated(true)
     })
     window.api.reqGenValidatorKeysAndEncrypt(props.mnemonic, props.password, props.savePath, props.stakeInfoPath);
     setGeneratingKeys(true)
+  }
+  const openFilesCreatedFolder = () => {
+    console.log(props.filesCreatedPath)
+    window.api.reqOpenFolder(props.filesCreatedPath);
   }
 
   const backDetails = {
@@ -71,7 +81,7 @@ const StepCreateKeys: React.FC<StepCreateKeysProps> = (props) => {
       width={'full'}
       borderRadius="lg"
     >
-      {!keysGenerated && !generatingKeys && (
+      {!props.keysGenerated && !generatingKeys && (
         <>
           <Center>
             <IconKey boxSize='100' />
@@ -94,9 +104,44 @@ const StepCreateKeys: React.FC<StepCreateKeysProps> = (props) => {
         </>
       )
       }
-      <EtherFiSpinner loading={generatingKeys} text="Generating & Encrypting Keys..." />
+      {generatingKeys && <EtherFiSpinner loading={generatingKeys} text="Generating & Encrypting Keys..." />}
+      {props.keysGenerated && (
+        <Flex
+          padding={'24px'}
+          direction={'column'}
+          gap="16px"
+          bgColor="purple.dark"
+          height="full"
+          width={'full'}
+          borderRadius="lg"
+        >
+          <VStack spacing={3}>
+            <Text color={'white'} fontSize="large" fontWeight={'semibold'} align="center">
+              Congrats! Your keys have been successfully generated and encrypted!
+            </Text>
+            <Text fontSize="14px" color={COLORS.textSecondary}>
+              Your files have been created here:
+            </Text>
 
-    </Flex>
+            <Box sx={successBoxStyle}>
+              <HStack>
+                <IconSavedFile boxSize="8" />
+                <Text _hover={{ textDecoration: 'underline' }} fontSize='14px' flex="auto" color='white' onClick={openFilesCreatedFolder}>
+                  {props.filesCreatedPath}
+                </Text>
+                <IconCheckMark boxSize="5" />
+              </HStack>
+            </Box>
+            <Center>
+              <Button variant='white-button' onClick={props.goNextStep}>Continue</Button>
+            </Center>
+          </VStack>
+
+        </Flex>
+      )
+      }
+
+    </Flex >
   )
 }
 

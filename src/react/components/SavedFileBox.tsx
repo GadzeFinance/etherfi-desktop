@@ -2,8 +2,8 @@ import React from 'react';
 import {
     Box, Text, HStack,
 } from '@chakra-ui/react';
-import IconSavedFile from './icons/IconSavedFile'
-import IconCheckMark from './icons/IconCheckMark'
+import IconSavedFile from './Icons/IconSavedFile'
+import IconCheckMark from './Icons/IconCheckMark'
 import successBoxStyle from '../styleClasses/successBoxStyle';
 
 

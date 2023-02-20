@@ -100,7 +100,14 @@ ipcMain.on("copy-to-clipboard", (event, arg) => {
 })
 ipcMain.on("req-open-folder", (event, arg) => {
     const folder = arg[0]
+    console.log(folder[0])
     shell.openPath(folder)
+})
+
+// Called when the staker presses "Finish" on the finish step.
+ipcMain.on("staker-finish", (event, arg) => {
+    clipboard.clear();
+    app.quit();
 })
 
 

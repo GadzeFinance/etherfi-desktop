@@ -65,6 +65,9 @@ contextBridge.exposeInMainWorld("api", {
     copyToClipBoard: function(text){
         ipcRenderer.send("copy-to-clipboard", [text]);
     },
+    stakerFinish: function(){
+        ipcRenderer.send("staker-finish", null);
+    },
 
 
 });

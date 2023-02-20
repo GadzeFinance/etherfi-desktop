@@ -1,16 +1,13 @@
 import { COLORS } from './constants'
 
-
 const successBoxStyle = {
-    minH: '10px',
-    h: '100%',
-    borderRadius: '20px',
-    transition: 'all 150ms',
-    border: '1px solid',
-    borderColor: COLORS.successGreen,
-    padding: '24px',
-  }
-  
+  h: '100%',
+  minW: '350px',
+  borderRadius: '20px',
+  transition: 'all 150ms',
+  border: '1px solid',
+  borderColor: COLORS.successGreen,
+  padding: '10px',
+}
 
-  export default successBoxStyle
-  
+export default successBoxStyle
