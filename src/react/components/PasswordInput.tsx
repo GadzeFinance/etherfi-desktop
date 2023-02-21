@@ -4,6 +4,7 @@ import { COLORS } from '../styleClasses/constants'
 import IconEyeSlash from './Icons/IconEyeSlash'
 import clickableIconStyle from '../styleClasses/clickableIconStyle'
 
+
 interface PasswordInputProps {
     password: string,
     setPassword: (password: string) => void

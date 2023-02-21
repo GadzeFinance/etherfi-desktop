@@ -1,13 +1,7 @@
 import React from 'react';
-import {
-    Flex,
-    Text,
-    VStack,
-    Box,
-    keyframes
-} from '@chakra-ui/react';
+import { Flex, Text, VStack, Box, keyframes } from '@chakra-ui/react';
 import { COLORS } from '../styleClasses/constants';
-import { ClockWiseElipse, CounterClockWiseElipse } from './Icons/Elipses'
+import { ClockWiseElipse, CounterClockWiseElipse } from './Icons/Elipses';
 
 
 interface SpinnerData {

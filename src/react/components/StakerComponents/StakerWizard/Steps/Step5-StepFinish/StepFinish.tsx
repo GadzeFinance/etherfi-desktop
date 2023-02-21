@@ -1,12 +1,8 @@
 import React from 'react'
-import { Button, Flex, Text, Center, Box, HStack, VStack } from '@chakra-ui/react'
-import IconSavedFile from '../../../../Icons/IconSavedFile'
+import { Flex, Text, Center, VStack } from '@chakra-ui/react'
 import IconCheckMark from '../../../../Icons/IconCheckMark'
-import successBoxStyle from '../../../../../styleClasses/successBoxStyle'
-import { COLORS } from '../../../../../styleClasses/constants';
 import WizardNavigator from '../../WizardNavigator'
-
-
+import { COLORS } from '../../../../../styleClasses/constants';
 
 
 interface StepFinishProps {

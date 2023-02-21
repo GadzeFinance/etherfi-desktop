@@ -1,5 +1,5 @@
+import React from 'react'
 import { Flex, Text, Box, Center, VStack } from '@chakra-ui/react'
-import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import IconFile from './Icons/IconFile'
 import IconTrash from './Icons/IconTrash'
 import IconFileUpload from './Icons/IconFileUpload'

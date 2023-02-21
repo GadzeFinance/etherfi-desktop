@@ -1,7 +1,7 @@
-import React, { useState } from 'react'
-import { Box, Center, ScaleFade, Input, Button, Text } from '@chakra-ui/react'
+import React from 'react'
+import { Center, ScaleFade } from '@chakra-ui/react'
 import widgetBoxStyle from '../../styleClasses/widgetBoxStyle'
-import GenEncryptedKeysWizard from './Wizard/GenEncryptedKeysWizard'
+import GenEncryptedKeysWizard from './StakerWizard/GenEncryptedKeysWizard'
 
 interface TabProps {
   tabIndex: number
