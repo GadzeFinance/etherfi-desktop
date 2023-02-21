@@ -1,12 +1,12 @@
 import React, { useState } from 'react'
 import { Button, Flex, Text, Center, VStack, Box, HStack } from '@chakra-ui/react'
-import WizardNavigator from '../WizardNavigator'
-import IconKey from '../../Icons/IconKey'
-import EtherFiSpinner from '../../EtherFiSpinner'
-import IconCheckMark from '../../Icons/IconCheckMark'
-import IconSavedFile from '../../Icons/IconSavedFile'
-import successBoxStyle from '../../../styleClasses/successBoxStyle'
-import { COLORS } from '../../../styleClasses/constants'
+import WizardNavigator from '../../WizardNavigator'
+import IconKey from '../../../../Icons/IconKey'
+import EtherFiSpinner from '../../../../EtherFiSpinner'
+import IconCheckMark from '../../../../Icons/IconCheckMark'
+import IconSavedFile from '../../../../Icons/IconSavedFile'
+import successBoxStyle from '../../../../../styleClasses/successBoxStyle'
+import { COLORS } from '../../../../../styleClasses/constants'
 
 
 interface StepCreateKeysProps {

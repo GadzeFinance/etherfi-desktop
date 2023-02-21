@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Box, Center, Grid, Flex, Button, Text, GridItem, propNames } from '@chakra-ui/react'
-import widgetBoxStyle from '../../styleClasses/widgetBoxStyle'
+import widgetBoxStyle from '../../../styleClasses/widgetBoxStyle'
 
 interface buttonDetails {
     text: string,

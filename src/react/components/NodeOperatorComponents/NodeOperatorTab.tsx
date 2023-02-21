@@ -1,7 +1,7 @@
 import React from 'react';
 import { ScaleFade } from '@chakra-ui/react'
-import GenerateKeysWidget from '../GenerateKeysWidget';
-import DecryptValidatorKeysWidget from '../DecryptValidatorKeysWidget';
+import GenerateKeysWidget from './GenerateKeysWidget';
+import DecryptValidatorKeysWidget from './DecryptValidatorKeysWidget';
 
 interface NodeOperatorTabProps {
   tabIndex: number;

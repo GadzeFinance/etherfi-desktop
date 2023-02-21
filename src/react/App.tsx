@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import { Tabs, Center, TabPanel, TabPanels } from '@chakra-ui/react'
 import NavBar from "./components/Nav/NavBar";
-import StakerTab from "./components/tabs/stakerTab";
-import NodeOperatorTab from "./components/tabs/nodeOperatorTab";
+import StakerTab from "./components/StakerComponents/StakerTab";
+import NodeOperatorTab from "./components/NodeOperatorComponents/NodeOperatorTab";
 
 declare global {
   interface Window {
@@ -23,7 +23,7 @@ const App: React.FC = () => {
     1: "Decrypt Keys"
   }
   const nodeOperatorOptions = [0, 1]
-  
+
   const [selectedOption, setSelectedOption] = useState(0);
   return (
     <div>

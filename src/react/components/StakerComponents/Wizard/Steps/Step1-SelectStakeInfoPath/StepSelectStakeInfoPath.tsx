@@ -1,9 +1,7 @@
-import React, { useState } from 'react'
-import { Button, Flex, Text, Center } from '@chakra-ui/react'
-import WizardNavigator from '../WizardNavigator'
-import IconFile from '../../icons/IconFile'
-import IconTrash from '../../Icons/IconTrash'
-import SelectFile from '../../SelectFile'
+import React from 'react'
+import { Flex, Text, Center } from '@chakra-ui/react'
+import WizardNavigator from '../../WizardNavigator'
+import SelectFile from '../../../../SelectFile'
 
 
 interface StepSelectStakeInfoPathProps {

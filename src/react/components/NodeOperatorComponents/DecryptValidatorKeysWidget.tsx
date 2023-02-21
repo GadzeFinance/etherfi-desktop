@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { Box, Center, Button, VStack, Text, HStack } from '@chakra-ui/react';
-import raisedWidgetStyle from '../styleClasses/widgetBoxStyle';
-import darkBoxWithBorderStyle from '../styleClasses/darkBoxWithBorderStyle';
-import SelectFile from './SelectFile'
-import PasswordInput from './PasswordInput';
+import raisedWidgetStyle from '../../styleClasses/widgetBoxStyle';
+import darkBoxWithBorderStyle from '../../styleClasses/darkBoxWithBorderStyle';
+import SelectFile from '../SelectFile'
+import PasswordInput from '../PasswordInput';
 
 
 
