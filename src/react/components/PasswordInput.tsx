@@ -68,9 +68,7 @@ const PasswordInput: React.FC<PasswordInputProps> = (props) => {
                         placeholder='Enter password'
                         type={showPassword ? 'text' : 'password'}
                         value={props.password}
-                        onChange={(e) => { updatePassword(e.target.value) }
-                        }
-
+                        onChange={(e) => { updatePassword(e.target.value) }}
                     />
 
                     <InputRightElement width='4.5rem'>
@@ -79,7 +77,12 @@ const PasswordInput: React.FC<PasswordInputProps> = (props) => {
                 </InputGroup>
             </>
             <UnorderedList>
-                {passwordResults.map((passwordRequirement, index) => (!passwordRequirement.passed && <ListItem key={index} fontSize="12px" color="red.warning">{passwordRequirement.message}</ListItem>))}
+                {passwordResults.map((passwordRequirement, index) =>
+                (!passwordRequirement.passed &&
+                    <ListItem key={index} fontSize="12px" color="red.warning">
+                        {passwordRequirement.message}
+                    </ListItem>
+                ))}
 
             </UnorderedList>
         </>

@@ -18,8 +18,16 @@ const NodeOperatorTab: React.FC<NodeOperatorTabProps> = ({ tabIndex, selectedOpt
   return (
     <>
       <ScaleFade initialScale={0.5} in={tabIndex === 1}>
-        {selectedOption === 0 && <GenerateKeysWidget />}
-        {selectedOption === 1 && <DecryptValidatorKeysWidget />}
+        {selectedOption === 0 && (
+          <ScaleFade initialScale={0.5} in={selectedOption === 0}>
+            <GenerateKeysWidget />
+          </ScaleFade>
+        )}
+        {selectedOption === 1 && (
+          <ScaleFade initialScale={0.5} in={selectedOption === 1}>
+            <DecryptValidatorKeysWidget />
+          </ScaleFade>
+        )}
       </ScaleFade>
 
     </>
