@@ -1,5 +1,5 @@
 import React from 'react'
-import { Button, Flex, Text, InputGroup, Input, InputRightElement, UnorderedList, ListItem } from '@chakra-ui/react'
+import { Text, InputGroup, Input, InputRightElement, UnorderedList, ListItem } from '@chakra-ui/react'
 import { COLORS } from '../styleClasses/constants'
 import IconEyeSlash from './Icons/IconEyeSlash'
 import clickableIconStyle from '../styleClasses/clickableIconStyle'

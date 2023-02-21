@@ -1,9 +1,9 @@
 import React, { useState } from 'react'
 import { Flex, Text, Center } from '@chakra-ui/react'
-import DisplayMnemonic from '../DisplayMnemonic'
-import WizardNavigator from '../WizardNavigator'
-import IconLockFile from '../../Icons/IconLockFile'
-import EtherFiSpinner from '../../EtherFiSpinner'
+import DisplayMnemonic from './DisplayMnemonic'
+import WizardNavigator from '../../WizardNavigator'
+import IconLockFile from '../../../../Icons/IconLockFile'
+import EtherFiSpinner from '../../../../EtherFiSpinner'
 
 
 interface StepGenerateMnemonicProps {
