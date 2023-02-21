@@ -1,11 +1,12 @@
-import React, { useState } from 'react';
-import { Box, Center, Grid, Flex, Button, Text, GridItem, propNames } from '@chakra-ui/react'
-import widgetBoxStyle from '../../../styleClasses/widgetBoxStyle'
+import React from 'react';
+import { Center, Grid, Button, GridItem } from '@chakra-ui/react'
+
 
 interface buttonDetails {
     text: string,
     visible: boolean
 }
+
 interface WizardNavigatorProps {
     backDetails: buttonDetails,
     nextDetails: buttonDetails,
