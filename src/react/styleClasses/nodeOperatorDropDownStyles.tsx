@@ -11,4 +11,3 @@ export const dropDownMenuStyle = {
     bg: COLORS.tabSelectionBlue,
     fontSize: "16px"
 }
-
