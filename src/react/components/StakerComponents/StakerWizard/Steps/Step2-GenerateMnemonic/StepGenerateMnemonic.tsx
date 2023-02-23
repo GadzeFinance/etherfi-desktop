@@ -74,8 +74,7 @@ const StepGenerateMnemonic: React.FC<StepGenerateMnemonicProps> = (props) => {
 
 
           <Text color="white" opacity={'0.7'} align="center">
-            We have successfully received your deposit of ___ ETH!
-            Now its time to generate
+            To generate and encrypt your validator keys. First you need to generate a mnemonic.
           </Text>
 
           {/* <WizardNavigator backDetails={backDetails} backVisible={true} goBackStep={props.goBackStep} nextVisible={true} goNextStep={generateMnemonic} nextText="Generate Mnemonic" backText="Go Back"
