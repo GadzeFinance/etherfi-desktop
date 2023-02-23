@@ -146,14 +146,3 @@ const StepCreateKeys: React.FC<StepCreateKeysProps> = (props) => {
 }
 
 export default StepCreateKeys
-
-// {
-//   keysGenerated && (
-//     <>
-//       <Text color="white" opacity={'0.7'}>
-//         Contragulations Your Validator Keys have been generated and encrypted!
-//         They are saved at {props.savePath}
-//       </Text>
-//     </>
-//   )
-// }
