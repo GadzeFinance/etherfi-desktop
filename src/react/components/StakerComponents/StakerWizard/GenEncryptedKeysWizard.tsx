@@ -2,15 +2,15 @@ import React, { useState } from 'react'
 import { Center, Flex } from '@chakra-ui/react'
 import { Step, Steps, useSteps } from 'chakra-ui-steps'
 // STEP 1:
-import StepSelectStakeInfoPath from './Steps/StepSelectStakeInfoPath'
+import StepSelectStakeInfoPath from './Steps/Step1-SelectStakeInfoPath/StepSelectStakeInfoPath'
 // STEP 2:
-import StepGenerateMnemonic from './Steps/StepGenerateMnemonic'
+import StepGenerateMnemonic from './Steps/Step2-GenerateMnemonic/StepGenerateMnemonic'
 // STEP 3:
-import StepCreatePassword from './Steps/StepCreatePassword'
+import StepCreatePassword from './Steps/Step3-CreatePassword/StepCreatePassword'
 //STEP 4: 
-import StepCreateKeys from './Steps/StepCreateKeys'
+import StepCreateKeys from './Steps/Step4-CreateKeys/StepCreateKeys'
 //STEP 5:
-import StepFinish from './Steps/StepFinish'
+import StepFinish from './Steps/Step5-StepFinish/StepFinish'
 
 
 

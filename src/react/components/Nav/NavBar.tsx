@@ -1,19 +1,11 @@
 import React from 'react'
-import { Flex, Tab, TabList, Image, Center, Grid, GridItem, textDecoration } from '@chakra-ui/react'
-import tabButtonStyle from '../../styleClasses/tabButtonStyle'
-import EtherFiLogo from '../../assets/geo-logo-colour-landscape.png'
-import { useState } from 'react';
 import {
-    Menu,
-    MenuButton,
-    MenuList,
-    MenuItem,
-    Button,
-    Box,
-    useTab,
-    useMultiStyleConfig
-
-} from '@chakra-ui/react';
+    Tab, TabList, Image, Center, Grid, GridItem,
+    Menu, MenuButton, MenuList, MenuItem, Button, useTab
+} from '@chakra-ui/react'
+import tabButtonStyle from '../../styleClasses/tabButtonStyle'
+import { dropDownItemStyle, dropDownMenuStyle } from '../../styleClasses/nodeOperatorDropDownStyles'
+import EtherFiLogo from '../../assets/Logo.png'
 import { COLORS } from '../../styleClasses/constants'
 
 
@@ -23,6 +15,7 @@ interface NavBarProps {
     setNodeOperatorOption: (option: number) => void,
     selectedOption: number
 }
+
 
 const dropDownOptions = {
     "Generate Keys": 0,
@@ -37,8 +30,6 @@ const NavBar: React.FC<NavBarProps> = ({ setNodeOperatorOption, selectedOption }
         const handleOptionSelect = (option: number) => {
             setNodeOperatorOption(option);
         };
-        // 1. Reuse the `useTab` hook
-        const isSelected = !!tabProps['aria-selected']
 
         return (
             <Menu  >
@@ -47,11 +38,13 @@ const NavBar: React.FC<NavBarProps> = ({ setNodeOperatorOption, selectedOption }
                         <MenuButton fontSize="18px" as={Button} width="10px" sx={tabButtonStyle} {...tabProps} rightIcon={isOpen ? <ChevronUpIcon /> : <ChevronDownIcon />}>
                             Node Operator
                         </MenuButton>
-                        <MenuList sx={{ border: "0px", width: "10px", bg: COLORS.tabSelectionBlue }} fontSize="16px">
-                            <MenuItem bg={COLORS.tabSelectionBlue} color={selectedOption === 0 ? "white" : COLORS.textSecondary} _hover={{ textDecoration: "underline", color: "white" }} onClick={() => handleOptionSelect(dropDownOptions["Generate Keys"])}>
+                        <MenuList sx={dropDownMenuStyle}>
+                            <MenuItem sx={dropDownItemStyle} color={selectedOption === 0 ? "white" : COLORS.textSecondary}
+                                onClick={() => handleOptionSelect(dropDownOptions["Generate Keys"])}>
                                 Generate keys
                             </MenuItem>
-                            <MenuItem bg={COLORS.tabSelectionBlue} color={selectedOption === 1 ? "white" : COLORS.textSecondary} _hover={{ textDecoration: "underline", color: "white" }} onClick={() => handleOptionSelect(dropDownOptions["Decrypt Keys"])}>
+                            <MenuItem sx={dropDownItemStyle} color={selectedOption === 1 ? "white" : COLORS.textSecondary}
+                                onClick={() => handleOptionSelect(dropDownOptions["Decrypt Keys"])}>
                                 Decrypt
                             </MenuItem>
                         </MenuList>
@@ -64,8 +57,8 @@ const NavBar: React.FC<NavBarProps> = ({ setNodeOperatorOption, selectedOption }
 
     return (
         <nav>
-            <Grid templateColumns="1fr 1fr" gap={6} alignItems="center" >
-                <GridItem >
+            <Grid templateColumns="1fr 1fr" gap={6} alignItems="center" justifyContent="center" mt="10px">
+                <GridItem ml="30px">
                     <Center height={'full'} width={'200px'}>
                         <Image src={EtherFiLogo} />
                     </Center>

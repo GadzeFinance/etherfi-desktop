@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import { Box, Text, GridItem, Grid, Button, HStack, Tooltip, Center } from '@chakra-ui/react'
+import { Box, Text, GridItem, Grid, HStack, Tooltip, Center, Button } from '@chakra-ui/react'
 import { CopyIcon } from '@chakra-ui/icons'
-import IconAlertTriangle from '../Icons/IconAlertTriangle'
-import clickableIconStyle from '../../styleClasses/clickableIconStyle'
+import IconAlertTriangle from '../../../../Icons/IconAlertTriangle'
+import clickableIconStyle from '../../../../../styleClasses/clickableIconStyle'
 
 interface DisplayMnemonicProps {
   mnemonic: string;
@@ -11,6 +11,7 @@ interface DisplayMnemonicProps {
 const DisplayMnemonic: React.FC<DisplayMnemonicProps> = ({ mnemonic }: DisplayMnemonicProps) => {
 
   const [copied, setCopied] = useState<boolean>(false)
+  const [blurred, setBlurred] = useState<boolean>(true)
 
   const formattedWords = () => {
     const words = mnemonic.split(" ")
@@ -22,22 +23,25 @@ const DisplayMnemonic: React.FC<DisplayMnemonicProps> = ({ mnemonic }: DisplayMn
         gap={2}
       >
         {words.map((word, index) => (
-          <GridItem key={index} colSpan={1} rowSpan={1}>
+          <GridItem key={index} colSpan={1} rowSpan={1} >
             <Box
               borderWidth="1px"
               borderStyle="solid"
               borderColor='purple.light'
               borderRadius="5px"
               bg='purple.darkBackground'
+              justifyContent='center'
+              alignItems='center'
             >
 
-              <Text ml="5px" color="white" fontSize="14px" as='b'>
-                {index + 1}: {word}
+              <Text ml="5px" color="white" fontSize="12px" as='b' >
+                {index + 1}: {<Text ml="5px" color="white" fontSize="12px" as='b' sx={{ filter: `blur(${blurred ? 3 : 0}px)` }}> {word} </Text>}
               </Text>
             </Box>
           </GridItem>
-        ))}
-      </Grid>
+        ))
+        }
+      </Grid >
     )
   }
 
@@ -52,29 +56,29 @@ const DisplayMnemonic: React.FC<DisplayMnemonicProps> = ({ mnemonic }: DisplayMn
         Your Mnemonic Phrase
       </Text>
       <Grid
-        gridTemplateColumns={'75% 25%'}
+        gridTemplateColumns={'50% 25% 25%'}
       >
         <GridItem >
           <HStack >
             <IconAlertTriangle boxSize="3" />
             <Text variant="warning-text">Make sure you save this phrase. It cannot be recovered.</Text>
           </HStack>
-
         </GridItem >
         <GridItem>
           <Center>
+            <Button size='sm' onClick={() => setBlurred(!blurred)} variant='blur-button'>
+              {blurred ? 'Unblur' : 'Blur'}
+            </Button>
+          </Center>
+        </GridItem >
+        <GridItem sx={{ display: 'flex', justifyContent: 'center' }}>
+          <Center >
             <Tooltip label={copied ? 'Copied' : 'Copy'} closeOnClick={false}>
-
               <CopyIcon sx={clickableIconStyle} onClick={copyMnemonic} boxSize={4} />
-
-              {/* <Button fontSize="14" color="blue.secondary" _hover={{ bg: 'blue.light', color: "white" }} bg="transparent" onClick={() => window.api.copyToClipBoard(mnemonic)} rightIcon={<CopyIcon boxSize={4} />}> Copy</Button> */}
             </Tooltip>
           </Center>
-
         </GridItem >
-
       </Grid>
-
       {formattedWords()}
     </>
   )

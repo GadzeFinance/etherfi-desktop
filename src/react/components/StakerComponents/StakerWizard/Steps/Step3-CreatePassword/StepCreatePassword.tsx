@@ -1,10 +1,7 @@
 import React from 'react'
-import { Button, Flex, Text, InputGroup, Input, InputRightElement, UnorderedList, ListItem } from '@chakra-ui/react'
-import WizardNavigator from '../WizardNavigator'
-import { COLORS } from '../../../styleClasses/constants'
-import IconEyeSlash from '../../Icons/IconEyeSlash'
-import clickableIconStyle from '../../../styleClasses/clickableIconStyle'
-import PasswordInput from '../../PasswordInput'
+import { Flex, Text } from '@chakra-ui/react'
+import WizardNavigator from '../../WizardNavigator'
+import PasswordInput from '../../../../PasswordInput'
 
 interface StepCreatePasswordProps {
   goNextStep: () => void

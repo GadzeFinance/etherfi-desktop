@@ -1,19 +1,23 @@
 import React, { useState } from 'react';
-import { Box, Center, Button, VStack, Text, HStack } from '@chakra-ui/react';
-import raisedWidgetStyle from '../styleClasses/widgetBoxStyle';
-import darkBoxWithBorderStyle from '../styleClasses/darkBoxWithBorderStyle';
-import SelectFile from './SelectFile'
-import PasswordInput from './PasswordInput';
-
+import { Box, Center, Button, VStack, Text, HStack, Flex } from '@chakra-ui/react';
+import raisedWidgetStyle from '../../styleClasses/widgetBoxStyle';
+import darkBoxWithBorderStyle from '../../styleClasses/darkBoxWithBorderStyle';
+import SelectFile from '../SelectFile'
+import PasswordInput from '../PasswordInput';
+import IconSavedFile from '../Icons/IconSavedFile';
+import IconCheckMark from '../Icons/IconCheckMark';
+import { COLORS } from '../../styleClasses/constants'
+import successBoxStyle from '../../styleClasses/successBoxStyle';
 
 
 const DecryptValidatorKeysWidget: React.FC = () => {
     const [savePath, setSavePath] = useState<string>("")
-    const [keysGenerated, setKeysGenerated] = useState<boolean>(false)
+    const [keysDecrypted, setKeysDecrypted] = useState<boolean>(false)
     const [encryptedValKeysFilePath, setencryptedValidatorKeysFilePath] = useState<string>("")
     const [privKeysFilePath, setPrivKeysFilePath] = useState<string>("")
     const [privKeysPassword, setPrivKeysPassword] = useState<string>("")
     const [isPrivKeysPasswordValid, setIsPrivKeysPasswordValid] = useState<boolean>(false)
+    const [filesCreatedPath, setFilesCreatedPath] = useState<string>("");
 
     const selectSavePath = () => {
         window.api.receiveSelectedFolderPath((event: Electron.IpcMainEvent, path: string) => {
@@ -25,17 +29,33 @@ const DecryptValidatorKeysWidget: React.FC = () => {
     const decryptValidatorKeys = () => {
         window.api.receiveDecryptComplete((event: Electron.IpcMainEvent, path: string) => {
             console.log("DECRYPT COMPLETE!")
-            console.log(path)
+            setFilesCreatedPath(path[0])
+            setKeysDecrypted(true)
         })
         window.api.reqDecryptValidatorKeys(encryptedValKeysFilePath, privKeysFilePath, privKeysPassword, savePath);
     }
 
+    const clearState = () => {
+        setSavePath("")
+        setKeysDecrypted(false)
+        setencryptedValidatorKeysFilePath("")
+        setPrivKeysFilePath("")
+        setPrivKeysPassword("")
+        setIsPrivKeysPasswordValid(false)
+    }
+
+    const openFilesCreatedFolder = () => {
+        console.log(filesCreatedPath)
+        window.api.reqOpenFolder(filesCreatedPath);
+    }
 
     return (
         <Center>
+
             {
-                !false && (
+                !keysDecrypted && (
                     <Box sx={raisedWidgetStyle} bg="#2b2852">
+
                         <VStack
                             spacing={2}
                             align='stretch'
@@ -82,8 +102,52 @@ const DecryptValidatorKeysWidget: React.FC = () => {
                         </VStack>
                     </Box >
 
+
                 )
             }
+            {
+                keysDecrypted && (
+                    <Box sx={successBoxStyle} bg="#2b2852">
+                        <Flex
+                            padding={'24px'}
+                            direction={'column'}
+                            gap="16px"
+                            bgColor="purple.dark"
+                            height="full"
+                            width={'full'}
+                            borderRadius="lg"
+                        >
+                            <VStack spacing={3}>
+                                <Text color={'white'} fontSize="large" fontWeight={'semibold'} align="center">
+                                    Congrats! Your validator keys have been successfully decrypted!
+                                </Text>
+                                <Box sx={darkBoxWithBorderStyle} bg="#2b2852">
+
+                                    <Text fontSize="14px" color={COLORS.textSecondary}>
+                                        Your validator keys are located here:
+                                    </Text>
+
+                                    <Box sx={successBoxStyle}>
+                                        <HStack>
+                                            <IconSavedFile boxSize="8" />
+                                            <Text _hover={{ textDecoration: 'underline' }} fontSize='14px' flex="auto" color='white' onClick={openFilesCreatedFolder}>
+                                                {filesCreatedPath}
+                                            </Text>
+                                            <IconCheckMark boxSize="5" />
+                                        </HStack>
+                                    </Box>
+                                </Box>
+                                <Center>
+                                    <Button variant='white-button' onClick={clearState}>Finish</Button>
+                                </Center>
+                            </VStack>
+
+                        </Flex>
+                    </Box>
+
+                )
+            }
+
         </Center >
     )
 }
