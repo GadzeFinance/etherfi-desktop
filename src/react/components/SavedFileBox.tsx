@@ -1,7 +1,5 @@
 import React from 'react';
-import {
-    Box, Text, HStack,
-} from '@chakra-ui/react';
+import { Box, Text, HStack } from '@chakra-ui/react';
 import IconSavedFile from './Icons/IconSavedFile'
 import IconCheckMark from './Icons/IconCheckMark'
 import successBoxStyle from '../styleClasses/successBoxStyle';

@@ -157,9 +157,6 @@ const theme = extendTheme({
             bg: 'grey.transparent',
             textColor: 'purple.dark',
           },
-          'browse-buttondddd': {
-            textColor: 'white',
-          },
         },
         'browse-folder-button': {
           textColor: 'white',
@@ -169,6 +166,12 @@ const theme = extendTheme({
             bg: 'white',
             textColor: 'purple.dark',
           },
+        },
+        'blur-button': {
+          bg: 'transparent',
+          color: 'grey',
+          _hover: { bg: 'grey.dark', color: 'grey.light' },
+          _active: { color: 'white', bg: 'grey.light' },
         },
       },
     },

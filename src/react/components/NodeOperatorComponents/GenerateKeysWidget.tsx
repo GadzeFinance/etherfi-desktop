@@ -4,12 +4,12 @@ import {
     HStack, NumberInput, NumberInputField,
     InputRightElement, InputGroup,
 } from '@chakra-ui/react';
-import raisedWidgetStyle from '../styleClasses/widgetBoxStyle';
-import successBoxStyle from '../styleClasses/successBoxStyle';
-import darkBoxWithBorderStyle from '../styleClasses/darkBoxWithBorderStyle';
-import { COLORS } from '../styleClasses/constants';
-import SavedFileBox from './SavedFileBox'
-import PasswordInput from './PasswordInput'
+import raisedWidgetStyle from '../../styleClasses/widgetBoxStyle';
+import successBoxStyle from '../../styleClasses/successBoxStyle';
+import darkBoxWithBorderStyle from '../../styleClasses/darkBoxWithBorderStyle';
+import { COLORS } from '../../styleClasses/constants';
+import SavedFileBox from '../SavedFileBox'
+import PasswordInput from '../PasswordInput'
 
 
 const MAX_KEYS = "10000"
