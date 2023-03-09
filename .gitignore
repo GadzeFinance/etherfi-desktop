@@ -143,3 +143,5 @@ dist/
 !.yarn/versions
 
 REQUIREMENT_PACKAGES_PATH/
+
+demo/
