@@ -1,5 +1,7 @@
 [
     {
+        "desktopVersion": "1.00",
+        "ValidatorID": 1,
         "depositData": {
             "pubkey": "a6f24f0d234b20503b61e18dc781b334f1e6b066aabe10178252797911b15bc483fa4100e68f087d6bd0eff8f109ae19",
             "withdrawal_credentials": "0100000000000000000000007631fcf7d45d821cb5fa688fada7bbc76714b771",

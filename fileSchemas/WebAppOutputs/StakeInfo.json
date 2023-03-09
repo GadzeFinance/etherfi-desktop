@@ -1,12 +1,17 @@
 [
     {
-        "bidderPublicKey": "04212a024a8f4fcc90fabc370684760b826a688b757a4975855033e58ab6138c959411d899b48cb22a3b177d574760e5d85377a4fb2c9eb156827b3c7ba470d4e9",
-        "withdrawalSafeAddress": "0x7631FCf7D45D821cB5FA688fADa7bbc76714B771",
-        "used": false
+        "ValidatorID": 1,
+        "bidderPublicKey": "key0",
+        "withdrawalSafeAddress": "etherfinode"
     },
     {
-        "bidderPublicKey": "04212a024a8f4fcc90fabc370684760b826a688b757a4975855033e58ab6138c959411d899b48cb22a3b177d574760e5d85377a4fb2c9eb156827b3c7ba470d4e9",
-        "withdrawalSafeAddress": "0x7631FCf7D45D821cB5FA688fADa7bbc76714B771",
-        "used": false
+        "ValidatorID": 2,
+        "bidderPublicKey": "key1",
+        "withdrawalSafeAddress": "0x7631FCf7D45D821cB5FA688fADa7bbc76714B771"
+    },
+    {
+        "ValidatorID": 3,
+        "bidderPublicKey": "key2",
+        "withdrawalSafeAddress": "0x7631FCf7D45D821cB5FA688fADa7bbc76714B771"
     }
 ]
