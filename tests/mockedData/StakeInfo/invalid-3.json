@@ -1,0 +1,17 @@
+[
+    {
+        "ValidatorID": 1,
+        "bidderPublicKey": "key0",
+        "withdrawalSafeAddress": "etherfinode"
+    },
+    {
+        "Validator_________ID": 2,
+        "bidderPublicKey": "key1",
+        "withdrawalSafeAddress": "0x7631FCf7D45D821cB5FA688fADa7bbc76714B771"
+    },
+    {
+        "ValidatorID": 3,
+        "bidderPublicKey": "key2",
+        "withdrawalSafeAddress": "0x7631FCf7D45D821cB5FA688fADa7bbc76714B771"
+    }
+]

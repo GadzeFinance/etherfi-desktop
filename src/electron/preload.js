@@ -69,6 +69,13 @@ contextBridge.exposeInMainWorld("api", {
         ipcRenderer.send("staker-finish", null);
     },
 
+    // Functions to validate files
+    reqValidateStakeInfoJson: function(pathToFile){
+        ipcRenderer.send("req-validate-stake-info", [pathToFile]);
+    },
+    receiveStakeInfoValidationResults: function(func){
+        ipcRenderer.once("receive-validate-stake-info-results", (event, ...args) => func(event, ...args));       
+    },
 
 });
 

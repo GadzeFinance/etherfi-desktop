@@ -41,10 +41,21 @@ const GenEncryptedKeysWizard: React.FC<WizardProps> = (props) => {
   const [keysGenerated, setKeysGenerated] = useState(false)
   const [filesCreatedPath, setFilesCreatedPath] = useState("")
 
-  const verifyStakeInfoFile = (path: string) => {
-
-
-    setStakeInfoPath(path)
+  const verifyAndSetStakeInfoPath = (path: string) => {
+    window.api.receiveStakeInfoValidationResults((event: Electron.IpcMainEvent, result: Array<any>) => {
+      const isValid = result[0]
+      const errors = result[1]
+      console.log(isValid)
+      if (isValid) {
+        console.log(isValid)
+        setStakeInfoPath(path)
+      }
+      else {
+        console.error("ERROR: Could not validate your Stake Info File")
+        console.error(...errors)
+      }
+    })
+    window.api.reqValidateStakeInfoJson(path)
   }
 
   return (
@@ -70,7 +81,7 @@ const GenEncryptedKeysWizard: React.FC<WizardProps> = (props) => {
         </Flex>
         <Flex flexDir="column" width="100%">
 
-          {activeStep === 0 && <StepSelectStakeInfoPath goBackStep={prevStep} goNextStep={nextStep} stakeInfoPath={stakeInfoPath} setStakeInfoPath={setStakeInfoPath} />}
+          {activeStep === 0 && <StepSelectStakeInfoPath goBackStep={prevStep} goNextStep={nextStep} stakeInfoPath={stakeInfoPath} setStakeInfoPath={verifyAndSetStakeInfoPath} />}
           {activeStep === 1 && <StepGenerateMnemonic goBackStep={prevStep} goNextStep={nextStep} mnemonic={mnemonic} setMnemonic={setMnemonic} />}
           {activeStep === 2 && <StepCreatePassword goBackStep={prevStep} goNextStep={nextStep} password={password} setPassword={setPassword} />}
           {activeStep === 3 && <StepCreateKeys goBackStep={prevStep} goNextStep={nextStep}

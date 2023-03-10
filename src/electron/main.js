@@ -18,6 +18,8 @@ const {
     testWholeEncryptDecryptFlow
 } = require('./listeners');
 
+const {validateJsonFile} = require('./utils/validateFile')
+
 
 
 function createWindow() {
@@ -93,6 +95,13 @@ ipcMain.on("req-select-folder-path", listenSelectFolder);
 ipcMain.on("req-select-file-path", listenSelectJsonFile);
 ipcMain.on("req-gen-val-keys-and-encrypt", genValidatorKeysAndEncrypt);
 ipcMain.on("req-decrypt-val-keys", decryptValidatorKeys);
+
+// Validating Files
+ipcMain.on("req-validate-stake-info", (event, args) => {
+    const result = validateJsonFile(args[0], 'StakeInfo')
+    event.sender.send("receive-validate-stake-info-results", [result.isValid, result.errors])
+
+})
 
 ipcMain.on("copy-to-clipboard", (event, arg) => {
     const text = arg[0]
