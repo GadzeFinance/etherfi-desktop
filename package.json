@@ -5,6 +5,7 @@
   "main": "./build/electron/main.js",
   "private": true,
   "scripts": {
+    "test": "jest",
     "dev-server": "webpack serve --mode development --config ./webpack.development.js",
     "dev": "cross-env NODE_ENV=development electron ./src/electron/main.js",
     "postinstall": "electron-builder install-app-deps",
@@ -86,6 +87,7 @@
     "git-revision-webpack-plugin": "^5.0.0",
     "graphql": "^16.6.0",
     "isomorphic-unfetch": "3",
+    "jest": "^29.5.0",
     "node-fetch": "^2.6.9",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
