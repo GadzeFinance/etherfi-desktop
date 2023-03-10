@@ -1,17 +1,23 @@
 const { z, ZodError } = require('zod')
 const  { readFileSync } = require ('fs')
 
-
 const SCHEMAS = {
-  "EncryptedValidatorKeys": z.object({
-      encryptedValKeysArray: z.string().array().nonempty(),
-      stakerPubKeysArray: z.string().array().nonempty(),
-  }).required(),
+  "EncryptedValidatorKeys": z.array( 
+    z.object({
+      encryptedKeystoreName: z.string(),
+      encryptedValidatorKey: z.string(),
+      encryptedPassword: z.string(),
+      stakerPublicKey: z.string().length(130),
+      nodeOperatorPublicKey: z.string().length(130),
+    }).required()
+  ),
 
-  "NodeOperatorKeys": z.object({
-      pubKeyArray: z.string().array().nonempty(),
-      privKeyArray: z.string().array().nonempty(),
+  "NodeOperatorPrivateKeystore": z.object({
+      iv: z.string().length(32),
+      salt: z.string(),
+      data: z.string(),
     }).required(),
+
   "StakeInfo": z.array(
      z.object({
       validatorID: z.number().min(0),
@@ -22,8 +28,6 @@ const SCHEMAS = {
 }
 
 function validateJsonFile(path, schema) {
-  console.log(path)
-  console.log(schema)
   var json;
   var parseResult
   try {
@@ -41,7 +45,6 @@ function validateJsonFile(path, schema) {
   } catch (error) {
     return { isValid: false, errors: [`safeParse Failed for path: ${path}`, error] }
   }
-  console.log("HERE?")
   return { isValid: true, errors: [] }
 }
 

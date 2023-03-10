@@ -13,7 +13,7 @@ import successBoxStyle from '../../styleClasses/successBoxStyle';
 const DecryptValidatorKeysWidget: React.FC = () => {
     const [savePath, setSavePath] = useState<string>("")
     const [keysDecrypted, setKeysDecrypted] = useState<boolean>(false)
-    const [encryptedValKeysFilePath, setencryptedValidatorKeysFilePath] = useState<string>("")
+    const [encryptedValKeysFilePath, setEncryptedValidatorKeysFilePath] = useState<string>("")
     const [privKeysFilePath, setPrivKeysFilePath] = useState<string>("")
     const [privKeysPassword, setPrivKeysPassword] = useState<string>("")
     const [isPrivKeysPasswordValid, setIsPrivKeysPasswordValid] = useState<boolean>(false)
@@ -38,7 +38,7 @@ const DecryptValidatorKeysWidget: React.FC = () => {
     const clearState = () => {
         setSavePath("")
         setKeysDecrypted(false)
-        setencryptedValidatorKeysFilePath("")
+        setEncryptedValidatorKeysFilePath("")
         setPrivKeysFilePath("")
         setPrivKeysPassword("")
         setIsPrivKeysPasswordValid(false)
@@ -71,11 +71,19 @@ const DecryptValidatorKeysWidget: React.FC = () => {
                                 >
                                     <Box>
                                         <Text mb="5px" fontSize='14px' as='b' color="white">Encrypted Validator Keys</Text>
-                                        <SelectFile setFilePath={setencryptedValidatorKeysFilePath} filePath={encryptedValKeysFilePath} />
+                                        <SelectFile
+                                            reqFileValidaton={window.validateFilesApi.validateEncryptedValidatorKeysJson}
+                                            receiveValidatonResults={window.validateFilesApi.receiveEncryptedValidatorKeysValidationResults}
+                                            setFilePath={setEncryptedValidatorKeysFilePath}
+                                            filePath={encryptedValKeysFilePath} />
                                     </Box>
                                     <Box>
                                         <Text fontSize='14px' as='b' color="white">Etherfi Private Keys</Text>
-                                        <SelectFile setFilePath={setPrivKeysFilePath} filePath={privKeysFilePath} />
+                                        <SelectFile
+                                            reqFileValidaton={window.validateFilesApi.validateNodeOperatorPrivateKeystoreJson}
+                                            receiveValidatonResults={window.validateFilesApi.receiveNodeOperatorPrivateKeystoreValidationResults}
+                                            setFilePath={setPrivKeysFilePath}
+                                            filePath={privKeysFilePath} />
                                     </Box>
                                     <Box>
                                         <PasswordInput password={privKeysPassword} setPassword={setPrivKeysPassword} isPasswordValid={isPrivKeysPasswordValid} setIsPasswordValid={setIsPrivKeysPasswordValid} />

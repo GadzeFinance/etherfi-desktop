@@ -52,7 +52,11 @@ const StepSelectStakeInfoPath: React.FC<StepSelectStakeInfoPathProps> = (props) 
         Upload the StakeInfo.json file you downloaded from the ether.fi webapp to begin the key generation process.
       </Text>
       <Center mt="5px">
-        <SelectFile filePath={props.stakeInfoPath} setFilePath={props.setStakeInfoPath} />
+        <SelectFile
+          reqFileValidaton={window.validateFilesApi.validateStakeInfoJson}
+          receiveValidatonResults={window.validateFilesApi.receiveStakeInfoValidationResults}
+          filePath={props.stakeInfoPath}
+          setFilePath={props.setStakeInfoPath} />
       </Center>
       <WizardNavigator nextProps={nextProps} backProps={backProps} nextDetails={nextDetails} backDetails={backDetails} />
     </Flex>

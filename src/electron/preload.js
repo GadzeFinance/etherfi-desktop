@@ -69,13 +69,31 @@ contextBridge.exposeInMainWorld("api", {
         ipcRenderer.send("staker-finish", null);
     },
 
-    // Functions to validate files
-    reqValidateStakeInfoJson: function(pathToFile){
-        ipcRenderer.send("req-validate-stake-info", [pathToFile]);
+
+
+});
+
+contextBridge.exposeInMainWorld("validateFilesApi", {
+    // Validate Stake Info File
+    validateStakeInfoJson: function(pathToFile){
+        ipcRenderer.send("req-validate-file", [pathToFile, 'StakeInfo']);
     },
     receiveStakeInfoValidationResults: function(func){
-        ipcRenderer.once("receive-validate-stake-info-results", (event, ...args) => func(event, ...args));       
+        ipcRenderer.once("receive-validate-StakeInfo-results", (event, ...args) => func(event, ...args));       
     },
-
+    // Validate Encrypted Validator Keys File
+    validateEncryptedValidatorKeysJson: function(pathToFile){
+        ipcRenderer.send("req-validate-file", [pathToFile, 'EncryptedValidatorKeys']);
+    },
+    receiveEncryptedValidatorKeysValidationResults: function(func){
+        ipcRenderer.once("receive-validate-EncryptedValidatorKeys-results", (event, ...args) => func(event, ...args));       
+    },
+    // Validate Node Operator Private Keystore File
+    validateNodeOperatorPrivateKeystoreJson: function(pathToFile){
+        ipcRenderer.send("req-validate-file", [pathToFile, 'NodeOperatorPrivateKeystore']);
+    },
+    receiveNodeOperatorPrivateKeystoreValidationResults: function(func){
+        ipcRenderer.once("receive-validate-NodeOperatorPrivateKeystore-results", (event, ...args) => func(event, ...args));       
+    },
 });
 
