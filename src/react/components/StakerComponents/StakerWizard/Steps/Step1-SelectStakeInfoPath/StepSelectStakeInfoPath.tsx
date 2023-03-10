@@ -53,6 +53,7 @@ const StepSelectStakeInfoPath: React.FC<StepSelectStakeInfoPathProps> = (props) 
       </Text>
       <Center mt="5px">
         <SelectFile
+          fileName="StakeInfo"
           reqFileValidaton={window.validateFilesApi.validateStakeInfoJson}
           receiveValidatonResults={window.validateFilesApi.receiveStakeInfoValidationResults}
           filePath={props.stakeInfoPath}
