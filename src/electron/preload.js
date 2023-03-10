@@ -68,9 +68,6 @@ contextBridge.exposeInMainWorld("api", {
     stakerFinish: function(){
         ipcRenderer.send("staker-finish", null);
     },
-
-
-
 });
 
 contextBridge.exposeInMainWorld("validateFilesApi", {
