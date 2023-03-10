@@ -7,6 +7,8 @@ import { COLORS } from '../styleClasses/constants'
 
 
 interface SelectFileProps {
+    reqFileValidaton: (path: string) => void;
+    receiveValidatonResults: (callback: (event: Electron.IpcMainEvent, args: Array<any>) => void) => void;
     setFilePath: (path: string) => void,
     filePath: string,
 }
@@ -29,7 +31,19 @@ const SelectFile: React.FC<SelectFileProps> = (props) => {
 
     const selectFilePath = () => {
         window.api.receiveSelectedFilePath((event: Electron.IpcMainEvent, path: string) => {
-            props.setFilePath(path)
+            props.receiveValidatonResults((event: Electron.IpcMainEvent, result: Array<any>) => {
+                const isValid = result[0]
+                const errors = result[1]
+                if (isValid) {
+                    props.setFilePath(path)
+                }
+                else {
+                    console.error("Could not validate your file with path:" + path)
+                    console.error(...errors)
+                }
+            })
+            props.reqFileValidaton(path)
+            console.log(path)
         })
         window.api.reqSelectFilePath();
     }

@@ -7,6 +7,7 @@ import NodeOperatorTab from "./components/NodeOperatorComponents/NodeOperatorTab
 declare global {
   interface Window {
     api: any;
+    validateFilesApi: any;
   }
 }
 

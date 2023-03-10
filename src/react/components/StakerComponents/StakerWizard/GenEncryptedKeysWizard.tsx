@@ -41,12 +41,6 @@ const GenEncryptedKeysWizard: React.FC<WizardProps> = (props) => {
   const [keysGenerated, setKeysGenerated] = useState(false)
   const [filesCreatedPath, setFilesCreatedPath] = useState("")
 
-  const verifyStakeInfoFile = (path: string) => {
-
-
-    setStakeInfoPath(path)
-  }
-
   return (
     <Center>
       <Flex
