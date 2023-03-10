@@ -72,6 +72,7 @@ const DecryptValidatorKeysWidget: React.FC = () => {
                                     <Box>
                                         <Text mb="5px" fontSize='14px' as='b' color="white">Encrypted Validator Keys</Text>
                                         <SelectFile
+                                            fileName="EncryptedValidatorKeys"
                                             reqFileValidaton={window.validateFilesApi.validateEncryptedValidatorKeysJson}
                                             receiveValidatonResults={window.validateFilesApi.receiveEncryptedValidatorKeysValidationResults}
                                             setFilePath={setEncryptedValidatorKeysFilePath}
@@ -80,6 +81,7 @@ const DecryptValidatorKeysWidget: React.FC = () => {
                                     <Box>
                                         <Text fontSize='14px' as='b' color="white">Etherfi Private Keys</Text>
                                         <SelectFile
+                                            fileName="privateEtherFiKeystore"
                                             reqFileValidaton={window.validateFilesApi.validateNodeOperatorPrivateKeystoreJson}
                                             receiveValidatonResults={window.validateFilesApi.receiveNodeOperatorPrivateKeystoreValidationResults}
                                             setFilePath={setPrivKeysFilePath}
