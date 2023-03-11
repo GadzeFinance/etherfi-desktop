@@ -70,7 +70,7 @@ const SelectFile: React.FC<SelectFileProps> = (props) => {
                                         <VStack mt="20px" mb="20px"
                                             spacing={1}
                                         >
-                                            <IconFileUpload fill="black" stroke="white" />
+                                            <IconFileUpload />
                                             <Text color="#5581E7">Click to Select File</Text>
                                         </VStack>
                                     </Center>
