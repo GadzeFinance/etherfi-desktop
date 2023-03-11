@@ -3,7 +3,7 @@ const {
     BrowserWindow,
     ipcMain,
     clipboard,
-    shell
+    shell,
 } = require("electron");
 
 const path = require("path");
@@ -19,6 +19,7 @@ const {
 } = require('./listeners');
 
 const {validateJsonFile} = require('./utils/validateFile')
+const {getStaleKeys} = require('./utils/staleKeysManager')
 
 
 
@@ -102,6 +103,15 @@ ipcMain.on("req-validate-file", (event, args) => {
     const result = validateJsonFile(path, fileType)
     event.sender.send(`receive-validate-${fileType}-results`, [result.isValid, result.errors])
 })
+
+// Check for Stale Keys
+ipcMain.on("req-check-for-stale-keys", (event, args) => {
+    const stakeInfoPath = args[0]
+    
+    const staleKeys = getStaleKeys(stakeInfoPath)
+})
+
+
 
 ipcMain.on("copy-to-clipboard", (event, arg) => {
     const text = arg[0]

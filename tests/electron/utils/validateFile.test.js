@@ -7,7 +7,6 @@ describe('Validate StakeInfo.json file', () => {
     validJsonFiles.forEach((validFile) => {
         test(`${validFile}: Valid Json & correct Schema - Returns 0`, () => {
             const filePath = path.join(__dirname, `../../mockedData/StakeInfo/${validFile}`);
-            console.log(filePath)
             const result = validateJsonFile(filePath, 'StakeInfo')
             expect(result.isValid).toBe(true)
           });

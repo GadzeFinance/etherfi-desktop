@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { Flex, Text, Center } from '@chakra-ui/react'
 import WizardNavigator from '../../WizardNavigator'
 import SelectFile from '../../../../SelectFile'
@@ -33,6 +33,20 @@ const StepSelectStakeInfoPath: React.FC<StepSelectStakeInfoPathProps> = (props) 
     onClick: props.goNextStep,
     variant: "white-button",
   }
+
+  // Define side effects using useEffect
+  useEffect(() => {
+    // Do something here, such as fetch data
+    // Be sure to clean up any resources when component unmounts
+    // window
+    if (props.stakeInfoPath !== '') {
+      window.api.reqCheckForStaleBidderPublicKeys(props.stakeInfoPath)
+    }
+    return () => {
+      // Clean up function here
+    };
+  }, [props.stakeInfoPath]); // dependency array is empty for only mount and unmount
+
 
 
   return (

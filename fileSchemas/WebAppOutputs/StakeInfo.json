@@ -1,17 +1,17 @@
 [
     {
-        "ValidatorID": 1,
-        "bidderPublicKey": "key0",
-        "withdrawalSafeAddress": "etherfinode"
-    },
-    {
-        "ValidatorID": 2,
-        "bidderPublicKey": "key1",
+        "validatorID": 1,
+        "bidderPublicKey": "04a602e53c06fc2205fb649c5187f94c9f37b05b56adce822c2245b9f8fb267b7522fa55586c99badeb82bfb44fe09bdbb621c6524a1155d65a0ea9d0bee89e3e6",
         "withdrawalSafeAddress": "0x7631FCf7D45D821cB5FA688fADa7bbc76714B771"
     },
     {
-        "ValidatorID": 3,
-        "bidderPublicKey": "key2",
+        "validatorID": 2,
+        "bidderPublicKey": "04a602e53c06fc2205fb649c5187f94c9f37b05b56adce822c2245b9f8fb267b7522fa55586c99badeb82bfb44fe09bdbb621c6524a1155d65a0ea9d0bee89e3e6",
+        "withdrawalSafeAddress": "0x7631FCf7D45D821cB5FA688fADa7bbc76714B771"
+    },
+    {
+        "validatorID": 3,
+        "bidderPublicKey": "04a602e53c06fc2205fb649c5187f94c9f37b05b56adce822c2245b9f8fb267b7522fa55586c99badeb82bfb44fe09bdbb621c6524a1155d65a0ea9d0bee89e3e6",
         "withdrawalSafeAddress": "0x7631FCf7D45D821cB5FA688fADa7bbc76714B771"
     }
 ]
