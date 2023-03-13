@@ -40,7 +40,10 @@ const StepSelectStakeInfoPath: React.FC<StepSelectStakeInfoPathProps> = (props) 
     // Be sure to clean up any resources when component unmounts
     // window
     if (props.stakeInfoPath !== '') {
-      window.api.reqCheckForStaleBidderPublicKeys(props.stakeInfoPath)
+      window.databaseApi.receiveStaleBidderPublicKeysReport((event: Electron.IpcMainEvent, staleKeys: Array<String>) => {
+        console.log("Stale keys: " + staleKeys)
+      })
+      window.databaseApi.reqCheckForStaleBidderPublicKeys(props.stakeInfoPath)
     }
     return () => {
       // Clean up function here

@@ -63,15 +63,17 @@ const getStaleKeys = async (stakeInfoPath, db) => {
 
 const updateStaleKeys = async (stakeInfoPath) => {
     var db = null
-    
+    var success = true
     try {
         db = setUpDB()
         await addStaleKeys(stakeInfoPath, db)
     } catch (error) {
         console.error(error)
+        success = false
     } finally {
         if (db) db.close()
     } 
+    return success
 }
 
 const addStaleKeys = async (stakeInfoPath, db) => {
