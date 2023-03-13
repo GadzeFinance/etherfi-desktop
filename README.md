@@ -27,32 +27,40 @@ yarn dev-server
 yarn dev
 ```
 
-### How to run in dev mode: 
+### How to run in dev mode:
+
 Note: make sure you run 'yarn install' before attempting to run the application
+
 ```bash
+# This will make sure that the ETH Cli is ready for use.
+yarn buildcli
 # This will run the webpack server. It will rebundle the application when you make front end changes
-yarn run dev-server 
+yarn run dev-server
 # This will launch the electron application using the webpack server.
 yarn run dev
 ```
 
-### How to run in prod mode: 
+### How to run in prod mode:
+
 Note: make sure you run 'yarn install' before attempting to run the application
+
 ```bash
 yarn run buildNode
 
-yarn run buildcli 
+yarn run buildcli
 # OR for windows
 yarn run buildcliwin
 
 yarn run prod
 ```
 
-## How to build for distribution: 
+## How to build for distribution:
+
 Note: make sure you run 'yarn install' before attempting to run the application
+
 ```bash
 yarn run buildNode
-yarn run buildcli 
+yarn run buildcli
 # OR for windows
 yarn run buildcliwin
 
