@@ -25,11 +25,10 @@ const setUpDB = async () => {
             }
         );
     })
-    // Make sure table exists
     return db
 }
 
-const checkForStaleKeys = async (stakeInfoPath) => {
+const checkIfKeysAreStale = async (stakeInfoPath) => {
     var db = null
     var staleKeysList = []
     try {
@@ -56,10 +55,6 @@ const getStaleKeys = async (stakeInfoPath, db) => {
                 console.error(err.message);
             } else {
                 resolve(rows)
-                // Log the file names for the matched keys
-                // rows.forEach(row => {
-                // console.log(row);
-                // });
             }
         });
     })
@@ -67,7 +62,8 @@ const getStaleKeys = async (stakeInfoPath, db) => {
 }
 
 const updateStaleKeys = async (stakeInfoPath) => {
-    var db = null 
+    var db = null
+    
     try {
         db = setUpDB()
         await addStaleKeys(stakeInfoPath, db)
@@ -82,25 +78,26 @@ const addStaleKeys = async (stakeInfoPath, db) => {
     const rawData = readFileSync(stakeInfoPath)
     const stakeInfoJson = JSON.parse(rawData)
     const fileName = path.basename(stakeInfoPath)
-
     const bidderPublicKeysList = stakeInfoJson.map(item => item.bidderPublicKey)
-    const query = `INSERT INTO stale_keys_table (bidder_public_key, stake_info_file) VALUES (?, ?)`;
+    var query = 'INSERT INTO stale_keys_table (bidder_public_key, stake_info_file) VALUES ';
     const tuplesToInsert = bidderPublicKeysList.map(item => [item, fileName])
-    const result = await new Promise((resolve, reject) => {
-        db.all(query, tuplesToInsert, (err) => {
-            if (err) {
-                reject(err)
-                console.error(err.message);
-            } else {
-                resolve()
-            }
+    for (let i = 0; i < tuplesToInsert.length; i++) { 
+        query += `('${tuplesToInsert[i][0]}', '${tuplesToInsert[i][1]}')`
+        if (i < tuplesToInsert.length - 1) {
+            query += ', '
+        } else {
+            query += ';'
+        }
+    }
+    await new Promise((resolve, reject) => {
+        db.run(query, (error, db) => {
+        error ? reject(error) : resolve(db)
         });
     })
-    return result
 }
 
 module.exports = {
-    checkForStaleKeys,
+    checkIfKeysAreStale,
     getStaleKeys,
     updateStaleKeys,
     addStaleKeys,

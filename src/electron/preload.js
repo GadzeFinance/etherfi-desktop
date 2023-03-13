@@ -67,15 +67,17 @@ contextBridge.exposeInMainWorld("api", {
     },
     stakerFinish: function(){
         ipcRenderer.send("staker-finish", null);
-    },
+    }
+});
 
-    // Function to request a check to see if the bidder public keys in the stake info file have already been used to encrypt validatorkeys
-    reqCheckForStaleBidderPublicKeys: function(stakeInfoPath){
-        ipcRenderer.send("req-check-for-stale-keys", [stakeInfoPath]);
-    },
-    receiveStaleBidderPublicKeysReport: function(func){
-        ipcRenderer.once("receive-stale-keys-report", (event, ...args) => func(event, ...args));       
-    },
+contextBridge.exposeInMainWorld("databaseApi", {
+        // Function to request a check to see if the bidder public keys in the stake info file have already been used to encrypt validatorkeys
+        reqCheckForStaleBidderPublicKeys: function(stakeInfoPath){
+            ipcRenderer.send("req-check-for-stale-keys", [stakeInfoPath]);
+        },
+        receiveStaleBidderPublicKeysReport: function(func){
+            ipcRenderer.once("receive-stale-keys-report", (event, ...args) => func(event, ...args));       
+        },
 });
 
 contextBridge.exposeInMainWorld("validateFilesApi", {

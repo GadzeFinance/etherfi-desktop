@@ -107,8 +107,8 @@ ipcMain.on("req-validate-file", (event, args) => {
 // Check for Stale Keys
 ipcMain.on("req-check-for-stale-keys", (event, args) => {
     const stakeInfoPath = args[0]
-    
-    const staleKeys = getStaleKeys(stakeInfoPath)
+    const staleKeys = checkForStaleKeys(stakeInfoPath)
+    event.sender.send('receive-stale-keys-report', staleKeys)
 })
 
 
