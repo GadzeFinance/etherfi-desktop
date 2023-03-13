@@ -19,7 +19,7 @@ const {
 } = require('./listeners');
 
 const {validateJsonFile} = require('./utils/validateFile')
-const {getStaleKeys} = require('./utils/staleKeysManager')
+const {checkIfKeysAreStale, updateStaleKeys} = require('./utils/staleKeysManager')
 
 
 
@@ -105,9 +105,9 @@ ipcMain.on("req-validate-file", (event, args) => {
 })
 
 // Check for Stale Keys
-ipcMain.on("req-check-for-stale-keys", (event, args) => {
+ipcMain.on("req-check-for-stale-keys", async (event, args) => {
     const stakeInfoPath = args[0]
-    const staleKeys = checkForStaleKeys(stakeInfoPath)
+    const staleKeys = await checkIfKeysAreStale(stakeInfoPath)
     event.sender.send('receive-stale-keys-report', staleKeys)
 })
 
