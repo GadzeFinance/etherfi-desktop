@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Button, Flex, Text, Center, VStack, Box, HStack } from '@chakra-ui/react'
 import WizardNavigator from '../../WizardNavigator'
 import IconKey from '../../../../Icons/IconKey'
@@ -45,6 +45,22 @@ const StepCreateKeys: React.FC<StepCreateKeysProps> = (props) => {
     window.api.reqGenValidatorKeysAndEncrypt(props.mnemonic, props.password, props.savePath, props.stakeInfoPath);
     setGeneratingKeys(true)
   }
+
+  useEffect(() => {
+    // Check to see if there are any stale keys in the StakeInfo.json file the user selected.
+    // (i.e have the keys been used to encrypt Validator Keys by this dekstop app before )
+    if (props.keysGenerated) {
+      window.databaseApi.receiveUpdateStaleKeysResult((event: Electron.IpcMainEvent, result: boolean) => {
+        if (result) {
+          console.log("Update Stale Keys DB successfully")
+        } else {
+          console.warn("Could not update Stale Keys DB")
+        }
+      })
+      window.databaseApi.reqUpdateStaleKeys(props.stakeInfoPath)
+    }
+  }, [props.keysGenerated]);
+
   const openFilesCreatedFolder = () => {
     console.log(props.filesCreatedPath)
     window.api.reqOpenFolder(props.filesCreatedPath);

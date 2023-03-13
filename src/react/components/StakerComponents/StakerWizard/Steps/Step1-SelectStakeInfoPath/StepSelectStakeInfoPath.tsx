@@ -1,7 +1,8 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Flex, Text, Center } from '@chakra-ui/react'
 import WizardNavigator from '../../WizardNavigator'
 import SelectFile from '../../../../SelectFile'
+import IconAlertTriangle from '../../../../Icons/IconAlertTriangle'
 
 
 interface StepSelectStakeInfoPathProps {
@@ -12,7 +13,7 @@ interface StepSelectStakeInfoPathProps {
 }
 
 const StepSelectStakeInfoPath: React.FC<StepSelectStakeInfoPathProps> = (props) => {
-
+  const [staleKeysFound, setStaleKeysFound] = useState<Boolean>(false)
   const backDetails = {
     text: "back",
     visible: false,
@@ -34,21 +35,21 @@ const StepSelectStakeInfoPath: React.FC<StepSelectStakeInfoPathProps> = (props) 
     variant: "white-button",
   }
 
-  // Define side effects using useEffect
+
   useEffect(() => {
-    // Do something here, such as fetch data
-    // Be sure to clean up any resources when component unmounts
-    // window
+    // Check to see if there are any stale keys in the StakeInfo.json file the user selected.
+    // (i.e have the keys been used to encrypt Validator Keys by this dekstop app before )
     if (props.stakeInfoPath !== '') {
       window.databaseApi.receiveStaleBidderPublicKeysReport((event: Electron.IpcMainEvent, staleKeys: Array<String>) => {
-        console.log("Stale keys: " + staleKeys)
+        if (staleKeys.length > 0) {
+          // In the future we may want to show which stale keys were used in the UI instead of just the console
+          console.warn("Stale keys were found: " + staleKeys)
+          setStaleKeysFound(true)
+        }
       })
       window.databaseApi.reqCheckForStaleBidderPublicKeys(props.stakeInfoPath)
     }
-    return () => {
-      // Clean up function here
-    };
-  }, [props.stakeInfoPath]); // dependency array is empty for only mount and unmount
+  }, [props.stakeInfoPath]);
 
 
 
@@ -76,6 +77,14 @@ const StepSelectStakeInfoPath: React.FC<StepSelectStakeInfoPathProps> = (props) 
           filePath={props.stakeInfoPath}
           setFilePath={props.setStakeInfoPath} />
       </Center>
+      {
+        staleKeysFound && (
+          <Center mt='-10px'>
+            <IconAlertTriangle stroke="#FFC700" boxSize="7" />
+            <Text ml='10px' variant="alert-text">This StakeInfo.json file contains bidderPublicKeys that have already been used to encrypt Validator Keys. Please make sure this is the correct file.</Text>
+          </Center>
+        )
+      }
       <WizardNavigator nextProps={nextProps} backProps={backProps} nextDetails={nextDetails} backDetails={backDetails} />
     </Flex>
   )
