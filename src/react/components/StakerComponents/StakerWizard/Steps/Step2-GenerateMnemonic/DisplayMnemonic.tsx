@@ -60,7 +60,7 @@ const DisplayMnemonic: React.FC<DisplayMnemonicProps> = ({ mnemonic }: DisplayMn
       >
         <GridItem sx={{ display: 'flex', justifyContent: 'center' }}>
           <HStack >
-            <IconAlertTriangle triangleColor="#FFC700" boxSize="4" />
+            <IconAlertTriangle stroke="#FFC700" boxSize="4" />
             <Text variant="alert-text">Make sure you save this phrase. It cannot be recovered.</Text>
           </HStack>
         </GridItem >

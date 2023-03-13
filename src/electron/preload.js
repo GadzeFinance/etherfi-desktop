@@ -78,6 +78,12 @@ contextBridge.exposeInMainWorld("databaseApi", {
         receiveStaleBidderPublicKeysReport: function(func){
             ipcRenderer.once("receive-stale-keys-report", (event, ...args) => func(event, ...args));       
         },
+        reqUpdateStaleKeys: function(stakeInfoPath){
+            ipcRenderer.send("req-update-stale-keys", [stakeInfoPath]);
+        },
+        receiveUpdateStaleKeysResult: function(func){
+            ipcRenderer.once("receive-update-stale-keys-report", (event, ...args) => func(event, ...args));       
+        },
 });
 
 contextBridge.exposeInMainWorld("validateFilesApi", {
