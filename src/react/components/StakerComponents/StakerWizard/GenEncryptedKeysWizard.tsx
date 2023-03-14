@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useMemo } from 'react'
 import { Center, Flex } from '@chakra-ui/react'
 import { Step, Steps, useSteps } from 'chakra-ui-steps'
 // STEP 1:
@@ -29,18 +29,29 @@ interface WizardProps {
   navigateTo: (tabIndex: number) => void
 }
 
+const getMenomicWordsToConfirmIndicies = () => {
+  const indexList = Array<number>();
+
+  while (indexList.length < 4) {
+    const index = Math.floor(Math.random() * 24);
+    if (!indexList.includes(index)) {
+      indexList.push(index);
+    }
+  }
+  return indexList.sort((a, b) => a - b);
+};
 
 const GenEncryptedKeysWizard: React.FC<WizardProps> = (props) => {
   const { nextStep, prevStep, activeStep } = useSteps({
     initialStep: 0,
   })
   const [stakeInfoPath, setStakeInfoPath] = React.useState<string>("");
-  const [mnemonic, setMnemonic] = React.useState<string>("");
-  const [password, setPassword] = React.useState<string>("");
-  const [savePath, setSavePath] = React.useState<string>("");
+  const [mnemonic, setMnemonic] = useState<string>("");
+  const [password, setPassword] = useState<string>("");
+  const [savePath, setSavePath] = useState<string>("");
   const [keysGenerated, setKeysGenerated] = useState(false)
   const [filesCreatedPath, setFilesCreatedPath] = useState("")
-
+  const wordsToConfirmIndicies = useMemo(() => getMenomicWordsToConfirmIndicies(), [mnemonic])
   return (
     <Center>
       <Flex
@@ -65,7 +76,7 @@ const GenEncryptedKeysWizard: React.FC<WizardProps> = (props) => {
         <Flex flexDir="column" width="100%">
 
           {activeStep === 0 && <StepSelectStakeInfoPath goBackStep={prevStep} goNextStep={nextStep} stakeInfoPath={stakeInfoPath} setStakeInfoPath={setStakeInfoPath} />}
-          {activeStep === 1 && <StepGenerateMnemonic goBackStep={prevStep} goNextStep={nextStep} mnemonic={mnemonic} setMnemonic={setMnemonic} />}
+          {activeStep === 1 && <StepGenerateMnemonic goBackStep={prevStep} goNextStep={nextStep} mnemonic={mnemonic} setMnemonic={setMnemonic} wordsToConfirmIndicies={wordsToConfirmIndicies} />}
           {activeStep === 2 && <StepCreatePassword goBackStep={prevStep} goNextStep={nextStep} password={password} setPassword={setPassword} />}
           {activeStep === 3 && <StepCreateKeys goBackStep={prevStep} goNextStep={nextStep}
             savePath={savePath} setSavePath={setSavePath}
