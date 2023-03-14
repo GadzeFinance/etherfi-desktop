@@ -38,6 +38,9 @@ const Colors = {
     primary: '#ED7171',
     warning: '#F94545',
   },
+  yellow: {
+    alert: '#FFC700',
+  },
 }
 
 const CustomSteps = {
@@ -117,6 +120,10 @@ const theme = extendTheme({
     },
     Text: {
       variants: {
+        'alert-text': {
+          color: 'yellow.alert',
+          fontSize: '12px',
+        },
         'warning-text': {
           color: 'red.warning',
           fontSize: '12px',

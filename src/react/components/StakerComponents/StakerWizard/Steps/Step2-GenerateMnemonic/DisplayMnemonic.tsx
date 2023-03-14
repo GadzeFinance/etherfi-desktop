@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Box, Text, GridItem, Grid, HStack, Tooltip, Center, Button } from '@chakra-ui/react'
+import { Box, Text, GridItem, Grid, HStack, Tooltip, Center, Button, VStack } from '@chakra-ui/react'
 import { CopyIcon } from '@chakra-ui/icons'
 import IconAlertTriangle from '../../../../Icons/IconAlertTriangle'
 import clickableIconStyle from '../../../../../styleClasses/clickableIconStyle'
@@ -56,26 +56,24 @@ const DisplayMnemonic: React.FC<DisplayMnemonicProps> = ({ mnemonic }: DisplayMn
         Your Mnemonic Phrase
       </Text>
       <Grid
-        gridTemplateColumns={'50% 25% 25%'}
+        gridTemplateColumns={'75% 25%'}
       >
-        <GridItem >
+        <GridItem sx={{ display: 'flex', justifyContent: 'center' }}>
           <HStack >
-            <IconAlertTriangle boxSize="3" />
-            <Text variant="warning-text">Make sure you save this phrase. It cannot be recovered.</Text>
+            <IconAlertTriangle stroke="#FFC700" boxSize="4" />
+            <Text variant="alert-text">Make sure you save this phrase. It cannot be recovered.</Text>
           </HStack>
         </GridItem >
-        <GridItem>
-          <Center>
-            <Button size='sm' onClick={() => setBlurred(!blurred)} variant='blur-button'>
-              {blurred ? 'Unblur' : 'Blur'}
-            </Button>
-          </Center>
-        </GridItem >
         <GridItem sx={{ display: 'flex', justifyContent: 'center' }}>
-          <Center >
-            <Tooltip label={copied ? 'Copied' : 'Copy'} closeOnClick={false}>
-              <CopyIcon sx={clickableIconStyle} onClick={copyMnemonic} boxSize={4} />
-            </Tooltip>
+          <Center>
+            <VStack>
+              <Tooltip label={copied ? 'Copied' : 'Copy'} closeOnClick={false}>
+                <CopyIcon sx={clickableIconStyle} onClick={copyMnemonic} boxSize={4} />
+              </Tooltip>
+              <Button size='sm' onClick={() => setBlurred(!blurred)} variant='blur-button'>
+                {blurred ? 'Unblur' : 'Blur'}
+              </Button>
+            </VStack>
           </Center>
         </GridItem >
       </Grid>
