@@ -39,7 +39,6 @@ const EtherFiSpinner: React.FC<SpinnerData> = (props: SpinnerData) => {
                         </Box>
                     </Flex>
                 </Box>
-                )
             </>
         )
     }
