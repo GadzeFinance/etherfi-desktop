@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { Flex, Text, Center } from '@chakra-ui/react'
 import WizardNavigator from '../../WizardNavigator'
 import SelectFile from '../../../../SelectFile'
-import IconAlertTriangle from '../../../../Icons/IconAlertTriangle'
+import { IconAlertTriangle } from '../../../../Icons'
 
 
 interface StepSelectStakeInfoPathProps {

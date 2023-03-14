@@ -1,7 +1,7 @@
 import React from 'react'
 import { Flex, Text, Center, VStack } from '@chakra-ui/react'
-import IconCheckMark from '../../../../Icons/IconCheckMark'
 import WizardNavigator from '../../WizardNavigator'
+import { IconCheckMark } from '../../../../Icons'
 import { COLORS } from '../../../../../styleClasses/constants';
 
 

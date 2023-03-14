@@ -1,10 +1,11 @@
-import React, { useDebugValue, useState } from 'react'
+import React, { useState } from 'react'
 import { Flex, Text, Center } from '@chakra-ui/react'
 import DisplayMnemonic from './DisplayMnemonic'
 import ConfirmMnemonic from './ConfimMnemonic'
 import WizardNavigator from '../../WizardNavigator'
-import IconLockFile from '../../../../Icons/IconLockFile'
 import EtherFiSpinner from '../../../../EtherFiSpinner'
+import { IconLockFile } from '../../../../Icons'
+
 
 
 interface StepGenerateMnemonicProps {
