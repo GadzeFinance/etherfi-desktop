@@ -1,21 +1,26 @@
-import React, { useState } from 'react'
+import React, { useDebugValue, useState } from 'react'
 import { Flex, Text, Center } from '@chakra-ui/react'
 import DisplayMnemonic from './DisplayMnemonic'
+import ConfirmMnemonic from './ConfimMnemonic'
 import WizardNavigator from '../../WizardNavigator'
 import IconLockFile from '../../../../Icons/IconLockFile'
 import EtherFiSpinner from '../../../../EtherFiSpinner'
 
 
 interface StepGenerateMnemonicProps {
-  goNextStep: () => void
+  goNextStep: () => void,
   goBackStep: () => void,
   mnemonic: string,
-  setMnemonic: (mnemonic: string) => void
+  setMnemonic: (mnemonic: string) => void,
+  wordsToConfirmIndicies: Array<number>,
 }
 
 const StepGenerateMnemonic: React.FC<StepGenerateMnemonicProps> = (props) => {
 
   const [generating, setGenerating] = useState(false);
+  // This is a hacky way to determine if we should show ConfirmMnemonic or DisplayMnemonic compoennts when this renders.
+  const [confirmMnemonic, setConfirmMnemonic] = useState(props.mnemonic !== '')
+  const [mnemonicConfirmed, setMnemonicConfirmed] = useState(false)
   const generateMnemonic = () => {
     window.api.receiveNewMnemonic((event: Electron.IpcMainEvent, args: [string]) => {
       const newMnemonic = args[0];
@@ -24,6 +29,27 @@ const StepGenerateMnemonic: React.FC<StepGenerateMnemonicProps> = (props) => {
     })
     window.api.reqNewMnemonic("english");
     setGenerating(true)
+  }
+
+  const nextAction = () => {
+    // No Mneomoic Generated
+    if (!props.mnemonic) return generateMnemonic
+    // Mneomoic Generated and viewing the whole mnemonic screen
+    if (props.mnemonic && !confirmMnemonic) return () => setConfirmMnemonic(true)
+    // Mneomoic Generated and viewing the Confirm Mnemonic screen
+    if (props.mnemonic && confirmMnemonic) return () => {
+      setConfirmMnemonic(false);
+      props.goNextStep()
+    }
+  }
+
+  const backAction = () => {
+    // No Mneomoic Generated
+    if (!props.mnemonic) return props.goBackStep
+    // Viewing whole mnemonic screen
+    if (props.mnemonic && !confirmMnemonic) return resetState
+    // Viewing Confirm Mnemonic Screen
+    if (props.mnemonic && confirmMnemonic) return () => setConfirmMnemonic(false)
   }
 
   const resetState = () => {
@@ -37,7 +63,7 @@ const StepGenerateMnemonic: React.FC<StepGenerateMnemonicProps> = (props) => {
   }
 
   const backProps = {
-    onClick: !props.mnemonic ? props.goBackStep : resetState,
+    onClick: backAction(),
     variant: "back-button",
   }
 
@@ -48,7 +74,10 @@ const StepGenerateMnemonic: React.FC<StepGenerateMnemonicProps> = (props) => {
 
   const nextProps = {
     // isDisabled: !props.stakeInfoPath,
-    onClick: !props.mnemonic ? generateMnemonic : props.goNextStep,
+    // If confrimMnemonc is show then check if the user has entered all the words. 
+    // Otherwise the button is not disabled
+    isDisabled: confirmMnemonic ? !mnemonicConfirmed : false,
+    onClick: nextAction(),
     variant: "white-button",
   }
 
@@ -76,13 +105,16 @@ const StepGenerateMnemonic: React.FC<StepGenerateMnemonicProps> = (props) => {
           <Text color="white" opacity={'0.7'} align="center">
             To generate and encrypt your validator keys. First you need to generate a mnemonic.
           </Text>
-
-          {/* <WizardNavigator backDetails={backDetails} backVisible={true} goBackStep={props.goBackStep} nextVisible={true} goNextStep={generateMnemonic} nextText="Generate Mnemonic" backText="Go Back"
-            nextProps={{ isLoading: generating, loadingText: 'Generating', variant: "white-button-generate" }} /> */}
         </>
       )}
+      {props.mnemonic && !confirmMnemonic && (<DisplayMnemonic mnemonic={props.mnemonic} />)}
+      {props.mnemonic && confirmMnemonic && (
+        <ConfirmMnemonic mnemonic={props.mnemonic}
+          wordsToConfirmIndicies={props.wordsToConfirmIndicies}
+          setMnemonicConfirmed={setMnemonicConfirmed}
+        />
+      )}
 
-      {props.mnemonic && (<DisplayMnemonic mnemonic={props.mnemonic} />)}
       {!generating && <WizardNavigator nextProps={nextProps} backProps={backProps} nextDetails={nextDetails} backDetails={backDetails} />}
       <EtherFiSpinner loading={generating} text={"Generating Mnemonic..."} />
     </Flex >
