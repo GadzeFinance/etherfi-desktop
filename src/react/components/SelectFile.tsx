@@ -1,9 +1,6 @@
 import React, { useState } from 'react'
 import { Flex, Text, Box, Center, VStack } from '@chakra-ui/react'
-import IconFile from './Icons/IconFile'
-import IconTrash from './Icons/IconTrash'
-import IconFileUpload from './Icons/IconFileUpload'
-import IconError from './Icons/IconError'
+import { IconFile, IconTrash, IconFileUpload, IconError } from './Icons'
 import { COLORS } from '../styleClasses/constants'
 
 

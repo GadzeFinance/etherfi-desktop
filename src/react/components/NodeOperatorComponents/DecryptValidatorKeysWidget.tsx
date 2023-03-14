@@ -4,8 +4,7 @@ import raisedWidgetStyle from '../../styleClasses/widgetBoxStyle';
 import darkBoxWithBorderStyle from '../../styleClasses/darkBoxWithBorderStyle';
 import SelectFile from '../SelectFile'
 import PasswordInput from '../PasswordInput';
-import IconSavedFile from '../Icons/IconSavedFile';
-import IconCheckMark from '../Icons/IconCheckMark';
+import { IconSavedFile, IconCheckMark } from '../Icons';
 import { COLORS } from '../../styleClasses/constants'
 import successBoxStyle from '../../styleClasses/successBoxStyle';
 
@@ -51,7 +50,6 @@ const DecryptValidatorKeysWidget: React.FC = () => {
 
     return (
         <Center>
-
             {
                 !keysDecrypted && (
                     <Box sx={raisedWidgetStyle} bg="#2b2852">
@@ -111,8 +109,6 @@ const DecryptValidatorKeysWidget: React.FC = () => {
                             </Box>
                         </VStack>
                     </Box >
-
-
                 )
             }
             {
