@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Box, Text, GridItem, Grid, HStack, Tooltip, Center, Button, VStack } from '@chakra-ui/react'
 import { CopyIcon } from '@chakra-ui/icons'
-import IconAlertTriangle from '../../../../Icons/IconAlertTriangle'
+import { IconAlertTriangle } from '../../../../Icons'
 import clickableIconStyle from '../../../../../styleClasses/clickableIconStyle'
 
 interface DisplayMnemonicProps {

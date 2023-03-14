@@ -1,8 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Text, GridItem, Grid, VStack, Input, UnorderedList, ListItem } from '@chakra-ui/react'
-import { CopyIcon } from '@chakra-ui/icons'
-import IconAlertTriangle from '../../../../Icons/IconAlertTriangle'
-import clickableIconStyle from '../../../../../styleClasses/clickableIconStyle'
+import { Text, GridItem, Grid, VStack, Input, UnorderedList, ListItem } from '@chakra-ui/react'
 
 interface ConfirmMnemonicProps {
     mnemonic: string,
