@@ -45,9 +45,15 @@ const StepSelectStakeInfoPath: React.FC<StepSelectStakeInfoPathProps> = (props) 
           // In the future we may want to show which stale keys were used in the UI instead of just the console
           console.warn("Stale keys were found: " + staleKeys)
           setStaleKeysFound(true)
+        } else {
+          setStaleKeysFound(false)
+          console.log('No stale Keys found!')
         }
       })
       window.databaseApi.reqCheckForStaleBidderPublicKeys(props.stakeInfoPath)
+    } else {
+      // Set stale keys found to false since there is no file selected
+      setStaleKeysFound(false)
     }
   }, [props.stakeInfoPath]);
 

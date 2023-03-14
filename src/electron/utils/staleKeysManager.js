@@ -65,7 +65,7 @@ const updateStaleKeys = async (stakeInfoPath) => {
     var db = null
     var success = true
     try {
-        db = setUpDB()
+        db = await setUpDB()
         await addStaleKeys(stakeInfoPath, db)
     } catch (error) {
         console.error(error)
@@ -92,7 +92,7 @@ const addStaleKeys = async (stakeInfoPath, db) => {
         }
     }
     await new Promise((resolve, reject) => {
-        db.run(query, (error, db) => {
+        db.all(query, (error, db) => {
         error ? reject(error) : resolve(db)
         });
     })
