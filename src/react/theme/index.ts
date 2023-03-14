@@ -104,6 +104,39 @@ const theme = extendTheme({
     }),
   },
   components: {
+    Input: {
+      variants: {
+        'confirm-mnemonic': {
+          field: {
+            fontSize: '12px',
+            fontColor: '#CED0DD',
+            border: '1px solid',
+            borderColor: 'purple.light',
+            bg: 'grey.primary',
+            borderRadius: '4px',
+          },
+        },
+        'correct-mnemonic': {
+          field: {
+            fontSize: '12px',
+            fontColor: '#CED0DD',
+            border: '1px solid',
+            borderColor: 'green.light',
+            bg: 'grey.primary',
+            borderRadius: '4px',
+          },
+        },
+        'wrong-mnemonic': {
+          field: {
+            fontSize: '12px',
+            border: '1px solid',
+            borderColor: 'red.warning',
+            bg: 'grey.primary',
+            borderRadius: '4px',
+          },
+        },
+      },
+    },
     Icon: {
       variants: {
         'clickable-icon': {
