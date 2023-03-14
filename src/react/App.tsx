@@ -8,6 +8,7 @@ declare global {
   interface Window {
     api: any;
     validateFilesApi: any;
+    databaseApi: any;
   }
 }
 
