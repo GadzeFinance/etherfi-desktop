@@ -1,4 +1,4 @@
-name: Test etherfi-desktop
+name: Build etherfi-desktop
 
 on:
   push:
