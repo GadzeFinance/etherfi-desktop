@@ -50,8 +50,8 @@ contextBridge.exposeInMainWorld("api", {
     reqDecryptValidatorKeys: function(encryptedValidatorKeysFilePath, privateKeysFilePath, privKeysPassword, saveFolder){
         ipcRenderer.send("req-decrypt-val-keys", [encryptedValidatorKeysFilePath, privateKeysFilePath, privKeysPassword, saveFolder]);
     },
-    receiveDecryptComplete: function(func){
-        ipcRenderer.once("receive-decrypt-val-keys-complete", (event, ...args) => func(event, ...args));       
+    receiveDecryptReport: function(func){
+        ipcRenderer.once("receive-decrypt-val-keys-report", (event, ...args) => func(event, ...args));       
     },
     // Function to open a folder in the OS native file viewer
     reqOpenFolder: function(folder){

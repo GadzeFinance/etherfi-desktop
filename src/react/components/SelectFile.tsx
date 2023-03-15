@@ -30,6 +30,8 @@ const SelectFile: React.FC<SelectFileProps> = (props) => {
     const [fileValidationError, setFileValidationError] = useState<Boolean>(false)
     const selectFilePath = () => {
         window.api.receiveSelectedFilePath((event: Electron.IpcMainEvent, path: string) => {
+            // dont do anything if the path is empty
+            if (path === '') return
             // Subscribe to listen to results of file validation
             props.receiveValidatonResults((event: Electron.IpcMainEvent, result: Array<any>) => {
                 const isValid = result[0]

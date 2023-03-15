@@ -94,9 +94,7 @@ const decryptPrivateKeys = (privateKeysJSON, privKeysPassword) => {
     const key = crypto.pbkdf2Sync(privKeysPassword, salt, 100000, 32, 'sha256');
     const decipher = crypto.createDecipheriv('aes-256-cbc', key, iv);
     const decryptedData = Buffer.concat([decipher.update(encryptedData), decipher.final()]);
-    console.log(decryptedData.toString('utf8'));
     decryptedDataJSON = JSON.parse(decryptedData.toString('utf8'))
-    console.log(decryptedDataJSON)
     return decryptedDataJSON
 }
 
@@ -137,8 +135,6 @@ const genValidatorKeysAndEncrypt = async (event, arg) => {
     const count = stakeInfo.length
     const nodeOperatorPublicKeys = stakeInfo.map((stake) => stake.bidderPublicKey)
     const eth1_withdrawal_address = stakeInfo[0].withdrawalSafeAddress;
-    console.log(stakeInfo)
-
 
     const timeStamp = new Date().toISOString().slice(0,-5)
     folder += `/etherfi_keys-${timeStamp}`
@@ -306,15 +302,28 @@ const listenSelectJsonFile = async (event, arg) => {
     })
 }
 
+const decryptReportEnum = {
+    SUCCESS: 0,
+    BAD_PASSWORD: 1,
+    BAD_PRIVATE_KEYS: 2,
+    SAVE_FILE_ERROR: 3, 
+}
 
 const decryptValidatorKeys = async (event, arg) => {
     console.log("decryptValidatorKeys: Start")
     const [encryptedValidatorKeysFilePath, privateKeysFilePath, privKeysPassword,chosenFolder] = arg
-
+    // This will work since the files have already been validated (validateFile.js)
     const encryptedValidatorKeysJson = JSON.parse(fs.readFileSync(encryptedValidatorKeysFilePath))
     const encrpytedPrivateKeysJson = JSON.parse(fs.readFileSync(privateKeysFilePath))
-    
-    const privateKeysJson = decryptPrivateKeys(encrpytedPrivateKeysJson, privKeysPassword)
+    var privateKeysJson = null
+    try {
+        privateKeysJson = decryptPrivateKeys(encrpytedPrivateKeysJson, privKeysPassword)
+    } catch (err) {
+        console.error(err.message)
+        event.sender.send("receive-decrypt-val-keys-report", decryptReportEnum.BAD_PASSWORD, '', err.message)
+        return
+        // TODO: send error message to frontend saying the password is wrong
+    }
 
     const curve = new EC('secp256k1')
     const keystoreToPassword = {
@@ -323,49 +332,56 @@ const decryptValidatorKeys = async (event, arg) => {
     }
 
     // create folder to store filess
-    const saveFolder = `${chosenFolder}/etherfi_validator_keys`
+    const timeStamp = new Date().toISOString().slice(0,-5)
+    const saveFolder = `${chosenFolder}/decrypted_validator_keys-${timeStamp}`
     if (!fs.existsSync(saveFolder)) {
         fs.mkdirSync(saveFolder);
       }
 
-    // For each of the validator keys
-    for (var encryptedValKey of encryptedValidatorKeysJson) {
-        // Step 1: get the staker public key and convert it to a point
-        const stakerPublicKeyHex = encryptedValKey["stakerPublicKey"]
-        const receivedStakerPubKeyPoint = curve.keyFromPublic(stakerPublicKeyHex, 'hex').getPublic()
+    try {
+        // For each of the validator keys
+        for (var encryptedValKey of encryptedValidatorKeysJson) {
+            // Step 1: get the staker public key and convert it to a point
+            const stakerPublicKeyHex = encryptedValKey["stakerPublicKey"]
+            const receivedStakerPubKeyPoint = curve.keyFromPublic(stakerPublicKeyHex, 'hex').getPublic()
 
-        // Step 2: get the correct node Operator Private Key and convert it to a Big Number
-        const keyIndex = privateKeysJson["pubKeyArray"].indexOf(encryptedValKey["nodeOperatorPublicKey"])
-        const nodeOperatorPrivKeyString = privateKeysJson["privKeyArray"][keyIndex]
-        const nodeOperatorPrivKey = new BN(nodeOperatorPrivKeyString)
+            // Step 2: get the correct node Operator Private Key and convert it to a Big Number
+            const keyIndex = privateKeysJson["pubKeyArray"].indexOf(encryptedValKey["nodeOperatorPublicKey"])
+            const nodeOperatorPrivKeyString = privateKeysJson["privKeyArray"][keyIndex]
+            const nodeOperatorPrivKey = new BN(nodeOperatorPrivKeyString)
 
-        // Step 3: Generate shared secret and decrypt the message
-        const nodeOperatorSharedSecret = receivedStakerPubKeyPoint.mul(nodeOperatorPrivKey).getX()
-        const validatorKeyString = decrypt(encryptedValKey["encryptedValidatorKey"], nodeOperatorSharedSecret.toArrayLike(Buffer, 'be', 32))
-        const validatorKeyPassword = decrypt(encryptedValKey["encryptedPassword"], nodeOperatorSharedSecret.toArrayLike(Buffer, 'be', 32))
-        const keystoreName = decrypt(encryptedValKey["encryptedKeystoreName"], nodeOperatorSharedSecret.toArrayLike(Buffer, 'be', 32))
+            // Step 3: Generate shared secret and decrypt the message
+            const nodeOperatorSharedSecret = receivedStakerPubKeyPoint.mul(nodeOperatorPrivKey).getX()
+            const validatorKeyString = decrypt(encryptedValKey["encryptedValidatorKey"], nodeOperatorSharedSecret.toArrayLike(Buffer, 'be', 32))
+            const validatorKeyPassword = decrypt(encryptedValKey["encryptedPassword"], nodeOperatorSharedSecret.toArrayLike(Buffer, 'be', 32))
+            const keystoreName = decrypt(encryptedValKey["encryptedKeystoreName"], nodeOperatorSharedSecret.toArrayLike(Buffer, 'be', 32))
 
-        // Save keystore file
-        const keyStorePath = `${saveFolder}/${keystoreName}`
-        fs.writeFileSync(keyStorePath, validatorKeyString, 'utf-8', (err) => {
-            if (err) {
-                console.error(err);
-                return;
-        }})
-        keystoreToPassword["keystoreArray"].push(keystoreName)
-        keystoreToPassword["passwordArray"].push(validatorKeyPassword)
+            // Save keystore file
+            const keyStorePath = `${saveFolder}/${keystoreName}`
+            fs.writeFileSync(keyStorePath, validatorKeyString, 'utf-8', (err) => {
+                if (err) {
+                    console.error(err);
+                    event.sender.send("receive-decrypt-val-keys-report", decryptReportEnum.SAVE_FILE_ERROR, '', err.message)
+                }})
+            keystoreToPassword["keystoreArray"].push(keystoreName)
+            keystoreToPassword["passwordArray"].push(validatorKeyPassword)
+        }
+    } catch (err) {
+        // Send Error Message to Frontend that the 
+        event.sender.send("receive-decrypt-val-keys-report", decryptReportEnum.BAD_PRIVATE_KEYS, '', err.message)
+
     }
     
     const keystoreToPasswordFile = `${saveFolder}/keystore_to_password.json`
     fs.writeFileSync(keystoreToPasswordFile, JSON.stringify(keystoreToPassword), 'utf-8', (err) => {
         if (err) {
-            console.error(err);
+            event.sender.send("receive-decrypt-val-keys-report", decryptReportEnum.SAVE_FILE_ERROR, '', err.message)
             return;
     }})
 
-    event.sender.send("receive-decrypt-val-keys-complete", [saveFolder])
+    // Send Success!
+    event.sender.send("receive-decrypt-val-keys-report", decryptReportEnum.SUCCESS, saveFolder, '')
     console.log("decryptValidatorKeys: End")
-
 }
 
 

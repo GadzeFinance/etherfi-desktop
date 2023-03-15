@@ -9,15 +9,25 @@ import { COLORS } from '../../styleClasses/constants'
 import successBoxStyle from '../../styleClasses/successBoxStyle';
 
 
+const decryptResultToErrorMessages = {
+    0: "Success",
+    1: "Incorrect Password",
+    2: "Incorrect Private Keys",
+    3: "Could not save files to disk"
+}
+
 const DecryptValidatorKeysWidget: React.FC = () => {
     const [savePath, setSavePath] = useState<string>("")
-    const [keysDecrypted, setKeysDecrypted] = useState<boolean>(false)
     const [encryptedValKeysFilePath, setEncryptedValidatorKeysFilePath] = useState<string>("")
     const [privKeysFilePath, setPrivKeysFilePath] = useState<string>("")
     const [privKeysPassword, setPrivKeysPassword] = useState<string>("")
     const [isPrivKeysPasswordValid, setIsPrivKeysPasswordValid] = useState<boolean>(false)
     const [filesCreatedPath, setFilesCreatedPath] = useState<string>("");
 
+    const [keysDecrypted, setKeysDecrypted] = useState<boolean>(false)
+    const [incorrectPassword, setIncorrectPassword] = useState<boolean>(false)
+    const [incorrectPrivKeys, setIncorrectPrivKeys] = useState<boolean>(false)
+    // Select path to save the decrypted keys too.
     const selectSavePath = () => {
         window.api.receiveSelectedFolderPath((event: Electron.IpcMainEvent, path: string) => {
             setSavePath(path)
@@ -26,21 +36,52 @@ const DecryptValidatorKeysWidget: React.FC = () => {
     }
 
     const decryptValidatorKeys = () => {
-        window.api.receiveDecryptComplete((event: Electron.IpcMainEvent, path: string) => {
-            console.log("DECRYPT COMPLETE!")
-            setFilesCreatedPath(path[0])
-            setKeysDecrypted(true)
+        window.api.receiveDecryptReport((event: Electron.IpcMainEvent, result: number, path: string, errorMessage: string) => {
+            switch (result) {
+                // Decrypt Success
+                case 0: {
+                    setFilesCreatedPath(path)
+                    setKeysDecrypted(true)
+                    console.log("Decrypt Completed Successfully!")
+                    break;
+                }
+                // Incorrect Password
+                case 1: {
+                    setIncorrectPassword(true)
+                    console.error("Incorrect Password")
+                    console.error(errorMessage)
+                    break;
+                }
+                // Incorrect Private Keys
+                case 2: {
+                    setIncorrectPrivKeys(true)
+                    setIncorrectPassword(false)
+                    console.error("Incorrect Private Keys")
+                    console.error(errorMessage)
+                    break;
+                }
+                // Could Not Save Files
+                case 3: {
+                    // We should never really end up here
+                    console.error("Could note save files to keys")
+                    console.error(errorMessage)
+                    break;
+                }
+            }
         })
         window.api.reqDecryptValidatorKeys(encryptedValKeysFilePath, privKeysFilePath, privKeysPassword, savePath);
     }
 
     const clearState = () => {
         setSavePath("")
-        setKeysDecrypted(false)
         setEncryptedValidatorKeysFilePath("")
         setPrivKeysFilePath("")
         setPrivKeysPassword("")
         setIsPrivKeysPasswordValid(false)
+
+        setKeysDecrypted(false)
+        setIncorrectPassword(false)
+        setIncorrectPrivKeys(false)
     }
 
     const openFilesCreatedFolder = () => {
@@ -83,11 +124,14 @@ const DecryptValidatorKeysWidget: React.FC = () => {
                                             reqFileValidaton={window.validateFilesApi.validateNodeOperatorPrivateKeystoreJson}
                                             receiveValidatonResults={window.validateFilesApi.receiveNodeOperatorPrivateKeystoreValidationResults}
                                             setFilePath={setPrivKeysFilePath}
-                                            filePath={privKeysFilePath} />
+                                            filePath={privKeysFilePath}
+                                        />
+                                        {incorrectPrivKeys && (<Text color='red.warning' fontSize="12px">Incorrect Private Keys: The private keys you selected cannot decrypt these validator keys. Are you using the correct private key file?</Text>)}
+
                                     </Box>
                                     <Box>
                                         <PasswordInput password={privKeysPassword} setPassword={setPrivKeysPassword} isPasswordValid={isPrivKeysPasswordValid} setIsPasswordValid={setIsPrivKeysPasswordValid} />
-
+                                        {incorrectPassword && (<Text color='red.warning' fontSize="12px">Incorrect Password: Please enter the password you entered when you generated the private keys file.</Text>)}
                                     </Box>
                                     <Box>
                                         <Text color="white" opacity={'0.7'} align="center">
