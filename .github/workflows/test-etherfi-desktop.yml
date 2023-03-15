@@ -16,6 +16,7 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: '18.13.0'
+          cache: yarn --frozen-lockfile
       - name: Install dependencies
         run: yarn --frozen-lockfile
       - name: Run Tests
@@ -30,6 +31,7 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: '18.13.0'
+          cache: yarn --frozen-lockfile
       - name: Install dependencies
         run: yarn --frozen-lockfile
       - name: Run Tests
@@ -44,6 +46,7 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: '18.13.0'
+          cache: yarn --frozen-lockfile
       - name: Install dependencies
         run: yarn --frozen-lockfile
       - name: Run Tests
