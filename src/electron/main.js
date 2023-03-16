@@ -19,6 +19,7 @@ const {
 } = require('./listeners');
 
 const {validateJsonFile} = require('./utils/validateFile')
+const {standardResultCodes,decryptResultCodes} = require('./utils/resultsCode')
 
 
 function createWindow() {
@@ -90,25 +91,46 @@ app.on("window-all-closed", function () {
 // Register IPC Listeners
 ipcMain.on("req-gen-node-operator-keys", async (event, args) => {
     const [numKeys, saveFolder, privKeysPassword] = args
-    const [result, pubKeysFilePath, privKeysFilePath] = await genNodeOperatorKeystores(numKeys, saveFolder, privKeysPassword)
-    event.sender.send("receive-NO-keys-generated", [result, pubKeysFilePath, privKeysFilePath])
-});  
+    var [result, pubKeysFilePath, privKeysFilePath] = [resultCodes.ERROR, null, null]
+    try {
+        [result, pubKeysFilePath, privKeysFilePath] = await genNodeOperatorKeystores(numKeys, saveFolder, privKeysPassword)
+        event.sender.send("receive-NO-keys-generated-result", [result, pubKeysFilePath, privKeysFilePath, ''])
+
+    } catch (error) {
+        event.sender.send("receive-NO-keys-generated-result", [result, pubKeysFilePath, privKeysFilePath, error.message])
+    }
+});
+
 ipcMain.on("req-new-mnemonic", (event, args) => {
     const language = args[0]
-    var mnemonic = ""
-    var result = 0 
+    var mnemonic = ''
     try {
         mnemonic = genMnemonic(language)
-    } catch {
-        result = 1
+        event.sender.send("receive-new-mnemonic", [resultCode.SUCCESS, mnemonic, ''])
+    } catch (error) {
+        event.sender.send("receive-new-mnemonic", [resultCode.ERROR, mnemonic, error.message])
     }
-    event.sender.send("receive-new-mnemonic", [result, mnemonic])
-
 });
-ipcMain.on("req-select-folder-path", listenSelectFolder);
-ipcMain.on("req-select-file-path", listenSelectJsonFile);
-ipcMain.on("req-gen-val-keys-and-encrypt", genValidatorKeysAndEncrypt);
-ipcMain.on("req-decrypt-val-keys", decryptValidatorKeys);
+
+ipcMain.on("req-gen-val-keys-and-encrypt",  (event, args) => {
+    var [mnemonic, password, folder, stakeInfoPath] = args
+    var savePath = ''
+    try {
+        savePath = genValidatorKeysAndEncrypt(mnemonic, password, folder, stakeInfoPath)
+        event.sender.send("receive-key-gen-confirmation", [resultCodes.SUCCESS, savePath , ''])
+
+    } catch (error) {
+        event.sender.send("receive-key-gen-confirmation",  [resultCodes.SUCCESS, savePath, error.message])
+    }
+});
+
+ipcMain.on("req-decrypt-val-keys",  (event, args) => {
+    try {
+        decryptValidatorKeys(event, args)
+    } catch (error) {
+
+    }
+});
 
 // Validating Files
 ipcMain.on("req-validate-file", (event, args) => {
@@ -117,22 +139,8 @@ ipcMain.on("req-validate-file", (event, args) => {
     event.sender.send(`receive-validate-${fileType}-results`, [result.isValid, result.errors])
 })
 
-// Check for Stale Keys
-ipcMain.on("req-check-for-stale-keys", async (event, args) => {
-    // const stakeInfoPath = args[0]
-    // const staleKeys = await checkIfKeysAreStale(stakeInfoPath)
-    // Stubbing this for now.
-    const staleKeys = []
-    event.sender.send("receive-stale-keys-report", staleKeys)
-})
-ipcMain.on("req-update-stale-keys", async (event, args) => {
-    const stakeInfoPath = args[0]
-    // const result = await updateStaleKeys(stakeInfoPath)
-    const result = true;
-    event.sender.send("receive-update-stale-keys-report", result)
-})
-
-
+ipcMain.on("req-select-folder-path", listenSelectFolder);
+ipcMain.on("req-select-file-path", listenSelectJsonFile);
 
 ipcMain.on("copy-to-clipboard", (event, arg) => {
     const text = arg[0]
@@ -151,6 +159,18 @@ ipcMain.on("staker-finish", (event, arg) => {
 })
 
 
+// Check for Stale Keys
+ipcMain.on("req-check-for-stale-keys", async (event, args) => {
+    // const stakeInfoPath = args[0]
+    // const staleKeys = await checkIfKeysAreStale(stakeInfoPath)
+    // Stubbing this for now.
+    const staleKeys = []
+    event.sender.send("receive-stale-keys-report", staleKeys)
+})
 
-
-// ipcMain.on("req-build-public-staker-file", listenBuildStakerJson);
+ipcMain.on("req-update-stale-keys", async (event, args) => {
+    const stakeInfoPath = args[0]
+    // const result = await updateStaleKeys(stakeInfoPath)
+    const result = true;
+    event.sender.send("receive-update-stale-keys-report", result)
+})

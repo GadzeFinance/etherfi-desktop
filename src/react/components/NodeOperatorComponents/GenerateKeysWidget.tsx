@@ -18,6 +18,7 @@ const GenerateKeysWidget: React.FC = () => {
     const [numKeys, setNumKeys] = useState<string>("500");
     const [savePath, setSavePath] = useState<string>("")
     const [keysGenerated, setKeysGenerated] = useState<boolean>(false)
+    const [keysGenerating, setKeysGenerating] = useState<boolean>(false)
     const [pubKeysFilePath, setPubKeysFilePath] = useState<string>("")
     const [privKeysFilePath, setPrivKeysFilePath] = useState<string>("")
     const [privKeysPassword, setPrivKeysPassword] = useState<string>("")
@@ -27,18 +28,20 @@ const GenerateKeysWidget: React.FC = () => {
 
     const generateKeys = () => {
         window.encryptionApi.receiveNOKeysConfirmation((event: Electron.IpcMainEvent, results: Array<any>) => {
-            const [result, pubKeysFilePath, privKeysFilePath] = results;
+            const [result, pubKeysFilePath, privKeysFilePath, errorMessage] = results;
             if (result === 0) {
                 setPubKeysFilePath(pubKeysFilePath)
                 setPrivKeysFilePath(privKeysFilePath)
                 setKeysGenerated(true)
             } else {
                 console.error("Error generating keys")
+                console.error(errorMessage)
             }
-
+            setKeysGenerating(false)
         })
         // Send request to backend to make the public and private key files
         window.encryptionApi.reqGenNodeOperatorKeys(numKeys, savePath, privKeysPassword);
+        setKeysGenerating(true)
     }
 
     const selectSavePath = () => {

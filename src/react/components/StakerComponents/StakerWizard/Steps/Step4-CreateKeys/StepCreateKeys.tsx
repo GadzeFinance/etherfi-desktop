@@ -33,12 +33,19 @@ const StepCreateKeys: React.FC<StepCreateKeysProps> = (props) => {
   }
 
   const generateEncryptedKeys = () => {
-    window.encryptionApi.receiveKeyGenConfirmation((event: Electron.IpcMainEvent, path: string) => {
-      console.log("KEY GEN COMPLETE!")
-      console.log("Files saved too: " + path)
-      props.setFilesCreatedPath(path[0])
+    window.encryptionApi.receiveKeyGenConfirmation((event: Electron.IpcMainEvent, results: Array<any>) => {
+      const [result, savePath, errorMessage] = results;
+      if (result === 0) {
+        console.log("KEY GEN COMPLETE!")
+        console.log("Key Gen Complete. Files saved too: " + savePath)
+        props.setFilesCreatedPath(result)
+        props.setKeysGenerated(true)
+      } else {
+        console.error("Error generating validator keys")
+        console.error(errorMessage)
+        // TODO: Show error screen on failure.
+      }
       setGeneratingKeys(false)
-      props.setKeysGenerated(true)
     })
     window.encryptionApi.reqGenValidatorKeysAndEncrypt(props.mnemonic, props.password, props.savePath, props.stakeInfoPath);
     setGeneratingKeys(true)

@@ -8,12 +8,6 @@ interface TabProps {
 }
 
 const StakerTab: React.FC<TabProps> = ({ tabIndex }: TabProps) => {
-  const receiveLogs = () => {
-    console.log('Enabling backend logs')
-    window.utilsApi.receiveLogs((event: Electron.IpcMainEvent, log: string) => {
-      console.log(log)
-    })
-  }
 
   return (
     <ScaleFade initialScale={0.5} in={tabIndex === 0}>

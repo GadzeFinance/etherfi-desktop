@@ -5,8 +5,7 @@ const EC = require('elliptic').ec
 const BN = require('bn.js');
 const fs = require('fs');
 const crypto = require('crypto');
-
-
+const  {standardResultCodes, decryptResultCodes} = require('./resultCodes.js')
 
 /**
  * Generates public and private key pairs and saves them in two separate JSON files.
@@ -20,7 +19,6 @@ const crypto = require('crypto');
 const genNodeOperatorKeystores = async (numKeys, saveFolder, privKeysPassword) => {
     console.log("genNodeOperatorKeystores: Start")
     const curve = new EC('secp256k1')
-
 
     const publicFileJSON = {}
     const privateKeysJSON = {}
@@ -48,8 +46,8 @@ const genNodeOperatorKeystores = async (numKeys, saveFolder, privKeysPassword) =
     fs.writeFileSync(pubKeysFilePath, JSON.stringify(publicFileJSON), 'utf-8', (err) => {
         if (err) {
             console.error(err);
-            return [1, null, null];
-    }})
+            throw new Error("Error writing private keys file")
+        }})
 
     // Create privateKeysJSON object
     privateKeysJSON["pubKeyArray"] = pubKeyArray
@@ -64,11 +62,11 @@ const genNodeOperatorKeystores = async (numKeys, saveFolder, privKeysPassword) =
     fs.writeFileSync(privKeysFilePath, JSON.stringify(encryptedPrivateKeysJSON), 'utf-8', (err) => {
         if (err) {
           console.error(err);
-          return [1, null, null];
+          throw new Error("Error writing private keys file")
     }})
 
     console.log("genNodeOperatorKeystores: End")
-    return [0, pubKeysFilePath, privKeysFilePath]
+    return [standardResultCodes.SUCCESS, pubKeysFilePath, privKeysFilePath]
 }
 
 const encryptPrivateKeys = (jsonData, privKeysPassword) => {
@@ -124,9 +122,8 @@ const genMnemonic = async (language) => {
  * @return {object} - Sends an event `receive-key-gen-confirmation` with a single argument, 
  *   an array containing the folder path where the generated keys are saved.
  */
-const genValidatorKeysAndEncrypt = async (event, arg) => {
+const genValidatorKeysAndEncrypt = async (mnemonic, password, folder, stakeInfoPath) => {
     console.log("genEncryptedKeys: Start")
-    var [mnemonic, password, folder, stakeInfoPath] = arg
 
     // get the data from stakeInfoPath
     const stakeInfo = JSON.parse(fs.readFileSync(stakeInfoPath))
@@ -143,18 +140,19 @@ const genValidatorKeysAndEncrypt = async (event, arg) => {
     try {
         await generateKeys(mnemonic, index, count, network, password, eth1_withdrawal_address, folder)
     } catch (err) {
-        // TODO: send error message to front end
         console.error(err)
+        throw new Error("Couldn't generate validator keys")
     }
     try {
         await _encryptValidatorKeys(folder, password, nodeOperatorPublicKeys)
     } catch(err) {
-        // TODO: send error message to front end
         console.error(err)
+        throw new Error("Error encrypting validator keys")
     }
 
     // now we need to encrypt the keys and generate "stakeRequest.json"
     // Send back the folder where everything is save
+    return folder
     event.sender.send("receive-key-gen-confirmation", [folder])
 
     console.log("genEncryptedKeys: End")
@@ -273,49 +271,6 @@ const _encryptValidatorKeys = async (folderPath, password, nodeOperatorPubKeys) 
     }})
 }
 
-/**
- * Opens dialog that allows user to select a folder path.
- * 
- * @emits "receive-selected-folder-path" event with the selected folder path
- * 
- * @returns {undefined} No return value. Emits "receive-selected-folder-path" event with selected folder path
- */
-const listenSelectFolder = async (event, arg) => {
-    selectFolder().then((result) => {
-        const path = result.canceled ? '' : result.filePaths[0];
-        event.sender.send("receive-selected-folder-path", path)
-    }).catch((error) => {
-        console.log("ERROR Selecting Files")
-        console.log(error)
-        event.sender.send("receive-selected-folder-path", 'Error Selecting Path')
-    })
-}
-
-/**
- * Opens dialog that allows user to select a file.
- * 
- * @emits "receive-selected-folder-path" event with the selected folder path
- * 
- * @returns {undefined} No return value. Emits "receive-selected-folder-path" event with selected folder path
- */
-const listenSelectJsonFile = async (event, arg) => {
-    selectJsonFile().then((result) => {
-        const path = result.canceled ? '' : result.filePaths[0];
-        event.sender.send("receive-selected-file-path", path)
-    }).catch((error) => {
-        console.log("ERROR Selecting Files")
-        console.log(error)
-        event.sender.send("receive-selected-file-path", 'Error Selecting Path')
-    })
-}
-
-const decryptReportEnum = {
-    SUCCESS: 0,
-    BAD_PASSWORD: 1,
-    BAD_PRIVATE_KEYS: 2,
-    SAVE_FILE_ERROR: 3, 
-}
-
 const decryptValidatorKeys = async (event, arg) => {
     console.log("decryptValidatorKeys: Start")
     const [encryptedValidatorKeysFilePath, privateKeysFilePath, privKeysPassword,chosenFolder] = arg
@@ -327,7 +282,7 @@ const decryptValidatorKeys = async (event, arg) => {
         privateKeysJson = decryptPrivateKeys(encrpytedPrivateKeysJson, privKeysPassword)
     } catch (err) {
         console.error(err.message)
-        event.sender.send("receive-decrypt-val-keys-report", decryptReportEnum.BAD_PASSWORD, '', err.message)
+        event.sender.send("receive-decrypt-val-keys-report", decryptResultCodes.BAD_PASSWORD, '', err.message)
         return
         // TODO: send error message to frontend saying the password is wrong
     }
@@ -368,27 +323,64 @@ const decryptValidatorKeys = async (event, arg) => {
             fs.writeFileSync(keyStorePath, validatorKeyString, 'utf-8', (err) => {
                 if (err) {
                     console.error(err);
-                    event.sender.send("receive-decrypt-val-keys-report", decryptReportEnum.SAVE_FILE_ERROR, '', err.message)
+                    event.sender.send("receive-decrypt-val-keys-report", decryptResultCodes.SAVE_FILE_ERROR, '', err.message)
                 }})
             keystoreToPassword["keystoreArray"].push(keystoreName)
             keystoreToPassword["passwordArray"].push(validatorKeyPassword)
         }
     } catch (err) {
         // Send Error Message to Frontend that the 
-        event.sender.send("receive-decrypt-val-keys-report", decryptReportEnum.BAD_PRIVATE_KEYS, '', err.message)
+        event.sender.send("receive-decrypt-val-keys-report", decryptResultCodes.BAD_PRIVATE_KEYS, '', err.message)
 
     }
     
     const keystoreToPasswordFile = `${saveFolder}/keystore_to_password.json`
     fs.writeFileSync(keystoreToPasswordFile, JSON.stringify(keystoreToPassword), 'utf-8', (err) => {
         if (err) {
-            event.sender.send("receive-decrypt-val-keys-report", decryptReportEnum.SAVE_FILE_ERROR, '', err.message)
+            event.sender.send("receive-decrypt-val-keys-report", decryptResultCodes.SAVE_FILE_ERROR, '', err.message)
             return;
     }})
 
     // Send Success!
-    event.sender.send("receive-decrypt-val-keys-report", decryptReportEnum.SUCCESS, saveFolder, '')
+    event.sender.send("receive-decrypt-val-keys-report", decryptResultCodes.SUCCESS, saveFolder, '')
     console.log("decryptValidatorKeys: End")
+}
+
+
+/**
+ * Opens dialog that allows user to select a folder path.
+ * 
+ * @emits "receive-selected-folder-path" event with the selected folder path
+ * 
+ * @returns {undefined} No return value. Emits "receive-selected-folder-path" event with selected folder path
+ */
+const listenSelectFolder = async (event, arg) => {
+    selectFolder().then((result) => {
+        const path = result.canceled ? '' : result.filePaths[0];
+        event.sender.send("receive-selected-folder-path", path)
+    }).catch((error) => {
+        console.log("ERROR Selecting Files")
+        console.log(error)
+        event.sender.send("receive-selected-folder-path", 'Error Selecting Path')
+    })
+}
+
+/**
+ * Opens dialog that allows user to select a file.
+ * 
+ * @emits "receive-selected-folder-path" event with the selected folder path
+ * 
+ * @returns {undefined} No return value. Emits "receive-selected-folder-path" event with selected folder path
+ */
+const listenSelectJsonFile = async (event, arg) => {
+    selectJsonFile().then((result) => {
+        const path = result.canceled ? '' : result.filePaths[0];
+        event.sender.send("receive-selected-file-path", path)
+    }).catch((error) => {
+        console.log("ERROR Selecting Files")
+        console.log(error)
+        event.sender.send("receive-selected-file-path", 'Error Selecting Path')
+    })
 }
 
 
@@ -440,8 +432,8 @@ module.exports = {
     genNodeOperatorKeystores,
     genMnemonic,
     genValidatorKeysAndEncrypt,
+    decryptValidatorKeys,
     listenSelectFolder,
     listenSelectJsonFile,
-    decryptValidatorKeys,
     testWholeEncryptDecryptFlow
 }
