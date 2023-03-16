@@ -26,7 +26,7 @@ const GenerateKeysWidget: React.FC = () => {
 
 
     const generateKeys = () => {
-        window.api.receiveNOKeysConfirmation((event: Electron.IpcMainEvent, results: Array<any>) => {
+        window.encryptionApi.receiveNOKeysConfirmation((event: Electron.IpcMainEvent, results: Array<any>) => {
             const [result, pubKeysFilePath, privKeysFilePath] = results;
             if (result === 0) {
                 setPubKeysFilePath(pubKeysFilePath)
@@ -38,14 +38,14 @@ const GenerateKeysWidget: React.FC = () => {
 
         })
         // Send request to backend to make the public and private key files
-        window.api.reqGenNodeOperatorKeys(numKeys, savePath, privKeysPassword);
+        window.encryptionApi.reqGenNodeOperatorKeys(numKeys, savePath, privKeysPassword);
     }
 
     const selectSavePath = () => {
-        window.api.receiveSelectedFolderPath((event: Electron.IpcMainEvent, path: string) => {
+        window.fileSystemApi.receiveSelectedFolderPath((event: Electron.IpcMainEvent, path: string) => {
             setSavePath(path)
         })
-        window.api.reqSelectFolderPath();
+        window.fileSystemApi.reqSelectFolderPath();
     }
 
     const clearState = () => {

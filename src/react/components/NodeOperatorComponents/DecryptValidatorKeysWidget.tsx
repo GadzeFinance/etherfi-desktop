@@ -9,13 +9,6 @@ import { COLORS } from '../../styleClasses/constants'
 import successBoxStyle from '../../styleClasses/successBoxStyle';
 
 
-const decryptResultToErrorMessages = {
-    0: "Success",
-    1: "Incorrect Password",
-    2: "Incorrect Private Keys",
-    3: "Could not save files to disk"
-}
-
 const DecryptValidatorKeysWidget: React.FC = () => {
     const [savePath, setSavePath] = useState<string>("")
     const [encryptedValKeysFilePath, setEncryptedValidatorKeysFilePath] = useState<string>("")
@@ -29,14 +22,14 @@ const DecryptValidatorKeysWidget: React.FC = () => {
     const [incorrectPrivKeys, setIncorrectPrivKeys] = useState<boolean>(false)
     // Select path to save the decrypted keys too.
     const selectSavePath = () => {
-        window.api.receiveSelectedFolderPath((event: Electron.IpcMainEvent, path: string) => {
+        window.fileSystemApi.receiveSelectedFolderPath((event: Electron.IpcMainEvent, path: string) => {
             setSavePath(path)
         })
-        window.api.reqSelectFolderPath();
+        window.fileSystemApi.reqSelectFolderPath();
     }
 
     const decryptValidatorKeys = () => {
-        window.api.receiveDecryptReport((event: Electron.IpcMainEvent, result: number, path: string, errorMessage: string) => {
+        window.encryptionApi.receiveDecryptReport((event: Electron.IpcMainEvent, result: number, path: string, errorMessage: string) => {
             switch (result) {
                 // Decrypt Success
                 case 0: {
@@ -69,7 +62,7 @@ const DecryptValidatorKeysWidget: React.FC = () => {
                 }
             }
         })
-        window.api.reqDecryptValidatorKeys(encryptedValKeysFilePath, privKeysFilePath, privKeysPassword, savePath);
+        window.encryptionApi.reqDecryptValidatorKeys(encryptedValKeysFilePath, privKeysFilePath, privKeysPassword, savePath);
     }
 
     const clearState = () => {
@@ -86,7 +79,7 @@ const DecryptValidatorKeysWidget: React.FC = () => {
 
     const openFilesCreatedFolder = () => {
         console.log(filesCreatedPath)
-        window.api.reqOpenFolder(filesCreatedPath);
+        window.fileSystemApi.reqOpenFolder(filesCreatedPath);
     }
 
     return (
