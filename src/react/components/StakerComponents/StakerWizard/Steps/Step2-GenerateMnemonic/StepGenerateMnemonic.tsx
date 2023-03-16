@@ -23,10 +23,15 @@ const StepGenerateMnemonic: React.FC<StepGenerateMnemonicProps> = (props) => {
   const [confirmMnemonic, setConfirmMnemonic] = useState(props.mnemonic !== '')
   const [mnemonicConfirmed, setMnemonicConfirmed] = useState(false)
   const generateMnemonic = () => {
-    window.api.receiveNewMnemonic((event: Electron.IpcMainEvent, args: [string]) => {
-      const newMnemonic = args[0];
-      props.setMnemonic(newMnemonic)
-      setGenerating(false)
+    window.api.receiveNewMnemonic((event: Electron.IpcMainEvent, results: any[]) => {
+      const [result, newMnemonic] = results
+      if (result === 0) {
+        props.setMnemonic(newMnemonic)
+        setGenerating(false)
+      } else {
+        console.error("Error generating mnemonic")
+      }
+
     })
     window.api.reqNewMnemonic("english");
     setGenerating(true)
