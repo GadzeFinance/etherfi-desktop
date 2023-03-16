@@ -35,7 +35,7 @@ jobs:
           script: |
             const fs = require('fs');
             const version = JSON.parse(fs.readFileSync('package.json')).version;
-            console.log(version)
+            return version
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - run: echo ${{ steps.get_version.outputs.result }}
@@ -45,8 +45,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: ${{ steps.get_version.outputs.result }}
-          release_name: Release ${{ steps.get_version.outputs.result }}
+          tag_name: ${{ steps.get_version.outputs.stdout }}
+          release_name: Release ${{ steps.get_version.outputs.stdout }}
           draft: false
           prerelease: true
       - name: Upload Release Asset
