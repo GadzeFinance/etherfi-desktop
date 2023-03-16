@@ -7,26 +7,11 @@ on:
     branches: [main]
 
 jobs:
-  build:
-    name: Upload Release Asset - Macos
+  create-pre-release:
+    name: Create-pre-release
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v3
-      - name: Use Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: '18.13.0'
-          cache: yarn
-      - name: Install dependencies
-        run: yarn --frozen-lockfile
-      - name: Bundle Electron App
-        run: yarn buildNode
-      - name: Build ETH Python Cli
-        run: yarn buildcli
-      - name: Build With Electron Builder
-        run: yarn dist
-      - name: List Dist folder
-        run: ls dist
       - name: Extract version
         id: extract_version
         uses: Saionaro/extract-package-version@v1.2.1
@@ -40,13 +25,112 @@ jobs:
           release_name: Release ${{ steps.extract_version.outputs.version }}
           draft: false
           prerelease: true
-      - name: Upload Release Asset
-        id: upload-release-asset
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: dist/etherfi-desktop-${{ steps.extract_version.outputs.version }}-mac.zip
-          asset_name: etherfi-desktop-v${{ steps.extract_version.outputs.version }}-mac.zip
-          asset_content_type: application/zip
+        outputs: 
+          release_url: ${{steps.create_release.outputs.upload_url}}
+
+  upload-macos-build: 
+    needs: create-pre-release
+      - name: Build & Upload macos app
+        runs-on: macos-latest
+        steps:
+        - uses: actions/checkout@v3
+        - name: Use Node.js
+          uses: actions/setup-node@v3
+          with:
+            node-version: '18.13.0'
+            cache: yarn
+        - name: Install dependencies
+          run: yarn --frozen-lockfile
+        - name: Bundle Electron App
+          run: yarn buildNode
+        - name: Build ETH Python Cli
+          run: yarn buildcli
+        - name: Build With Electron Builder
+          run: yarn dist
+        - name: List Dist folder
+          run: ls dist
+        - name: Extract version
+          id: extract_version
+          uses: Saionaro/extract-package-version@v1.2.1
+        - name: Upload Release Asset
+          id: upload-release-asset
+          uses: actions/upload-release-asset@v1
+          env:
+            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          with:
+            upload_url: ${{ needs.create-pre-release.outputs.release_url }}
+            asset_path: dist/etherfi-desktop-${{ steps.extract_version.outputs.version }}-mac.zip
+            asset_name: etherfi-desktop-v${{ steps.extract_version.outputs.version }}-mac.zip
+            asset_content_type: application/zip
+  
+  upload-linux-build: 
+    needs: create-pre-release
+      - name: Build & Upload macos app
+        runs-on: macos-latest
+        steps:
+        - uses: actions/checkout@v3
+        - name: Use Node.js
+          uses: actions/setup-node@v3
+          with:
+            node-version: '18.13.0'
+            cache: yarn
+        - name: Install dependencies
+          run: yarn --frozen-lockfile
+        - name: Bundle Electron App
+          run: yarn buildNode
+        - name: Build ETH Python Cli
+          run: yarn buildcli
+        - name: Build With Electron Builder
+          run: yarn dist
+        - name: List Dist folder
+          run: ls dist
+        - name: Extract version
+          id: extract_version
+          uses: Saionaro/extract-package-version@v1.2.1
+        - name: Upload Release Asset
+          id: upload-release-asset
+          uses: actions/upload-release-asset@v1
+          env:
+            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          with:
+            upload_url: ${{ needs.create-pre-release.outputs.release_url }}
+            asset_path: dist/etherfi-desktop-${{ steps.extract_version.outputs.version }}-mac.zip
+            asset_name: etherfi-desktop-v${{ steps.extract_version.outputs.version }}-mac.zip
+            asset_content_type: application/zip
+    
+  upload-windows-build: 
+    needs: create-pre-release
+      - name: Build & Upload macos app
+        runs-on: windows-latest
+        steps:
+          - uses: actions/checkout@v3
+          - name: Use Node.js
+            uses: actions/setup-node@v3
+            with:
+              node-version: '18.13.0'
+              cache: yarn
+          - name: Install dependencies
+            run: yarn --frozen-lockfile
+          - name: Bundle Electron App
+            run: yarn buildNode
+          - name: Build Python
+            run: yarn buildcliwin
+          - name: Build With Electron Builder
+            run: yarn dist
+          - name: Show directory
+            run: dir
+          - name: List Dist folder
+            run: ls dist
+          - name: Extract version
+            id: extract_version
+            uses: Saionaro/extract-package-version@v1.2.1
+          - name: Upload Release Asset
+            id: upload-release-asset
+            uses: actions/upload-release-asset@v1
+            env:
+              GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+            with:
+              upload_url: ${{ needs.create-pre-release.outputs.release_url }}
+              asset_path: dist/etherfi-desktop-${{ steps.extract_version.outputs.version }}-win.zip
+              asset_name: etherfi-desktop-v${{ steps.extract_version.outputs.version }}-win.zip
+              asset_content_type: application/zip

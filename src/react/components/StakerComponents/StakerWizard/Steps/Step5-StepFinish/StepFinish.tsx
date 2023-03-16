@@ -28,7 +28,7 @@ const StepFinish: React.FC<StepFinishProps> = (props) => {
 
     const nextProps = {
         isDisabled: false,
-        onClick: window.api.stakerFinish,
+        onClick: window.utilsApi.stakerFinish,
         variant: "white-button",
     }
     return (
