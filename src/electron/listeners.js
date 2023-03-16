@@ -17,10 +17,10 @@ const crypto = require('crypto');
  * @returns {undefined} Sends a message to the frontend with the path to where the files were saved
  * @returns {void} Sends a "receive-NO-keys-generated" event to the frontend process with paths to the generated files.
  */
-const genNodeOperatorKeystores = async (event, arg) => {
+const genNodeOperatorKeystores = async (numKeys, saveFolder, privKeysPassword) => {
     console.log("genNodeOperatorKeystores: Start")
     const curve = new EC('secp256k1')
-    const [numKeys, saveFolder, privKeysPassword] = arg
+
 
     const publicFileJSON = {}
     const privateKeysJSON = {}
@@ -48,7 +48,7 @@ const genNodeOperatorKeystores = async (event, arg) => {
     fs.writeFileSync(pubKeysFilePath, JSON.stringify(publicFileJSON), 'utf-8', (err) => {
         if (err) {
             console.error(err);
-            return;
+            return [1, null, null];
     }})
 
     // Create privateKeysJSON object
@@ -64,12 +64,11 @@ const genNodeOperatorKeystores = async (event, arg) => {
     fs.writeFileSync(privKeysFilePath, JSON.stringify(encryptedPrivateKeysJSON), 'utf-8', (err) => {
         if (err) {
           console.error(err);
-          return;
+          return [1, null, null];
     }})
-    // Send the file paths back to frontend
-    event.sender.send("receive-NO-keys-generated", [pubKeysFilePath, privKeysFilePath])
-    console.log("genNodeOperatorKeystores: End")
 
+    console.log("genNodeOperatorKeystores: End")
+    return [0, pubKeysFilePath, privKeysFilePath]
 }
 
 const encryptPrivateKeys = (jsonData, privKeysPassword) => {
@@ -105,12 +104,11 @@ const decryptPrivateKeys = (privateKeysJSON, privKeysPassword) => {
  * @param {Array} arg - Array containing language used to generate the mnemonic.
  * @returns {void} Sends a "receive-new-mnemonic" event to the frontend process with the generated mnemonic as argument.
  */
-const genMnemonic = async (event, arg) => {
+const genMnemonic = async (language) => {
     console.log("genMnemonic: Start")
-    const language = arg[0]
     const mnemonic = await createMnemonic(language)
-    event.sender.send("receive-new-mnemonic", [mnemonic])
     console.log("genMnemonic: End")
+    return mnemonic
 }
 
 /**
@@ -141,12 +139,21 @@ const genValidatorKeysAndEncrypt = async (event, arg) => {
 
     const index = 1
     const network = 'goerli' // TODO: change to 'mainnet'
-
-    await generateKeys(mnemonic, index, count, network, password, eth1_withdrawal_address, folder)
+    
+    try {
+        await generateKeys(mnemonic, index, count, network, password, eth1_withdrawal_address, folder)
+    } catch (err) {
+        // TODO: send error message to front end
+        console.error(err)
+    }
+    try {
+        await _encryptValidatorKeys(folder, password, nodeOperatorPublicKeys)
+    } catch(err) {
+        // TODO: send error message to front end
+        console.error(err)
+    }
 
     // now we need to encrypt the keys and generate "stakeRequest.json"
-    await _encryptValidatorKeys(folder, password, nodeOperatorPublicKeys)
-
     // Send back the folder where everything is save
     event.sender.send("receive-key-gen-confirmation", [folder])
 

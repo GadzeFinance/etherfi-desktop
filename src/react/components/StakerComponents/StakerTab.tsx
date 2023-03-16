@@ -10,7 +10,7 @@ interface TabProps {
 const StakerTab: React.FC<TabProps> = ({ tabIndex }: TabProps) => {
   const receiveLogs = () => {
     console.log('Enabling backend logs')
-    window.api.receiveLogs((event: Electron.IpcMainEvent, log: string) => {
+    window.utilsApi.receiveLogs((event: Electron.IpcMainEvent, log: string) => {
       console.log(log)
     })
   }

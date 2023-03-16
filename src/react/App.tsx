@@ -6,9 +6,11 @@ import NodeOperatorTab from "./components/NodeOperatorComponents/NodeOperatorTab
 
 declare global {
   interface Window {
-    api: any;
+    encryptionApi: any;
     validateFilesApi: any;
     databaseApi: any;
+    fileSystemApi: any;
+    utilsApi: any
   }
 }
 

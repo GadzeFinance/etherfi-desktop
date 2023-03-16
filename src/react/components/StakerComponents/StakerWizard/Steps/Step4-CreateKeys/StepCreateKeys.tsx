@@ -26,21 +26,21 @@ const StepCreateKeys: React.FC<StepCreateKeysProps> = (props) => {
   const [generatingKeys, setGeneratingKeys] = useState(false)
 
   const selectSavePath = () => {
-    window.api.receiveSelectedFolderPath((event: Electron.IpcMainEvent, path: string) => {
+    window.fileSystemApi.receiveSelectedFolderPath((event: Electron.IpcMainEvent, path: string) => {
       props.setSavePath(path)
     })
-    window.api.reqSelectFolderPath();
+    window.fileSystemApi.reqSelectFolderPath();
   }
 
   const generateEncryptedKeys = () => {
-    window.api.receiveKeyGenConfirmation((event: Electron.IpcMainEvent, path: string) => {
+    window.encryptionApi.receiveKeyGenConfirmation((event: Electron.IpcMainEvent, path: string) => {
       console.log("KEY GEN COMPLETE!")
       console.log("Files saved too: " + path)
       props.setFilesCreatedPath(path[0])
       setGeneratingKeys(false)
       props.setKeysGenerated(true)
     })
-    window.api.reqGenValidatorKeysAndEncrypt(props.mnemonic, props.password, props.savePath, props.stakeInfoPath);
+    window.encryptionApi.reqGenValidatorKeysAndEncrypt(props.mnemonic, props.password, props.savePath, props.stakeInfoPath);
     setGeneratingKeys(true)
   }
 
@@ -61,7 +61,7 @@ const StepCreateKeys: React.FC<StepCreateKeysProps> = (props) => {
 
   const openFilesCreatedFolder = () => {
     console.log(props.filesCreatedPath)
-    window.api.reqOpenFolder(props.filesCreatedPath);
+    window.encryptionApi.reqOpenFolder(props.filesCreatedPath);
   }
 
   const backDetails = {
