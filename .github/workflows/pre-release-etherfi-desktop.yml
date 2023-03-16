@@ -47,6 +47,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: dist/etherfi-desktop-${{ steps.extract_version.outputs.version }}-arm64-mac.zip
-          asset_name: etherfi-desktop-v${{ steps.extract_version.outputs.version }}-arm64-mac
+          asset_path: dist/etherfi-desktop-${{ steps.extract_version.outputs.version }}-mac.zip
+          asset_name: etherfi-desktop-v${{ steps.extract_version.outputs.version }}-mac
           asset_content_type: application/zip
