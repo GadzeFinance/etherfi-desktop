@@ -24,8 +24,8 @@ jobs:
           release_name: Release ${{ steps.extract_version.outputs.version }}
           draft: false
           prerelease: true
-        outputs:
-          release_url: ${{steps.create_release.outputs.upload_url}}
+    outputs:
+      release_url: ${{steps.create_release.outputs.upload_url}}
 
   upload-macos-build:
     needs: create-pre-release
@@ -63,7 +63,7 @@ jobs:
 
   upload-linux-build:
     needs: create-pre-release
-    runs-on: linux-latest
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
       - name: Use Node.js
