@@ -139,12 +139,21 @@ const genValidatorKeysAndEncrypt = async (event, arg) => {
 
     const index = 1
     const network = 'goerli' // TODO: change to 'mainnet'
-
-    await generateKeys(mnemonic, index, count, network, password, eth1_withdrawal_address, folder)
+    
+    try {
+        await generateKeys(mnemonic, index, count, network, password, eth1_withdrawal_address, folder)
+    } catch (err) {
+        // TODO: send error message to front end
+        console.error(err)
+    }
+    try {
+        await _encryptValidatorKeys(folder, password, nodeOperatorPublicKeys)
+    } catch(err) {
+        // TODO: send error message to front end
+        console.error(err)
+    }
 
     // now we need to encrypt the keys and generate "stakeRequest.json"
-    await _encryptValidatorKeys(folder, password, nodeOperatorPublicKeys)
-
     // Send back the folder where everything is save
     event.sender.send("receive-key-gen-confirmation", [folder])
 
