@@ -1,6 +1,6 @@
 const {encrypt, decrypt } = require('./utils/encryptionUtils');
 const {createMnemonic, generateKeys, validateMnemonic} = require('./utils/Eth2Deposit.js')
-const {saveFile, selectFolder, selectJsonFile} = require('./utils/saveFile.js')
+const {selectFolder, selectJsonFile} = require('./utils/saveFile.js')
 const EC = require('elliptic').ec
 const BN = require('bn.js');
 const fs = require('fs');
