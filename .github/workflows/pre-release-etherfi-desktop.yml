@@ -27,14 +27,18 @@ jobs:
         run: yarn dist
       - name: List Dist folder
         run: ls dist
+      - id: get_version
+        uses: battila7/get-version-action@v2
+      - run: echo ${{ steps.get_version.outputs.version }}
+      - run: echo ${{ steps.get_version.outputs.version-without-v }}
       - name: Create Release
         id: create_release
         uses: actions/create-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: ${{ github.ref }}
-          release_name: Release ${{ github.ref }}
+          tag_name: ${{ steps.get_version.outputs.version-without-v }}
+          release_name: Release ${{ steps.get_version.outputs.version-without-v }}
           draft: false
           prerelease: true
       - name: Upload Release Asset
@@ -44,6 +48,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps
-          asset_path: ./dist/etherfi-desktop-0.0.2-arm64-mac.zip
-          asset_name: etherfi-desktop-v0.0.2-arm64-mac
+          asset_path: ./dist/etherfi-desktop-${{steps.get_version.outputs.version-without-v}}-arm64-mac.zip
+          asset_name: etherfi-desktop-v${{ steps.get_version.outputs.version-without-v }}-arm64-mac
           asset_content_type: application/zip
