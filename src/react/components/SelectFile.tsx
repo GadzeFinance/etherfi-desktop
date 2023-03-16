@@ -29,7 +29,7 @@ const SelectFileStyle = {
 const SelectFile: React.FC<SelectFileProps> = (props) => {
     const [fileValidationError, setFileValidationError] = useState<Boolean>(false)
     const selectFilePath = () => {
-        window.api.receiveSelectedFilePath((event: Electron.IpcMainEvent, path: string) => {
+        window.fileSystemApi.receiveSelectedFilePath((event: Electron.IpcMainEvent, path: string) => {
             // dont do anything if the path is empty
             if (path === '') return
             // Subscribe to listen to results of file validation
@@ -52,7 +52,7 @@ const SelectFile: React.FC<SelectFileProps> = (props) => {
             props.reqFileValidaton(path)
             console.log(path)
         })
-        window.api.reqSelectFilePath();
+        window.fileSystemApi.reqSelectFilePath();
     }
 
     return (

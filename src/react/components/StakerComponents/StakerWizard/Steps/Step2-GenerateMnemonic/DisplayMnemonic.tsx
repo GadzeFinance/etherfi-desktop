@@ -46,7 +46,7 @@ const DisplayMnemonic: React.FC<DisplayMnemonicProps> = ({ mnemonic }: DisplayMn
   }
 
   const copyMnemonic = () => {
-    window.api.copyToClipBoard(mnemonic)
+    window.utilsApi.copyToClipBoard(mnemonic)
     setCopied(true)
   }
 

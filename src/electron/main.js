@@ -19,8 +19,6 @@ const {
 } = require('./listeners');
 
 const {validateJsonFile} = require('./utils/validateFile')
-// const {checkIfKeysAreStale, updateStaleKeys} = require('./utils/staleKeysManager')
-
 
 
 function createWindow() {
@@ -90,8 +88,23 @@ app.on("window-all-closed", function () {
 
 
 // Register IPC Listeners
-ipcMain.on("req-gen-node-operator-keys", genNodeOperatorKeystores);  
-ipcMain.on("req-new-mnemonic", genMnemonic);
+ipcMain.on("req-gen-node-operator-keys", async (event, args) => {
+    const [numKeys, saveFolder, privKeysPassword] = args
+    const [result, pubKeysFilePath, privKeysFilePath] = await genNodeOperatorKeystores(numKeys, saveFolder, privKeysPassword)
+    event.sender.send("receive-NO-keys-generated", [result, pubKeysFilePath, privKeysFilePath])
+});  
+ipcMain.on("req-new-mnemonic", (event, args) => {
+    const language = args[0]
+    var mnemonic = ""
+    var result = 0 
+    try {
+        mnemonic = genMnemonic(language)
+    } catch {
+        result = 1
+    }
+    event.sender.send("receive-new-mnemonic", [result, mnemonic])
+
+});
 ipcMain.on("req-select-folder-path", listenSelectFolder);
 ipcMain.on("req-select-file-path", listenSelectJsonFile);
 ipcMain.on("req-gen-val-keys-and-encrypt", genValidatorKeysAndEncrypt);
