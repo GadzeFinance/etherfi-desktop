@@ -1,4 +1,4 @@
-name: Build etherfi-desktop
+name: Build & Test etherfi-desktop
 
 on:
   pull_request:
