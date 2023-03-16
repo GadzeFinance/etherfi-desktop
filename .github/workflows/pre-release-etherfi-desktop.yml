@@ -27,18 +27,26 @@ jobs:
         run: yarn dist
       - name: List Dist folder
         run: ls dist
-      - id: get_version
-        uses: battila7/get-version-action@v2
-      - run: echo ${{ steps.get_version.outputs.version }}
-      - run: echo ${{ steps.get_version.outputs.version-without-v }}
+      - name: Get Version
+        id: get_version
+        uses: actions/github-script@v4
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const fs = require('fs');
+            const version = JSON.parse(fs.readFileSync('package.json')).version;
+            console.log(version);
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - run: echo ${{ steps.get_version.outputs.result }}
       - name: Create Release
         id: create_release
         uses: actions/create-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: ${{ steps.get_version.outputs.version-without-v }}
-          release_name: Release ${{ steps.get_version.outputs.version-without-v }}
+          tag_name: ${{ steps.get_version.outputs.result }}
+          release_name: Release ${{ steps.get_version.outputs.result }}
           draft: false
           prerelease: true
       - name: Upload Release Asset
@@ -47,7 +55,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps
-          asset_path: ./dist/etherfi-desktop-${{steps.get_version.outputs.version-without-v}}-arm64-mac.zip
-          asset_name: etherfi-desktop-v${{ steps.get_version.outputs.version-without-v }}-arm64-mac
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: dist/etherfi-desktop-${{steps.get_version.outputs.result}}-arm64-mac.zip
+          asset_name: etherfi-desktop-v${{ steps.get_version.outputs.result }}-arm64-mac
           asset_content_type: application/zip
