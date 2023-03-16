@@ -25,6 +25,8 @@ jobs:
         run: yarn buildcliwin
       - name: Build With Electron Builder
         run: yarn dist
+      - name: Show directory
+        run: dir
 
   test-macos:
     runs-on: macos-latest
@@ -44,6 +46,8 @@ jobs:
         run: yarn buildcli
       - name: Build With Electron Builder
         run: yarn dist
+      - name: Show directory
+        run: ls
 
   test-ubuntu:
     runs-on: ubuntu-latest
@@ -63,3 +67,5 @@ jobs:
         run: yarn buildcli
       - name: Build With Electron Builder
         run: yarn dist
+      - name: Show directory
+        run: ls
