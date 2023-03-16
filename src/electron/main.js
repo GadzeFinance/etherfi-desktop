@@ -19,8 +19,6 @@ const {
 } = require('./listeners');
 
 const {validateJsonFile} = require('./utils/validateFile')
-// const {checkIfKeysAreStale, updateStaleKeys} = require('./utils/staleKeysManager')
-
 
 
 function createWindow() {
