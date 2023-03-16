@@ -90,9 +90,9 @@ app.on("window-all-closed", function () {
 
 
 // Register IPC Listeners
-ipcMain.on("req-gen-node-operator-keys", (event, args) => {
+ipcMain.on("req-gen-node-operator-keys", async (event, args) => {
     const [numKeys, saveFolder, privKeysPassword] = args
-    const [result, pubKeysFilePath, privKeysFilePath] = genNodeOperatorKeystores(numKeys, saveFolder, privKeysPassword)
+    const [result, pubKeysFilePath, privKeysFilePath] = await genNodeOperatorKeystores(numKeys, saveFolder, privKeysPassword)
     event.sender.send("receive-NO-keys-generated", [result, pubKeysFilePath, privKeysFilePath])
 });  
 ipcMain.on("req-new-mnemonic", (event, args) => {
