@@ -19,7 +19,7 @@ const {
 } = require('./listeners');
 
 const {validateJsonFile} = require('./utils/validateFile')
-// const {checkIfKeysAreStale, updateStaleKeys} = require('./utils/staleKeysManager')
+const {checkIfKeysAreStale, updateStaleKeys} = require('./utils/staleKeysManager')
 
 
 
@@ -95,18 +95,19 @@ ipcMain.on("req-gen-node-operator-keys", async (event, args) => {
     const [result, pubKeysFilePath, privKeysFilePath] = await genNodeOperatorKeystores(numKeys, saveFolder, privKeysPassword)
     event.sender.send("receive-NO-keys-generated", [result, pubKeysFilePath, privKeysFilePath])
 });  
-ipcMain.on("req-new-mnemonic", (event, args) => {
+ipcMain.on("req-new-mnemonic", async (event, args) => {
     const language = args[0]
     var mnemonic = ""
     var result = 0 
     try {
-        mnemonic = genMnemonic(language)
+        mnemonic = await genMnemonic(language)
     } catch {
         result = 1
     }
-    event.sender.send("receive-new-mnemonic", [result, mnemonic])
-
+    console.log(mnemonic)
+    event.sender.send("receive-new-mnemonic", result, mnemonic)
 });
+
 ipcMain.on("req-select-folder-path", listenSelectFolder);
 ipcMain.on("req-select-file-path", listenSelectJsonFile);
 ipcMain.on("req-gen-val-keys-and-encrypt", genValidatorKeysAndEncrypt);
@@ -121,16 +122,16 @@ ipcMain.on("req-validate-file", (event, args) => {
 
 // Check for Stale Keys
 ipcMain.on("req-check-for-stale-keys", async (event, args) => {
-    // const stakeInfoPath = args[0]
-    // const staleKeys = await checkIfKeysAreStale(stakeInfoPath)
+    const stakeInfoPath = args[0]
+    const staleKeys = await checkIfKeysAreStale(stakeInfoPath)
     // Stubbing this for now.
-    const staleKeys = []
+    // const staleKeys = []
     event.sender.send("receive-stale-keys-report", staleKeys)
 })
 ipcMain.on("req-update-stale-keys", async (event, args) => {
     const stakeInfoPath = args[0]
-    // const result = await updateStaleKeys(stakeInfoPath)
-    const result = true;
+    const result = await updateStaleKeys(stakeInfoPath)
+    // const result = true;
     event.sender.send("receive-update-stale-keys-report", result)
 })
 

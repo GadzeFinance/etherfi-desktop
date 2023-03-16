@@ -29,6 +29,10 @@ module.exports = {
       // at the moment the only custom handling we have is for typescript files
       // .ts and .tsx files get passed to ts-loader
       {
+        test: /\.cs$/,
+        use: 'raw-loader'
+      },
+      {
         test: /\.jsx?$/,
         include: [path.resolve(__dirname, "src/react")],
         loader: "babel-loader",

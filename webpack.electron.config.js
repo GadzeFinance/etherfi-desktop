@@ -19,6 +19,10 @@ module.exports = [
     },
     module: {
       rules: [
+        {
+          test: /\.cs$/,
+          use: 'raw-loader'
+        },
         { test: /\.tsx?$/, loader: 'ts-loader' },
         {
           test: /\.jsx?$/,
@@ -46,7 +50,7 @@ module.exports = [
     {
         // loads .html files
         test: /\.(html)$/,
-        include: [path.resolve(__dirname, "src/react")],
+        // include: [path.resolve(__dirname, "src/react")],
         use: {
             loader: "html-loader"
         }
