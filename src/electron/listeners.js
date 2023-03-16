@@ -66,7 +66,7 @@ const genNodeOperatorKeystores = async (numKeys, saveFolder, privKeysPassword) =
     }})
 
     console.log("genNodeOperatorKeystores: End")
-    return [standardResultCodes.SUCCESS, pubKeysFilePath, privKeysFilePath]
+    return [pubKeysFilePath, privKeysFilePath]
 }
 
 const encryptPrivateKeys = (jsonData, privKeysPassword) => {
@@ -143,6 +143,7 @@ const genValidatorKeysAndEncrypt = async (mnemonic, password, folder, stakeInfoP
         console.error(err)
         throw new Error("Couldn't generate validator keys")
     }
+    // now we need to encrypt the keys and generate "stakeRequest.json"
     try {
         await _encryptValidatorKeys(folder, password, nodeOperatorPublicKeys)
     } catch(err) {
@@ -150,12 +151,9 @@ const genValidatorKeysAndEncrypt = async (mnemonic, password, folder, stakeInfoP
         throw new Error("Error encrypting validator keys")
     }
 
-    // now we need to encrypt the keys and generate "stakeRequest.json"
     // Send back the folder where everything is save
-    return folder
-    event.sender.send("receive-key-gen-confirmation", [folder])
-
     console.log("genEncryptedKeys: End")
+    return folder
 }
 
 /**
@@ -284,7 +282,6 @@ const decryptValidatorKeys = async (event, arg) => {
         console.error(err.message)
         event.sender.send("receive-decrypt-val-keys-report", decryptResultCodes.BAD_PASSWORD, '', err.message)
         return
-        // TODO: send error message to frontend saying the password is wrong
     }
 
     const curve = new EC('secp256k1')
@@ -324,6 +321,7 @@ const decryptValidatorKeys = async (event, arg) => {
                 if (err) {
                     console.error(err);
                     event.sender.send("receive-decrypt-val-keys-report", decryptResultCodes.SAVE_FILE_ERROR, '', err.message)
+                    return
                 }})
             keystoreToPassword["keystoreArray"].push(keystoreName)
             keystoreToPassword["passwordArray"].push(validatorKeyPassword)
@@ -331,19 +329,20 @@ const decryptValidatorKeys = async (event, arg) => {
     } catch (err) {
         // Send Error Message to Frontend that the 
         event.sender.send("receive-decrypt-val-keys-report", decryptResultCodes.BAD_PRIVATE_KEYS, '', err.message)
-
+        return
     }
     
     const keystoreToPasswordFile = `${saveFolder}/keystore_to_password.json`
     fs.writeFileSync(keystoreToPasswordFile, JSON.stringify(keystoreToPassword), 'utf-8', (err) => {
         if (err) {
             event.sender.send("receive-decrypt-val-keys-report", decryptResultCodes.SAVE_FILE_ERROR, '', err.message)
-            return;
+            return
     }})
 
-    // Send Success!
     event.sender.send("receive-decrypt-val-keys-report", decryptResultCodes.SUCCESS, saveFolder, '')
     console.log("decryptValidatorKeys: End")
+    return saveFolder
+
 }
 
 

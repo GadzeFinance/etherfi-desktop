@@ -49,16 +49,16 @@
       ]
     },
     "mac": {
-      "target": "dmg",
+      "target": "tar.gz",
       "category": "public.app-category.utilities",
       "icon": "resources/icon.icns"
     },
     "linux": {
-      "target": "AppImage",
+      "target": "tar.gz",
       "icon": "resources/icon.png"
     },
     "win": {
-      "target": "portable",
+      "target": "tar.gz",
       "icon": "resources/icon.png"
     }
   },
