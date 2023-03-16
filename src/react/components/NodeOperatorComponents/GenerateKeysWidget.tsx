@@ -26,10 +26,16 @@ const GenerateKeysWidget: React.FC = () => {
 
 
     const generateKeys = () => {
-        window.api.receiveNOKeysConfirmation((event: Electron.IpcMainEvent, filePaths: Array<string>) => {
-            setPubKeysFilePath(filePaths[0])
-            setPrivKeysFilePath(filePaths[1])
-            setKeysGenerated(true)
+        window.api.receiveNOKeysConfirmation((event: Electron.IpcMainEvent, results: Array<any>) => {
+            const [result, pubKeysFilePath, privKeysFilePath] = results;
+            if (result === 0) {
+                setPubKeysFilePath(pubKeysFilePath)
+                setPrivKeysFilePath(privKeysFilePath)
+                setKeysGenerated(true)
+            } else {
+                console.error("Error generating keys")
+            }
+
         })
         // Send request to backend to make the public and private key files
         window.api.reqGenNodeOperatorKeys(numKeys, savePath, privKeysPassword);
