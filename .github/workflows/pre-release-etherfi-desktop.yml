@@ -21,10 +21,12 @@ jobs:
         run: yarn --frozen-lockfile
       - name: Bundle Electron App
         run: yarn buildNode
-      - name: Build Python
+      - name: Build ETH Python Cli
         run: yarn buildcli
       - name: Build With Electron Builder
         run: yarn dist
+      - name: List Dist folder
+        run: ls dist
       - name: Create Release
         id: create_release
         uses: actions/create-release@v1
