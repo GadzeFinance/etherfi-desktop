@@ -104,7 +104,7 @@ ipcMain.on("req-new-mnemonic", (event, args) => {
     } catch {
         result = 1
     }
-    event.sender.send("receive-new-mnemonic", [success, mnemonic])
+    event.sender.send("receive-new-mnemonic", [result, mnemonic])
 
 });
 ipcMain.on("req-select-folder-path", listenSelectFolder);
