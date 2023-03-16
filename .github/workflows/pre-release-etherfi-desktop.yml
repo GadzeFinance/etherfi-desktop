@@ -35,20 +35,13 @@ jobs:
           script: |
             const fs = require('fs');
             const version = JSON.parse(fs.readFileSync('package.json')).version;
+            console.log(version);
+            process.stdout.write(version);
             return version
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - run: echo ${{ steps.get_version.outputs.result }}
-      - name: Create Release
-        id: create_release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: ${{ steps.get_version.outputs.stdout }}
-          release_name: Release ${{ steps.get_version.outputs.stdout }}
-          draft: false
-          prerelease: true
+      - name: Set Version Environment Variable
+        run: echo "VERSION=${{ steps.get_version.outputs.result | replace('"', '') }}" >> $GITHUB_ENV
       - name: Upload Release Asset
         id: upload-release-asset
         uses: actions/upload-release-asset@v1
@@ -56,6 +49,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: dist/etherfi-desktop-${{steps.get_version.outputs.stdout }}-arm64-mac.zip
-          asset_name: etherfi-desktop-v${{steps.get_version.outputs.stdout }}-arm64-mac
+          asset_path: dist/etherfi-desktop-${{ env.VERSION }}-arm64-mac.zip
+          asset_name: etherfi-desktop-v${{ env.VERSION }}-arm64-mac
           asset_content_type: application/zip
