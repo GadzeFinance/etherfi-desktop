@@ -47,7 +47,7 @@ jobs:
       - name: Build With Electron Builder
         run: yarn dist
       - name: Show dist directory
-        run: ls
+        run: ls dist
 
   test-ubuntu:
     runs-on: ubuntu-latest
@@ -69,4 +69,4 @@ jobs:
       - name: Build With Electron Builder
         run: yarn dist
       - name: Show dist directory
-        run: ls
+        run: ls dist
