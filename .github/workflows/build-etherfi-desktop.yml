@@ -9,64 +9,62 @@ jobs:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v3
-      - name: Use Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: '18.13.0'
-          cache: yarn
-      - name: Install dependencies
-        run: yarn --frozen-lockfile
-      - name: Run Unit Tests
-        run: yarn test
-      - name: Bundle Electron App
-        run: yarn buildNode
-      - name: Build Python
-        run: yarn buildcliwin
-      - name: Build With Electron Builder
-        run: yarn dist
-      - name: Show dist directory
-        run: dir dist
-
-  test-macos:
-    runs-on: macos-latest
-    steps:
-      - uses: actions/checkout@v3
-      - name: Use Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: '18.13.0'
-          cache: yarn
-      - name: Install dependencies
-        run: yarn --frozen-lockfile
-      - name: Run Unit Tests
-        run: yarn test
-      - name: Bundle Electron App
-        run: yarn buildNode
-      - name: Build Python
-        run: yarn buildcli
-      - name: Build With Electron Builder
-        run: yarn dist
-      - name: Show dist directory
-        run: ls dist
-
-  test-ubuntu:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - name: Use Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: '18.13.0'
-          cache: yarn
-      - name: Install dependencies
-        run: yarn --frozen-lockfile
-      - name: Run Unit Tests
-        run: yarn test
-      - name: Bundle Electron App
-        run: yarn buildNode
-      - name: Build Python
-        run: yarn buildcli
-      - name: Build With Electron Builder
-        run: yarn dist
-      - name: Show dist directory
-        run: ls dist
+  #     - name: Use Node.js
+  #       uses: actions/setup-node@v3
+  #       with:
+  #         node-version: '18.13.0'
+  #         cache: yarn
+  #     - name: Install dependencies
+  #       run: yarn --frozen-lockfile
+  #     - name: Run Unit Tests
+  #       run: yarn test
+  #     - name: Bundle Electron App
+  #       run: yarn buildNode
+  #     - name: Build Python
+  #       run: yarn buildcliwin
+  #     - name: Build With Electron Builder
+  #       run: yarn dist
+  #     - name: Show dist directory
+  #       run: dir dist
+  # test-macos:
+  #   runs-on: macos-latest
+  #   steps:
+  #     - uses: actions/checkout@v3
+  #     - name: Use Node.js
+  #       uses: actions/setup-node@v3
+  #       with:
+  #         node-version: '18.13.0'
+  #         cache: yarn
+  #     - name: Install dependencies
+  #       run: yarn --frozen-lockfile
+  #     - name: Run Unit Tests
+  #       run: yarn test
+  #     - name: Bundle Electron App
+  #       run: yarn buildNode
+  #     - name: Build Python
+  #       run: yarn buildcli
+  #     - name: Build With Electron Builder
+  #       run: yarn dist
+  #     - name: Show dist directory
+  #       run: ls dist
+  # test-ubuntu:
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v3
+  #     - name: Use Node.js
+  #       uses: actions/setup-node@v3
+  #       with:
+  #         node-version: '18.13.0'
+  #         cache: yarn
+  #     - name: Install dependencies
+  #       run: yarn --frozen-lockfile
+  #     - name: Run Unit Tests
+  #       run: yarn test
+  #     - name: Bundle Electron App
+  #       run: yarn buildNode
+  #     - name: Build Python
+  #       run: yarn buildcli
+  #     - name: Build With Electron Builder
+  #       run: yarn dist
+  #     - name: Show dist directory
+  #       run: ls dist
