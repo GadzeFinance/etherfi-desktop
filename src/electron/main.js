@@ -19,6 +19,7 @@ const {
 } = require('./listeners');
 
 const {validateJsonFile} = require('./utils/validateFile')
+const { standardResultCodes, decryptResultCodes } = require('./resultCodes')
 
 
 function createWindow() {
@@ -86,54 +87,73 @@ app.on("window-all-closed", function () {
     }
 });
 
+// Register IPC Event handlers
 
-// Register IPC Listeners
+/* ------------------------------------------------------------- */
+/* --------------- Encryption Flow API Handlers ---------------- */
+/* ------------------------------------------------------------- */
 ipcMain.on("req-gen-node-operator-keys", async (event, args) => {
     const [numKeys, saveFolder, privKeysPassword] = args
-    const [result, pubKeysFilePath, privKeysFilePath] = await genNodeOperatorKeystores(numKeys, saveFolder, privKeysPassword)
-    event.sender.send("receive-NO-keys-generated", [result, pubKeysFilePath, privKeysFilePath])
-});  
-ipcMain.on("req-new-mnemonic", (event, args) => {
-    const language = args[0]
-    var mnemonic = ""
-    var result = 0 
     try {
-        mnemonic = genMnemonic(language)
-    } catch {
-        result = 1
+        const [pubKeysFilePath, privKeysFilePath] = await genNodeOperatorKeystores(numKeys, saveFolder, privKeysPassword)
+        event.sender.send("receive-NO-keys-generated-result", standardResultCodes.SUCCESS, pubKeysFilePath, privKeysFilePath, '')
+
+    } catch (error) {
+        event.sender.send("receive-NO-keys-generated-result", standardResultCodes.ERROR, '', '', error.message)
     }
-    event.sender.send("receive-new-mnemonic", [result, mnemonic])
-
 });
-ipcMain.on("req-select-folder-path", listenSelectFolder);
-ipcMain.on("req-select-file-path", listenSelectJsonFile);
-ipcMain.on("req-gen-val-keys-and-encrypt", genValidatorKeysAndEncrypt);
-ipcMain.on("req-decrypt-val-keys", decryptValidatorKeys);
 
-// Validating Files
+ipcMain.on("req-new-mnemonic", async (event, args) => {
+    const language = args[0]
+    try {
+        const mnemonic = await genMnemonic(language)
+        event.sender.send("receive-new-mnemonic", standardResultCodes.SUCCESS, mnemonic, '')
+    } catch (error) {
+        event.sender.send("receive-new-mnemonic", standardResultCodes.ERROR, '', error.message)
+    }
+});
+
+ipcMain.on("req-gen-val-keys-and-encrypt",  async (event, args) => {
+    var [mnemonic, password, folder, stakeInfoPath] = args
+    try {
+        const savePath = await genValidatorKeysAndEncrypt(mnemonic, password, folder, stakeInfoPath)
+        event.sender.send("receive-key-gen-confirmation", standardResultCodes.SUCCESS, savePath , '')
+    } catch (error) {
+        event.sender.send("receive-key-gen-confirmation",  standardResultCodes.ERROR, '', error.message)
+    }
+});
+
+ipcMain.on("req-decrypt-val-keys",  async (event, args) => {
+    try {
+        const saveFolder = await decryptValidatorKeys(event, args)
+        event.sender.send("receive-decrypt-val-keys-report", decryptResultCodes.SUCCESS, saveFolder, '')
+    } catch (error) {
+        event.sender.send("receive-decrypt-val-keys-result", decryptResultCodes.UNKNOWN_ERROR, error.message)
+    }
+});
+
+
+/* ------------------------------------------------------------- */
+/* ----------------- Validating Files Schemas ------------------ */
+/* ------------------------------------------------------------- */
 ipcMain.on("req-validate-file", (event, args) => {
     const [path, fileType] = args
     const result = validateJsonFile(path, fileType)
     event.sender.send(`receive-validate-${fileType}-results`, [result.isValid, result.errors])
 })
 
-// Check for Stale Keys
-ipcMain.on("req-check-for-stale-keys", async (event, args) => {
-    // const stakeInfoPath = args[0]
-    // const staleKeys = await checkIfKeysAreStale(stakeInfoPath)
-    // Stubbing this for now.
-    const staleKeys = []
-    event.sender.send("receive-stale-keys-report", staleKeys)
-})
-ipcMain.on("req-update-stale-keys", async (event, args) => {
-    const stakeInfoPath = args[0]
-    // const result = await updateStaleKeys(stakeInfoPath)
-    const result = true;
-    event.sender.send("receive-update-stale-keys-report", result)
-})
+/* ------------------------------------------------------------- */
+/* ----------------- Selecting Files Handlers ------------------ */
+/* ------------------------------------------------------------- */
+ipcMain.on("req-select-folder-path", listenSelectFolder);
+ipcMain.on("req-select-file-path", listenSelectJsonFile);
 
 
 
+
+/* ------------------------------------------------------------- */
+/* ----------------- Miscellaneous  Handlers ------------------- */
+/* ------------------------------------------------------------- */
 ipcMain.on("copy-to-clipboard", (event, arg) => {
     const text = arg[0]
     clipboard.writeText(text)
@@ -143,7 +163,6 @@ ipcMain.on("req-open-folder", (event, arg) => {
     console.log(folder[0])
     shell.openPath(folder)
 })
-
 // Called when the staker presses "Finish" on the finish step.
 ipcMain.on("staker-finish", (event, arg) => {
     clipboard.clear();
@@ -151,6 +170,21 @@ ipcMain.on("staker-finish", (event, arg) => {
 })
 
 
+/* ------------------------------------------------------------- */
+/* --------------- Checking For Stale Keys --------------------- */
+/* ------------------------------------------------------------- */
+ipcMain.on("req-check-for-stale-keys", async (event, args) => {
+    // const stakeInfoPath = args[0]
+    // const staleKeys = await checkIfKeysAreStale(stakeInfoPath)
+    // Stubbing this for now.
+    const staleKeys = []
+    event.sender.send("receive-stale-keys-report", staleKeys)
+})
 
-
-// ipcMain.on("req-build-public-staker-file", listenBuildStakerJson);
+ipcMain.on("req-update-stale-keys", async (event, args) => {
+    // const stakeInfoPath = args[0]
+    // const result = await updateStaleKeys(stakeInfoPath)
+    // Stubbing this for now.
+    const result = true;
+    event.sender.send("receive-update-stale-keys-report", result)
+})

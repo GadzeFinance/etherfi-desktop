@@ -23,16 +23,17 @@ const StepGenerateMnemonic: React.FC<StepGenerateMnemonicProps> = (props) => {
   const [confirmMnemonic, setConfirmMnemonic] = useState(props.mnemonic !== '')
   const [mnemonicConfirmed, setMnemonicConfirmed] = useState(false)
   const generateMnemonic = () => {
-    window.encryptionApi.receiveNewMnemonic((event: Electron.IpcMainEvent, results: any[]) => {
-      const [result, newMnemonic] = results
-      if (result === 0) {
-        props.setMnemonic(newMnemonic)
+    window.encryptionApi.receiveNewMnemonic(
+      (event: Electron.IpcMainEvent, result: number, newMnemonic: string, errorMessage: string) => {
+        if (result === 0) {
+          props.setMnemonic(newMnemonic)
+        } else {
+          console.error("Error generating mnemonic")
+          console.error(errorMessage)
+          // TODO: Show error screen on failure.
+        }
         setGenerating(false)
-      } else {
-        console.error("Error generating mnemonic")
-      }
-
-    })
+      })
     window.encryptionApi.reqNewMnemonic("english");
     setGenerating(true)
   }

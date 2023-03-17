@@ -26,7 +26,6 @@ jobs:
         run: yarn dist
       - name: Show dist directory
         run: dir dist
-
   test-macos:
     runs-on: macos-latest
     steps:
@@ -47,8 +46,7 @@ jobs:
       - name: Build With Electron Builder
         run: yarn dist
       - name: Show dist directory
-        run: ls
-
+        run: ls dist
   test-ubuntu:
     runs-on: ubuntu-latest
     steps:
@@ -69,4 +67,4 @@ jobs:
       - name: Build With Electron Builder
         run: yarn dist
       - name: Show dist directory
-        run: ls
+        run: ls dist

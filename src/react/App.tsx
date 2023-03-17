@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Tabs, Center, TabPanel, TabPanels } from '@chakra-ui/react'
 import NavBar from "./components/Nav/NavBar";
 import StakerTab from "./components/StakerComponents/StakerTab";
@@ -21,6 +21,13 @@ const App: React.FC = () => {
   const handleTabsChange = (index: number) => {
     setTabIndex(index)
   }
+
+  useEffect(() => {
+    console.log('Enabling backend logs')
+    window.utilsApi.receiveLogs((event: Electron.IpcMainEvent, log: string) => {
+      console.log(log)
+    })
+  }, [])
 
   const options = {
     0: "Generate Keys",
