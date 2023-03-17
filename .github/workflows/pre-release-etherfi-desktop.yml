@@ -5,7 +5,7 @@ on:
     branches: [main]
 
 jobs:
-  create-release:
+  create-pre-release:
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v3
@@ -26,7 +26,7 @@ jobs:
       release_url: ${{steps.create_release.outputs.upload_url}}
 
   upload-macos-build:
-    needs: create-release
+    needs: create-pre-release
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v3
@@ -60,7 +60,7 @@ jobs:
           asset_content_type: application/zip
 
   upload-linux-build:
-    needs: create-release
+    needs: create-pre-release
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -89,12 +89,12 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ needs.create-pre-release.outputs.release_url }}
-          asset_path: dist/etherfi-desktop-${{ steps.extract_version.outputs.version }}-mac.tar.gz
-          asset_name: etherfi-desktop-v${{ steps.extract_version.outputs.version }}-mac.tar.gz
+          asset_path: dist/etherfi-desktop-${{ steps.extract_version.outputs.version }}.tar.gz
+          asset_name: etherfi-desktop-v${{ steps.extract_version.outputs.version }}-linux.tar.gz
           asset_content_type: application/zip
 
   upload-windows-build:
-    needs: create-release
+    needs: create-pre-release
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v3
