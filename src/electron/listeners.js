@@ -249,7 +249,8 @@ const _encryptValidatorKeys = async (folderPath, password, nodeOperatorPubKeys) 
             encryptedValidatorKey: encrypt(validatorKey, stakerSharedSecret.toArrayLike(Buffer, 'be', 32)),
             encryptedPassword: encrypt(password, stakerSharedSecret.toArrayLike(Buffer, 'be', 32)),
             stakerPublicKey: stakerKeyPair.getPublic().encode('hex'),
-            nodeOperatorPublicKey: nodeOperatorPubKeyHex
+            nodeOperatorPublicKey: nodeOperatorPubKeyHex,
+            desktopAppVersion: 1, // This is here to ensure we can update the desktop app and not break the webapp in the future.
         }
 
         stakeRequestJSON.push(stakeRequestItem)
@@ -339,10 +340,8 @@ const decryptValidatorKeys = async (event, arg) => {
             return
     }})
 
-    event.sender.send("receive-decrypt-val-keys-report", decryptResultCodes.SUCCESS, saveFolder, '')
     console.log("decryptValidatorKeys: End")
     return saveFolder
-
 }
 
 

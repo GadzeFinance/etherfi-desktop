@@ -68,7 +68,7 @@ const StepCreateKeys: React.FC<StepCreateKeysProps> = (props) => {
 
   const openFilesCreatedFolder = () => {
     console.log(props.filesCreatedPath)
-    window.encryptionApi.reqOpenFolder(props.filesCreatedPath);
+    window.fileSystemApi.reqOpenFolder(props.filesCreatedPath);
   }
 
   const backDetails = {
