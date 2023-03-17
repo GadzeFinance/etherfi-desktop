@@ -29,39 +29,45 @@ const DecryptValidatorKeysWidget: React.FC = () => {
     }
 
     const decryptValidatorKeys = () => {
-        window.encryptionApi.receiveDecryptReport((event: Electron.IpcMainEvent, result: number, path: string, errorMessage: string) => {
-            switch (result) {
-                // Decrypt Success
-                case 0: {
-                    setFilesCreatedPath(path)
-                    setKeysDecrypted(true)
-                    console.log("Decrypt Completed Successfully!")
-                    break;
+        window.encryptionApi.receiveDecryptReport(
+            (event: Electron.IpcMainEvent, result: number, path: string, errorMessage: string) => {
+                switch (result) {
+                    // Error codes are defined in src/electron/resultCodes.js 
+                    // Decrypt Success
+                    case 0: {
+                        setFilesCreatedPath(path)
+                        setKeysDecrypted(true)
+                        console.log("Decrypt Completed Successfully!")
+                        break;
+                    }
+                    // Incorrect Password
+                    case 1: {
+                        setIncorrectPassword(true)
+                        console.error("Incorrect Password")
+                        console.error(errorMessage)
+                        break;
+                    }
+                    // Incorrect Private Keys
+                    case 2: {
+                        setIncorrectPrivKeys(true)
+                        setIncorrectPassword(false)
+                        console.error("Incorrect Private Keys")
+                        console.error(errorMessage)
+                        break;
+                    }
+                    // Could Not Save Files
+                    case 3: {
+                        // We should never really end up here
+                        console.error("Could note save files to keys")
+                        console.error(errorMessage)
+                        break;
+                    }
+                    // Unknown Error 
+                    case 4: {
+
+                    }
                 }
-                // Incorrect Password
-                case 1: {
-                    setIncorrectPassword(true)
-                    console.error("Incorrect Password")
-                    console.error(errorMessage)
-                    break;
-                }
-                // Incorrect Private Keys
-                case 2: {
-                    setIncorrectPrivKeys(true)
-                    setIncorrectPassword(false)
-                    console.error("Incorrect Private Keys")
-                    console.error(errorMessage)
-                    break;
-                }
-                // Could Not Save Files
-                case 3: {
-                    // We should never really end up here
-                    console.error("Could note save files to keys")
-                    console.error(errorMessage)
-                    break;
-                }
-            }
-        })
+            })
         window.encryptionApi.reqDecryptValidatorKeys(encryptedValKeysFilePath, privKeysFilePath, privKeysPassword, savePath);
     }
 
@@ -124,7 +130,7 @@ const DecryptValidatorKeysWidget: React.FC = () => {
                                     </Box>
                                     <Box>
                                         <PasswordInput password={privKeysPassword} setPassword={setPrivKeysPassword} isPasswordValid={isPrivKeysPasswordValid} setIsPasswordValid={setIsPrivKeysPasswordValid} />
-                                        {incorrectPassword && (<Text color='red.warning' fontSize="12px">Incorrect Password: Please enter the password you entered when you generated the private keys file.</Text>)}
+                                        {incorrectPassword && (<Text color='red.warning' fontSize="12px">Incorrect Password: Please enter the password you entered when you generated the privateEtherfiKeystore file.</Text>)}
                                     </Box>
                                     <Box>
                                         <Text color="white" opacity={'0.7'} align="center">

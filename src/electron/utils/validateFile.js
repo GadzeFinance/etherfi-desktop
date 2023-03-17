@@ -9,21 +9,21 @@ const SCHEMAS = {
       encryptedPassword: z.string(),
       stakerPublicKey: z.string().length(130),
       nodeOperatorPublicKey: z.string().length(130),
-    }).required()
+    }).required().strict(),
   ),
 
   "NodeOperatorPrivateKeystore": z.object({
       iv: z.string().length(32),
       salt: z.string(),
       data: z.string(),
-    }).required(),
+    }).required().strict(),
 
   "StakeInfo": z.array(
      z.object({
       validatorID: z.number().min(0),
       bidderPublicKey: z.string().length(130),
       withdrawalSafeAddress: z.string().length(42),
-    }).required()
+    }).required().strict(),
   )
 }
 

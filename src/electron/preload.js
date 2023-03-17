@@ -14,7 +14,7 @@ contextBridge.exposeInMainWorld("encryptionApi", {
     },
     // Function called when node operator keys are generated.
     receiveNOKeysConfirmation: function(func){
-        ipcRenderer.once("receive-NO-keys-generated", (event, ...args) => func(event, ...args));       
+        ipcRenderer.once("receive-NO-keys-generated-result", (event, ...args) => func(event, ...args));       
     },
     // Function to request a new mnemonic to be created. (Staker Tab)
     reqNewMnemonic: function(language){
