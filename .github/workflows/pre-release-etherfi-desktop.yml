@@ -3,8 +3,6 @@ name: Release etherfi-desktop
 on:
   push:
     branches: [main]
-  pull_request:
-    branches: [main]
 
 jobs:
   create-release:
@@ -22,7 +20,7 @@ jobs:
         with:
           tag_name: v${{ steps.extract_version.outputs.version }}-alpha
           release_name: Release v${{ steps.extract_version.outputs.version }}-alpha
-          draft: false
+          draft: true
           prerelease: true
     outputs:
       release_url: ${{steps.create_release.outputs.upload_url}}

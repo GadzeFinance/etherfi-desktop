@@ -130,7 +130,7 @@ const DecryptValidatorKeysWidget: React.FC = () => {
                                     </Box>
                                     <Box>
                                         <PasswordInput password={privKeysPassword} setPassword={setPrivKeysPassword} isPasswordValid={isPrivKeysPasswordValid} setIsPasswordValid={setIsPrivKeysPasswordValid} />
-                                        {incorrectPassword && (<Text color='red.warning' fontSize="12px">Incorrect Password: Please enter the password you entered when you generated the private keys file.</Text>)}
+                                        {incorrectPassword && (<Text color='red.warning' fontSize="12px">Incorrect Password: Please enter the password you entered when you generated the privateEtherfiKeystore file.</Text>)}
                                     </Box>
                                     <Box>
                                         <Text color="white" opacity={'0.7'} align="center">
