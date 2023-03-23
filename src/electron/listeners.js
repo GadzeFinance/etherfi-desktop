@@ -6,6 +6,7 @@ const BN = require('bn.js');
 const fs = require('fs');
 const crypto = require('crypto');
 const  {standardResultCodes, decryptResultCodes} = require('./resultCodes.js')
+const {desktopAppVersion} = require('./constants')
 
 /**
  * Generates public and private key pairs and saves them in two separate JSON files.
@@ -38,6 +39,7 @@ const genNodeOperatorKeystores = async (numKeys, saveFolder, privKeysPassword) =
 
     // Create publicFileJSON object
     publicFileJSON["pubKeyArray"] = pubKeyArray
+    publicFileJSON['etherfiDesktopAppVersion'] = desktopAppVersion // This is here to ensure we can update the desktop app and not break the webapp in the future.
     // save publicEtherfiKeystore
     const publicFileTimeStamp = new Date().toISOString().slice(0,-5)
     const publicFileName = "publicEtherfiKeystore-" + publicFileTimeStamp
@@ -58,6 +60,8 @@ const genNodeOperatorKeystores = async (numKeys, saveFolder, privKeysPassword) =
     const privKeysFilePath = `${saveFolder}/${privateFileName}.json`
 
     const encryptedPrivateKeysJSON = encryptPrivateKeys(privateKeysJSON, privKeysPassword)
+    encryptedPrivateKeysJSON['etherfiDesktopAppVersion'] = desktopAppVersion
+
 
     fs.writeFileSync(privKeysFilePath, JSON.stringify(encryptedPrivateKeysJSON), 'utf-8', (err) => {
         if (err) {
@@ -127,25 +131,30 @@ const genValidatorKeysAndEncrypt = async (mnemonic, password, folder, stakeInfoP
 
     // get the data from stakeInfoPath
     const stakeInfo = JSON.parse(fs.readFileSync(stakeInfoPath))
-    const count = stakeInfo.length
-    const nodeOperatorPublicKeys = stakeInfo.map((stake) => stake.bidderPublicKey)
-    const eth1_withdrawal_address = stakeInfo[0].withdrawalSafeAddress;
-
+    const stakeInfoLength = stakeInfo.length
     const timeStamp = new Date().toISOString().slice(0,-5)
     folder += `/etherfi_keys-${timeStamp}`
-
-    const index = 1
+    const nodeOperatorPublicKeys = []
+    const validatorIDs = []
     const network = 'goerli' // TODO: change to 'mainnet'
-    
-    try {
-        await generateKeys(mnemonic, index, count, network, password, eth1_withdrawal_address, folder)
-    } catch (err) {
-        console.error(err)
-        throw new Error("Couldn't generate validator keys")
+
+    for (var i = 0; i < stakeInfoLength; i++) {
+        // NEEDS TO BE BATCHED
+        const eth1_withdrawal_address = stakeInfo[i].withdrawalSafeAddress; 
+        nodeOperatorPublicKeys.push(stakeInfo[i].bidderPublicKey)
+        validatorIDs.push(stakeInfo[i].validatorID)
+        const index = i
+        try {
+            await generateKeys(mnemonic, index, 1, network, password, eth1_withdrawal_address, folder)
+        } catch (err) {
+            console.error(err)
+            throw new Error("Couldn't generate validator keys")
+        }
     }
+
     // now we need to encrypt the keys and generate "stakeRequest.json"
     try {
-        await _encryptValidatorKeys(folder, password, nodeOperatorPublicKeys)
+        await _encryptValidatorKeys(folder, password, nodeOperatorPublicKeys, validatorIDs)
     } catch(err) {
         console.error(err)
         throw new Error("Error encrypting validator keys")
@@ -177,12 +186,12 @@ const _getDepositDataAndKeystoresJSON = async (folderPath) => {
             console.log(`Unexpected File: ${fileName}`)
         }
     });
-    console.log(depositDataFilePaths)
-    if (depositDataFilePaths.length != 1) {
-        console.error("ERROR: Multiple deposit data files")
-    }
-    const depositDataList = JSON.parse(fs.readFileSync(depositDataFilePaths[0]))
-
+    // depositDataList will be sorted in chronological order
+    const depositDataList = depositDataFilePaths.map(
+        (filePath) => { 
+            return JSON.parse(fs.readFileSync(filePath))[0]
+        }
+    )
     const validatorKeystoreList = validatorKeyFilePaths.map(
         filePath => { 
             return {
@@ -208,22 +217,25 @@ const _getDepositDataAndKeystoresJSON = async (folderPath) => {
  *
  * @returns {undefined} - Returns nothing, saves the encrypted data to a stake request file in the given folder path.
  */
-const _encryptValidatorKeys = async (folderPath, password, nodeOperatorPubKeys) => {
+const _encryptValidatorKeys = async (folderPath, password, nodeOperatorPubKeys, validatorIDs) => {
     // need to convert the folder path to a list of keystore paths and a deposit data file path
     const {depositDataList, validatorKeystoreList} = await _getDepositDataAndKeystoresJSON(folderPath);
 
     const curve = new EC('secp256k1')
-
+    console.log(depositDataList)
+    console.log(nodeOperatorPubKeys)
+    console.log(validatorIDs)
     const stakeRequestJSON = []
-    for (var depositData of depositDataList) {
+
+    for (var i = 0; i < depositDataList.length; i++) {
         // Step 1: Get the keystore corresponding to the depsoit data element
         const matchesFound = validatorKeystoreList.filter(keyStoreObj => {
-            return keyStoreObj.keystoreData.pubkey === depositData.pubkey
+            return keyStoreObj.keystoreData.pubkey === depositDataList[i].pubkey
         })
 
         if (matchesFound.length !== 1) { 
             console.error("ERROR: more than one validator key found for deposit data")
-            console.log(depositData)
+            console.log(depositDataList[i])
             console.log(matchesFound)
             return
         }
@@ -233,7 +245,7 @@ const _encryptValidatorKeys = async (folderPath, password, nodeOperatorPubKeys) 
 
         // Step 2: Encrypt validator keys 
         // get the nodeOperatorPubKey Point
-        const nodeOperatorPubKeyHex = nodeOperatorPubKeys.pop()
+        const nodeOperatorPubKeyHex = nodeOperatorPubKeys[i]
         const nodeOperatorPubKeyPoint = curve.keyFromPublic(nodeOperatorPubKeyHex, 'hex').getPublic();
 
         // Step 3: generate staker keys and derive shared secret
@@ -244,13 +256,14 @@ const _encryptValidatorKeys = async (folderPath, password, nodeOperatorPubKeys) 
 
         // Step 4: encrypt data and store it in the stakeReqeustJSON arrays
         const stakeRequestItem = {
-            depositData: depositData,
+            validatorID: validatorIDs[i],
+            depositData: depositDataList[i],
             encryptedKeystoreName: encrypt(keystoreName, stakerSharedSecret.toArrayLike(Buffer, 'be', 32)),
             encryptedValidatorKey: encrypt(validatorKey, stakerSharedSecret.toArrayLike(Buffer, 'be', 32)),
             encryptedPassword: encrypt(password, stakerSharedSecret.toArrayLike(Buffer, 'be', 32)),
             stakerPublicKey: stakerKeyPair.getPublic().encode('hex'),
             nodeOperatorPublicKey: nodeOperatorPubKeyHex,
-            desktopAppVersion: 1, // This is here to ensure we can update the desktop app and not break the webapp in the future.
+            etherfiDesktopAppVersion: desktopAppVersion, // This is here to ensure we can update the desktop app and not break the webapp in the future.
         }
 
         stakeRequestJSON.push(stakeRequestItem)
@@ -269,7 +282,6 @@ const _encryptValidatorKeys = async (folderPath, password, nodeOperatorPubKeys) 
           return;
     }})
 }
-
 const decryptValidatorKeys = async (event, arg) => {
     console.log("decryptValidatorKeys: Start")
     const [encryptedValidatorKeysFilePath, privateKeysFilePath, privKeysPassword,chosenFolder] = arg

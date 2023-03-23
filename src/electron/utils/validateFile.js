@@ -9,6 +9,7 @@ const SCHEMAS = {
       encryptedPassword: z.string(),
       stakerPublicKey: z.string().length(130),
       nodeOperatorPublicKey: z.string().length(130),
+      etherfiDesktopAppVersion: z.string().length(5),
     }).required().strict(),
   ),
 
@@ -16,6 +17,7 @@ const SCHEMAS = {
       iv: z.string().length(32),
       salt: z.string(),
       data: z.string(),
+      etherfiDesktopAppVersion: z.string().length(5),
     }).required().strict(),
 
   "StakeInfo": z.array(
@@ -23,6 +25,7 @@ const SCHEMAS = {
       validatorID: z.number().min(0),
       bidderPublicKey: z.string().length(130),
       withdrawalSafeAddress: z.string().length(42),
+      etherfiDesktopAppVersion: z.string().length(5),
     }).required().strict(),
   )
 }
