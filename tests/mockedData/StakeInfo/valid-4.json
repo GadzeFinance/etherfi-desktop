@@ -2,11 +2,13 @@
     {
         "validatorID": 133,
         "bidderPublicKey": "04a123fc9b0db11345613a40c432f1631870dfd04e52f3b1f519b173094eac22787b27f6abc086a3748dfaed853eb6e7fd4c2ff55bcd70c22b5e82c1e4e35e6d9b",
-        "withdrawalSafeAddress": "0x7631FCf7D45D821cB5FA688fADa7bbc7671482j2"
+        "withdrawalSafeAddress": "0x7631FCf7D45D821cB5FA688fADa7bbc7671482j2",
+        "etherfiDesktopAppVersion": "1.0.0"
     },
     {
         "validatorID": 10,
         "bidderPublicKey": "04a123fc9b0db11345613a40c432f1631870dfd04e52f3b1f519b173094eac22787b27f6abc086a3748dfaed853eb6e7fd4c2ff55bcd70c22b5e82c1e4e35e6d9b",
-        "withdrawalSafeAddress": "0x7631FCf7D45D821cB5FA688fADa7bbc7671482j2"
+        "withdrawalSafeAddress": "0x7631FCf7D45D821cB5FA688fADa7bbc7671482j2",
+        "etherfiDesktopAppVersion": "1.0.0"
     }
 ]
