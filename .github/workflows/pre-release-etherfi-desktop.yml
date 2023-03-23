@@ -1,8 +1,6 @@
 name: Release etherfi-desktop
 
-on:
-  push:
-    branches: [main]
+on: workflow_dispatch
 
 jobs:
   create-pre-release:
