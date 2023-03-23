@@ -3,7 +3,7 @@ const path = require('path');
 
 
 describe('Validate StakeInfo.json file', () => {
-    const validJsonFiles = ['valid-1.json', 'valid-2.json', 'valid-3.json', 'valid-4.json']
+    const validJsonFiles = ['valid-1.json', 'valid-2.json', 'valid-3.json', 'valid-4.json', 'StakeInfo-Large.json']
     validJsonFiles.forEach((validFile) => {
         test(`${validFile}: Valid Json & correct Schema - Returns true`, () => {
             const filePath = path.join(__dirname, `../../mockedData/StakeInfo/${validFile}`);
