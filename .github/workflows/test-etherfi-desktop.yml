@@ -1,4 +1,4 @@
-name: Build & Test etherfi-desktop
+name: Test etherfi-desktop
 
 on:
   pull_request:
@@ -18,14 +18,6 @@ jobs:
         run: yarn --frozen-lockfile
       - name: Run Unit Tests
         run: yarn test
-      - name: Bundle Electron App
-        run: yarn buildNode
-      - name: Build Python
-        run: yarn buildcliwin
-      - name: Build With Electron Builder
-        run: yarn dist
-      - name: Show dist directory
-        run: dir dist
   test-macos:
     runs-on: macos-latest
     steps:
@@ -39,14 +31,6 @@ jobs:
         run: yarn --frozen-lockfile
       - name: Run Unit Tests
         run: yarn test
-      - name: Bundle Electron App
-        run: yarn buildNode
-      - name: Build Python
-        run: yarn buildcli
-      - name: Build With Electron Builder
-        run: yarn dist
-      - name: Show dist directory
-        run: ls dist
   test-ubuntu:
     runs-on: ubuntu-latest
     steps:
@@ -60,11 +44,3 @@ jobs:
         run: yarn --frozen-lockfile
       - name: Run Unit Tests
         run: yarn test
-      - name: Bundle Electron App
-        run: yarn buildNode
-      - name: Build Python
-        run: yarn buildcli
-      - name: Build With Electron Builder
-        run: yarn dist
-      - name: Show dist directory
-        run: ls dist
