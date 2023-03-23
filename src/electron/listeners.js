@@ -41,7 +41,7 @@ const genNodeOperatorKeystores = async (numKeys, saveFolder, privKeysPassword) =
     publicFileJSON["pubKeyArray"] = pubKeyArray
     publicFileJSON['etherfiDesktopAppVersion'] = desktopAppVersion // This is here to ensure we can update the desktop app and not break the webapp in the future.
     // save publicEtherfiKeystore
-    const publicFileTimeStamp = new Date().toISOString().slice(0,-5)
+    const publicFileTimeStamp = Date.now()
     const publicFileName = "publicEtherfiKeystore-" + publicFileTimeStamp
     const pubKeysFilePath = `${saveFolder}/${publicFileName}.json`
 
@@ -55,7 +55,7 @@ const genNodeOperatorKeystores = async (numKeys, saveFolder, privKeysPassword) =
     privateKeysJSON["pubKeyArray"] = pubKeyArray
     privateKeysJSON["privKeyArray"] = privKeyArray
     // save privateEtherfiKeystore
-    const privateFileTimeStamp = new Date().toISOString().slice(0,-5)
+    const privateFileTimeStamp = Date.now()
     const privateFileName = "privateEtherfiKeystore-" + privateFileTimeStamp
     const privKeysFilePath = `${saveFolder}/${privateFileName}.json`
 
@@ -132,7 +132,7 @@ const genValidatorKeysAndEncrypt = async (mnemonic, password, folder, stakeInfoP
     // get the data from stakeInfoPath
     const stakeInfo = JSON.parse(fs.readFileSync(stakeInfoPath))
     const stakeInfoLength = stakeInfo.length
-    const timeStamp = new Date().toISOString().slice(0,-5)
+    const timeStamp = Date.now()
     folder += `/etherfi_keys-${timeStamp}`
     const nodeOperatorPublicKeys = []
     const validatorIDs = []
@@ -272,7 +272,7 @@ const _encryptValidatorKeys = async (folderPath, password, nodeOperatorPubKeys, 
     // dont need to save a private file for the staker right now
     // const stakePrivateJSON = {}
 
-    const stakeRequestTimeStamp = new Date().toISOString().slice(0,-5)
+    const stakeRequestTimeStamp = Date.now()
     const stakeRequestFileName = "stakeRequest-" + stakeRequestTimeStamp
     const filePath = `${folderPath}/${stakeRequestFileName}.json`
 
@@ -304,7 +304,7 @@ const decryptValidatorKeys = async (event, arg) => {
     }
 
     // create folder to store filess
-    const timeStamp = new Date().toISOString().slice(0,-5)
+    const timeStamp = Date.now()
     const saveFolder = `${chosenFolder}/decrypted_validator_keys-${timeStamp}`
     if (!fs.existsSync(saveFolder)) {
         fs.mkdirSync(saveFolder);
