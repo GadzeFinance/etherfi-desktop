@@ -51,7 +51,7 @@
     "mac": {
       "target": "tar.gz",
       "category": "public.app-category.utilities",
-      "icon": "resources/icon.icns"
+      "icon": "resources/icon.png"
     },
     "linux": {
       "target": "tar.gz",
