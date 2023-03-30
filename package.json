@@ -51,7 +51,16 @@
     "mac": {
       "target": "tar.gz",
       "category": "public.app-category.utilities",
-      "icon": "resources/icon.png"
+      "icon": "resources/icon.png",
+      "hardenedRuntime": false,
+      "entitlements": "AppleSetUp/entitlements.mac.plist",
+      "entitlementsInherit": "AppleSetUp/entitlements.mac.plist",
+      "gatekeeperAssess": false,
+      "x64ArchFiles": "Contents/build/bin/eth2deposit_proxy",
+      "binaries": [
+        "Contents/build/bin/eth2deposit_proxy",
+        "Contents/build/word_lists/english.txt"
+      ]
     },
     "linux": {
       "target": "tar.gz",
