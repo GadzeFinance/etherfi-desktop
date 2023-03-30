@@ -35,6 +35,7 @@ PYTHONPATH=$PYTHONPATH pyinstaller \
     --distpath $DISTBINPATH \
     --add-data "$SRCINTLPATH:staking_deposit/intl" \
     -p $PYTHONPATH \
+    --hidden-import=os \
     $SCRIPTPATH/eth2deposit_proxy.py
 
 # Adding word list
