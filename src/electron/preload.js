@@ -59,6 +59,10 @@ contextBridge.exposeInMainWorld("fileSystemApi", {
     reqOpenFolder: function(folder){
         ipcRenderer.send("req-open-folder", [folder]);
     },
+    reqShowFile: function(folder){
+        ipcRenderer.send("req-show-file", [folder]);
+    },
+    
 
 });
 
