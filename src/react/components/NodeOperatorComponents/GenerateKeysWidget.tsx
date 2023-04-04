@@ -10,12 +10,13 @@ import darkBoxWithBorderStyle from '../../styleClasses/darkBoxWithBorderStyle';
 import { COLORS } from '../../styleClasses/constants';
 import SavedFileBox from '../SavedFileBox'
 import PasswordInput from '../PasswordInput'
+import EtherFiSpinner from '../EtherFiSpinner';
 
 
-const MAX_KEYS = "10000"
+const MAX_KEYS = "7500"
 
 const GenerateKeysWidget: React.FC = () => {
-    const [numKeys, setNumKeys] = useState<string>("500");
+    const [numKeys, setNumKeys] = useState<string>(MAX_KEYS);
     const [savePath, setSavePath] = useState<string>("")
     const [keysGenerated, setKeysGenerated] = useState<boolean>(false)
     const [keysGenerating, setKeysGenerating] = useState<boolean>(false)
@@ -29,6 +30,7 @@ const GenerateKeysWidget: React.FC = () => {
     const generateKeys = () => {
         window.encryptionApi.receiveNOKeysConfirmation(
             (event: Electron.IpcMainEvent, result: number, pubKeysFilePath: string, privKeysFilePath: string, errorMessage: string) => {
+                setKeysGenerating(false)
                 if (result === 0) {
                     setPubKeysFilePath(pubKeysFilePath)
                     setPrivKeysFilePath(privKeysFilePath)
@@ -37,7 +39,6 @@ const GenerateKeysWidget: React.FC = () => {
                     console.error("Error generating keys")
                     console.error(errorMessage)
                 }
-                setKeysGenerating(false)
             })
         // Send request to backend to make the public and private key files
         window.encryptionApi.reqGenNodeOperatorKeys(numKeys, savePath, privKeysPassword);
@@ -63,29 +64,27 @@ const GenerateKeysWidget: React.FC = () => {
 
     return (
         <Center>
-            {!keysGenerated && (
+            {!keysGenerated && !keysGenerating && (
                 <Box sx={raisedWidgetStyle} bg="#2b2852">
                     <VStack
                         spacing={4}
                         align='stretch'
                     >
                         <Box>
-                            <HStack spacing='10px'>
-                                <Text fontSize='18px' as='b' color="white">Generate Keys</Text>
-                                <Text fontSize='14px' color={COLORS.textSecondary}>Can be done once per wallet</Text>
-                            </HStack>
+                            <Text mb="5px" fontSize='18px' as='b' color="white">Generate Encryption Keys</Text>
+                            <Text fontSize='14px' color={COLORS.textSecondary}>Please generate keys and upload the 'Public' file to the DApp.</Text>
                         </Box>
 
                         <Box sx={darkBoxWithBorderStyle} bg="#2b2852">
                             <HStack spacing='5px' mb="5px">
                                 <Text fontSize='14px' as='b' color="white">Number of Keys</Text>
-                                <Text fontSize='11px' color={COLORS.textSecondary}>(10000 max)</Text>
+                                <Text fontSize='11px' color={COLORS.textSecondary}>(7500 max)</Text>
                             </HStack>
 
                             <InputGroup>
                                 <NumberInput borderColor={COLORS.lightPurple} color="white" placeholder="Enter Amount"
-                                    min={1} max={10000} value={numKeys}
-                                    onChange={(newValStr, newValuNum) => setNumKeys(newValStr)}
+                                    min={1} max={7500} value={numKeys}
+                                    onChange={(newValStr: React.SetStateAction<string>, _newValuNum: any) => setNumKeys(newValStr)}
                                     keepWithinRange={false}
                                     clampValueOnBlur={false}
                                 >
@@ -118,40 +117,49 @@ const GenerateKeysWidget: React.FC = () => {
                             </Center>
                         </Box>
                     </VStack>
-                </Box>
+                </Box >
 
             )}
-            {keysGenerated && (
-                <Box sx={successBoxStyle} bg="#2b2852">
-                    <VStack
-                        spacing={3}
-                        align='stretch'
-                    >
-                        <Box p='10px'>
-                            <HStack spacing='10px'>
-                                <Text fontSize='18px' as='b' color="white">Saved</Text>
-                                <Text fontSize='14px' color={COLORS.textSecondary}>The key files have been saved to your machine</Text>
-                            </HStack>
-                        </Box>
+            {
+                keysGenerating && (
+                    <Box sx={raisedWidgetStyle} bg="#2b2852">
+                        <EtherFiSpinner text="Generating Encryption Keys" loading={keysGenerating} />
+                    </Box>
+                )
+            }
+            {
+                keysGenerated && (
+                    <Box sx={successBoxStyle} bg="#2b2852">
+                        <VStack
+                            spacing={3}
+                            align='stretch'
+                        >
+                            <Box p='10px'>
+                                <HStack spacing='10px'>
+                                    <Text fontSize='18px' as='b' color="white">Saved</Text>
+                                    <Text fontSize='14px' color={COLORS.textSecondary}>The key files have been saved to your machine</Text>
+                                </HStack>
+                            </Box>
 
-                        <Box sx={darkBoxWithBorderStyle} bg="#2b2852">
-                            <HStack spacing='5px' mb="5px">
-                                <Text fontSize='14px' as='b' color="white">Folder: </Text>
-                                <Text fontSize='11px' color={COLORS.textSecondary}>{savePath}</Text>
-                            </HStack>
-                            <SavedFileBox filePath={pubKeysFilePath} />
-                            <SavedFileBox filePath={privKeysFilePath} />
-                        </Box>
-                        <Box>
-                            <Center>
-                                <Button variant="white-button" onClick={clearState}>Finish</Button>
-                            </Center>
-                        </Box>
-                    </VStack>
-                </Box>
+                            <Box sx={darkBoxWithBorderStyle} bg="#2b2852">
+                                <HStack spacing='5px' mb="5px">
+                                    <Text fontSize='14px' as='b' color="white">Folder: </Text>
+                                    <Text fontSize='11px' color={COLORS.textSecondary}>{savePath}</Text>
+                                </HStack>
+                                <SavedFileBox filePath={pubKeysFilePath} />
+                                <SavedFileBox filePath={privKeysFilePath} />
+                            </Box>
+                            <Box>
+                                <Center>
+                                    <Button variant="white-button" onClick={clearState}>Finish</Button>
+                                </Center>
+                            </Box>
+                        </VStack>
+                    </Box>
 
-            )}
-        </Center>
+                )
+            }
+        </Center >
     )
 }
 
