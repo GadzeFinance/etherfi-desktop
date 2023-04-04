@@ -7,6 +7,7 @@ const fs = require('fs');
 const crypto = require('crypto');
 const  {standardResultCodes, decryptResultCodes} = require('./resultCodes.js')
 const {desktopAppVersion} = require('./constants')
+const path = require('path')
 
 /**
  * Generates public and private key pairs and saves them in two separate JSON files.
@@ -133,7 +134,7 @@ const genValidatorKeysAndEncrypt = async (mnemonic, password, folder, stakeInfoP
     const stakeInfo = JSON.parse(fs.readFileSync(stakeInfoPath))
     const stakeInfoLength = stakeInfo.length
     const timeStamp = Date.now()
-    folder = path.join(folder, `/etherfi_keys-${timeStamp}`)
+    folder = path.join(folder, `etherfi_keys-${timeStamp}`)
     const nodeOperatorPublicKeys = []
     const validatorIDs = []
     const network = 'goerli' // TODO: change to 'mainnet'
@@ -177,9 +178,9 @@ const _getDepositDataAndKeystoresJSON = async (folderPath) => {
         
     fs.readdirSync(folderPath).forEach(fileName => {
         if (fileName.includes("deposit_data")) {
-            depositDataFilePaths.push(`${folderPath}/${fileName}`)
+            depositDataFilePaths.push(path.join(folderPath, fileName))
         } else if (fileName.includes("keystore")) {
-            validatorKeyFilePaths.push(`${folderPath}/${fileName}`)
+            validatorKeyFilePaths.push(path.join(folderPath, fileName))
         } else {
             console.log(`Unexpected File: ${fileName}`)
         }
@@ -193,7 +194,7 @@ const _getDepositDataAndKeystoresJSON = async (folderPath) => {
     const validatorKeystoreList = validatorKeyFilePaths.map(
         filePath => { 
             return {
-                keystoreName: filePath.split("/").pop(),
+                keystoreName: path.parse(filePath).base,
                 keystoreData: JSON.parse(fs.readFileSync(filePath))
             }
         }
@@ -220,9 +221,6 @@ const _encryptValidatorKeys = async (folderPath, password, nodeOperatorPubKeys, 
     const {depositDataList, validatorKeystoreList} = await _getDepositDataAndKeystoresJSON(folderPath);
 
     const curve = new EC('secp256k1')
-    console.log(depositDataList)
-    console.log(nodeOperatorPubKeys)
-    console.log(validatorIDs)
     const stakeRequestJSON = []
 
     for (var i = 0; i < depositDataList.length; i++) {
@@ -272,7 +270,7 @@ const _encryptValidatorKeys = async (folderPath, password, nodeOperatorPubKeys, 
 
     const stakeRequestTimeStamp = Date.now()
     const stakeRequestFileName = "stakeRequest-" + stakeRequestTimeStamp
-    const filePath = `${folderPath}/${stakeRequestFileName}.json`
+    const filePath = path.join(folderPath, `${stakeRequestFileName}.json`)
 
     fs.writeFileSync(filePath, JSON.stringify(stakeRequestJSON), 'utf-8', (err) => {
         if (err) {

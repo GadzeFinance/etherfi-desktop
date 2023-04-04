@@ -160,8 +160,11 @@ ipcMain.on("copy-to-clipboard", (event, arg) => {
 })
 ipcMain.on("req-open-folder", (event, arg) => {
     const folder = arg[0]
-    console.log(folder[0])
     shell.openPath(folder)
+})
+ipcMain.on("req-show-file", (event, arg) => {
+    const file = arg[0]
+    shell.showItemInFolder(file)
 })
 // Called when the staker presses "Finish" on the finish step.
 ipcMain.on("staker-finish", (event, arg) => {

@@ -53,7 +53,7 @@ const GenerateKeysWidget: React.FC = () => {
     }
 
     const clearState = () => {
-        setNumKeys("500")
+        setNumKeys(MAX_KEYS)
         setSavePath("")
         setKeysGenerated(false)
         setPubKeysFilePath("")
