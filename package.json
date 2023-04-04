@@ -11,6 +11,7 @@
     "postinstall": "electron-builder install-app-deps",
     "buildNode": "webpack --config webpack.react.config.js --config webpack.electron.config.js",
     "buildcli": "src/scripts/bundle_proxy_linux.sh",
+    "buildclimac": "src/scripts/bundle_proxy_mac.sh",
     "buildcliwin": "src/scripts/bundle_proxy_win.bat",
     "prod": "cross-env NODE_ENV=production electron ./build/electron/main.js",
     "pack": "electron-builder --dir",
@@ -52,13 +53,11 @@
       "target": "tar.gz",
       "category": "public.app-category.utilities",
       "icon": "resources/icon.png",
-      "hardenedRuntime": false,
+      "hardenedRuntime": true,
       "entitlements": "AppleSetUp/entitlements.mac.plist",
       "entitlementsInherit": "AppleSetUp/entitlements.mac.plist",
       "gatekeeperAssess": false,
-      "x64ArchFiles": "Contents/build/bin/eth2deposit_proxy",
       "binaries": [
-        "Contents/build/bin/eth2deposit_proxy",
         "Contents/build/word_lists/english.txt"
       ]
     },
