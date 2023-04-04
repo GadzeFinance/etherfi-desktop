@@ -43,7 +43,7 @@ const genNodeOperatorKeystores = async (numKeys, saveFolder, privKeysPassword) =
     // save publicEtherfiKeystore
     const publicFileTimeStamp = Date.now()
     const publicFileName = "publicEtherfiKeystore-" + publicFileTimeStamp
-    const pubKeysFilePath = `${saveFolder}/${publicFileName}.json`
+    const pubKeysFilePath = path.join(saveFolder, `${publicFileName}.json`)
 
     fs.writeFileSync(pubKeysFilePath, JSON.stringify(publicFileJSON), 'utf-8', (err) => {
         if (err) {
@@ -57,7 +57,7 @@ const genNodeOperatorKeystores = async (numKeys, saveFolder, privKeysPassword) =
     // save privateEtherfiKeystore
     const privateFileTimeStamp = Date.now()
     const privateFileName = "privateEtherfiKeystore-" + privateFileTimeStamp
-    const privKeysFilePath = `${saveFolder}/${privateFileName}.json`
+    const privKeysFilePath = path.join(saveFolder, `${privateFileName}.json`)
 
     const encryptedPrivateKeysJSON = encryptPrivateKeys(privateKeysJSON, privKeysPassword)
     encryptedPrivateKeysJSON['etherfiDesktopAppVersion'] = desktopAppVersion
@@ -133,13 +133,12 @@ const genValidatorKeysAndEncrypt = async (mnemonic, password, folder, stakeInfoP
     const stakeInfo = JSON.parse(fs.readFileSync(stakeInfoPath))
     const stakeInfoLength = stakeInfo.length
     const timeStamp = Date.now()
-    folder += `/etherfi_keys-${timeStamp}`
+    folder = path.join(folder, `/etherfi_keys-${timeStamp}`)
     const nodeOperatorPublicKeys = []
     const validatorIDs = []
     const network = 'goerli' // TODO: change to 'mainnet'
 
     for (var i = 0; i < stakeInfoLength; i++) {
-        // NEEDS TO BE BATCHED
         const eth1_withdrawal_address = stakeInfo[i].withdrawalSafeAddress; 
         nodeOperatorPublicKeys.push(stakeInfo[i].bidderPublicKey)
         validatorIDs.push(stakeInfo[i].validatorID)
@@ -151,7 +150,6 @@ const genValidatorKeysAndEncrypt = async (mnemonic, password, folder, stakeInfoP
             throw new Error("Couldn't generate validator keys")
         }
     }
-
     // now we need to encrypt the keys and generate "stakeRequest.json"
     try {
         await _encryptValidatorKeys(folder, password, nodeOperatorPublicKeys, validatorIDs)
@@ -305,7 +303,7 @@ const decryptValidatorKeys = async (event, arg) => {
 
     // create folder to store filess
     const timeStamp = Date.now()
-    const saveFolder = `${chosenFolder}/decrypted_validator_keys-${timeStamp}`
+    const saveFolder = path.join(chosenFolder, `decrypted_validator_keys-${timeStamp}`)
     if (!fs.existsSync(saveFolder)) {
         fs.mkdirSync(saveFolder);
       }
@@ -329,7 +327,7 @@ const decryptValidatorKeys = async (event, arg) => {
             const keystoreName = decrypt(encryptedValKey["encryptedKeystoreName"], nodeOperatorSharedSecret.toArrayLike(Buffer, 'be', 32))
 
             // Save keystore file
-            const keyStorePath = `${saveFolder}/${keystoreName}`
+            const keyStorePath = path.join(saveFolder, keystoreName)
             fs.writeFileSync(keyStorePath, validatorKeyString, 'utf-8', (err) => {
                 if (err) {
                     console.error(err);
@@ -345,7 +343,7 @@ const decryptValidatorKeys = async (event, arg) => {
         return
     }
     
-    const keystoreToPasswordFile = `${saveFolder}/keystore_to_password.json`
+    const keystoreToPasswordFile = path.join(saveFolder, `keystore_to_password-${timeStamp}.json`)
     fs.writeFileSync(keystoreToPasswordFile, JSON.stringify(keystoreToPassword), 'utf-8', (err) => {
         if (err) {
             event.sender.send("receive-decrypt-val-keys-report", decryptResultCodes.SAVE_FILE_ERROR, '', err.message)
@@ -396,7 +394,6 @@ const listenSelectJsonFile = async (event, arg) => {
 
 // Test Function
 const testWholeEncryptDecryptFlow = (event, arg) => {
-
     const curve = new EC('secp256k1')
     // Step 1: BID
     const nodeOperatorKeyPair = curve.genKeyPair()
@@ -417,7 +414,6 @@ const testWholeEncryptDecryptFlow = (event, arg) => {
     const validatorKey = JSON.stringify(valKey);
     const encryptedMsg = encrypt(validatorKey, stakerSharedSecret.toArrayLike(Buffer, 'be', 32))
 
-
     // Step 3: Decrypt the message
     const receivedStakerPubKeyPoint = curve.keyFromPublic(stakerPubKeyHex, 'hex').getPublic()
     const nodeOperatorSharedSecret = receivedStakerPubKeyPoint.mul(nodeOperatorPrivKey).getX()
@@ -434,7 +430,6 @@ const testWholeEncryptDecryptFlow = (event, arg) => {
     console.log("-----------------------------------")
     console.log(decryptedMsg.length)
     console.log("-----------------------------------")
-
 }
 
 
