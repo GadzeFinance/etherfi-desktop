@@ -6,8 +6,7 @@ const path = require('path')
 const { encrypt, decrypt, encryptPrivateKeys, decryptPrivateKeys } = require('./utils/encryptionUtils');
 const { createMnemonic, generateKeys } = require('./utils/Eth2Deposit.js')
 const { selectFolder, selectJsonFile } = require('./utils/saveFile.js')
-const  { decryptResultCodes } = require('./resultCodes.js')
-const { desktopAppVersion } = require('./constants')
+const { decryptResultCodes, desktopAppVersion } = require('./constants')
 const logger = require('./utils/logger')
 
 /**

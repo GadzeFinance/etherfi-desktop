@@ -20,7 +20,7 @@ const {
 } = require('./listeners');
 
 const {validateJsonFile} = require('./utils/validateFile')
-const { standardResultCodes, decryptResultCodes } = require('./resultCodes')
+const { standardResultCodes, decryptResultCodes } = require('./constants')
 
 
 function createWindow() {

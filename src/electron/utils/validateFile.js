@@ -1,5 +1,6 @@
 const { z, ZodError } = require('zod')
 const  { readFileSync } = require ('fs')
+const logger = require('./logger')
 
 const SCHEMAS = {
   "EncryptedValidatorKeys": z.array( 
@@ -31,6 +32,7 @@ const SCHEMAS = {
 }
 
 function validateJsonFile(path, schema) {
+  logger.info(`'validateJsonFile': Validating ${path}, against Schema ${schema}`)
   var json;
   var parseResult
   try {
@@ -43,9 +45,11 @@ function validateJsonFile(path, schema) {
     parseResult = SCHEMAS[schema].safeParse(json)
     if (!parseResult.success) {
       const errorsAsArray = convertZodErrors(parseResult.error)
+      logger.error(`'validateJsonFile' Error parsing ${JSON.stringify(errorsAsArray)}`)
       return { isValid: false, errors: [...errorsAsArray] }
     }
   } catch (error) {
+    logger.error(`'validateJsonFile' Error parsing ${JSON.stringify(errorsAsArray)}`)
     return { isValid: false, errors: [`safeParse Failed for path: ${path}`, error] }
   }
   return { isValid: true, errors: [] }
