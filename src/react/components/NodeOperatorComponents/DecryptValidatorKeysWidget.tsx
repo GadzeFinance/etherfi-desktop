@@ -32,7 +32,7 @@ const DecryptValidatorKeysWidget: React.FC = () => {
         window.encryptionApi.receiveDecryptReport(
             (event: Electron.IpcMainEvent, result: number, path: string, errorMessage: string) => {
                 switch (result) {
-                    // Error codes are defined in src/electron/resultCodes.js 
+                    // Error codes are defined in src/electron/constants.js 
                     // Decrypt Success
                     case 0: {
                         setFilesCreatedPath(path)
@@ -64,6 +64,8 @@ const DecryptValidatorKeysWidget: React.FC = () => {
                     }
                     // Unknown Error 
                     case 4: {
+                        console.error("Unknown Error")
+                        console.error(errorMessage)
 
                     }
                 }
