@@ -1,7 +1,7 @@
 // File referenced from https://mifi.no/blog/winston-electron-logger/
 const winston = require('winston')
 const util = require('util')
-const isDev = require('electron-is-dev')
+const isDev = process.env.NODE_ENV === "development";
 const { app } = require('electron')
 const { join } = require('path')
 
@@ -22,10 +22,10 @@ const createLogger = () => winston.createLogger({
   ),
 });
 
-const logDirPath = isDev ? '.' : app.getPath('userData');
+const logDirPath = isDev ? '.' : app.getPath('logs');
 
 const logger = createLogger();
-logger.add(new winston.transports.File({ level: 'debug', filename: join(logDirPath, 'etherfi-desktop.log'), options: { flags: 'a' } }));
+logger.add(new winston.transports.File({ level: 'debug', filename: join(logDirPath, 'etherfi-desktop-logs.log'), options: { flags: 'a' } }));
 if (isDev) logger.add(new winston.transports.Console());
 
 module.exports = logger;
