@@ -3,7 +3,7 @@ const crypto = require('crypto');
 const EC = require('elliptic').ec
 const BN = require('bn.js');
 const path = require('path')
-const { encrypt, decrypt } = require('./utils/encryptionUtils');
+const { encrypt, decrypt, encryptPrivateKeys, decryptPrivateKeys } = require('./utils/encryptionUtils');
 const { createMnemonic, generateKeys } = require('./utils/Eth2Deposit.js')
 const { selectFolder, selectJsonFile } = require('./utils/saveFile.js')
 const  { decryptResultCodes } = require('./resultCodes.js')
@@ -72,32 +72,6 @@ const genNodeOperatorKeystores = async (numKeys, saveFolder, privKeysPassword) =
 
     logger.info("genNodeOperatorKeystores: End")
     return [pubKeysFilePath, privKeysFilePath]
-}
-
-const encryptPrivateKeys = (jsonData, privKeysPassword) => {
-    const salt = crypto.randomBytes(16);
-    const key = crypto.pbkdf2Sync(privKeysPassword, salt, 100000, 32, 'sha256');
-    const iv = crypto.randomBytes(16);
-    const cipher = crypto.createCipheriv('aes-256-cbc', key, iv);
-    const dataBuffer = Buffer.from(JSON.stringify(jsonData), 'utf8')
-    const encryptedData = Buffer.concat([cipher.update(dataBuffer), cipher.final()]);
-    const encryptedJSON = {
-        iv: iv.toString('hex'),
-        salt: salt.toString('hex'),
-        data: encryptedData.toString('hex')
-    };
-    return encryptedJSON;
-}
-
-const decryptPrivateKeys = (privateKeysJSON, privKeysPassword) => {
-    const iv = Buffer.from(privateKeysJSON.iv, 'hex');
-    const salt = Buffer.from(privateKeysJSON.salt, 'hex');
-    const encryptedData = Buffer.from(privateKeysJSON.data, 'hex');
-    const key = crypto.pbkdf2Sync(privKeysPassword, salt, 100000, 32, 'sha256');
-    const decipher = crypto.createDecipheriv('aes-256-cbc', key, iv);
-    const decryptedData = Buffer.concat([decipher.update(encryptedData), decipher.final()]);
-    decryptedDataJSON = JSON.parse(decryptedData.toString('utf8'))
-    return decryptedDataJSON
 }
 
 /**
