@@ -37,7 +37,6 @@ const ETH2_DEPOSIT_DIR_NAME = "staking-deposit-cli-2.4.0";
  * Paths needed to call the eth2deposit_proxy application using the Python 3 version installed on
  * the current machine.
  */
-console.log(__dirname)
 const ETH2_DEPOSIT_CLI_PATH = path.join("src", "vendors", ETH2_DEPOSIT_DIR_NAME);
 const SCRIPTS_PATH = path.join("src", "scripts");
 const REQUIREMENTS_PATH = path.join(ETH2_DEPOSIT_CLI_PATH, "requirements.txt");
@@ -131,6 +130,7 @@ const createMnemonic = async (language) => {
     args = [CREATE_MNEMONIC_SUBCOMMAND, DIST_WORD_LIST_PATH, "--language", language]
   } else {
     if (!await requireDepositPackages()) {
+      loggers.error("'ETH2Deposit: createMnemonic' Failed to generate mnemonic, don't have the required packages.")
       throw new Error("Failed to generate mnemonic, don't have the required packages.");
     }
     env.PYTHONPATH = await getPythonPath();
@@ -197,6 +197,7 @@ const generateKeys = async (
       network.toLowerCase(), password]);
   } else {
     if(!await requireDepositPackages()) {
+      loggers.error("'ETH2Deposit: generateKeys' Failed to generate mnemonic, don't have the required packages.")
       throw new Error("Failed to generate mnemonic, don't have the required packages.");
     }
     env.PYTHONPATH = await getPythonPath();
@@ -238,6 +239,7 @@ const validateMnemonic = async (
     args = [VALIDATE_MNEMONIC_SUBCOMMAND, DIST_WORD_LIST_PATH, mnemonic];
   } else {
     if(!await requireDepositPackages()) {
+      loggers.error("'ETH2Deposit: validateMnemonic' Failed to generate mnemonic, don't have the required packages.")
       throw new Error("Failed to generate mnemonic, don't have the required packages.");
     }
     env.PYTHONPATH = await getPythonPath();
