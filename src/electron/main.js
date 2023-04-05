@@ -180,9 +180,12 @@ ipcMain.on("staker-finish", (event, arg) => {
 /* ------------------------------------------------------------- */
 /* --------------- Checking For Stale Keys --------------------- */
 /* ------------------------------------------------------------- */
+// This is removed for now due to issues compiling sqlite3 package binaries.
+// This is where the code was created https://github.com/GadzeFinance/etherfi-desktop/pull/44
 ipcMain.on("req-check-for-stale-keys", async (event, args) => {
     // const stakeInfoPath = args[0]
     // const staleKeys = await checkIfKeysAreStale(stakeInfoPath)
+    // checkout 
     // Stubbing this for now.
     const staleKeys = []
     event.sender.send("receive-stale-keys-report", staleKeys)

@@ -20,8 +20,7 @@ const logger = require('./utils/logger')
  * @returns {void} Sends a "receive-NO-keys-generated" event to the frontend process with paths to the generated files.
  */
 const genNodeOperatorKeystores = async (numKeys, saveFolder, privKeysPassword) => {
-    console.log("genNodeOperatorKeystores: Start")
-    logger.info('Some error happened');
+    logger.info("genNodeOperatorKeystores: Start")
     const curve = new EC('secp256k1')
 
     const publicFileJSON = {}
@@ -51,7 +50,7 @@ const genNodeOperatorKeystores = async (numKeys, saveFolder, privKeysPassword) =
 
     fs.writeFileSync(pubKeysFilePath, JSON.stringify(publicFileJSON), 'utf-8', (err) => {
         if (err) {
-            console.error(err);
+            logger.error("Error in 'genNodeOperatorKeystores' writing PublicKeyFile", err);
             throw new Error("Error writing private keys file")
         }})
 
@@ -62,17 +61,16 @@ const genNodeOperatorKeystores = async (numKeys, saveFolder, privKeysPassword) =
     const privateFileTimeStamp = Date.now()
     const privateFileName = "privateEtherfiKeystore-" + privateFileTimeStamp
     const privKeysFilePath = path.join(saveFolder, `${privateFileName}.json`)
-
     const encryptedPrivateKeysJSON = encryptPrivateKeys(privateKeysJSON, privKeysPassword)
     encryptedPrivateKeysJSON['etherfiDesktopAppVersion'] = desktopAppVersion
 
     fs.writeFileSync(privKeysFilePath, JSON.stringify(encryptedPrivateKeysJSON), 'utf-8', (err) => {
         if (err) {
-          console.error(err);
+            logger.error("Error in 'genNodeOperatorKeystores' writing PrivateKeyFile", err);
           throw new Error("Error writing private keys file")
     }})
 
-    console.log("genNodeOperatorKeystores: End")
+    logger.info("genNodeOperatorKeystores: End")
     return [pubKeysFilePath, privKeysFilePath]
 }
 
@@ -110,9 +108,9 @@ const decryptPrivateKeys = (privateKeysJSON, privKeysPassword) => {
  * @returns {void} Sends a "receive-new-mnemonic" event to the frontend process with the generated mnemonic as argument.
  */
 const genMnemonic = async (language) => {
-    console.log("genMnemonic: Start")
+    logger.info("genMnemonic: Start")
     const mnemonic = await createMnemonic(language)
-    console.log("genMnemonic: End")
+    logger.info("genMnemonic: End")
     return mnemonic
 }
 
@@ -130,7 +128,7 @@ const genMnemonic = async (language) => {
  *   an array containing the folder path where the generated keys are saved.
  */
 const genValidatorKeysAndEncrypt = async (mnemonic, password, folder, stakeInfoPath) => {
-    console.log("genEncryptedKeys: Start")
+    logger.info("genEncryptedKeys: Start")
 
     // get the data from stakeInfoPath
     const stakeInfo = JSON.parse(fs.readFileSync(stakeInfoPath))
@@ -149,7 +147,7 @@ const genValidatorKeysAndEncrypt = async (mnemonic, password, folder, stakeInfoP
         try {
             await generateKeys(mnemonic, index, 1, network, password, eth1_withdrawal_address, folder)
         } catch (err) {
-            console.error(err)
+            logger.error("Error in 'genValidatorKeysAndEncrypt' when generating keys", err)
             throw new Error("Couldn't generate validator keys")
         }
     }
@@ -157,12 +155,11 @@ const genValidatorKeysAndEncrypt = async (mnemonic, password, folder, stakeInfoP
     try {
         await _encryptValidatorKeys(folder, password, nodeOperatorPublicKeys, validatorIDs)
     } catch(err) {
-        console.error(err)
+        logger.error("Error in 'genValidatorKeysAndEncrypt' when encrypting keys", err)
         throw new Error("Error encrypting validator keys")
     }
-
     // Send back the folder where everything is save
-    console.log("genEncryptedKeys: End")
+    logger.info("genEncryptedKeys: End")
     return folder
 }
 
@@ -184,7 +181,7 @@ const _getDepositDataAndKeystoresJSON = async (folderPath) => {
         } else if (fileName.includes("keystore")) {
             validatorKeyFilePaths.push(path.join(folderPath, fileName))
         } else {
-            console.log(`Unexpected File: ${fileName}`)
+            logger.info(`'_getDepositDataAndKeystoresJSON': Unexpected File: ${fileName}`)
         }
     });
     // depositDataList will be sorted in chronological order
@@ -203,7 +200,8 @@ const _getDepositDataAndKeystoresJSON = async (folderPath) => {
     )
 
     if (validatorKeystoreList.length !== depositDataList.length) {
-        console.error("ERROR: Deposit Data lenth != number of keys")
+        logger.warning("Error in '_getDepositDataAndKeystoresJSON' Deposit Data lenth != number of keys", 
+        `validatorKeystoreList.length: ${validatorKeystoreList.length}`, `depositDataList.length: ${depositDataList.length}`)
     }
 
     return {depositDataList, validatorKeystoreList}
@@ -219,6 +217,7 @@ const _getDepositDataAndKeystoresJSON = async (folderPath) => {
  * @returns {undefined} - Returns nothing, saves the encrypted data to a stake request file in the given folder path.
  */
 const _encryptValidatorKeys = async (folderPath, password, nodeOperatorPubKeys, validatorIDs) => {
+    logger.info("_encryptValidatorKeys: Start")
     // need to convert the folder path to a list of keystore paths and a deposit data file path
     const {depositDataList, validatorKeystoreList} = await _getDepositDataAndKeystoresJSON(folderPath);
 
@@ -232,10 +231,9 @@ const _encryptValidatorKeys = async (folderPath, password, nodeOperatorPubKeys, 
         })
 
         if (matchesFound.length !== 1) { 
-            console.error("ERROR: more than one validator key found for deposit data")
-            console.log(depositDataList[i])
-            console.log(matchesFound)
-            return
+            logger.error("'_encryptValidatorKeys' more than one validator key found for deposit data",
+                             depositDataList[i], matchesFound)
+            throw new Error ("Found multiple validator keys for a single deposit data")
         }
         const validatorKey = JSON.stringify(matchesFound[0].keystoreData)
         const keystoreName = matchesFound[0].keystoreName
@@ -275,12 +273,14 @@ const _encryptValidatorKeys = async (folderPath, password, nodeOperatorPubKeys, 
 
     fs.writeFileSync(filePath, JSON.stringify(stakeRequestJSON), 'utf-8', (err) => {
         if (err) {
-          console.error(err);
-          return;
+          logger.error("'_encryptValidatorKeys' could not write out stakeRequestJSON", `filePath: ${filePath}`, err);
+          throw new Error("Could not write out stakeRequestJSON")
     }})
+    logger.info("_encryptValidatorKeys: End")
+
 }
 const decryptValidatorKeys = async (event, arg) => {
-    console.log("decryptValidatorKeys: Start")
+    logger.info("decryptValidatorKeys: Start")
     const [encryptedValidatorKeysFilePath, privateKeysFilePath, privKeysPassword,chosenFolder] = arg
     // This will work since the files have already been validated (validateFile.js)
     const encryptedValidatorKeysJson = JSON.parse(fs.readFileSync(encryptedValidatorKeysFilePath))
@@ -289,7 +289,7 @@ const decryptValidatorKeys = async (event, arg) => {
     try {
         privateKeysJson = decryptPrivateKeys(encrpytedPrivateKeysJson, privKeysPassword)
     } catch (err) {
-        console.error(err.message)
+        logger.error("'decryptValidatorKeys' error decrypting Private Keys with password", err)
         event.sender.send("receive-decrypt-val-keys-report", decryptResultCodes.BAD_PASSWORD, '', err.message)
         return
     }
@@ -329,7 +329,7 @@ const decryptValidatorKeys = async (event, arg) => {
             const keyStorePath = path.join(saveFolder, keystoreName)
             fs.writeFileSync(keyStorePath, validatorKeyString, 'utf-8', (err) => {
                 if (err) {
-                    console.error(err);
+                    logger.info.error(err);
                     event.sender.send("receive-decrypt-val-keys-report", decryptResultCodes.SAVE_FILE_ERROR, '', err.message)
                     return
                 }})
@@ -338,6 +338,7 @@ const decryptValidatorKeys = async (event, arg) => {
         }
     } catch (err) {
         // Send Error Message to Frontend that the 
+        logger.error("'decryptValidatorKeys' error decrypting validator keys", error)
         event.sender.send("receive-decrypt-val-keys-report", decryptResultCodes.BAD_PRIVATE_KEYS, '', err.message)
         return
     }
@@ -349,7 +350,7 @@ const decryptValidatorKeys = async (event, arg) => {
             return
     }})
 
-    console.log("decryptValidatorKeys: End")
+    logger.info("decryptValidatorKeys: End")
     return saveFolder
 }
 
@@ -366,9 +367,8 @@ const listenSelectFolder = async (event, arg) => {
         const path = result.canceled ? '' : result.filePaths[0];
         event.sender.send("receive-selected-folder-path", path)
     }).catch((error) => {
-        console.log("ERROR Selecting Files")
-        console.log(error)
-        event.sender.send("receive-selected-folder-path", 'Error Selecting Path')
+        logger.error("'listenSelectFolder' Error Selecting Folder", error)
+        event.sender.send("receive-selected-folder-path", 'Error Selecting Folder')
     })
 }
 
@@ -384,8 +384,7 @@ const listenSelectJsonFile = async (event, arg) => {
         const path = result.canceled ? '' : result.filePaths[0];
         event.sender.send("receive-selected-file-path", path)
     }).catch((error) => {
-        console.log("ERROR Selecting Files")
-        console.log(error)
+        logger.error("'listenSelectJsonFile' Error Selecting File", error)
         event.sender.send("receive-selected-file-path", 'Error Selecting Path')
     })
 }
@@ -417,18 +416,18 @@ const testWholeEncryptDecryptFlow = (event, arg) => {
     const receivedStakerPubKeyPoint = curve.keyFromPublic(stakerPubKeyHex, 'hex').getPublic()
     const nodeOperatorSharedSecret = receivedStakerPubKeyPoint.mul(nodeOperatorPrivKey).getX()
     const decryptedMsg = decrypt(encryptedMsg, nodeOperatorSharedSecret.toArrayLike(Buffer, 'be', 32))
-    console.log(validatorKey)
-    console.log("-----------------------------------")
-    console.log(validatorKey.length)
-    console.log("-----------------------------------")
-    console.log(encryptedMsg)
-    console.log("-----------------------------------")
-    console.log(encryptedMsg.length)
-    console.log("-----------------------------------")
-    console.log(decryptedMsg)
-    console.log("-----------------------------------")
-    console.log(decryptedMsg.length)
-    console.log("-----------------------------------")
+    logger.info(validatorKey)
+    logger.info("-----------------------------------")
+    logger.info(validatorKey.length)
+    logger.info("-----------------------------------")
+    logger.info(encryptedMsg)
+    logger.info("-----------------------------------")
+    logger.info(encryptedMsg.length)
+    logger.info("-----------------------------------")
+    logger.info(decryptedMsg)
+    logger.info("-----------------------------------")
+    logger.info(decryptedMsg.length)
+    logger.info("-----------------------------------")
 }
 
 
