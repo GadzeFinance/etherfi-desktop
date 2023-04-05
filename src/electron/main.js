@@ -5,6 +5,7 @@ const {
     clipboard,
     shell,
 } = require("electron");
+const logger = require('./utils/logger')
 
 const path = require("path");
 const isDevelopment = process.env.NODE_ENV === "development";
@@ -19,7 +20,7 @@ const {
 } = require('./listeners');
 
 const {validateJsonFile} = require('./utils/validateFile')
-const { standardResultCodes, decryptResultCodes } = require('./resultCodes')
+const { standardResultCodes, decryptResultCodes } = require('./constants')
 
 
 function createWindow() {
@@ -46,12 +47,12 @@ function createWindow() {
 
     // Load our HTML file
     if (isDevelopment) {
-        console.log("Running Dev");
+        logger.info("Starting App in Development Mode");
         window.loadURL("http://localhost:40992");
         window.webContents.openDevTools();
 
     } else {
-        console.log("Running Prod");
+        logger.info("Starting App in Production Mode");
         window.loadURL(`file://${__dirname}/../react/index.html`);
         // window.loadFile("src/dist/index.html");
     }
@@ -59,7 +60,7 @@ function createWindow() {
      * Set the Permission Request Handler to deny all permissions requests
      */
     window.webContents.session.setPermissionRequestHandler((webContents, permission, callback) => {
-        console.log("Rejecting Permission Request: " + permission);
+        logger.info(`Rejecting Permission Request: ${permission}`);
         return callback(false);
     });
 }
@@ -97,8 +98,8 @@ ipcMain.on("req-gen-node-operator-keys", async (event, args) => {
     try {
         const [pubKeysFilePath, privKeysFilePath] = await genNodeOperatorKeystores(numKeys, saveFolder, privKeysPassword)
         event.sender.send("receive-NO-keys-generated-result", standardResultCodes.SUCCESS, pubKeysFilePath, privKeysFilePath, '')
-
     } catch (error) {
+        logger.error("Error Generating Encryption Keys:", error)
         event.sender.send("receive-NO-keys-generated-result", standardResultCodes.ERROR, '', '', error.message)
     }
 });
@@ -109,6 +110,7 @@ ipcMain.on("req-new-mnemonic", async (event, args) => {
         const mnemonic = await genMnemonic(language)
         event.sender.send("receive-new-mnemonic", standardResultCodes.SUCCESS, mnemonic, '')
     } catch (error) {
+        logger.error("Error Requesting Mnemonic:", error)
         event.sender.send("receive-new-mnemonic", standardResultCodes.ERROR, '', error.message)
     }
 });
@@ -119,6 +121,7 @@ ipcMain.on("req-gen-val-keys-and-encrypt",  async (event, args) => {
         const savePath = await genValidatorKeysAndEncrypt(mnemonic, password, folder, stakeInfoPath)
         event.sender.send("receive-key-gen-confirmation", standardResultCodes.SUCCESS, savePath , '')
     } catch (error) {
+        logger.error("Error Generating Validator Keys and Encrypting:", error)
         event.sender.send("receive-key-gen-confirmation",  standardResultCodes.ERROR, '', error.message)
     }
 });
@@ -128,6 +131,7 @@ ipcMain.on("req-decrypt-val-keys",  async (event, args) => {
         const saveFolder = await decryptValidatorKeys(event, args)
         event.sender.send("receive-decrypt-val-keys-report", decryptResultCodes.SUCCESS, saveFolder, '')
     } catch (error) {
+        logger.error("Error Decrypting Validator Keys:", error)
         event.sender.send("receive-decrypt-val-keys-result", decryptResultCodes.UNKNOWN_ERROR, error.message)
     }
 });
@@ -176,9 +180,12 @@ ipcMain.on("staker-finish", (event, arg) => {
 /* ------------------------------------------------------------- */
 /* --------------- Checking For Stale Keys --------------------- */
 /* ------------------------------------------------------------- */
+// This is removed for now due to issues compiling sqlite3 package binaries.
+// This is where the code was created https://github.com/GadzeFinance/etherfi-desktop/pull/44
 ipcMain.on("req-check-for-stale-keys", async (event, args) => {
     // const stakeInfoPath = args[0]
     // const staleKeys = await checkIfKeysAreStale(stakeInfoPath)
+    // checkout 
     // Stubbing this for now.
     const staleKeys = []
     event.sender.send("receive-stale-keys-report", staleKeys)
