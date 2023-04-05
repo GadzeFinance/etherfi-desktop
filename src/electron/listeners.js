@@ -1,13 +1,14 @@
-const {encrypt, decrypt } = require('./utils/encryptionUtils');
-const {createMnemonic, generateKeys, validateMnemonic} = require('./utils/Eth2Deposit.js')
-const {selectFolder, selectJsonFile} = require('./utils/saveFile.js')
-const EC = require('elliptic').ec
-const BN = require('bn.js');
 const fs = require('fs');
 const crypto = require('crypto');
-const  {standardResultCodes, decryptResultCodes} = require('./resultCodes.js')
-const {desktopAppVersion} = require('./constants')
+const EC = require('elliptic').ec
+const BN = require('bn.js');
 const path = require('path')
+const { encrypt, decrypt } = require('./utils/encryptionUtils');
+const { createMnemonic, generateKeys } = require('./utils/Eth2Deposit.js')
+const { selectFolder, selectJsonFile } = require('./utils/saveFile.js')
+const  { decryptResultCodes } = require('./resultCodes.js')
+const { desktopAppVersion } = require('./constants')
+const logger = require('./utils/logger')
 
 /**
  * Generates public and private key pairs and saves them in two separate JSON files.
@@ -20,6 +21,7 @@ const path = require('path')
  */
 const genNodeOperatorKeystores = async (numKeys, saveFolder, privKeysPassword) => {
     console.log("genNodeOperatorKeystores: Start")
+    logger.info('Some error happened');
     const curve = new EC('secp256k1')
 
     const publicFileJSON = {}
@@ -28,19 +30,20 @@ const genNodeOperatorKeystores = async (numKeys, saveFolder, privKeysPassword) =
     const privKeyArray = []
     const pubKeyArray = []
     for(var i = 0; i < numKeys; i++) {
-        // create new key pair for each bid
+        // create new key pair 
         const keyPair = curve.genKeyPair()
 
         // get public key and encode it in hex
         const pubPoint = keyPair.getPublic()
         const pub = pubPoint.encode('hex');
-        privKeyArray.push(keyPair.getPrivate().toString()) // do this in a more secure way? 
+        privKeyArray.push(keyPair.getPrivate().toString())
         pubKeyArray.push(pub)
     }
 
     // Create publicFileJSON object
     publicFileJSON["pubKeyArray"] = pubKeyArray
-    publicFileJSON['etherfiDesktopAppVersion'] = desktopAppVersion // This is here to ensure we can update the desktop app and not break the webapp in the future.
+    // This is here to ensure we can update the desktop app and not break the webapp in the future.
+    publicFileJSON['etherfiDesktopAppVersion'] = desktopAppVersion 
     // save publicEtherfiKeystore
     const publicFileTimeStamp = Date.now()
     const publicFileName = "publicEtherfiKeystore-" + publicFileTimeStamp
@@ -62,7 +65,6 @@ const genNodeOperatorKeystores = async (numKeys, saveFolder, privKeysPassword) =
 
     const encryptedPrivateKeysJSON = encryptPrivateKeys(privateKeysJSON, privKeysPassword)
     encryptedPrivateKeysJSON['etherfiDesktopAppVersion'] = desktopAppVersion
-
 
     fs.writeFileSync(privKeysFilePath, JSON.stringify(encryptedPrivateKeysJSON), 'utf-8', (err) => {
         if (err) {
@@ -237,7 +239,6 @@ const _encryptValidatorKeys = async (folderPath, password, nodeOperatorPubKeys, 
         }
         const validatorKey = JSON.stringify(matchesFound[0].keystoreData)
         const keystoreName = matchesFound[0].keystoreName
-        // create new keyPair
 
         // Step 2: Encrypt validator keys 
         // get the nodeOperatorPubKey Point
