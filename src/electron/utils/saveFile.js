@@ -1,5 +1,4 @@
 const {dialog} = require('electron');
-var fs = require('fs');
 
 module.exports = {
     selectFolder: async function () {
