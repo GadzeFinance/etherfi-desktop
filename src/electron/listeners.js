@@ -311,7 +311,7 @@ const decryptValidatorKeys = async (event, arg) => {
         }
     } catch (err) {
         // Send Error Message to Frontend that the 
-        logger.error("'decryptValidatorKeys' error decrypting validator keys", error)
+        logger.error("'decryptValidatorKeys' error decrypting validator keys", err)
         event.sender.send("receive-decrypt-val-keys-report", decryptResultCodes.BAD_PRIVATE_KEYS, '', err.message)
         return
     }
