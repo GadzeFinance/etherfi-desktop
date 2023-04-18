@@ -2,67 +2,116 @@
 
 Set up guide: https://www.debugandrelease.com/creating-a-simple-electron-application/
 
-## 1. Install yarn
+## Mac OS 11+ Set up guide
 
-Install yarn if you haven't yet.
+### Install Required Software:
 
 ```bash
-npm install -g yarn # This is for mac
+# Use homebrew as a package manager see: https://brew.sh/ for more details
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+
+#----------------- Step 1: GIT ------------------
+# check to see if you have git by running:
+git --version
+# If git is not found. Install it by running:
+brew install git
+
+#----------------- Step 2: NODE -----------------
+# Check to see if you have node by running:
+node --version
+# If node is not found. Install it by running:
+brew install node
+# NOTE: you may want to install nvm which will allow
+# you to change your node version (https://github.com/nvm-sh/nvm)
+
+#----------------- Step 3: YARN -----------------
+# Check to see if you have yarn by running:
+yarn --version
+# If yarn is not found. Install it by running:
+npm install -g yarn
+
+#---------------- Step 4: PYTHON ----------------
+# Check if you have python3 and pip3 by running:
+python3 --version
+pip3 --version
+# If they are not found. Install them by running:
+brew install python3
+
+#---------------- Step 5: PYINSTALLER -----------
+# check to see if you have pyinstaller by running:
+pyinstaller --version
+# If it is not found. Install it by running:
+pip3 install pyinstaller
 ```
 
-## 2. Install dependencies
+## The following steps assume you have all the required software installed, you have cloned etherfi-desktop and have changed into the directory.
 
-Install all dependencies necessary to run the app.
+### Run etherfi-desktop in dev mode (Allows you to update the frontend dynamically):
 
 ```bash
+# Install node packages
 yarn install
+
+# build the python cli for generating validator keys
+yarn buildclimac
+
+# IMPORTANT Run both of the following commands in seperate terminals AT THE SAME TIME!
+yarn run dev-server # Running in one terminal
+yarn run dev # Running in another terminal
 ```
 
-## 3. Run application
-
-Run both commands, 1 per terminal window at the same time.
+### Run etherfi-desktop in Prod mode:
 
 ```bash
-yarn dev-server
-yarn dev
-```
+# Install node packages
+yarn install
 
-### How to run in dev mode:
+# Use webpack to bundle the electron and react code
+yarn buildNode
 
-Note: make sure you run 'yarn install' before attempting to run the application
+# build the python cli for generating validator keys
+yarn buildclimac
 
-```bash
-# This will make sure that the ETH Cli is ready for use.
-yarn buildcli
-# This will run the webpack server. It will rebundle the application when you make front end changes
-yarn run dev-server
-# This will launch the electron application using the webpack server.
-yarn run dev
-```
-
-### How to run in prod mode:
-
-Note: make sure you run 'yarn install' before attempting to run the application
-
-```bash
-yarn run buildNode
-
-yarn run buildcli
-# OR for windows
-yarn run buildcliwin
-
+# build the bundled app
 yarn run prod
 ```
 
-## How to build for distribution:
-
-Note: make sure you run 'yarn install' before attempting to run the application
+### Build etherfi-desktop:
 
 ```bash
-yarn run buildNode
-yarn run buildcli
-# OR for windows
-yarn run buildcliwin
+# Install node packages
+yarn install
 
-yarn run dist
+# Use webpack to bundle the electron and react code
+yarn buildNode
+
+# build the python cli for generating validator keys
+yarn buildclimac
+
+# build the bundled app
+yarn run dist --x64
+# NOTE: --x64 will work for intel and Apple Silicon Macs
+# You can do use the --arm64 flag to build specifically for Apple Silicon Macs
+```
+
+## Windows 10 Set up guide
+
+### Install Required Software:
+
+Install git: https://git-scm.com/download/win
+
+Install node: https://nodejs.org/en/download/
+
+Note: When installing Python make sure you select 'Add Python to Path' in the installer.
+Install python3: https://www.python.org/downloads/windows/
+
+```bash
+python -m pip install --upgrade --user pip
+python -m pip install --user pyinstaller
+python -m pip install --user Cython
+npm install -g yarn
+
+yarn install
+yarn buildNode
+yarn buildcliwin
 ```
