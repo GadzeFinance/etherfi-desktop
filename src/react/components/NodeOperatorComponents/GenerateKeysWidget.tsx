@@ -13,10 +13,10 @@ import PasswordInput from '../PasswordInput'
 import EtherFiSpinner from '../EtherFiSpinner';
 
 
-const MAX_KEYS = "7500"
+const MAX_KEYS = 7000
 
 const GenerateKeysWidget: React.FC = () => {
-    const [numKeys, setNumKeys] = useState<string>(MAX_KEYS);
+    const [numKeys, setNumKeys] = useState<string>(`${MAX_KEYS}`);
     const [savePath, setSavePath] = useState<string>("")
     const [keysGenerated, setKeysGenerated] = useState<boolean>(false)
     const [keysGenerating, setKeysGenerating] = useState<boolean>(false)
@@ -53,7 +53,7 @@ const GenerateKeysWidget: React.FC = () => {
     }
 
     const clearState = () => {
-        setNumKeys(MAX_KEYS)
+        setNumKeys(`${MAX_KEYS}`)
         setSavePath("")
         setKeysGenerated(false)
         setPubKeysFilePath("")
@@ -78,18 +78,18 @@ const GenerateKeysWidget: React.FC = () => {
                         <Box sx={darkBoxWithBorderStyle} bg="#2b2852">
                             <HStack spacing='5px' mb="5px">
                                 <Text fontSize='14px' as='b' color="white">Number of Keys</Text>
-                                <Text fontSize='11px' color={COLORS.textSecondary}>(7500 max)</Text>
+                                <Text fontSize='11px' color={COLORS.textSecondary}>{`(${MAX_KEYS} max)`}</Text>
                             </HStack>
 
                             <InputGroup>
                                 <NumberInput borderColor={COLORS.lightPurple} color="white" placeholder="Enter Amount"
-                                    min={1} max={7500} value={numKeys}
+                                    min={1} max={MAX_KEYS} value={numKeys}
                                     onChange={(newValStr: React.SetStateAction<string>, _newValuNum: any) => setNumKeys(newValStr)}
                                     keepWithinRange={false}
                                     clampValueOnBlur={false}
                                 >
                                     <NumberInputField color="#A3A3A3" width="422px" height="48px" placeholder="Enter Amount" />
-                                    <InputRightElement children={<Box height="32px" width="50px" mr="44px" onClick={() => setNumKeys(MAX_KEYS)}><Button bg={COLORS.primaryBlue}>Max</Button></Box>} />
+                                    <InputRightElement children={<Box height="32px" width="50px" mr="44px" onClick={() => setNumKeys(`${MAX_KEYS}`)}><Button bg={COLORS.primaryBlue}>Max</Button></Box>} />
                                 </NumberInput>
                             </InputGroup>
                             <PasswordInput password={privKeysPassword} setPassword={setPrivKeysPassword} isPasswordValid={isPrivKeysPasswordValid} setIsPasswordValid={setIsPrivKeysPasswordValid} />
