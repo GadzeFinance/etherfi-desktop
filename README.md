@@ -33,6 +33,7 @@ npm install -g yarn
 #---------------- Step 4: PYTHON ----------------
 # Check if you have python3 and pip3 by running:
 python3 --version
+# NOTE: Python 3.11+ does not work. Please use Python version 3.9
 pip3 --version
 # If they are not found. Install them by running:
 brew install python3
@@ -54,6 +55,7 @@ yarn install
 
 # build the python cli for generating validator keys
 yarn buildclimac
+# You may need to add executable permissions to the bundle_proxy_mac.sh script
 # You can configure the python build by changing the bundle_proxy_mac.sh script
 # Python is built with pyinstaller.
 
