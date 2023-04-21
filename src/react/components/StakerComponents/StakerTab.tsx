@@ -2,18 +2,30 @@ import React from 'react'
 import { Center, ScaleFade } from '@chakra-ui/react'
 import widgetBoxStyle from '../../styleClasses/widgetBoxStyle'
 import GenEncryptedKeysWizard from './StakerWizard/GenEncryptedKeysWizard'
+import GenerateSignedExitMessageWidget from './GenerateSignedExitMessageWidget';
 
-interface TabProps {
-  tabIndex: number
+
+interface StakerTabProps {
+  tabIndex: number;
+  selectedOption: number,
 }
 
-const StakerTab: React.FC<TabProps> = ({ tabIndex }: TabProps) => {
+const StakerTab: React.FC<StakerTabProps> = ({ tabIndex, selectedOption }: StakerTabProps) => {
 
   return (
     <ScaleFade initialScale={0.5} in={tabIndex === 0}>
-      <Center sx={widgetBoxStyle}>
-        <GenEncryptedKeysWizard navigateTo={(x) => console.log(x)} />
-      </Center>
+      {selectedOption === 0 && (
+        <ScaleFade initialScale={0.5} in={selectedOption === 0}>
+          <Center sx={widgetBoxStyle}>
+            <GenEncryptedKeysWizard navigateTo={(x) => console.log(x)} />
+          </Center>
+        </ScaleFade>
+      )}
+      {selectedOption === 1 && (
+        <ScaleFade initialScale={0.5} in={selectedOption === 1}>
+          <GenerateSignedExitMessageWidget />
+        </ScaleFade>
+      )}
     </ScaleFade>
   )
 }
