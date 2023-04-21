@@ -53,7 +53,7 @@ const StepCreatePassword: React.FC<StepCreatePasswordProps> = (props) => {
         Please enter a password to create your validator keystores.
       </Text>
 
-      <PasswordInput password={props.password} setPassword={props.setPassword} isPasswordValid={isPasswordValid} setIsPasswordValid={setIsPasswordValid} />
+      <PasswordInput password={props.password} setPassword={props.setPassword} isPasswordValid={isPasswordValid} setIsPasswordValid={setIsPasswordValid} shouldDoValidation={true} />
       <WizardNavigator nextProps={nextProps} backProps={backProps} nextDetails={nextDetails} backDetails={backDetails} />
 
     </Flex>

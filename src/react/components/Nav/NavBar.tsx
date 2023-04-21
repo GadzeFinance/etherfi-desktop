@@ -70,7 +70,6 @@ const NavBar: React.FC<NavBarProps> = ({ setNodeOperatorOperation, selectedNodeO
         const handleStakerOptionSelect = (option: number) => {
             setStakerOperation(option);
         };
-
         return (
             <Menu  >
                 {({ isOpen }) => (

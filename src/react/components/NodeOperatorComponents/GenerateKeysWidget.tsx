@@ -82,7 +82,7 @@ const GenerateKeysWidget: React.FC = () => {
                             </HStack>
 
                             <InputGroup>
-                                <NumberInput borderColor={COLORS.lightPurple} color="white" placeholder="Enter Amount"
+                                <NumberInput borderColor={COLORS.lightPurple} color="white"
                                     min={1} max={MAX_KEYS} value={numKeys}
                                     onChange={(newValStr: React.SetStateAction<string>, _newValuNum: any) => setNumKeys(newValStr)}
                                     keepWithinRange={false}
@@ -92,7 +92,7 @@ const GenerateKeysWidget: React.FC = () => {
                                     <InputRightElement children={<Box height="32px" width="50px" mr="44px" onClick={() => setNumKeys(`${MAX_KEYS}`)}><Button bg={COLORS.primaryBlue}>Max</Button></Box>} />
                                 </NumberInput>
                             </InputGroup>
-                            <PasswordInput password={privKeysPassword} setPassword={setPrivKeysPassword} isPasswordValid={isPrivKeysPasswordValid} setIsPasswordValid={setIsPrivKeysPasswordValid} />
+                            <PasswordInput password={privKeysPassword} setPassword={setPrivKeysPassword} isPasswordValid={isPrivKeysPasswordValid} setIsPasswordValid={setIsPrivKeysPasswordValid} shouldDoValidation={true} />
                             {savePath &&
                                 <VStack
                                     mt="10px"

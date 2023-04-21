@@ -10,6 +10,7 @@ interface PasswordInputProps {
     setPassword: (password: string) => void
     isPasswordValid: boolean,
     setIsPasswordValid: (valid: boolean) => void
+    shouldDoValidation: boolean
 }
 
 
@@ -60,10 +61,10 @@ const PasswordInput: React.FC<PasswordInputProps> = (props) => {
                 <InputGroup>
                     <Input
                         isRequired={true}
-                        isInvalid={!props.isPasswordValid && props.password.length > 1}
-                        borderColor={props.isPasswordValid ? 'green.main' : COLORS.lightPurple}
+                        isInvalid={props.shouldDoValidation && !props.isPasswordValid && props.password.length > 1}
+                        borderColor={props.shouldDoValidation && props.isPasswordValid ? 'green.main' : COLORS.lightPurple}
                         errorBorderColor='red.warning'
-                        focusBorderColor={props.isPasswordValid ? 'green.main' : 'blue.secondary'}
+                        focusBorderColor={props.shouldDoValidation && props.isPasswordValid ? 'green.main' : 'blue.secondary'}
                         color="white"
                         placeholder='Enter password'
                         type={showPassword ? 'text' : 'password'}
@@ -76,15 +77,17 @@ const PasswordInput: React.FC<PasswordInputProps> = (props) => {
                     </InputRightElement>
                 </InputGroup>
             </>
-            <UnorderedList>
-                {passwordResults.map((passwordRequirement, index) =>
-                (!passwordRequirement.passed &&
-                    <ListItem key={index} fontSize="12px" color="red.warning">
-                        {passwordRequirement.message}
-                    </ListItem>
-                ))}
+            {props.shouldDoValidation && (
+                <UnorderedList>
+                    {passwordResults.map((passwordRequirement, index) =>
+                    (!passwordRequirement.passed &&
+                        <ListItem key={index} fontSize="12px" color="red.warning">
+                            {passwordRequirement.message}
+                        </ListItem>
+                    ))}
+                </UnorderedList>
+            )}
 
-            </UnorderedList>
         </>
     )
 }
