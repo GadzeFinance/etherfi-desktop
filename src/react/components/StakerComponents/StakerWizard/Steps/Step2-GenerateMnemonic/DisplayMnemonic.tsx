@@ -52,7 +52,7 @@ const DisplayMnemonic: React.FC<DisplayMnemonicProps> = ({ mnemonic }: DisplayMn
 
   return (
     <>
-      <Text color={'white'} fontSize="2xl" fontWeight={'semibold'}>
+      <Text mb="-20px" color={'white'} fontSize="2xl" fontWeight={'semibold'}>
         Your Mnemonic Phrase
       </Text>
       <Grid
@@ -68,7 +68,7 @@ const DisplayMnemonic: React.FC<DisplayMnemonicProps> = ({ mnemonic }: DisplayMn
           <Center>
             <VStack>
               <Tooltip label={copied ? 'Copied' : 'Copy'} closeOnClick={false}>
-                <CopyIcon sx={clickableIconStyle} onClick={copyMnemonic} boxSize={4} />
+                <Button size='sm' variant='blur-button' onClick={copyMnemonic} rightIcon={<CopyIcon boxSize={4} />}> Copy</Button>
               </Tooltip>
               <Button size='sm' onClick={() => setBlurred(!blurred)} variant='blur-button'>
                 {blurred ? 'Unblur' : 'Blur'}
