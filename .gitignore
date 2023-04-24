@@ -7,6 +7,7 @@ yarn-error.log*
 lerna-debug.log*
 .pnpm-debug.log*
 
+
 # Diagnostic reports (https://nodejs.org/api/report.html)
 report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
 
@@ -145,3 +146,6 @@ dist/
 REQUIREMENT_PACKAGES_PATH/
 
 demo/
+
+# Apple code notarization script
+notarize-app-mac.sh
