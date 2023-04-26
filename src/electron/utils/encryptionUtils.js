@@ -56,7 +56,6 @@ const decryptPrivateKeys = (privateKeysJSON, privKeysPassword) => {
 }
 
 module.exports = { 
-    genKey,
     encrypt, 
     decrypt,
     encryptPrivateKeys,
