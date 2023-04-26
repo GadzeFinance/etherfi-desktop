@@ -24,14 +24,15 @@ const MAX_KEYS = 7000
 const GenerateSignedExitMessageWidget: React.FC = () => {
     const [validatorKeyFilePath, setValidatorKeyFilePath] = useState<string>("")
     const [validatorKeyPassword, setValidatorKeyPassword] = useState<string>("")
-    const [savePath, setSavePath] = useState<string>("")
     const [validatorIndex, setValidatorIndex] = useState<string>("")
+    const [savePath, setSavePath] = useState<string>("")
 
-    const selectSavePath = () => {
-        window.fileSystemApi.receiveSelectedFolderPath((event: Electron.IpcMainEvent, path: string) => {
-            setSavePath(path)
+    const requestSignedExitMessage = () => {
+        window.exitMessageApi.receiveSignedExitMessageConfirmation((event: Electron.IpcMainEvent, arg: string) => {
+
         })
-        window.fileSystemApi.reqSelectFolderPath();
+        const epoch = 171366
+        window.exitMessageApi.reqGenSignedExitMessage(validatorKeyFilePath, validatorKeyPassword, validatorIndex, epoch, savePath)
     }
 
     return (
@@ -55,8 +56,8 @@ const GenerateSignedExitMessageWidget: React.FC = () => {
                                 <Text mb="5px" fontSize='14px' as='b' color="white">Validator Key</Text>
                                 <SelectFile
                                     fileName="EncryptedValidatorKeys"
-                                    reqFileValidaton={window.validateFilesApi.validateEncryptedValidatorKeysJson}
-                                    receiveValidatonResults={window.validateFilesApi.receiveEncryptedValidatorKeysValidationResults}
+                                    reqFileValidaton={window.validateFilesApi.validateKeystoreJson}
+                                    receiveValidatonResults={window.validateFilesApi.receiveKeystoreValidationResults}
                                     setFilePath={setValidatorKeyFilePath}
                                     filePath={validatorKeyFilePath} />
                             </Box>
@@ -88,6 +89,7 @@ const GenerateSignedExitMessageWidget: React.FC = () => {
                             <HStack spacing='10px' mb="5px">
                                 <SelectSavePathButton savePath={savePath} setSavePath={setSavePath}></SelectSavePathButton>
                                 <Button variant="white-button"
+                                    onClick={requestSignedExitMessage}
                                     _disabled={{ bg: "grey.dark", _hover: { bg: "grey.dark" } }}>
                                     Decrypt Validator Keys
                                 </Button>

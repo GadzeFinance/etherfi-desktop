@@ -15,7 +15,8 @@
     "buildcliwin": "src/scripts/bundle_proxy_win.bat",
     "prod": "cross-env NODE_ENV=production electron ./build/electron/main.js",
     "pack": "electron-builder --dir",
-    "dist": "electron-builder"
+    "dist": "electron-builder",
+    "cleanDist": "rm -rf dist build"
   },
   "build": {
     "productName": "etherfi-desktop",

@@ -38,6 +38,16 @@ contextBridge.exposeInMainWorld("encryptionApi", {
     },
 });
 
+contextBridge.exposeInMainWorld("exitMessageApi", {
+    // Function used in Node Operator Tab to generate public keys that will be registerd and private keys for decrypting
+    reqGenSignedExitMessage: function(keystorePath, keystorePassword, validatorIndex, epoch, saveFolder){
+        ipcRenderer.send("req-signed-exit-message", [keystorePath, keystorePassword, validatorIndex, epoch, saveFolder]);
+    },
+    receiveSignedExitMessageConfirmation: function(func){
+        ipcRenderer.once("receive-signed-exit-message-confirmation", (event, ...args) => func(event, ...args));
+    },
+});
+
 contextBridge.exposeInMainWorld("fileSystemApi", {
     // Function to select a Folder path 
     reqSelectFolderPath: function(){
@@ -87,6 +97,13 @@ contextBridge.exposeInMainWorld("validateFilesApi", {
     },
     receiveNodeOperatorPrivateKeystoreValidationResults: function(func){
         ipcRenderer.once("receive-validate-NodeOperatorPrivateKeystore-results", (event, ...args) => func(event, ...args));       
+    },
+    // Validate Validator KeyStore File
+    validateKeystoreJson: function(pathToFile){
+        ipcRenderer.send("req-validate-file", [pathToFile, 'ValidatorKeystore']);
+    },
+    receiveKeystoreValidationResults: function(func){
+        ipcRenderer.once("receive-validate-ValidatorKeystore-results", (event, ...args) => func(event, ...args));       
     },
 });
 

@@ -11,6 +11,7 @@ declare global {
     databaseApi: any;
     fileSystemApi: any;
     utilsApi: any
+    exitMessageApi: any
   }
 }
 

@@ -9,9 +9,20 @@ import os
 import argparse
 import json
 import sys
+import time
 from staking_deposit.key_handling.key_derivation.mnemonic import (
     get_mnemonic,
     reconstruct_mnemonic
+)
+
+from typing import Any, Dict
+from py_ecc.bls import G2ProofOfPossession as bls
+from staking_deposit.exceptions import ValidationError
+from staking_deposit.key_handling.keystore import Keystore
+from staking_deposit.utils.ssz import SignedVoluntaryExit, VoluntaryExit, compute_signing_root, compute_voluntary_exit_domain
+from staking_deposit.utils.intl import (
+    closest_match,
+    load_text,
 )
 
 from eth_utils import is_hex_address, to_normalized_address
@@ -128,6 +139,66 @@ def parse_validate_mnemonic(args):
     """
     validate_mnemonic(args.mnemonic, args.wordlist)
 
+    """Generate Exit Message.
+
+    Keyword arguments:
+    args -- contains the CLI arguments pass to the application, it should have those properties:
+            - chain: The chain for the exit message
+            - keystore_path: The path to the Validator Keystore file
+            - keystore_password: The password that decrypts the keystore file
+            - validator_index: The index of the validator relating to the keystore
+            - epoch: the epoch to exit the validator 
+    """
+def generate_exit_message(args):
+    
+    saved_keystore = Keystore.from_file(args.keystore_path)
+    
+    try:
+        secret_bytes = saved_keystore.decrypt(args.keystore_password)
+    except Exception:
+        raise ValidationError(load_text(['arg_generate_exit_transaction_keystore_password', 'mismatch']))
+    
+    signing_key = int.from_bytes(secret_bytes, 'big')
+
+    message = VoluntaryExit(
+        epoch=args.epoch,
+        validator_index=args.validator_index
+    )
+
+    chain_settings = get_chain_setting(args.chain)
+    domain = compute_voluntary_exit_domain(
+        fork_version=chain_settings.CURRENT_FORK_VERSION,
+        genesis_validators_root=chain_settings.GENESIS_VALIDATORS_ROOT
+    )
+
+    signing_root = compute_signing_root(message, domain)
+    signature = bls.Sign(signing_key, signing_root)
+
+    signed_exit = SignedVoluntaryExit(
+        message=message,
+        signature=signature,
+    )
+
+    # Safe exit message to folder
+    folder = args.save_folder
+    filefolder = os.path.join(folder, 'signed_exit_transaction-%i.json' % time.time())
+
+    signed_exit_json: Dict[str, Any] = {}
+    message = {
+        'epoch': str(signed_exit.message.epoch),
+        'validator_index': str(signed_exit.message.validator_index),
+    }
+    signed_exit_json.update({'message': message})
+    signed_exit_json.update({'signature': '0x' + signed_exit.signature.hex()})
+
+    with open(filefolder, 'w') as f:
+        json.dump(signed_exit_json, f)
+    if os.name == 'posix':
+        os.chmod(filefolder, int('440', 8))  # Read for owner & group
+        
+    return
+
+
 def main():
     """The application starting point.
     """
@@ -155,6 +226,15 @@ def main():
     validate_parser.add_argument("wordlist", help="Path to word list directory", type=str)
     validate_parser.add_argument("mnemonic", help="Mnemonic", type=str)
     validate_parser.set_defaults(func=parse_validate_mnemonic)
+    
+    generate_exit_message_parser = subparsers.add_parser("generate_exit_transaction")
+    generate_exit_message_parser.add_argument("chain", help="chain", type=str)
+    generate_exit_message_parser.add_argument("keystore_path", help="Path to Keystore", type=str)
+    generate_exit_message_parser.add_argument("keystore_password", help="Keystore password", type=str)
+    generate_exit_message_parser.add_argument("validator_index", help="Index of the validator", type=int)
+    generate_exit_message_parser.add_argument("epoch", help="Epoch to Exit at", type=int)
+    generate_exit_message_parser.add_argument("save_folder", help="Path to save exit message to", type=str)
+    generate_exit_message_parser.set_defaults(func=generate_exit_message)
 
     args = main_parser.parse_args()
     if not args or 'func' not in args:

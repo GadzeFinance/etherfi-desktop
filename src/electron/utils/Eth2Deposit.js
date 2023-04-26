@@ -64,6 +64,7 @@ const BUNDLED_DIST_WORD_LIST_PATH = path.join(process.resourcesPath, "..",
 const CREATE_MNEMONIC_SUBCOMMAND = "create_mnemonic";
 const GENERATE_KEYS_SUBCOMMAND = "generate_keys";
 const VALIDATE_MNEMONIC_SUBCOMMAND = "validate_mnemonic";
+const GENERATE_SIGNED_EXIT_TRANSACTION = "generate_exit_transaction";
 
 const PYTHON_EXE = (process.platform == "win32" ? "python" : "python3");
 const PATH_DELIM = (process.platform == "win32" ? ";" : ":");
@@ -251,8 +252,48 @@ const validateMnemonic = async (
   await execFileProm(executable, args, {env: env});
 }
 
+const generateSignedExitMessage = async (
+  chain, // string,
+  keystorePath, // string
+  keystorePassword, // string
+  validatorIndex, // number
+  epoch, // number
+  saveFolder // string
+) => {
+  let executable = "";
+  let args = [];
+  let env = process.env;
+
+  if (await doesFileExist(BUNDLED_SFE_PATH)) {
+    executable = BUNDLED_SFE_PATH;
+    args = [GENERATE_SIGNED_EXIT_TRANSACTION, chain, 
+            keystorePath, keystorePassword, validatorIndex, epoch, saveFolder];
+
+  } else if (await doesFileExist(SFE_PATH)) {
+    executable = SFE_PATH;
+    args = [GENERATE_SIGNED_EXIT_TRANSACTION, chain, 
+            keystorePath, keystorePassword, validatorIndex, epoch, saveFolder];
+  } else {
+    if(!await requireDepositPackages()) {
+      loggers.error("'ETH2Deposit: generateSignedExitMessage' Failed to generate mnemonic, don't have the required packages.")
+      throw new Error("Failed to generateSignedExitMessage, don't have the required packages.");
+    }
+    env.PYTHONPATH = await getPythonPath();
+
+    executable = PYTHON_EXE;
+    args = [ETH2DEPOSIT_PROXY_PATH, GENERATE_SIGNED_EXIT_TRANSACTION, chain, 
+            keystorePath, keystorePassword, validatorIndex, epoch, saveFolder];
+  }
+
+  const { stdout, stderr } = await execFileProm(executable, args, {env: env});
+
+  const output = stdout.toString();
+  console.log(output);
+}
+
 module.exports = { 
   createMnemonic,
   generateKeys,
-  validateMnemonic
+  validateMnemonic,
+  generateSignedExitMessage
 };

@@ -20,7 +20,8 @@ const {
 } = require('./listeners');
 
 const {validateJsonFile} = require('./utils/validateFile')
-const { standardResultCodes, decryptResultCodes } = require('./constants')
+const { standardResultCodes, decryptResultCodes, network } = require('./constants')
+const { generateSignedExitMessage } = require('./utils/Eth2Deposit')
 
 
 function createWindow() {
@@ -136,6 +137,22 @@ ipcMain.on("req-decrypt-val-keys",  async (event, args) => {
     }
 });
 
+
+/* ------------------------------------------------------------- */
+/* ------------ Signed Exit Message Generation ----------------- */
+/* ------------------------------------------------------------- */
+ipcMain.on("req-signed-exit-message", async (event, args) => {
+    // Get Arguments
+    const [keystorePath, keystorePassword, validatorIndex, epoch, saveFolder] = args
+    const chain = network
+    try {
+        await generateSignedExitMessage(chain, keystorePath, keystorePassword, validatorIndex, epoch, saveFolder)
+        event.sender.send("receive-signed-exit-message-confirmation", true)
+    } catch (error) {
+        logger.error("Error Generating Signed Exit Message:", error)
+        event.sender.send("receive-signed-exit-message-confirmation", false)
+    }
+})
 
 /* ------------------------------------------------------------- */
 /* ----------------- Validating Files Schemas ------------------ */
