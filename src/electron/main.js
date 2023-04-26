@@ -20,7 +20,8 @@ const {
 } = require('./listeners');
 
 const {validateJsonFile} = require('./utils/validateFile')
-const { standardResultCodes, decryptResultCodes } = require('./constants')
+const { standardResultCodes, decryptResultCodes, network } = require('./constants')
+const { generateSignedExitMessage } = require('./utils/Eth2Deposit')
 
 
 function createWindow() {
@@ -93,6 +94,7 @@ app.on("window-all-closed", function () {
 /* ------------------------------------------------------------- */
 /* --------------- Encryption Flow API Handlers ---------------- */
 /* ------------------------------------------------------------- */
+// Returns (result, pubkeyFilePath| '', privKeyFilePath | '', errorMessag e| '') to frontend
 ipcMain.on("req-gen-node-operator-keys", async (event, args) => {
     const [numKeys, saveFolder, privKeysPassword] = args
     try {
@@ -104,6 +106,7 @@ ipcMain.on("req-gen-node-operator-keys", async (event, args) => {
     }
 });
 
+// Returns (result, mnemonic | '', errorMessage | '') to frontend
 ipcMain.on("req-new-mnemonic", async (event, args) => {
     const language = args[0]
     try {
@@ -115,6 +118,7 @@ ipcMain.on("req-new-mnemonic", async (event, args) => {
     }
 });
 
+// Return (result, path_to_saved_folder | '', errorMessage | '') to frontend
 ipcMain.on("req-gen-val-keys-and-encrypt",  async (event, args) => {
     var [mnemonic, password, folder, stakeInfoPath] = args
     try {
@@ -126,16 +130,35 @@ ipcMain.on("req-gen-val-keys-and-encrypt",  async (event, args) => {
     }
 });
 
+// Return (result, path_to_saved_folder | '', errorMessage| '') to frontend
 ipcMain.on("req-decrypt-val-keys",  async (event, args) => {
     try {
         const saveFolder = await decryptValidatorKeys(event, args)
         event.sender.send("receive-decrypt-val-keys-report", decryptResultCodes.SUCCESS, saveFolder, '')
     } catch (error) {
         logger.error("Error Decrypting Validator Keys:", error)
-        event.sender.send("receive-decrypt-val-keys-result", decryptResultCodes.UNKNOWN_ERROR, error.message)
+        event.sender.send("receive-decrypt-val-keys-result", decryptResultCodes.UNKNOWN_ERROR, '', error.message)
     }
 });
 
+
+/* ------------------------------------------------------------- */
+/* ------------ Signed Exit Message Generation ----------------- */
+/* ------------------------------------------------------------- */
+// Return (result, exitMessageFilePath | '', errorMessage| '') to frontend
+ipcMain.on("req-signed-exit-message", async (event, args) => {
+    // Get Arguments
+    const [keystorePath, keystorePassword, validatorIndex, epoch, saveFolder] = args
+    const chain = network
+    try {
+        const exitMessageFilePath = await generateSignedExitMessage(chain, keystorePath, keystorePassword, validatorIndex, epoch, saveFolder)
+        console.log(exitMessageFilePath)
+        event.sender.send("receive-signed-exit-message-confirmation", standardResultCodes.SUCCESS, exitMessageFilePath , '')
+    } catch (error) {
+        logger.error("Error Generating Signed Exit Message:", error)
+        event.sender.send("receive-signed-exit-message-confirmation", standardResultCodes.ERROR, '' , error.message)
+    }
+})
 
 /* ------------------------------------------------------------- */
 /* ----------------- Validating Files Schemas ------------------ */

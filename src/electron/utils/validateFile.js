@@ -28,7 +28,40 @@ const SCHEMAS = {
       withdrawalSafeAddress: z.string().length(42),
       etherfiDesktopAppVersion: z.string().length(5),
     }).required().strict(),
-  )
+  ),
+
+  "ValidatorKeystore": z.object({
+     crypto: z.object({
+      kdf: z.object({
+        function: z.string(),
+        params: z.object({
+          dklen: z.number(),
+          n: z.number(),
+          r: z.number(),
+          p: z.number(),
+          salt: z.string(),
+        }),
+        message: z.string(),
+      }),
+      checksum: z.object({
+        function: z.string(),
+        params: z.object({}),
+        message: z.string(),
+      }),
+      cipher: z.object({
+        function: z.string(),
+        params: z.object({
+          iv: z.string(),
+        }),
+        message: z.string(),
+      })
+    }),
+    description: z.string(),
+    pubkey: z.string(),
+    path: z.string(),
+    uuid: z.string(),
+    version: z.number(),
+   }).required()
 }
 
 function validateJsonFile(path, schema) {

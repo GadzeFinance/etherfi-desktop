@@ -11,6 +11,7 @@ declare global {
     databaseApi: any;
     fileSystemApi: any;
     utilsApi: any
+    exitMessageApi: any
   }
 }
 
@@ -35,7 +36,9 @@ const App: React.FC = () => {
   }
   const nodeOperatorOptions = [0, 1]
 
-  const [selectedOption, setSelectedOption] = useState(0);
+  const [selectedNodeOperatorOperation, setNodeOperatorOperation] = useState(0);
+  const [stakerOperation, setStakerOperation] = useState(0);
+
   return (
     <div>
       <Tabs
@@ -46,14 +49,16 @@ const App: React.FC = () => {
         flexDirection={'column'}
         height="100vh"
       >
-        <NavBar setNodeOperatorOption={setSelectedOption} selectedOption={selectedOption} />
+        <NavBar setNodeOperatorOperation={setNodeOperatorOperation} selectedNodeOperatorOperation={selectedNodeOperatorOperation}
+          setStakerOperation={setStakerOperation} selectedStakerOperation={stakerOperation}
+        />
         <Center flex="auto">
           <TabPanels>
             <TabPanel>
-              <StakerTab tabIndex={tabIndex} />
+              <StakerTab tabIndex={tabIndex} selectedOption={stakerOperation} />
             </TabPanel>
             <TabPanel>
-              <NodeOperatorTab tabIndex={tabIndex} selectedOption={selectedOption} />
+              <NodeOperatorTab tabIndex={tabIndex} selectedOption={selectedNodeOperatorOperation} />
             </TabPanel>
           </TabPanels>
         </Center>

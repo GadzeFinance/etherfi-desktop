@@ -12,25 +12,34 @@ import { COLORS } from '../../styleClasses/constants'
 import { ChevronDownIcon, ChevronUpIcon } from '@chakra-ui/icons'
 
 interface NavBarProps {
-    setNodeOperatorOption: (option: number) => void,
-    selectedOption: number
+    setNodeOperatorOperation: (operation: number) => void,
+    selectedNodeOperatorOperation: number
+    setStakerOperation: (operation: number) => void,
+    selectedStakerOperation: number
 }
 
 
-const dropDownOptions = {
+const NodeOperatorDropDownOptions = {
     "Generate Keys": 0,
     "Decrypt Keys": 1
 }
 
-const NavBar: React.FC<NavBarProps> = ({ setNodeOperatorOption, selectedOption }: NavBarProps) => {
+const StakerDropDownOptions = {
+    "Generate & Encrypt Validator Keys": 0,
+    "Generate Exit Request": 1
+}
 
-    const NodeOperatorTab = React.forwardRef((props, ref: any) => {
+const NavBar: React.FC<NavBarProps> = ({ setNodeOperatorOperation, selectedNodeOperatorOperation, setStakerOperation, selectedStakerOperation }: NavBarProps) => {
+
+    // TODO: MAKE THIS INTO A NICE COMPONENT!!! 
+    const NodeOperatorTabDropDown = React.forwardRef((props, ref: any) => {
         const tabProps = useTab({ ...props, ref })
 
         const handleOptionSelect = (option: number) => {
-            setNodeOperatorOption(option);
+            setNodeOperatorOperation(option);
         };
 
+        // TODO: MAKE THIS have more options that are dynamic if you add an element to Node OperatorDrowDownOptions 
         return (
             <Menu  >
                 {({ isOpen }) => (
@@ -39,13 +48,43 @@ const NavBar: React.FC<NavBarProps> = ({ setNodeOperatorOption, selectedOption }
                             Node Operator
                         </MenuButton>
                         <MenuList sx={dropDownMenuStyle}>
-                            <MenuItem sx={dropDownItemStyle} color={selectedOption === 0 ? "white" : COLORS.textSecondary}
-                                onClick={() => handleOptionSelect(dropDownOptions["Generate Keys"])}>
+                            <MenuItem sx={dropDownItemStyle} color={selectedNodeOperatorOperation === 0 ? "white" : COLORS.textSecondary}
+                                onClick={() => handleOptionSelect(NodeOperatorDropDownOptions["Generate Keys"])}>
                                 Generate keys
                             </MenuItem>
-                            <MenuItem sx={dropDownItemStyle} color={selectedOption === 1 ? "white" : COLORS.textSecondary}
-                                onClick={() => handleOptionSelect(dropDownOptions["Decrypt Keys"])}>
+                            <MenuItem sx={dropDownItemStyle} color={selectedNodeOperatorOperation === 1 ? "white" : COLORS.textSecondary}
+                                onClick={() => handleOptionSelect(NodeOperatorDropDownOptions["Decrypt Keys"])}>
                                 Decrypt
+                            </MenuItem>
+                        </MenuList>
+                    </>
+                )
+                }
+            </Menu >
+        )
+    })
+
+    const StakerTabDropDown = React.forwardRef((props, ref: any) => {
+        const tabProps = useTab({ ...props, ref })
+
+        const handleStakerOptionSelect = (option: number) => {
+            setStakerOperation(option);
+        };
+        return (
+            <Menu  >
+                {({ isOpen }) => (
+                    <>
+                        <MenuButton fontSize="18px" as={Button} width="10px" sx={tabButtonStyle} {...tabProps} rightIcon={isOpen ? <ChevronUpIcon /> : <ChevronDownIcon />}>
+                            Staker
+                        </MenuButton>
+                        <MenuList sx={dropDownMenuStyle}>
+                            <MenuItem sx={dropDownItemStyle} color={selectedStakerOperation === 0 ? "white" : COLORS.textSecondary}
+                                onClick={() => handleStakerOptionSelect(StakerDropDownOptions["Generate & Encrypt Validator Keys"])}>
+                                Generate & Encrypt Validator Keys
+                            </MenuItem>
+                            <MenuItem sx={dropDownItemStyle} color={selectedStakerOperation === 1 ? "white" : COLORS.textSecondary}
+                                onClick={() => handleStakerOptionSelect(StakerDropDownOptions["Generate Exit Request"])}>
+                                Generate Exit Request
                             </MenuItem>
                         </MenuList>
                     </>
@@ -65,8 +104,8 @@ const NavBar: React.FC<NavBarProps> = ({ setNodeOperatorOption, selectedOption }
                 </GridItem>
                 <GridItem>
                     <TabList color='white' gap={4} justifyContent="flex-end" mr="30px">
-                        <Tab sx={tabButtonStyle}>Staker</Tab>
-                        <NodeOperatorTab />
+                        <StakerTabDropDown />
+                        <NodeOperatorTabDropDown />
                     </TabList>
                 </GridItem>
             </Grid>

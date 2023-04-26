@@ -2,16 +2,6 @@ const crypto = require('crypto');
 const BN = require('bn.js')
 const EC = require('elliptic').ec
 
-
-const genKey = () => {
-    const curve = new EC('secp256k1')
-    while (true) {
-        const x = crypto.randomBytes(Math.ceil(curve.n.bitLength() / 8))
-        const privateKey = new BN(x)
-        if (!privateKey.isZero() && privateKey.cmp(curve.n) < 0) return privateKey
-    }
-}
-
 // Encrypt any text
 function encrypt(text, ENCRYPTION_KEY) {
     const IV_LENGTH = 16; // For AES, this is always 16
@@ -66,7 +56,6 @@ const decryptPrivateKeys = (privateKeysJSON, privKeysPassword) => {
 }
 
 module.exports = { 
-    genKey,
     encrypt, 
     decrypt,
     encryptPrivateKeys,

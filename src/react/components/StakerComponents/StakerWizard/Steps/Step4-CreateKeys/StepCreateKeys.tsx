@@ -36,7 +36,6 @@ const StepCreateKeys: React.FC<StepCreateKeysProps> = (props) => {
     window.encryptionApi.receiveKeyGenConfirmation(
       (event: Electron.IpcMainEvent, result: number, savePath: string, errorMessage: string) => {
         if (result === 0) {
-          console.log("KEY GEN COMPLETE!")
           console.log("Key Gen Complete. Files saved too: " + savePath)
           props.setFilesCreatedPath(savePath)
           props.setKeysGenerated(true)
@@ -127,9 +126,8 @@ const StepCreateKeys: React.FC<StepCreateKeysProps> = (props) => {
       }
       {generatingKeys && <EtherFiSpinner loading={generatingKeys} text="Generating & Encrypting Keys..." />}
       {props.keysGenerated && (
-        <Flex
+        <Box
           padding={'24px'}
-          direction={'column'}
           gap="16px"
           bgColor="purple.dark"
           height="full"
@@ -158,7 +156,7 @@ const StepCreateKeys: React.FC<StepCreateKeysProps> = (props) => {
             </Center>
           </VStack>
 
-        </Flex>
+        </Box>
       )
       }
 

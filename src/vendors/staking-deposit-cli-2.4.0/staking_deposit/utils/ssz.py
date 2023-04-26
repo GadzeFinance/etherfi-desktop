@@ -8,11 +8,14 @@ from ssz import (
     bytes96
 )
 from staking_deposit.utils.constants import (
+    DOMAIN_BLS_TO_EXECUTION_CHANGE,
     DOMAIN_DEPOSIT,
+    DOMAIN_VOLUNTARY_EXIT,
     ZERO_BYTES32,
 )
 
 bytes8 = ByteVector(8)
+bytes20 = ByteVector(20)
 
 
 # Crypto Domain SSZ
@@ -31,6 +34,18 @@ class ForkData(Serializable):
     ]
 
 
+def compute_fork_data_root(current_version: bytes, genesis_validators_root: bytes) -> bytes:
+    """
+    Return the appropriate ForkData root for a given deposit version.
+    """
+    if len(current_version) != 4:
+        raise ValueError(f"Fork version should be in 4 bytes. Got {len(current_version)}.")
+    return ForkData(
+        current_version=current_version,
+        genesis_validators_root=genesis_validators_root,
+    ).hash_tree_root
+
+
 def compute_deposit_domain(fork_version: bytes) -> bytes:
     """
     Deposit-only `compute_domain`
@@ -41,18 +56,33 @@ def compute_deposit_domain(fork_version: bytes) -> bytes:
     fork_data_root = compute_deposit_fork_data_root(fork_version)
     return domain_type + fork_data_root[:28]
 
+def compute_voluntary_exit_domain(fork_version: bytes, genesis_validators_root: bytes) -> bytes:
+    """
+    VOLUNTARY_EXIT-only `compute_domain`
+    """
+    if len(fork_version) != 4:
+        raise ValueError(f"Fork version should be in 4 bytes. Got {len(fork_version)}.")
+    domain_type = DOMAIN_VOLUNTARY_EXIT
+    fork_data_root = compute_fork_data_root(fork_version, genesis_validators_root)
+    return domain_type + fork_data_root[:28]
+
+def compute_bls_to_execution_change_domain(fork_version: bytes, genesis_validators_root: bytes) -> bytes:
+    """
+    BLS_TO_EXECUTION_CHANGE-only `compute_domain`
+    """
+    if len(fork_version) != 4:
+        raise ValueError(f"Fork version should be in 4 bytes. Got {len(fork_version)}.")
+    domain_type = DOMAIN_BLS_TO_EXECUTION_CHANGE
+    fork_data_root = compute_fork_data_root(fork_version, genesis_validators_root)
+    return domain_type + fork_data_root[:28]
+
 
 def compute_deposit_fork_data_root(current_version: bytes) -> bytes:
     """
     Return the appropriate ForkData root for a given deposit version.
     """
     genesis_validators_root = ZERO_BYTES32  # For deposit, it's fixed value
-    if len(current_version) != 4:
-        raise ValueError(f"Fork version should be in 4 bytes. Got {len(current_version)}.")
-    return ForkData(
-        current_version=current_version,
-        genesis_validators_root=genesis_validators_root,
-    ).hash_tree_root
+    return compute_fork_data_root(current_version, genesis_validators_root)
 
 
 def compute_signing_root(ssz_object: Serializable, domain: bytes) -> bytes:
@@ -90,4 +120,44 @@ class DepositData(Serializable):
         ('withdrawal_credentials', bytes32),
         ('amount', uint64),
         ('signature', bytes96)
+    ]
+
+
+class BLSToExecutionChange(Serializable):
+    """
+    Ref: https://github.com/ethereum/consensus-specs/blob/dev/specs/capella/beacon-chain.md#blstoexecutionchange
+    """
+    fields = [
+        ('validator_index', uint64),
+        ('from_bls_pubkey', bytes48),
+        ('to_execution_address', bytes20),
+    ]
+
+
+class SignedBLSToExecutionChange(Serializable):
+    """
+    Ref: https://github.com/ethereum/consensus-specs/blob/dev/specs/capella/beacon-chain.md#signedblstoexecutionchange
+    """
+    fields = [
+        ('message', BLSToExecutionChange),
+        ('signature', bytes96),
+    ]
+
+class VoluntaryExit(Serializable):
+    """
+    Ref: https://github.com/ethereum/consensus-specs/blob/dev/specs/phase0/beacon-chain.md#voluntaryexit
+    """
+    fields = [
+        # TODO: Figure out correct type for epoch
+        ('epoch', uint64),
+        ('validator_index', uint64)
+    ]
+
+class SignedVoluntaryExit(Serializable):
+    """
+    Ref: SignedVoluntaryExit
+    """
+    fields = [
+        ('message', VoluntaryExit),
+        ('signature', bytes96),
     ]

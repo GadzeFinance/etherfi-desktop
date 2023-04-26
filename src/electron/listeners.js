@@ -1,12 +1,11 @@
 const fs = require('fs');
-const crypto = require('crypto');
 const EC = require('elliptic').ec
 const BN = require('bn.js');
 const path = require('path')
 const { encrypt, decrypt, encryptPrivateKeys, decryptPrivateKeys } = require('./utils/encryptionUtils');
 const { createMnemonic, generateKeys } = require('./utils/Eth2Deposit.js')
 const { selectFolder, selectJsonFile } = require('./utils/saveFile.js')
-const { decryptResultCodes, desktopAppVersion } = require('./constants')
+const { decryptResultCodes, desktopAppVersion, network } = require('./constants')
 const logger = require('./utils/logger')
 
 /**
@@ -110,7 +109,7 @@ const genValidatorKeysAndEncrypt = async (mnemonic, password, folder, stakeInfoP
     folder = path.join(folder, `etherfi_keys-${timeStamp}`)
     const nodeOperatorPublicKeys = []
     const validatorIDs = []
-    const network = 'goerli' // TODO: change to 'mainnet'
+    const chain = network// TODO: change to 'mainnet' in constants file
 
     for (var i = 0; i < stakeInfoLength; i++) {
         const eth1_withdrawal_address = stakeInfo[i].withdrawalSafeAddress; 
@@ -118,7 +117,7 @@ const genValidatorKeysAndEncrypt = async (mnemonic, password, folder, stakeInfoP
         validatorIDs.push(stakeInfo[i].validatorID)
         const index = i
         try {
-            await generateKeys(mnemonic, index, 1, network, password, eth1_withdrawal_address, folder)
+            await generateKeys(mnemonic, index, 1, chain, password, eth1_withdrawal_address, folder)
         } catch (err) {
             logger.error("Error in 'genValidatorKeysAndEncrypt' when generating keys", err)
             throw new Error("Couldn't generate validator keys")
@@ -366,14 +365,14 @@ const listenSelectJsonFile = async (event, arg) => {
 // Test Function
 const testWholeEncryptDecryptFlow = (event, arg) => {
     const curve = new EC('secp256k1')
-    // Step 1: BID
+    // Step 1: BIDDER -> Node Operator Key Gen Tab
     const nodeOperatorKeyPair = curve.genKeyPair()
     const nodeOperatorPrivKey = nodeOperatorKeyPair.getPrivate()
     
     const nodeOperatorPubKeyPoint = nodeOperatorKeyPair.getPublic()
     const nodeOperatorPubKeyHex = nodeOperatorPubKeyPoint.encode('hex') // send this out!
 
-    // Step 2: Encrypt validator keys 
+    // Step 2: Encrypt validator keys - Staker -> Validator Key Gen Tab
     const stakerKeyPair = curve.genKeyPair()
     const stakerPrivKey = stakerKeyPair.getPrivate()
     const stakerPubKeyPoint = stakerKeyPair.getPublic()
@@ -385,7 +384,7 @@ const testWholeEncryptDecryptFlow = (event, arg) => {
     const validatorKey = JSON.stringify(valKey);
     const encryptedMsg = encrypt(validatorKey, stakerSharedSecret.toArrayLike(Buffer, 'be', 32))
 
-    // Step 3: Decrypt the message
+    // Step 3: Decrypt the message - Node Operator -> Decrypt Tab
     const receivedStakerPubKeyPoint = curve.keyFromPublic(stakerPubKeyHex, 'hex').getPublic()
     const nodeOperatorSharedSecret = receivedStakerPubKeyPoint.mul(nodeOperatorPrivKey).getX()
     const decryptedMsg = decrypt(encryptedMsg, nodeOperatorSharedSecret.toArrayLike(Buffer, 'be', 32))
