@@ -286,9 +286,9 @@ const generateSignedExitMessage = async (
   }
 
   const { stdout, stderr } = await execFileProm(executable, args, {env: env});
-
-  const output = stdout.toString();
-  console.log(output);
+  const exitMessageGenerationResultString = stdout.toString();
+  const resultJson = JSON.parse(exitMessageGenerationResultString);
+  return resultJson.filefolder;
 }
 
 module.exports = { 

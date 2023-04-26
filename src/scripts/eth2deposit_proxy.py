@@ -181,7 +181,7 @@ def generate_exit_message(args):
 
     # Safe exit message to folder
     folder = args.save_folder
-    filefolder = os.path.join(folder, 'signed_exit_transaction-%i.json' % time.time())
+    filefolder = os.path.join(folder, 'signedExitMessage-%i.json' % time.time())
 
     signed_exit_json: Dict[str, Any] = {}
     message = {
@@ -195,9 +195,11 @@ def generate_exit_message(args):
         json.dump(signed_exit_json, f)
     if os.name == 'posix':
         os.chmod(filefolder, int('440', 8))  # Read for owner & group
-        
-    return
-
+    
+    # Print exit message to stdout to be retrieved from NodeJS code
+    print(json.dumps({
+        'filefolder': filefolder
+    }))
 
 def main():
     """The application starting point.

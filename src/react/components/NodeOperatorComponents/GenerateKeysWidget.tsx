@@ -56,6 +56,7 @@ const GenerateKeysWidget: React.FC = () => {
         setNumKeys(`${MAX_KEYS}`)
         setSavePath("")
         setKeysGenerated(false)
+        setKeysGenerating(false)
         setPubKeysFilePath("")
         setPrivKeysFilePath("")
         setPrivKeysPassword("")
@@ -103,7 +104,6 @@ const GenerateKeysWidget: React.FC = () => {
                                     <Text fontSize='11px' color={COLORS.textSecondary} maxW="400px" ml={2}>{savePath}</Text>
                                 </VStack>
                             }
-
                         </Box>
                         <Box>
                             <Center>
@@ -156,7 +156,6 @@ const GenerateKeysWidget: React.FC = () => {
                             </Box>
                         </VStack>
                     </Box>
-
                 )
             }
         </Center >
