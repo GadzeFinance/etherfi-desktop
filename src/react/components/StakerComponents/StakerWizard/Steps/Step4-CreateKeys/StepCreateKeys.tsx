@@ -98,6 +98,8 @@ const StepCreateKeys: React.FC<StepCreateKeysProps> = (props) => {
       padding={'24px'}
       direction={'column'}
       gap="5px"
+      height={'full'}
+      width={'full'}
       bgColor="purple.dark"
       borderRadius="lg"
     >
