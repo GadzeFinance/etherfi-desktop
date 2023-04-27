@@ -9,13 +9,13 @@ const { decryptResultCodes, desktopAppVersion } = require('./constants')
 const logger = require('./utils/logger')
 
 /**
- * Generates public and private key pairs and saves them in two separate JSON files.
+ * Generates public and private key pairs and saves them in two separate JSON files
+ * Encrypts the Private Key Json file with the password before saving it to a file
  * 
- * @param {Object} event - An event object that is used to send data to the front end.
- * @param {Array} arg - An array containing two elements: `numKeys` and `saveFolder`.
+ * @param {Number} numKeys - The number of Keys the user would like to generate
+ * @param {String} saveFolder - The path to the folder the keys should be saved too
  * 
- * @returns {undefined} Sends a message to the frontend with the path to where the files were saved
- * @returns {void} Sends a "receive-NO-keys-generated" event to the frontend process with paths to the generated files.
+ * @returns {Array<String>} - 2 element list containing the file paths to the public and private key files
  */
 const genNodeOperatorKeystores = async (numKeys, saveFolder, privKeysPassword) => {
     logger.info("genNodeOperatorKeystores: Start")
@@ -73,11 +73,10 @@ const genNodeOperatorKeystores = async (numKeys, saveFolder, privKeysPassword) =
 }
 
 /**
- * Generates a new mnemonic and sends it to the main process.
+ * Generates a new mnemonic using the eth staking CLI
  *
- * @param {Object} event - Electron's event object used for inter-process communication.
- * @param {Array} arg - Array containing language used to generate the mnemonic.
- * @returns {void} Sends a "receive-new-mnemonic" event to the frontend process with the generated mnemonic as argument.
+ * @param {string} language - The language to generate the mnemonic in
+ * @returns {string} - The 24 word mnemonic
  */
 const genMnemonic = async (language) => {
     logger.info("genMnemonic: Start")
@@ -87,17 +86,20 @@ const genMnemonic = async (language) => {
 }
 
 /**
- * Generates and encrypts the validator keys for a given stakeInfo.json file and mnemonic
+ * Generates validator keys and encrypts them using the bidderPublicKeys in given stakeInfo.json file and mnemonic
  *
- * @param {object} event - Event object
- * @param {Array} arg - An array that contains the following elements:
- *   arg[0]: {String} mnemonic - The mnemonic seed phrase
- *   arg[1]: {String} password - The password for encrypting the validator keys
- *   arg[2]: {String} folder - The folder where the generated files will be saved
- *   arg[3]: {String} stakeInfoPath - The path to the stakeInfo.json file
- *
- * @return {object} - Sends an event `receive-key-gen-confirmation` with a single argument, 
- *   an array containing the folder path where the generated keys are saved.
+ * @param {string} mnemonic - The 24 word mnmonic seed phrase
+ * @param {string} password - The password to encrypt the validator keystores with
+ * @param {string} folder - The folder to save the files that are generated too
+ * @param {string} stakeInfoPath - The path to the stakeinfo.json file
+ * @param {string} chain - The chain to generate the keys for
+ * 
+
+ * @return {string} - The path to the folder that was created. 
+ * 
+ * @NOTE -  This folder that is returned contains the validator Keystores & deposit data for each key that was generated. 
+ *          It also contains single stakeRequest.json file which contains the encrypted data.
+ *           The stakeRequest.json file is what the user should upload to the DAPP.
  */
 const genValidatorKeysAndEncrypt = async (mnemonic, password, folder, stakeInfoPath, chain) => {
     logger.info("genEncryptedKeys: Start")
@@ -184,6 +186,7 @@ const _getDepositDataAndKeystoresJSON = async (folderPath) => {
  * @param {string} folderPath - The path to the folder containing deposit data and validator keystore files.
  * @param {string} password - The password for the validator keystore.
  * @param {Array} nodeOperatorPubKeys - An array of node operator public keys.
+ * @param {Array} validatorIDs - The IDs of the validators. (These are etherfi IDs (set in etherfi smart contracts), NOT VALIDATOR INDEX).
  *
  * @returns {undefined} - Returns nothing, saves the encrypted data to a stake request file in the given folder path.
  */
@@ -250,9 +253,22 @@ const _encryptValidatorKeys = async (folderPath, password, nodeOperatorPubKeys, 
     logger.info("_encryptValidatorKeys: End")
 
 }
+
+/**
+ * Decrypts Validator Keys using the private keys file. 
+ * Saves the keystores and password -> keystore map in a folder named 'decrypted_validator_key-<timestamp>'
+ *
+ * @NOTE PARAMS ARE PASSED IN THROUGH 'arg'
+ * @param {string} encryptedValidatorKeysFilePath (arg[0]) - The path to the encrypted validator keys file. 
+ * @param {string} privateKeysFilePath (arg[1])  - The path to the private keys file.
+ * @param {string} privKeysPassword (arg[2])  - The password that decrypts the private keys file.
+ * @param {string} chosenFolder (arg[3])  - The path to save the decrypted validator keys too. 
+ *
+ * @returns {saveFolder} - The path to the folder that was created to save the decrypted validator keys and password -> keystore map json. 
+ */
 const decryptValidatorKeys = async (event, arg) => {
     logger.info("decryptValidatorKeys: Start")
-    const [encryptedValidatorKeysFilePath, privateKeysFilePath, privKeysPassword,chosenFolder] = arg
+    const [encryptedValidatorKeysFilePath, privateKeysFilePath, privKeysPassword, chosenFolder] = arg
     // This will work since the files have already been validated (validateFile.js)
     const encryptedValidatorKeysJson = JSON.parse(fs.readFileSync(encryptedValidatorKeysFilePath))
     const encrpytedPrivateKeysJson = JSON.parse(fs.readFileSync(privateKeysFilePath))
@@ -361,7 +377,7 @@ const listenSelectJsonFile = async (event, arg) => {
 }
 
 
-// Test Function
+// Test Function too see the whole encryption and decryption flow.
 const testWholeEncryptDecryptFlow = (event, arg) => {
     const curve = new EC('secp256k1')
     // Step 1: BIDDER -> Node Operator Key Gen Tab
