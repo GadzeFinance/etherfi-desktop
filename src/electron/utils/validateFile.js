@@ -12,7 +12,7 @@ const SCHEMAS = {
       nodeOperatorPublicKey: z.string().length(130),
       etherfiDesktopAppVersion: z.string().length(5),
     }).required().strict(),
-  ),
+  ).nonempty(),
 
   "NodeOperatorPrivateKeystore": z.object({
       iv: z.string().length(32),
@@ -28,7 +28,7 @@ const SCHEMAS = {
       withdrawalSafeAddress: z.string().length(42),
       etherfiDesktopAppVersion: z.string().length(5),
     }).required().strict(),
-  ),
+  ).nonempty(),
 
   "ValidatorKeystore": z.object({
      crypto: z.object({
