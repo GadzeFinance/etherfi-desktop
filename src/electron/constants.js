@@ -13,7 +13,6 @@ const decryptResultCodes = {
 
 module.exports = {
     desktopAppVersion: '1.0.0',
-    network: 'goerli', // TODO: change to mainnet when launching
     standardResultCodes,
     decryptResultCodes
 }

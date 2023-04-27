@@ -153,7 +153,7 @@ const DecryptValidatorKeysWidget: React.FC = () => {
                                     <HStack spacing='10px' mb="5px">
                                         <Button variant="white-button" onClick={selectSavePath}>{savePath ? "Change Path" : "Select Save Path"}</Button>
                                         <Button variant="white-button" isDisabled={!savePath || !encryptedValKeysFilePath || !privKeysFilePath || !isPrivKeysPasswordValid}
-                                            _disabled={{ bg: "grey.dark", _hover: { bg: "grey.dark" } }} onClick={decryptValidatorKeys}>
+                                            onClick={decryptValidatorKeys}>
                                             Decrypt Validator Keys
                                         </Button>
                                     </HStack>
