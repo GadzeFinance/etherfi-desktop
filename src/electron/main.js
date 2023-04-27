@@ -20,7 +20,7 @@ const {
 } = require('./listeners');
 
 const {validateJsonFile} = require('./utils/validateFile')
-const { standardResultCodes, decryptResultCodes, network } = require('./constants')
+const { standardResultCodes, decryptResultCodes } = require('./constants')
 const { generateSignedExitMessage } = require('./utils/Eth2Deposit')
 
 
@@ -120,9 +120,9 @@ ipcMain.on("req-new-mnemonic", async (event, args) => {
 
 // Return (result, path_to_saved_folder | '', errorMessage | '') to frontend
 ipcMain.on("req-gen-val-keys-and-encrypt",  async (event, args) => {
-    var [mnemonic, password, folder, stakeInfoPath] = args
+    var [mnemonic, password, folder, stakeInfoPath, chain] = args
     try {
-        const savePath = await genValidatorKeysAndEncrypt(mnemonic, password, folder, stakeInfoPath)
+        const savePath = await genValidatorKeysAndEncrypt(mnemonic, password, folder, stakeInfoPath, chain)
         event.sender.send("receive-key-gen-confirmation", standardResultCodes.SUCCESS, savePath , '')
     } catch (error) {
         logger.error("Error Generating Validator Keys and Encrypting:", error)
@@ -148,8 +148,7 @@ ipcMain.on("req-decrypt-val-keys",  async (event, args) => {
 // Return (result, exitMessageFilePath | '', errorMessage| '') to frontend
 ipcMain.on("req-signed-exit-message", async (event, args) => {
     // Get Arguments
-    const [keystorePath, keystorePassword, validatorIndex, epoch, saveFolder] = args
-    const chain = network
+    const [keystorePath, keystorePassword, validatorIndex, epoch, saveFolder, chain] = args
     try {
         const exitMessageFilePath = await generateSignedExitMessage(chain, keystorePath, keystorePassword, validatorIndex, epoch, saveFolder)
         console.log(exitMessageFilePath)

@@ -5,6 +5,7 @@ import { IconKey, IconCheckMark, IconSavedFile } from '../../../../Icons'
 import EtherFiSpinner from '../../../../EtherFiSpinner'
 import successBoxStyle from '../../../../../styleClasses/successBoxStyle'
 import { COLORS } from '../../../../../styleClasses/constants'
+import ChainSelectionDropdown from '../../../../ChainSelectionDropdown'
 
 
 interface StepCreateKeysProps {
@@ -24,6 +25,7 @@ interface StepCreateKeysProps {
 const StepCreateKeys: React.FC<StepCreateKeysProps> = (props) => {
 
   const [generatingKeys, setGeneratingKeys] = useState(false)
+  const [chain, setChain] = useState("")
 
   const selectSavePath = () => {
     window.fileSystemApi.receiveSelectedFolderPath((event: Electron.IpcMainEvent, path: string) => {
@@ -46,7 +48,7 @@ const StepCreateKeys: React.FC<StepCreateKeysProps> = (props) => {
         }
         setGeneratingKeys(false)
       })
-    window.encryptionApi.reqGenValidatorKeysAndEncrypt(props.mnemonic, props.password, props.savePath, props.stakeInfoPath);
+    window.encryptionApi.reqGenValidatorKeysAndEncrypt(props.mnemonic, props.password, props.savePath, props.stakeInfoPath, chain);
     setGeneratingKeys(true)
   }
 
@@ -86,7 +88,7 @@ const StepCreateKeys: React.FC<StepCreateKeysProps> = (props) => {
   }
 
   const nextProps = {
-    isDisabled: !props.savePath,
+    isDisabled: !props.savePath || !chain,
     onClick: generateEncryptedKeys,
     variant: "white-button",
   }
@@ -95,21 +97,19 @@ const StepCreateKeys: React.FC<StepCreateKeysProps> = (props) => {
     <Flex
       padding={'24px'}
       direction={'column'}
-      gap="16px"
+      gap="5px"
       bgColor="purple.dark"
-      height="full"
-      width={'full'}
       borderRadius="lg"
     >
       {!props.keysGenerated && !generatingKeys && (
         <>
           <Center>
-            <IconKey boxSize='100' />
+            <IconKey boxSize='12' />
           </Center>
-          <Text color={'white'} fontSize="2xl" fontWeight={'semibold'} align="center">
+          <Text color={'white'} fontSize="xl" fontWeight={'semibold'} align="center">
             Create Keys
           </Text>
-          <Text color="white" opacity={'0.7'} align="center">
+          <Text color="white" align="center">
             Choose a folder where we should save your keys
           </Text>
           <Center>
@@ -120,6 +120,12 @@ const StepCreateKeys: React.FC<StepCreateKeysProps> = (props) => {
           <Text color="white" opacity={'0.7'} align="center">
             Folder: {props.savePath}
           </Text>
+          <Text color="white" align="center">
+            Choose the chain you want to generate validator keys for
+          </Text>
+          <Center>
+            <ChainSelectionDropdown chain={chain} setChain={setChain} mb="10px" width="300px" />
+          </Center>
           <WizardNavigator nextProps={nextProps} backProps={backProps} nextDetails={nextDetails} backDetails={backDetails} />
         </>
       )

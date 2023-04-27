@@ -13,6 +13,7 @@ import PasswordInput from '../PasswordInput'
 import EtherFiSpinner from '../EtherFiSpinner';
 import SelectFile from '../SelectFile';
 import SelectSavePathButton from '../SelectSavePathButton';
+import ChainSelectionDropdown from '../ChainSelectionDropdown';
 
 
 const GenerateSignedExitMessageWidget: React.FC = () => {
@@ -22,6 +23,7 @@ const GenerateSignedExitMessageWidget: React.FC = () => {
     const [exitEpoch, setExitEpoch] = useState<string>("")
     const [savePath, setSavePath] = useState<string>("")
     const [exitMessageFilePath, setExitMessageFilePath] = useState<string>("")
+    const [chain, setChain] = useState<string>("")
 
     // UI State Variables
     const [messageGenerating, setMessageGenerating] = useState<boolean>(false)
@@ -59,7 +61,7 @@ const GenerateSignedExitMessageWidget: React.FC = () => {
             setMessageGenerating(false)
         })
         setMessageGenerating(true)
-        window.exitMessageApi.reqGenSignedExitMessage(validatorKeyFilePath, validatorKeyPassword, validatorIndex, exitEpoch, savePath)
+        window.exitMessageApi.reqGenSignedExitMessage(validatorKeyFilePath, validatorKeyPassword, validatorIndex, exitEpoch, savePath, chain)
 
     }
 
@@ -128,6 +130,10 @@ const GenerateSignedExitMessageWidget: React.FC = () => {
                                             </NumberInput>
                                         </InputGroup>
                                     </Box>
+                                    <Box>
+                                        <Text fontSize='14px' as='b' color="white">Chain</Text>
+                                        <ChainSelectionDropdown chain={chain} setChain={setChain} />
+                                    </Box>
 
                                     <Box>
                                         {savePath &&
@@ -147,10 +153,11 @@ const GenerateSignedExitMessageWidget: React.FC = () => {
                                 <Center>
                                     <HStack spacing='10px' mb="5px">
                                         <SelectSavePathButton savePath={savePath} setSavePath={setSavePath}></SelectSavePathButton>
-                                        <Button variant="white-button"
+                                        <Button
+                                            variant="white-button"
+                                            isDisabled={!validatorKeyFilePath || !validatorKeyPassword || !validatorIndex || !exitEpoch || !savePath || !chain}
                                             onClick={requestSignedExitMessage}
-                                            isDisabled={!validatorKeyFilePath || !validatorKeyPassword || !validatorIndex || !exitEpoch || !savePath}
-                                            _disabled={{ bg: "grey.dark", _hover: { bg: "grey.dark" } }}>
+                                        >
                                             Generate Exit Message
                                         </Button>
                                     </HStack>

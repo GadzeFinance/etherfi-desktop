@@ -5,7 +5,7 @@ const path = require('path')
 const { encrypt, decrypt, encryptPrivateKeys, decryptPrivateKeys } = require('./utils/encryptionUtils');
 const { createMnemonic, generateKeys } = require('./utils/Eth2Deposit.js')
 const { selectFolder, selectJsonFile } = require('./utils/saveFile.js')
-const { decryptResultCodes, desktopAppVersion, network } = require('./constants')
+const { decryptResultCodes, desktopAppVersion } = require('./constants')
 const logger = require('./utils/logger')
 
 /**
@@ -99,7 +99,7 @@ const genMnemonic = async (language) => {
  * @return {object} - Sends an event `receive-key-gen-confirmation` with a single argument, 
  *   an array containing the folder path where the generated keys are saved.
  */
-const genValidatorKeysAndEncrypt = async (mnemonic, password, folder, stakeInfoPath) => {
+const genValidatorKeysAndEncrypt = async (mnemonic, password, folder, stakeInfoPath, chain) => {
     logger.info("genEncryptedKeys: Start")
 
     // get the data from stakeInfoPath
@@ -109,7 +109,6 @@ const genValidatorKeysAndEncrypt = async (mnemonic, password, folder, stakeInfoP
     folder = path.join(folder, `etherfi_keys-${timeStamp}`)
     const nodeOperatorPublicKeys = []
     const validatorIDs = []
-    const chain = network// TODO: change to 'mainnet' in constants file
 
     for (var i = 0; i < stakeInfoLength; i++) {
         const eth1_withdrawal_address = stakeInfo[i].withdrawalSafeAddress; 

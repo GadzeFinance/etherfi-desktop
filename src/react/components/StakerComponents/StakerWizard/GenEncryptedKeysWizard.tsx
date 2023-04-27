@@ -13,8 +13,6 @@ import StepCreateKeys from './Steps/Step4-CreateKeys/StepCreateKeys'
 import StepFinish from './Steps/Step5-StepFinish/StepFinish'
 
 
-
-
 const content = <Flex py={4}></Flex>
 
 const steps = [

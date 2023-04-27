@@ -24,8 +24,8 @@ contextBridge.exposeInMainWorld("encryptionApi", {
     receiveNewMnemonic: function(func){
         ipcRenderer.once("receive-new-mnemonic", (event, ...args) => func(event, ...args));       
     },
-    reqGenValidatorKeysAndEncrypt: function(mnemonic, password, folder, stakeInfoPath){
-        ipcRenderer.send("req-gen-val-keys-and-encrypt", [mnemonic, password, folder, stakeInfoPath]);
+    reqGenValidatorKeysAndEncrypt: function(mnemonic, password, folder, stakeInfoPath, chain){
+        ipcRenderer.send("req-gen-val-keys-and-encrypt", [mnemonic, password, folder, stakeInfoPath, chain]);
     },
     receiveKeyGenConfirmation: function(func){
         ipcRenderer.once("receive-key-gen-confirmation", (event, ...args) => func(event, ...args));       
@@ -40,8 +40,8 @@ contextBridge.exposeInMainWorld("encryptionApi", {
 
 contextBridge.exposeInMainWorld("exitMessageApi", {
     // Function used in Node Operator Tab to generate public keys that will be registerd and private keys for decrypting
-    reqGenSignedExitMessage: function(keystorePath, keystorePassword, validatorIndex, epoch, saveFolder){
-        ipcRenderer.send("req-signed-exit-message", [keystorePath, keystorePassword, validatorIndex, epoch, saveFolder]);
+    reqGenSignedExitMessage: function(keystorePath, keystorePassword, validatorIndex, epoch, saveFolder, chain){
+        ipcRenderer.send("req-signed-exit-message", [keystorePath, keystorePassword, validatorIndex, epoch, saveFolder, chain]);
     },
     receiveSignedExitMessageConfirmation: function(func){
         ipcRenderer.once("receive-signed-exit-message-confirmation", (event, ...args) => func(event, ...args));
