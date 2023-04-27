@@ -2,7 +2,7 @@ const crypto = require('crypto');
 const BN = require('bn.js')
 const EC = require('elliptic').ec
 
-// Encrypt any text
+// Encrypt any text (used to encrypt validator keys and passwords)
 function encrypt(text, ENCRYPTION_KEY) {
     const IV_LENGTH = 16; // For AES, this is always 16
     let iv = crypto.randomBytes(IV_LENGTH);
@@ -44,6 +44,7 @@ const encryptPrivateKeys = (jsonData, privKeysPassword) => {
     return encryptedJSON;
 }
 
+// Decrypt the private keys using hte password. Returns JSON data
 const decryptPrivateKeys = (privateKeysJSON, privKeysPassword) => {
     const iv = Buffer.from(privateKeysJSON.iv, 'hex');
     const salt = Buffer.from(privateKeysJSON.salt, 'hex');
