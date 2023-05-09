@@ -7,7 +7,13 @@
     "allowJs": true,
     "moduleResolution": "node",
     "jsx": "react-jsx",
-    "allowSyntheticDefaultImports": true
+    "allowSyntheticDefaultImports": true,
+    "types": ["electron", "jest"]
   },
-  "include": ["src/**/*", "resources/**/*.ts"]
+  "include": [
+    "src/**/*",
+    "resources/**/*.ts",
+    "tests/react/components/SelectFile.test.tsx",
+    "tests/react/components/SelectSavePathButton.test.tsx"
+  ]
 }
