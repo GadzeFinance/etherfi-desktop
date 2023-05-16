@@ -56,7 +56,7 @@ jobs:
           asset_path: dist/etherfi-desktop-${{ steps.extract_version.outputs.version }}-mac.tar.gz
           asset_name: etherfi-desktop-v${{ steps.extract_version.outputs.version }}-mac.tar.gz
           asset_content_type: application/zip
-          name: macos
+          name: mac
 
   upload-linux-build:
     needs: create-pre-release
@@ -128,4 +128,4 @@ jobs:
           asset_path: dist/etherfi-desktop-${{ steps.extract_version.outputs.version }}-win.tar.gz
           asset_name: etherfi-desktop-v${{ steps.extract_version.outputs.version }}-win.tar.gz
           asset_content_type: application/zip
-          name: windows
+          name: win
