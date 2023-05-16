@@ -378,6 +378,7 @@ const listenSelectJsonFile = async (event, arg) => {
 
 
 // Test Function too see the whole encryption and decryption flow.
+// TODO: outdated. we use aes-gcm now. need to update
 const testWholeEncryptDecryptFlow = (event, arg) => {
     const curve = new EC('secp256k1')
     // Step 1: BIDDER -> Node Operator Key Gen Tab
@@ -395,6 +396,7 @@ const testWholeEncryptDecryptFlow = (event, arg) => {
 
     const recievedNodeOpPubKeyPoint = curve.keyFromPublic(nodeOperatorPubKeyHex, 'hex').getPublic()
     const stakerSharedSecret = recievedNodeOpPubKeyPoint.mul(stakerPrivKey).getX()
+  
     const valKey = {"crypto": {"kdf": {"function": "scrypt", "params": {"dklen": 32, "n": 262144, "r": 8, "p": 1, "salt": "0463d22d68366006c3e61d551255d49cc16339d5445bdaa1a59f5dae30dac3e7"}, "message": ""}, "checksum": {"function": "sha256", "params": {}, "message": "cd87b4b75a340239782919e7d81bf253dd9c7fd7d8956e83436b0e48ea8301dc"}, "cipher": {"function": "aes-128-ctr", "params": {"iv": "9ad66f5a200048b7c1933dc0a39adcc9"}, "message": "c469bf7d17899947ec78c4fe31676f3814a7bf696a85384aff4f0f7b4fbc9945"}}, "description": "", "pubkey": "96cadf6d4ff420ffd36c6f3d389564ad8f64a42c3c8e6b9ad7ef119b245248cef57ae4191f4c91163c23d79f4e77c275", "path": "m/12381/3600/1/0/0", "uuid": "61504df3-f306-4b65-ab7b-726ffa73bcbe", "version": 4}
     const validatorKey = JSON.stringify(valKey);
     const encryptedMsg = encrypt(validatorKey, stakerSharedSecret.toArrayLike(Buffer, 'be', 32))
