@@ -24,6 +24,24 @@ contextBridge.exposeInMainWorld("encryptionApi", {
     receiveNewMnemonic: function(func){
         ipcRenderer.once("receive-new-mnemonic", (event, ...args) => func(event, ...args));       
     },
+    reqStoredMnemonic: function() {
+        ipcRenderer.send("req-stored-mnemonic", []);
+    },
+    recieveStoredMnemonic: function (func) {
+        ipcRenderer.once("receive-req-stored-mnemonic-confirmation", (event, ...args) => func(event, ...args));       
+    },
+    reqSaveMnemonic: function(mnemonic) {
+        ipcRenderer.send("req-save-mnemonic", [mnemonic]);
+    },
+    recieveSaveMnemonic: function (func) {
+        ipcRenderer.once("receive-save-mnemonic-confirmation", (event, ...args) => func(event, ...args));       
+    },
+    reqStoredValidators: function() {
+        ipcRenderer.send("req-stored-validators", []);
+    },
+    receiveStoredValidators: function(func) {
+        ipcRenderer.once("receive-stored-validators", (event, ...args) => func(event, ...args))
+    },
     reqGenValidatorKeysAndEncrypt: function(mnemonic, password, folder, stakeInfoPath, chain){
         ipcRenderer.send("req-gen-val-keys-and-encrypt", [mnemonic, password, folder, stakeInfoPath, chain]);
     },
@@ -46,7 +64,7 @@ contextBridge.exposeInMainWorld("exitMessageApi", {
     receiveSignedExitMessageConfirmation: function(func){
         ipcRenderer.once("receive-signed-exit-message-confirmation", (event, ...args) => func(event, ...args));
     },
-});
+}); 
 
 contextBridge.exposeInMainWorld("fileSystemApi", {
     // Function to select a Folder path 
@@ -136,5 +154,19 @@ contextBridge.exposeInMainWorld("databaseApi", {
     receiveUpdateStaleKeysResult: function(func){
         ipcRenderer.once("receive-update-stale-keys-report", (event, ...args) => func(event, ...args));       
     },
+    reqIsPasswordSet: function() {
+        ipcRenderer.send("req-is-password-set", []);
+    },
+    recieveIsPasswordSet: function(func) {
+        ipcRenderer.once("receive-is-password-set", (event, ...args) => func(event, ...args))
+    },
+    reqSetPassword: function(password) {
+        console.log("Test")
+        ipcRenderer.send("req-set-password", [password])
+    },
+    recieveSetPassword: function(func) {
+        console.log("WAG")
+        ipcRenderer.once("receive-set-password", (event, ...args) => func(event, ...args))
+    }
 });
 

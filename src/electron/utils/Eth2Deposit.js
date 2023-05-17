@@ -19,12 +19,13 @@
 
 const {execFile} = require('child_process');
 const {promisify} = require('util');
-const {constants} = require('fs');
+const {constants, readdirSync, lstatSync, readFileSync} = require('fs');
 const {access, mkdir} = require('fs/promises');
 const {cwd} = require('process');
 const path = require('path');
 const process = require('process');
 const {doesFileExist} = require('./BashUtils.js')
+const storage = require('./storage.js')
 
 /**
  * A promise version of the execFile function from fs for CLI calls.
@@ -68,6 +69,20 @@ const GENERATE_SIGNED_EXIT_TRANSACTION = "generate_exit_transaction";
 
 const PYTHON_EXE = (process.platform == "win32" ? "python" : "python3");
 const PATH_DELIM = (process.platform == "win32" ? ";" : ":");
+
+
+const getMostRecentFile = (dir) => {
+  const files = orderReccentFiles(dir);
+  return files.length ? files[0] : undefined;
+};
+
+const orderReccentFiles = (dir) => {
+  return readdirSync(dir)
+    .filter((file) => lstatSync(path.join(dir, file)).isFile())
+    .map((file) => ({ file, mtime: lstatSync(path.join(dir, file)).mtime }))
+    .filter((fileInfo) => fileInfo.file.includes("keystore"))
+    .sort((a, b) => b.mtime.getTime() - a.mtime.getTime());
+};
 
 /**
  * Install the required Python packages needed to call the eth2deposit_proxy application using the
@@ -172,6 +187,7 @@ const generateKeys = async (
     password, // string,
     eth1_withdrawal_address, //string,
     folder, // string,
+    validatorID // number
   ) => {
   
   let executable = "";
@@ -214,6 +230,10 @@ const generateKeys = async (
   }
   
   await execFileProm(executable, args, {env: env});
+  const {file} = getMostRecentFile(folder)
+  const filePathToKeystore = `${folder}/${file}`
+  const keystore = JSON.parse(readFileSync(filePathToKeystore))
+  storage.addValidator(validatorID.toString(), keystore)
 }
 
 /**

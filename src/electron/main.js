@@ -16,7 +16,11 @@ const {
     listenSelectJsonFile,
     genValidatorKeysAndEncrypt,
     decryptValidatorKeys,
-    testWholeEncryptDecryptFlow
+    setMnemonic,
+    fetchStoredMnemonics,
+    checkPasswordSet,
+    setPassword,
+    fetchStoredValidators
 } = require('./listeners');
 
 const {validateJsonFile} = require('./utils/validateFile')
@@ -142,6 +146,39 @@ ipcMain.on("req-decrypt-val-keys",  async (event, args) => {
 });
 
 
+ipcMain.on("req-stored-mnemonic", async (event, args) => {
+    try {
+        const mnemonic = await fetchStoredMnemonics();
+        event.sender.send("receive-req-stored-mnemonic-confirmation",  standardResultCodes.SUCCESS, JSON.stringify(mnemonic), '')
+    } catch (error) {
+        logger.error("Error fetching stored mnemonic: ", error);
+        event.sender.send("receive-req-stored-mnemonic-confirmation",  standardResultCodes.ERROR, '', error.message)
+
+    }
+})
+
+ipcMain.on("req-stored-validators", async (event, args) => {
+    try {
+        const validators = await fetchStoredValidators();
+        event.sender.send("receive-stored-validators", standardResultCodes.SUCCESS, JSON.stringify(validators), '')
+    } catch (error) {
+        logger.error("Error fetching stored mnemonic: ", error);
+        event.sender.send("receive-stored-validators",  standardResultCodes.ERROR, '', error.message)
+    }
+})
+
+
+ipcMain.on("req-save-mnemonic", async (event, args) => {
+    const [mnemonic] = args;
+    console.log("ARGS: ", mnemonic)
+    try {
+        setMnemonic(mnemonic)
+        event.sender.send("receive-save-mnemonic-confirmation",  standardResultCodes.SUCCESS, '', '')
+    } catch (error) {
+        logger.error("Error setting mnemonic: ", error);
+        event.sender.send("receive-save-mnemonic-confirmation",  standardResultCodes.ERROR, '', error.message)
+    }
+})
 /* ------------------------------------------------------------- */
 /* ------------ Signed Exit Message Generation ----------------- */
 /* ------------------------------------------------------------- */
@@ -196,6 +233,28 @@ ipcMain.on("req-show-file", (event, arg) => {
 ipcMain.on("staker-finish", (event, arg) => {
     clipboard.clear();
     app.quit();
+})
+
+ipcMain.on("req-is-password-set", async (event, args) => {
+    try {
+        const isPasswordSet = await checkPasswordSet();
+        event.sender.send("receive-is-password-set",  standardResultCodes.SUCCESS, isPasswordSet, '')
+    } catch (error) {
+        logger.error("Error getting password status: ", error);
+        event.sender.send("receive-is-password-set",  standardResultCodes.ERROR, '', error.message)
+    }
+})
+
+// setPassword
+ipcMain.on("req-set-password", async (event, args) => {
+    const [password] = args;
+    try {
+        await setPassword(password);
+        event.sender.send("receive-set-password",  standardResultCodes.SUCCESS, '', '')
+    } catch (error) {
+        logger.error("Error setting password: ", error);
+        event.sender.send("receive-set-password",  standardResultCodes.ERROR, '', error.message)
+    }
 })
 
 

@@ -7,6 +7,7 @@ const { createMnemonic, generateKeys } = require('./utils/Eth2Deposit.js')
 const { selectFolder, selectJsonFile } = require('./utils/saveFile.js')
 const { decryptResultCodes, desktopAppVersion } = require('./constants')
 const logger = require('./utils/logger')
+const storage = require('./utils/storage')
 
 /**
  * Generates public and private key pairs and saves them in two separate JSON files
@@ -118,7 +119,7 @@ const genValidatorKeysAndEncrypt = async (mnemonic, password, folder, stakeInfoP
         validatorIDs.push(stakeInfo[i].validatorID)
         const index = i
         try {
-            await generateKeys(mnemonic, index, 1, chain, password, eth1_withdrawal_address, folder)
+            await generateKeys(mnemonic, index, 1, chain, password, eth1_withdrawal_address, folder, stakeInfo[i].validatorID)
         } catch (err) {
             logger.error("Error in 'genValidatorKeysAndEncrypt' when generating keys", err)
             throw new Error("Couldn't generate validator keys")
@@ -341,6 +342,31 @@ const decryptValidatorKeys = async (event, arg) => {
     return saveFolder
 }
 
+const fetchStoredMnemonics = async () => {
+    const mnemonics = await storage.getAllMnemonics();
+    return mnemonics
+}
+
+const setMnemonic = async (mnemonic) => {
+    storage.setMnemonic(mnemonic);
+}
+
+const fetchStoredValidators = async () => {
+    return validators = await storage.getAllValidators();
+    return validators;
+}
+
+
+const checkPasswordSet = async () => {
+    const passwordSet = await storage.isPasswordSet();
+    console.log(passwordSet)
+    return passwordSet;
+}
+
+const setPassword = async (password) => {
+    await storage.setPassword(password)
+}
+
 
 /**
  * Opens dialog that allows user to select a folder path.
@@ -425,5 +451,10 @@ module.exports = {
     decryptValidatorKeys,
     listenSelectFolder,
     listenSelectJsonFile,
-    testWholeEncryptDecryptFlow
+    testWholeEncryptDecryptFlow,
+    fetchStoredMnemonics,
+    setMnemonic,
+    checkPasswordSet,
+    setPassword,
+    fetchStoredValidators
 }
