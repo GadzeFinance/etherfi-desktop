@@ -1,6 +1,6 @@
-const crypto = require('crypto');
-const BN = require('bn.js')
-const EC = require('elliptic').ec
+const crypto = require("crypto")
+const BN = require("bn.js")
+const EC = require("elliptic").ec
 
 const IV_LENGTH = 12; // iv length of GCM should be 12 bytes (96 bits).
 
@@ -55,9 +55,9 @@ const decryptPrivateKeys = (privateKeysJSON, privKeysPassword) => {
     return decryptedDataJSON;
 }
 
-module.exports = { 
-    encrypt, 
-    decrypt,
-    encryptPrivateKeys,
-    decryptPrivateKeys
-};
+module.exports = {
+  encrypt,
+  decrypt,
+  encryptPrivateKeys,
+  decryptPrivateKeys,
+}
