@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from "react";
+import isDev from "react-is-dev";
 import { Tabs, Center, TabPanel, TabPanels } from '@chakra-ui/react'
 import NavBar from "./components/Nav/NavBar";
 import StakerTab from "./components/StakerComponents/StakerTab";
 import NodeOperatorTab from "./components/NodeOperatorComponents/NodeOperatorTab";
-
+import DBExplorer from "./components/DBExplorerComponents/DBExplorer";
 declare global {
   interface Window {
     encryptionApi: any;
@@ -30,15 +31,9 @@ const App: React.FC = () => {
     })
   }, [])
 
-  const options = {
-    0: "Generate Keys",
-    1: "Decrypt Keys"
-  }
-  const nodeOperatorOptions = [0, 1]
 
   const [selectedNodeOperatorOperation, setNodeOperatorOperation] = useState(0);
   const [stakerOperation, setStakerOperation] = useState(0);
-
   return (
     <div>
       <Tabs
@@ -60,6 +55,11 @@ const App: React.FC = () => {
             <TabPanel>
               <NodeOperatorTab tabIndex={tabIndex} selectedOption={selectedNodeOperatorOperation} />
             </TabPanel>
+            {isDev(React) && (
+              <TabPanel>
+                <DBExplorer/>
+              </TabPanel>
+            )}
           </TabPanels>
         </Center>
       </Tabs>

@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from "react";
+import isDev from 'react-is-dev';
+
 import {
   Box,
   Center,
@@ -9,6 +11,12 @@ import {
   NumberInput,
   NumberInputField,
   InputGroup,
+  Tabs,
+  TabList,
+  Tab,
+  TabPanels,
+  TabPanel,
+  Select,
 } from "@chakra-ui/react";
 import raisedWidgetStyle from "../../styleClasses/widgetBoxStyle";
 import successBoxStyle from "../../styleClasses/successBoxStyle";
@@ -22,6 +30,7 @@ import SelectSavePathButton from "../SelectSavePathButton";
 import ChainSelectionDropdown from "../ChainSelectionDropdown";
 
 const GenerateSignedExitMessageWidget: React.FC = () => {
+
   const [validatorKeyFilePath, setValidatorKeyFilePath] = useState<string>("");
   const [validatorKeyPassword, setValidatorKeyPassword] = useState<string>("");
   const [validatorIndex, setValidatorIndex] = useState<string>("");
@@ -29,7 +38,9 @@ const GenerateSignedExitMessageWidget: React.FC = () => {
   const [savePath, setSavePath] = useState<string>("");
   const [exitMessageFilePath, setExitMessageFilePath] = useState<string>("");
   const [chain, setChain] = useState<string>("");
-
+  const [selectedTab, setSelectedTab] = useState(0);
+  const [selectedValidator, setSelectedValidator] = useState("");
+  const [fetchedValidators, setFetchedValidators] = useState([]);
   // UI State Variables
   const [messageGenerating, setMessageGenerating] = useState<boolean>(false);
   const [messageGenerated, setMessageGenerated] = useState<boolean>(false);
@@ -47,7 +58,13 @@ const GenerateSignedExitMessageWidget: React.FC = () => {
         errorMessage: string
       ) => {
         if (result === 0) {
-          console.log("Test: ", validators)
+            let parsedValidators = JSON.parse(validators);
+            console.log(Object.entries(parsedValidators).map(([key, value], i) => {
+                return JSON.stringify({key: key, value: value})
+            }))
+            setFetchedValidators(Object.entries(parsedValidators).map(([key, value], i) => {
+                return JSON.stringify({key: key, value: value})
+            }));
         } else {
           console.error("Error generating mnemonic");
           console.error(errorMessage);
@@ -71,6 +88,7 @@ const GenerateSignedExitMessageWidget: React.FC = () => {
   };
 
   const requestSignedExitMessage = () => {
+    console.log(savePath)
     window.exitMessageApi.receiveSignedExitMessageConfirmation(
       (
         event: Electron.IpcMainEvent,
@@ -96,12 +114,14 @@ const GenerateSignedExitMessageWidget: React.FC = () => {
     );
     setMessageGenerating(true);
     window.exitMessageApi.reqGenSignedExitMessage(
-      validatorKeyFilePath,
-      validatorKeyPassword,
-      validatorIndex,
-      exitEpoch,
-      savePath,
-      chain
+        selectedTab ? true : false,
+        selectedValidator,
+        validatorKeyFilePath,
+        validatorKeyPassword,
+        validatorIndex,
+        exitEpoch,
+        savePath,
+        chain
     );
   };
 
@@ -126,22 +146,75 @@ const GenerateSignedExitMessageWidget: React.FC = () => {
 
               <Box sx={darkBoxWithBorderStyle} bg="#2b2852">
                 <VStack spacing={4} align="stretch">
-                  <Box>
-                    <Text mb="5px" fontSize="14px" as="b" color="white">
-                      Validator Key
-                    </Text>
-                    <SelectFile
-                      fileName="EncryptedValidatorKeys"
-                      reqFileValidaton={
-                        window.validateFilesApi.validateKeystoreJson
-                      }
-                      receiveValidatonResults={
-                        window.validateFilesApi.receiveKeystoreValidationResults
-                      }
-                      setFilePath={setValidatorKeyFilePath}
-                      filePath={validatorKeyFilePath}
-                    />
-                  </Box>
+                  <Tabs
+                    index={selectedTab}
+                    onChange={(index) => setSelectedTab(index)}
+                  >
+                    <TabList>
+                      <Tab>Select Validator</Tab>
+                      <Tab>Import Validator</Tab>
+                    </TabList>
+
+                    <TabPanels>
+                      <TabPanel sx={{ width: "100%" }}>
+                        <Box width="100%">
+                          <Text mb="5px" fontSize="14px" as="b" color="white">
+                            Validator Key
+                          </Text>
+                          <SelectFile
+                            fileName="EncryptedValidatorKeys"
+                            reqFileValidaton={
+                              window.validateFilesApi.validateKeystoreJson
+                            }
+                            receiveValidatonResults={
+                              window.validateFilesApi
+                                .receiveKeystoreValidationResults
+                            }
+                            setFilePath={setValidatorKeyFilePath}
+                            filePath={validatorKeyFilePath}
+                          />
+                        </Box>
+                        <Box>
+                          <Text fontSize="14px" as="b" color="white">
+                            {" "}
+                            Validator Index
+                          </Text>
+                          <InputGroup>
+                            <NumberInput
+                              width="100%"
+                              borderColor={COLORS.lightPurple}
+                              color="white"
+                              value={validatorIndex}
+                              onChange={(
+                                newValStr: React.SetStateAction<string>,
+                                _newValuNum: any
+                              ) => setValidatorIndex(newValStr)}
+                            >
+                              <NumberInputField
+                                value={validatorIndex}
+                                placeholder="Enter Validator Index"
+                              />
+                            </NumberInput>
+                          </InputGroup>
+                        </Box>
+                      </TabPanel>
+                      <TabPanel sx={{ width: "100%" }}>
+                        <Box width="100%">
+                          <Select
+                            color="white"
+                            borderColor="purple.light"
+                            placeholder="Validator ID"
+                            value={selectedValidator}
+                            onChange={(e) => setSelectedValidator(e.target.value)}
+                          >
+                            {Object.entries(fetchedValidators).map(([key, value], i) => (
+                                <option value={value}>{JSON.parse(value).key}</option>
+                            ))}
+                          </Select>
+                        </Box>
+                      </TabPanel>
+                    </TabPanels>
+                  </Tabs>
                   <Box>
                     <Text fontSize="14px" as="b" color="white">
                       {" "}
@@ -154,29 +227,6 @@ const GenerateSignedExitMessageWidget: React.FC = () => {
                       setIsPasswordValid={() => null}
                       shouldDoValidation={false}
                     />
-                  </Box>
-                  <Box>
-                    <Text fontSize="14px" as="b" color="white">
-                      {" "}
-                      Validator Index
-                    </Text>
-                    <InputGroup>
-                      <NumberInput
-                        width="100%"
-                        borderColor={COLORS.lightPurple}
-                        color="white"
-                        value={validatorIndex}
-                        onChange={(
-                          newValStr: React.SetStateAction<string>,
-                          _newValuNum: any
-                        ) => setValidatorIndex(newValStr)}
-                      >
-                        <NumberInputField
-                          value={validatorIndex}
-                          placeholder="Enter Validator Index"
-                        />
-                      </NumberInput>
-                    </InputGroup>
                   </Box>
                   <Box>
                     <HStack>
@@ -243,9 +293,9 @@ const GenerateSignedExitMessageWidget: React.FC = () => {
                     <Button
                       variant="white-button"
                       isDisabled={
-                        !validatorKeyFilePath ||
+                        (selectedTab && !selectedValidator) ||
+                        (!selectedTab && (!validatorKeyFilePath || !validatorIndex)) ||
                         !validatorKeyPassword ||
-                        !validatorIndex ||
                         !exitEpoch ||
                         !savePath ||
                         !chain

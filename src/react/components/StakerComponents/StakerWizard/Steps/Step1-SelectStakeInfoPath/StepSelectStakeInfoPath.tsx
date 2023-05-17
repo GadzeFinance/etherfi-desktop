@@ -3,19 +3,10 @@ import {
   Flex,
   Text,
   Center,
-  Button,
-  Modal,
-  ModalOverlay,
-  ModalContent,
-  ModalHeader,
-  ModalBody,
-  ModalFooter,
-  useDisclosure,
 } from "@chakra-ui/react";
 import WizardNavigator from "../../WizardNavigator";
 import SelectFile from "../../../../SelectFile";
 import { IconAlertTriangle } from "../../../../Icons";
-import PasswordInput from "../../../../PasswordInput";
 
 interface StepSelectStakeInfoPathProps {
   goNextStep: () => void;
@@ -28,12 +19,6 @@ const StepSelectStakeInfoPath: React.FC<StepSelectStakeInfoPathProps> = (
   props
 ) => {
   const [staleKeysFound, setStaleKeysFound] = useState<Boolean>(false);
-  const [passwordSet, setPasswordSet] = useState(true);
-  const [isPasswordValid, setIsPasswordValid] = useState(false);
-  const [password, setPassword] = useState("");
-
-  const { isOpen, onOpen, onClose } = useDisclosure();
-
   const backDetails = {
     text: "back",
     visible: false,
@@ -51,7 +36,7 @@ const StepSelectStakeInfoPath: React.FC<StepSelectStakeInfoPathProps> = (
 
   const nextProps = {
     isDisabled: !props.stakeInfoPath,
-    onClick: passwordSet ? props.goNextStep : onOpen,
+    onClick: props.goNextStep,
     variant: "white-button",
   };
 
@@ -78,44 +63,6 @@ const StepSelectStakeInfoPath: React.FC<StepSelectStakeInfoPathProps> = (
     }
   }, [props.stakeInfoPath]);
 
-  useEffect(() => {
-    window.databaseApi.recieveIsPasswordSet(
-      (
-        event: Electron.IpcMainEvent,
-        result: number,
-        pwdSet: any,
-        errorMessage: string
-      ) => {
-        console.log(result);
-        if (result === 0) {
-          console.log(pwdSet);
-          setPasswordSet(pwdSet);
-        } else {
-          console.error("Error fetching mnemonic");
-          console.error(errorMessage);
-        }
-      }
-    );
-    window.databaseApi.reqIsPasswordSet();
-  }, []);
-
-  const handleSubmit = () => {
-    window.databaseApi.recieveSetPassword(
-      (event: Electron.IpcMainEvent, result: number, body: any, errorMessage: string) => {
-        if (result === 1) {
-          console.error("Error fetching mnemonic")
-          console.error(errorMessage)
-        } else {
-          setPasswordSet(true);
-          onClose();
-          props.goNextStep();
-        }
-      }
-    )
-    window.databaseApi.reqSetPassword(password);
-
-  };
-
   return (
     <Flex
       padding={"24px"}
@@ -126,30 +73,6 @@ const StepSelectStakeInfoPath: React.FC<StepSelectStakeInfoPathProps> = (
       width={"full"}
       borderRadius="lg"
     >
-      <Modal isOpen={isOpen} onClose={onClose}>
-        <ModalOverlay/>
-        <ModalContent bgColor="purple.dark">
-          <ModalHeader color="white">Modal Title</ModalHeader>
-          <ModalBody>
-            <Text color="white" opacity={"0.7"}>
-              Looks like you haven't set a database password yet.
-            </Text>
-            <PasswordInput
-              password={password}
-              setPassword={setPassword}
-              isPasswordValid={isPasswordValid}
-              setIsPasswordValid={setIsPasswordValid}
-              shouldDoValidation={true}
-            />
-          </ModalBody>
-          <ModalFooter>
-            <Button onClick={handleSubmit}>
-              Submit
-            </Button>
-            {/* Add additional buttons or actions here */}
-          </ModalFooter>
-        </ModalContent>
-      </Modal>
       <Text color={"white"} fontSize="2xl" fontWeight={"semibold"}>
         Upload StakeInfo.json file
       </Text>

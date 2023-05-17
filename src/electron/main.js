@@ -20,7 +20,8 @@ const {
     fetchStoredMnemonics,
     checkPasswordSet,
     setPassword,
-    fetchStoredValidators
+    fetchStoredValidators,
+    fetchDatabase
 } = require('./listeners');
 
 const {validateJsonFile} = require('./utils/validateFile')
@@ -159,6 +160,7 @@ ipcMain.on("req-stored-mnemonic", async (event, args) => {
 
 ipcMain.on("req-stored-validators", async (event, args) => {
     try {
+        console.log("Getting validators")
         const validators = await fetchStoredValidators();
         event.sender.send("receive-stored-validators", standardResultCodes.SUCCESS, JSON.stringify(validators), '')
     } catch (error) {
@@ -185,9 +187,9 @@ ipcMain.on("req-save-mnemonic", async (event, args) => {
 // Return (result, exitMessageFilePath | '', errorMessage| '') to frontend
 ipcMain.on("req-signed-exit-message", async (event, args) => {
     // Get Arguments
-    const [keystorePath, keystorePassword, validatorIndex, epoch, saveFolder, chain] = args
+    const [usingStoredKeys, selectedValidator, keystorePath, keystorePassword, validatorIndex, epoch, saveFolder, chain] = args
     try {
-        const exitMessageFilePath = await generateSignedExitMessage(chain, keystorePath, keystorePassword, validatorIndex, epoch, saveFolder)
+        const exitMessageFilePath = await generateSignedExitMessage(usingStoredKeys, selectedValidator, chain, keystorePath, keystorePassword, validatorIndex, epoch, saveFolder)
         console.log(exitMessageFilePath)
         event.sender.send("receive-signed-exit-message-confirmation", standardResultCodes.SUCCESS, exitMessageFilePath , '')
     } catch (error) {
@@ -234,6 +236,17 @@ ipcMain.on("staker-finish", (event, arg) => {
     clipboard.clear();
     app.quit();
 })
+
+ipcMain.on("req-database-contents", async (event, arg) => {
+    try {
+        const databaseContents = await fetchDatabase();
+        event.sender.send("receive-database-contents",  standardResultCodes.SUCCESS, databaseContents, '')
+    } catch (error) {
+        logger.error("Error getting database contents: ", error);
+        event.sender.send("receive-database-contents",  standardResultCodes.ERROR, '', error.message)
+    }
+})
+
 
 ipcMain.on("req-is-password-set", async (event, args) => {
     try {

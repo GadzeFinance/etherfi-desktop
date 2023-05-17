@@ -7,7 +7,7 @@
   "scripts": {
     "test": "jest",
     "dev-server": "webpack serve --mode development --config ./webpack.development.js",
-    "dev": "cross-env NODE_ENV=development electron ./src/electron/main.js",
+    "dev": "cross-env REACT_APP_NODE_ENV=development NODE_ENV=development electron ./src/electron/main.js",
     "postinstall": "electron-builder install-app-deps",
     "buildNode": "webpack --config webpack.react.config.js --config webpack.electron.config.js",
     "buildcli": "src/scripts/bundle_proxy_linux.sh",
@@ -91,6 +91,7 @@
     "babel-loader": "^9.1.2",
     "cross-env": "^7.0.3",
     "css-loader": "^6.7.3",
+    "dotenv": "^16.0.3",
     "electron": "^22.1.0",
     "electron-builder": "^23.0.2",
     "html-loader": "^4.2.0",
@@ -124,7 +125,9 @@
     "path-browserify": "^1.0.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
+    "react-is-dev": "^1.0.5",
     "tmp": "^0.2.1",
+    "uuid": "^9.0.0",
     "winston": "^3.8.2",
     "zod": "^3.20.2"
   }

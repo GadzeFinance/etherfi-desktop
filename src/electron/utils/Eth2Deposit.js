@@ -19,14 +19,14 @@
 
 const {execFile} = require('child_process');
 const {promisify} = require('util');
-const {constants, readdirSync, lstatSync, readFileSync} = require('fs');
+const {constants, readdirSync, lstatSync, readFileSync, writeFile, unlink} = require('fs');
 const {access, mkdir} = require('fs/promises');
 const {cwd} = require('process');
 const path = require('path');
 const process = require('process');
 const {doesFileExist} = require('./BashUtils.js')
 const storage = require('./storage.js')
-
+const { v4: uuidv4 } = require('uuid');
 /**
  * A promise version of the execFile function from fs for CLI calls.
  */
@@ -273,6 +273,8 @@ const validateMnemonic = async (
 }
 
 const generateSignedExitMessage = async (
+  usingStoredKeys, // boolean
+  selectedValidator,
   chain, // string,
   keystorePath, // string
   keystorePassword, // string
@@ -283,6 +285,23 @@ const generateSignedExitMessage = async (
   let executable = "";
   let args = [];
   let env = process.env;
+
+  // TODO: Change selectedTab to a boolean with a better meaning
+  // IF selectedTab == 1 
+    // Then we need to save a file that the program can use, then delete at the end
+  const tempKeystoreLocation = path.join(saveFolder, `${uuidv4()}.json`)
+  if (usingStoredKeys) {
+    validatorIndex = parseInt(JSON.parse(selectedValidator).key);
+    const parsedValidator = JSON.stringify(JSON.parse(selectedValidator).value);
+    keystorePath = tempKeystoreLocation;
+    writeFile(tempKeystoreLocation, parsedValidator, (err) => {
+      if (err) {
+        console.error('Error writing JSON file:', err);
+      } else {
+        console.log('JSON file saved successfully!');
+      }
+    })
+  }
 
   if (await doesFileExist(BUNDLED_SFE_PATH)) {
     executable = BUNDLED_SFE_PATH;
@@ -308,6 +327,13 @@ const generateSignedExitMessage = async (
   const { stdout, stderr } = await execFileProm(executable, args, {env: env});
   const exitMessageGenerationResultString = stdout.toString();
   const resultJson = JSON.parse(exitMessageGenerationResultString);
+  unlink(tempKeystoreLocation, (err) => {
+    if (err) {
+      console.error('Error deleting JSON file:', err);
+    } else {
+      console.log('JSON file deleted successfully!');
+    }
+  });
   return resultJson.filefolder;
 }
 

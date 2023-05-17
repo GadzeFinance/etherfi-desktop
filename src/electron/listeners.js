@@ -352,7 +352,9 @@ const setMnemonic = async (mnemonic) => {
 }
 
 const fetchStoredValidators = async () => {
-    return validators = await storage.getAllValidators();
+    console.log("Gettingggg")
+    const validators = await storage.getAllValidators();
+    console.log(validators)
     return validators;
 }
 
@@ -365,6 +367,10 @@ const checkPasswordSet = async () => {
 
 const setPassword = async (password) => {
     await storage.setPassword(password)
+}
+
+const fetchDatabase = async () => {
+    return await storage.getEverything()
 }
 
 
@@ -456,5 +462,6 @@ module.exports = {
     setMnemonic,
     checkPasswordSet,
     setPassword,
-    fetchStoredValidators
+    fetchStoredValidators,
+    fetchDatabase
 }
