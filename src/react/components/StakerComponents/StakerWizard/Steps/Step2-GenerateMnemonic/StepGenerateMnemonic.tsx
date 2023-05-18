@@ -1,23 +1,16 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import {
   Flex,
   Text,
   Center,
-  Box,
-  Button,
-  Menu,
-  MenuButton,
-  MenuList,
-  MenuItem,
-  IconButton,
 } from "@chakra-ui/react";
-import { AddIcon, ViewIcon, ViewOffIcon } from "@chakra-ui/icons";
 
 import DisplayMnemonic from "./DisplayMnemonic";
 import ConfirmMnemonic from "./ConfimMnemonic";
 import WizardNavigator from "../../WizardNavigator";
 import EtherFiSpinner from "../../../../EtherFiSpinner";
 import { IconLockFile } from "../../../../Icons";
+import StoredMnemonicSelect from "./StoredMnemonicSelect";
 
 interface StepGenerateMnemonicProps {
   goNextStep: () => void;
@@ -25,14 +18,8 @@ interface StepGenerateMnemonicProps {
   mnemonic: string;
   setMnemonic: (mnemonic: string) => void;
   wordsToConfirmIndicies: Array<number>;
+  setPassword: (password: string) => void;
 }
-
-const shortenMnemonic = (mnemonic: any) => {
-  const wordArray = mnemonic.split(" ");
-  return `${wordArray.slice(0, 3).join(", ")}...${wordArray
-    .slice(-2)
-    .join(", ")}`;
-};
 
 const StepGenerateMnemonic: React.FC<StepGenerateMnemonicProps> = (props) => {
   const [generating, setGenerating] = useState(false);
@@ -40,34 +27,6 @@ const StepGenerateMnemonic: React.FC<StepGenerateMnemonicProps> = (props) => {
   const [confirmMnemonic, setConfirmMnemonic] = useState(props.mnemonic !== "");
   const [mnemonicConfirmed, setMnemonicConfirmed] = useState(false);
   const [storedMnemonics, setStoredMnemonic] = useState(undefined);
-  const [showMnemonic, setShowMnemonic] = useState(false);
-
-  useEffect(() => {
-    window.encryptionApi.recieveStoredMnemonic(
-      (
-        event: Electron.IpcMainEvent,
-        result: number,
-        mnemonic: any,
-        errorMessage: string
-      ) => {
-        if (result === 0) {
-          const outputArr = Object.entries(JSON.parse(mnemonic)).map(
-            ([id, text], index) => ({
-              id: parseInt(id),
-              text: id,
-              mnemonic: text,
-            })
-          );
-          console.log(outputArr);
-          setStoredMnemonic(outputArr);
-        } else {
-          console.error("Error fetching mnemonic");
-          console.error(errorMessage);
-        }
-      }
-    );
-    window.encryptionApi.reqStoredMnemonic();
-  }, []);
 
   const generateMnemonic = () => {
     window.encryptionApi.receiveNewMnemonic(
@@ -101,21 +60,6 @@ const StepGenerateMnemonic: React.FC<StepGenerateMnemonicProps> = (props) => {
     if (props.mnemonic && confirmMnemonic)
       return () => {
         setConfirmMnemonic(false);
-        window.encryptionApi.recieveSaveMnemonic(
-          (
-            event: Electron.IpcMainEvent,
-            result: number,
-            body: any,
-            errorMessage: string
-          ) => {
-            if (result === 1) {
-              console.error("Error fetching mnemonic");
-              console.error(errorMessage);
-            }
-          }
-        );
-        console.log("PROP: ", props.mnemonic);
-        window.encryptionApi.reqSaveMnemonic(props.mnemonic);
         props.goNextStep();
       };
   };
@@ -159,11 +103,6 @@ const StepGenerateMnemonic: React.FC<StepGenerateMnemonicProps> = (props) => {
     variant: "white-button",
   };
 
-  const handleEyeIconClick = (event: any) => {
-    event.stopPropagation();
-    setShowMnemonic(!showMnemonic);
-  };
-
   return (
     <Flex
       padding={"24px"}
@@ -205,51 +144,13 @@ const StepGenerateMnemonic: React.FC<StepGenerateMnemonicProps> = (props) => {
         />
       )}
       {!props.mnemonic && !generating && (
-        <Menu>
-          <MenuButton as={Button} rightIcon={<AddIcon />}>
-            Select Previously Used Mnemonic
-          </MenuButton>
-          <MenuList maxW="80%">
-            {storedMnemonics?.map((entry: any) => (
-              <MenuItem key={entry.id}>
-                <Button
-                  mr={2}
-                  variant="outline"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    props.setMnemonic(entry.mnemonic);
-                    props.goNextStep();
-                  }}
-                >
-                  <AddIcon />
-                </Button>
-                <Text>{entry.text}</Text>
-                <Box display="flex" alignItems="center" ml="auto">
-                  {showMnemonic ? (
-                    <>
-                      <Text>{shortenMnemonic(entry.mnemonic)}</Text>
-                      <IconButton
-                        ml={2}
-                        icon={<ViewOffIcon />}
-                        variant="ghost"
-                        aria-label="Hide mnemonic"
-                        onClick={handleEyeIconClick}
-                      />
-                    </>
-                  ) : (
-                    <IconButton
-                      ml={2}
-                      icon={<ViewIcon />}
-                      variant="ghost"
-                      aria-label="Show mnemonic"
-                      onClick={handleEyeIconClick}
-                    />
-                  )}
-                </Box>
-              </MenuItem>
-            ))}
-          </MenuList>
-        </Menu>
+        <StoredMnemonicSelect
+          setStoredMnemonic={setStoredMnemonic} 
+          storedMnemonics={storedMnemonics}
+          goNextStep={props.goNextStep}
+          setMnemonic={props.setMnemonic}
+          setPassword={props.setPassword}
+          />
       )}
 
       {!generating && (

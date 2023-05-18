@@ -47,8 +47,8 @@ const GenEncryptedKeysWizard: React.FC<WizardProps> = (props) => {
   const [mnemonic, setMnemonic] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [savePath, setSavePath] = useState<string>("");
-  const [keysGenerated, setKeysGenerated] = useState(false)
-  const [filesCreatedPath, setFilesCreatedPath] = useState("")
+  const [keysGenerated, setKeysGenerated] = useState<boolean>(false)
+  const [filesCreatedPath, setFilesCreatedPath] = useState<string>("")
   const wordsToConfirmIndicies = useMemo(() => getMenomicWordsToConfirmIndicies(), [mnemonic])
   return (
     <Center>
@@ -74,7 +74,7 @@ const GenEncryptedKeysWizard: React.FC<WizardProps> = (props) => {
         <Flex flexDir="column" width="100%">
 
           {activeStep === 0 && <StepSelectStakeInfoPath goBackStep={prevStep} goNextStep={nextStep} stakeInfoPath={stakeInfoPath} setStakeInfoPath={setStakeInfoPath} />}
-          {activeStep === 1 && <StepGenerateMnemonic goBackStep={prevStep} goNextStep={nextStep} mnemonic={mnemonic} setMnemonic={setMnemonic} wordsToConfirmIndicies={wordsToConfirmIndicies} />}
+          {activeStep === 1 && <StepGenerateMnemonic goBackStep={prevStep} goNextStep={nextStep} mnemonic={mnemonic} setMnemonic={setMnemonic} wordsToConfirmIndicies={wordsToConfirmIndicies} setPassword={setPassword} />}
           {activeStep === 2 && <StepCreatePassword goBackStep={prevStep} goNextStep={nextStep} password={password} setPassword={setPassword} />}
           {activeStep === 3 && <StepCreateKeys goBackStep={prevStep} goNextStep={nextStep}
             savePath={savePath} setSavePath={setSavePath}

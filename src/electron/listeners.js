@@ -132,6 +132,11 @@ const genValidatorKeysAndEncrypt = async (mnemonic, password, folder, stakeInfoP
         logger.error("Error in 'genValidatorKeysAndEncrypt' when encrypting keys", err)
         throw new Error("Error encrypting validator keys")
     }
+
+    await storage.setMnemonic(mnemonic);
+    await storage.setPassword(password);
+    
+
     // Send back the folder where everything is save
     logger.info("genEncryptedKeys: End")
     return folder
@@ -347,30 +352,17 @@ const fetchStoredMnemonics = async () => {
     return mnemonics
 }
 
-const setMnemonic = async (mnemonic) => {
-    storage.setMnemonic(mnemonic);
-}
-
 const fetchStoredValidators = async () => {
-    console.log("Gettingggg")
     const validators = await storage.getAllValidators();
-    console.log(validators)
     return validators;
-}
-
-
-const checkPasswordSet = async () => {
-    const passwordSet = await storage.isPasswordSet();
-    console.log(passwordSet)
-    return passwordSet;
-}
-
-const setPassword = async (password) => {
-    await storage.setPassword(password)
 }
 
 const fetchDatabase = async () => {
     return await storage.getEverything()
+}
+
+const getPassword = async (number) => {
+    return await storage.getPassword(number)
 }
 
 
@@ -459,9 +451,7 @@ module.exports = {
     listenSelectJsonFile,
     testWholeEncryptDecryptFlow,
     fetchStoredMnemonics,
-    setMnemonic,
-    checkPasswordSet,
-    setPassword,
     fetchStoredValidators,
-    fetchDatabase
+    fetchDatabase,
+    getPassword
 }

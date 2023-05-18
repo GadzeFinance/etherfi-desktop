@@ -30,12 +30,6 @@ contextBridge.exposeInMainWorld("encryptionApi", {
     recieveStoredMnemonic: function (func) {
         ipcRenderer.once("receive-req-stored-mnemonic-confirmation", (event, ...args) => func(event, ...args));       
     },
-    reqSaveMnemonic: function(mnemonic) {
-        ipcRenderer.send("req-save-mnemonic", [mnemonic]);
-    },
-    recieveSaveMnemonic: function (func) {
-        ipcRenderer.once("receive-save-mnemonic-confirmation", (event, ...args) => func(event, ...args));       
-    },
     reqStoredValidators: function() {
         console.log("In request")
         ipcRenderer.send("req-stored-validators", []);
@@ -56,6 +50,12 @@ contextBridge.exposeInMainWorld("encryptionApi", {
     receiveDecryptReport: function(func){
         ipcRenderer.once("receive-decrypt-val-keys-report", (event, ...args) => func(event, ...args));       
     },
+    reqGetPassword: function(number) {
+        ipcRenderer.send('req-get-password', [number])
+    },
+    receiveGetPassword: function(func) {
+        ipcRenderer.once("receive-get-password", (event, ...args) => func(event, ...args));       
+    }
 });
 
 contextBridge.exposeInMainWorld("exitMessageApi", {
@@ -161,20 +161,6 @@ contextBridge.exposeInMainWorld("databaseApi", {
     },
     receiveUpdateStaleKeysResult: function(func){
         ipcRenderer.once("receive-update-stale-keys-report", (event, ...args) => func(event, ...args));       
-    },
-    reqIsPasswordSet: function() {
-        ipcRenderer.send("req-is-password-set", []);
-    },
-    recieveIsPasswordSet: function(func) {
-        ipcRenderer.once("receive-is-password-set", (event, ...args) => func(event, ...args))
-    },
-    reqSetPassword: function(password) {
-        console.log("Test")
-        ipcRenderer.send("req-set-password", [password])
-    },
-    recieveSetPassword: function(func) {
-        console.log("WAG")
-        ipcRenderer.once("receive-set-password", (event, ...args) => func(event, ...args))
     }
 });
 

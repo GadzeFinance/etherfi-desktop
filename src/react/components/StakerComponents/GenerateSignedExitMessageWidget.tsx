@@ -38,9 +38,9 @@ const GenerateSignedExitMessageWidget: React.FC = () => {
   const [savePath, setSavePath] = useState<string>("");
   const [exitMessageFilePath, setExitMessageFilePath] = useState<string>("");
   const [chain, setChain] = useState<string>("");
-  const [selectedTab, setSelectedTab] = useState(0);
-  const [selectedValidator, setSelectedValidator] = useState("");
-  const [fetchedValidators, setFetchedValidators] = useState([]);
+  const [selectedTab, setSelectedTab] = useState<number>(0);
+  const [selectedValidator, setSelectedValidator] = useState<string>("");
+  const [fetchedValidators, setFetchedValidators] = useState<string[]>([]);
   // UI State Variables
   const [messageGenerating, setMessageGenerating] = useState<boolean>(false);
   const [messageGenerated, setMessageGenerated] = useState<boolean>(false);
@@ -59,9 +59,6 @@ const GenerateSignedExitMessageWidget: React.FC = () => {
       ) => {
         if (result === 0) {
             let parsedValidators = JSON.parse(validators);
-            console.log(Object.entries(parsedValidators).map(([key, value], i) => {
-                return JSON.stringify({key: key, value: value})
-            }))
             setFetchedValidators(Object.entries(parsedValidators).map(([key, value], i) => {
                 return JSON.stringify({key: key, value: value})
             }));
