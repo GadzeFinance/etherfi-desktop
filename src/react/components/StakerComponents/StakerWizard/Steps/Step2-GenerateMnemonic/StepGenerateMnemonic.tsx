@@ -10,6 +10,9 @@ import {
   MenuList,
   MenuItem,
   IconButton,
+  Grid,
+  GridItem,
+  Tooltip,
 } from "@chakra-ui/react";
 import { AddIcon, ViewIcon, ViewOffIcon } from "@chakra-ui/icons";
 
@@ -24,15 +27,17 @@ interface StepGenerateMnemonicProps {
   goBackStep: () => void;
   mnemonic: string;
   setMnemonic: (mnemonic: string) => void;
+  isUsingSaved: boolean;
+  setIsUsingSaved: (isUsingSaved: boolean) => void;
   wordsToConfirmIndicies: Array<number>;
 }
 
-const shortenMnemonic = (mnemonic: any) => {
-  const wordArray = mnemonic.split(" ");
-  return `${wordArray.slice(0, 3).join(", ")}...${wordArray
-    .slice(-2)
-    .join(", ")}`;
-};
+// const shortenMnemonic = (mnemonic: any) => {
+//   const wordArray = mnemonic.split(" ");
+//   return `${wordArray.slice(0, 3).join(", ")} ... ${wordArray
+//     .slice(-2)
+//     .join(", ")}`;
+// };
 
 const StepGenerateMnemonic: React.FC<StepGenerateMnemonicProps> = (props) => {
   const [generating, setGenerating] = useState(false);
@@ -40,9 +45,10 @@ const StepGenerateMnemonic: React.FC<StepGenerateMnemonicProps> = (props) => {
   const [confirmMnemonic, setConfirmMnemonic] = useState(props.mnemonic !== "");
   const [mnemonicConfirmed, setMnemonicConfirmed] = useState(false);
   const [storedMnemonics, setStoredMnemonic] = useState(undefined);
-  const [showMnemonic, setShowMnemonic] = useState(false);
+  // const [showMnemonic, setShowMnemonic] = useState(false);
 
   useEffect(() => {
+    console.log("isUsingSave:", props.isUsingSaved)
     window.encryptionApi.recieveStoredMnemonic(
       (
         event: Electron.IpcMainEvent,
@@ -89,11 +95,12 @@ const StepGenerateMnemonic: React.FC<StepGenerateMnemonicProps> = (props) => {
     );
     window.encryptionApi.reqNewMnemonic("english");
     setGenerating(true);
+    props.setIsUsingSaved(false);
   };
 
   const nextAction = () => {
-    // No Mneomoic Generated
-    if (!props.mnemonic) return generateMnemonic;
+    // No Mnemonic Generated
+    if (!props.mnemonic || (props.mnemonic && props.isUsingSaved)) return generateMnemonic;
     // Mneomoic Generated and viewing the whole mnemonic screen
     if (props.mnemonic && !confirmMnemonic)
       return () => setConfirmMnemonic(true);
@@ -122,7 +129,7 @@ const StepGenerateMnemonic: React.FC<StepGenerateMnemonicProps> = (props) => {
 
   const backAction = () => {
     // No Mneomoic Generated
-    if (!props.mnemonic) return props.goBackStep;
+    if (!props.mnemonic || (props.mnemonic && props.isUsingSaved)) return props.goBackStep;
     // Viewing whole mnemonic screen
     if (props.mnemonic && !confirmMnemonic) return resetState;
     // Viewing Confirm Mnemonic Screen
@@ -146,7 +153,7 @@ const StepGenerateMnemonic: React.FC<StepGenerateMnemonicProps> = (props) => {
   };
 
   const nextDetails = {
-    text: !props.mnemonic ? "Generate Mnemonic" : "Continue",
+    text: (!props.mnemonic || props.isUsingSaved) ? "Generate Mnemonic" : "Continue",
     visible: true,
   };
 
@@ -154,15 +161,15 @@ const StepGenerateMnemonic: React.FC<StepGenerateMnemonicProps> = (props) => {
     // isDisabled: !props.stakeInfoPath,
     // If confrimMnemonc is show then check if the user has entered all the words.
     // Otherwise the button is not disabled
-    isDisabled: confirmMnemonic ? !mnemonicConfirmed : false,
+    isDisabled: (confirmMnemonic && !props.isUsingSaved) ? !mnemonicConfirmed : false,
     onClick: nextAction(),
     variant: "white-button",
   };
 
-  const handleEyeIconClick = (event: any) => {
-    event.stopPropagation();
-    setShowMnemonic(!showMnemonic);
-  };
+  // const handleEyeIconClick = (event: any) => {
+  //   event.stopPropagation();
+  //   setShowMnemonic(!showMnemonic);
+  // };
 
   return (
     <Flex
@@ -171,10 +178,10 @@ const StepGenerateMnemonic: React.FC<StepGenerateMnemonicProps> = (props) => {
       gap="12px"
       bgColor="purple.dark"
       height="full"
-      width={"full"}
+      width="full"
       borderRadius="lg"
     >
-      {!props.mnemonic && !generating && (
+      {(!props.mnemonic || (props.mnemonic && props.isUsingSaved)) && !generating && (
         <>
           <Center>
             <IconLockFile boxSize="100" />
@@ -194,38 +201,61 @@ const StepGenerateMnemonic: React.FC<StepGenerateMnemonicProps> = (props) => {
           </Text>
         </>
       )}
-      {props.mnemonic && !confirmMnemonic && (
+      {props.mnemonic && !props.isUsingSaved && !confirmMnemonic && !generating && (
         <DisplayMnemonic mnemonic={props.mnemonic} />
       )}
-      {props.mnemonic && confirmMnemonic && (
+      {props.mnemonic && !props.isUsingSaved && confirmMnemonic && !generating && (
         <ConfirmMnemonic
           mnemonic={props.mnemonic}
           wordsToConfirmIndicies={props.wordsToConfirmIndicies}
           setMnemonicConfirmed={setMnemonicConfirmed}
         />
       )}
-      {!props.mnemonic && !generating && (
+      {(!props.mnemonic || (props.mnemonic && props.isUsingSaved)) && !generating && (storedMnemonics?.length && storedMnemonics?.length > 0) && (
         <Menu>
-          <MenuButton as={Button} rightIcon={<AddIcon />}>
-            Select Previously Used Mnemonic
+          <Center>
+          <MenuButton w="393px !important" mt="12px" mb="16px" pt="23px" pb="23px" as={Button} rightIcon={<AddIcon />}>
+            <Text fontSize={15} fontWeight="normal">Use Previously Stored Mnemonics</Text>
           </MenuButton>
-          <MenuList maxW="80%">
-            {storedMnemonics?.map((entry: any) => (
-              <MenuItem key={entry.id}>
-                <Button
-                  mr={2}
-                  variant="outline"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    props.setMnemonic(entry.mnemonic);
-                    props.goNextStep();
-                  }}
-                >
-                  <AddIcon />
-                </Button>
-                <Text>{entry.text}</Text>
-                <Box display="flex" alignItems="center" ml="auto">
-                  {showMnemonic ? (
+          <MenuList w="393px !important">
+            { storedMnemonics?.map((entry: any) => (
+              <MenuItem
+                onClick={(e) => {
+                  console.log("mnemonics:", props.mnemonic)
+                  e.stopPropagation();
+                  props.setMnemonic(entry.mnemonic);
+                  props.goNextStep();
+                  props.setIsUsingSaved(true); 
+                }}
+                key={entry.id}
+              >
+                {/* <Text>{entry.text}</Text> */}
+                {/* <Grid templateColumns="5fr 1fr"> */}
+                  {/* <GridItem> */}
+                    <Box w="100%">
+                      <Tooltip label={entry.mnemonic}>
+                      <Text isTruncated>{entry.mnemonic}</Text>
+                      </Tooltip>
+                    </Box>
+                  {/* </GridItem>
+                  <GridItem> */}
+                    {/* <Button
+                      mr={2}
+                      variant="outline"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        props.setMnemonic(entry.mnemonic);
+                        props.goNextStep();
+                      }}
+                    > */}
+                      {/* <Text>use</Text> */}
+                      {/* <AddIcon /> */}
+                    {/* </Button>
+                  </GridItem> */}
+                {/* </Grid> */}
+                {/* <Box display="flex" alignItems="center" ml="auto"> */}
+                  
+                  {/* {showMnemonic ? (
                     <>
                       <Text>{shortenMnemonic(entry.mnemonic)}</Text>
                       <IconButton
@@ -244,13 +274,26 @@ const StepGenerateMnemonic: React.FC<StepGenerateMnemonicProps> = (props) => {
                       aria-label="Show mnemonic"
                       onClick={handleEyeIconClick}
                     />
-                  )}
-                </Box>
+                  )} */}
+                {/* </Box> */}
               </MenuItem>
             ))}
+            {/* {
+              (!storedMnemonics?.length || storedMnemonics?.length == 0) && (
+                <MenuItem>
+                  <Text
+                    align="center"
+                  >
+                    There is currently no saved mnemonics
+                  </Text>
+                </MenuItem>
+              )
+            } */}
           </MenuList>
+          </Center>
         </Menu>
       )}
+
 
       {!generating && (
         <WizardNavigator
