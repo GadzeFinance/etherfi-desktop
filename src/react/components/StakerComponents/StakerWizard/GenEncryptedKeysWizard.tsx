@@ -76,7 +76,7 @@ const GenEncryptedKeysWizard: React.FC<WizardProps> = (props) => {
         <Flex flexDir="column" width="100%">
 
           {activeStep === 0 && <StepSelectStakeInfoPath goBackStep={prevStep} goNextStep={nextStep} stakeInfoPath={stakeInfoPath} setStakeInfoPath={setStakeInfoPath} />}
-          {activeStep === 1 && <StepGenerateMnemonic goBackStep={prevStep} goNextStep={nextStep} mnemonic={mnemonic} setMnemonic={setMnemonic} isUsingSaved={isUsingSaved} setIsUsingSaved={setIsUsingSaved} wordsToConfirmIndicies={wordsToConfirmIndicies} />}
+          {activeStep === 1 && <StepGenerateMnemonic goBackStep={prevStep} goNextStep={nextStep} mnemonic={mnemonic} setMnemonic={setMnemonic} isUsingSaved={isUsingSaved} setIsUsingSaved={setIsUsingSaved} wordsToConfirmIndicies={wordsToConfirmIndicies} setPassword={setPassword} />}
           {activeStep === 2 && <StepCreatePassword goBackStep={prevStep} goNextStep={nextStep} password={password} setPassword={setPassword} />}
           {activeStep === 3 && <StepCreateKeys goBackStep={prevStep} goNextStep={nextStep}
             savePath={savePath} setSavePath={setSavePath}

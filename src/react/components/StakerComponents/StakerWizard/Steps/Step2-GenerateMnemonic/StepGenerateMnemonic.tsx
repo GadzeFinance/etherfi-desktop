@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Flex,
   Text,
@@ -21,6 +21,7 @@ import WizardNavigator from "../../WizardNavigator";
 import EtherFiSpinner from "../../../../EtherFiSpinner";
 import { IconLockFile } from "../../../../Icons";
 import StoredMnemonicSelect from "./StoredMnemonicSelect";
+import { AddIcon } from "@chakra-ui/icons";
 
 interface StepGenerateMnemonicProps {
   goNextStep: () => void;
