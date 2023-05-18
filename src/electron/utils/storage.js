@@ -14,19 +14,6 @@ class Database {
         return JSON.stringify(this._store.store)
     }
 
-    setPassword(password) {
-        if (this.isPasswordSet()) {
-            return
-        }
-
-        this._store.set("password", true)
-        this._password = password;
-    }
-
-    isPasswordSet() {
-        return this._store.get("password");
-    }
-
     addValidator(key, value) {
         this._store.set("validator/" + key.toString(), JSON.stringify(value))
     }
@@ -44,7 +31,6 @@ class Database {
     }
 
     setMnemonic(value) {
-
         const key = "mnemonic/" + Object.keys(this._store.store).reduce((acc, key) => {
             return key.startsWith("mnemonic") ? acc + 1 : acc
         }, 0).toString()
@@ -60,6 +46,17 @@ class Database {
             if (prefix == "mnemonic") decryptedMnemonics[mnemonicID] = value;
         })
         return decryptedMnemonics
+    }
+
+    setPassword(password) {
+        const key = "password/" + Object.keys(this._store.store).reduce((acc, key) => {
+            return key.startsWith("password") ? acc + 1 : acc
+        }, 0).toString()
+        this._store.set(key, password)
+    }
+
+    getPassword(number) {
+        return this._store.get(`password/${number}`);
     }
 
     #encrypt = (content) => CryptoJS.AES.encrypt(JSON.stringify({ content }), this._password).toString()

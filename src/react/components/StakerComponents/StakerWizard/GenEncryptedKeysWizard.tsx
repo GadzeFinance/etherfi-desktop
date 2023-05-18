@@ -48,8 +48,8 @@ const GenEncryptedKeysWizard: React.FC<WizardProps> = (props) => {
   const [isUsingSaved, setIsUsingSaved] = useState<boolean>(false);
   const [password, setPassword] = useState<string>("");
   const [savePath, setSavePath] = useState<string>("");
-  const [keysGenerated, setKeysGenerated] = useState(false)
-  const [filesCreatedPath, setFilesCreatedPath] = useState("")
+  const [keysGenerated, setKeysGenerated] = useState<boolean>(false)
+  const [filesCreatedPath, setFilesCreatedPath] = useState<string>("")
   const wordsToConfirmIndicies = useMemo(() => getMenomicWordsToConfirmIndicies(), [mnemonic])
 
   return (

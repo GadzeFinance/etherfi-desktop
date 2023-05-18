@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import {
   Flex,
   Text,
@@ -14,13 +14,13 @@ import {
   GridItem,
   Tooltip,
 } from "@chakra-ui/react";
-import { AddIcon, ViewIcon, ViewOffIcon } from "@chakra-ui/icons";
 
 import DisplayMnemonic from "./DisplayMnemonic";
 import ConfirmMnemonic from "./ConfimMnemonic";
 import WizardNavigator from "../../WizardNavigator";
 import EtherFiSpinner from "../../../../EtherFiSpinner";
 import { IconLockFile } from "../../../../Icons";
+import StoredMnemonicSelect from "./StoredMnemonicSelect";
 
 interface StepGenerateMnemonicProps {
   goNextStep: () => void;
@@ -30,6 +30,7 @@ interface StepGenerateMnemonicProps {
   isUsingSaved: boolean;
   setIsUsingSaved: (isUsingSaved: boolean) => void;
   wordsToConfirmIndicies: Array<number>;
+  setPassword: (password: string) => void;
 }
 
 // const shortenMnemonic = (mnemonic: any) => {
@@ -108,21 +109,6 @@ const StepGenerateMnemonic: React.FC<StepGenerateMnemonicProps> = (props) => {
     if (props.mnemonic && confirmMnemonic)
       return () => {
         setConfirmMnemonic(false);
-        window.encryptionApi.recieveSaveMnemonic(
-          (
-            event: Electron.IpcMainEvent,
-            result: number,
-            body: any,
-            errorMessage: string
-          ) => {
-            if (result === 1) {
-              console.error("Error fetching mnemonic");
-              console.error(errorMessage);
-            }
-          }
-        );
-        console.log("PROP: ", props.mnemonic);
-        window.encryptionApi.reqSaveMnemonic(props.mnemonic);
         props.goNextStep();
       };
   };
