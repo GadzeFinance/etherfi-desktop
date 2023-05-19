@@ -224,7 +224,7 @@ const store = new Store({ newSchema });
 // store.clear();
 // password = "Password123!";
 
-// db = new Database(store);
+const db = new Database(store);
 // db.setPassword(password);
 // console.log("Passwords match: ", db.validatePassword(password));
 
@@ -245,4 +245,7 @@ const store = new Store({ newSchema });
 // console.log("All Validator Addresses: ", db.getValidatorAddress('0xDEF'));
 // console.log("Get All Validator Addresses: ", db.getAllValidatorAddress())
 
-module.exports = store
+module.exports = {
+    store,
+    db
+}

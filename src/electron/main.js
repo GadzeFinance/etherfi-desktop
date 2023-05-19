@@ -24,6 +24,7 @@ const {
 const {validateJsonFile} = require('./utils/validateFile')
 const { standardResultCodes, decryptResultCodes } = require('./constants')
 const { generateSignedExitMessage } = require('./utils/Eth2Deposit')
+const { db } = require('./utils/newStorage')
 
 
 function createWindow() {
@@ -273,11 +274,11 @@ ipcMain.on("req-update-stale-keys", async (event, args) => {
 ipcMain.on("req-set-password", async (event, args) => {
     const [password] = args
     try {
-        // call set password
-        event.sender.send("receive-set-password-confirmation", standardResultCodes.SUCCESS, '', '')
+        db.setPassword(password)
+        event.sender.send("receive-set-password-result", standardResultCodes.SUCCESS)
     } catch (error) {
         logger.error("Error setting password:", error)
-        event.sender.send("receive-set-password-confirmation", standardResultCodes.ERROR, '' , error.message)
+        event.sender.send("receive-set-password-result", standardResultCodes.ERROR, '' , error.message)
     }
 })
 
@@ -285,10 +286,10 @@ ipcMain.on("req-set-password", async (event, args) => {
 ipcMain.on("req-validate-password", async (event, args) => {
     const [password] = args
     try {
-        // call set password
-        event.sender.send("receive-validate-password-confirmation", standardResultCodes.SUCCESS, '', '')
+        db.validatePassword(password)
+        event.sender.send("receive-validate-password-result", standardResultCodes.SUCCESS)
     } catch (error) {
         logger.error("Error validating password:", error)
-        event.sender.send("receive-validate-password-confirmation", standardResultCodes.ERROR, '' , error.message)
+        event.sender.send("receive-validate-password-result", standardResultCodes.ERROR, '' , error.message)
     }
 })

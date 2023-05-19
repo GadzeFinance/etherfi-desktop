@@ -163,8 +163,14 @@ contextBridge.exposeInMainWorld("databaseApi", {
     reqSetPassword: function(password) {
         ipcRenderer.send("req-set-password", [password]);
     },
+    receiveSetPasswordResult: function(func) {
+        ipcRenderer.send("receive-set-password-result", (event, ...args) => func(event, ...args));
+    },
     reqValidatePassword: function(password) {
         ipcRenderer.send("req-validate-password", [password]);
-    }
+    },
+    receiveValidatePasswordResult: function(func) {
+        ipcRenderer.send("receive-validate-password-result", (event, ...args) => func(event, ...args));
+    },
 });
 
