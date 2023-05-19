@@ -23,7 +23,7 @@ const StoredMnemonicSelect: React.FC<StoredMnemonicSelectProps> = (props: Stored
     const [showMnemonic, setShowMnemonic] = useState(false);
 
     useEffect(() => {
-        window.encryptionApi.recieveStoredMnemonic(
+        window.encryptionApi.recieveStoredAccount(
           (
             event: Electron.IpcMainEvent,
             result: number,
@@ -31,21 +31,22 @@ const StoredMnemonicSelect: React.FC<StoredMnemonicSelectProps> = (props: Stored
             errorMessage: string
           ) => {
             if (result === 0) {
-              const outputArr = Object.entries(JSON.parse(mnemonic)).map(
-                ([id, text], index) => ({
-                  id: parseInt(id),
-                  text: id,
-                  mnemonic: text,
-                })
-              );
-              props.setStoredMnemonic(outputArr);
+                const outputArr = Object.entries(JSON.parse(mnemonic)).map(
+                    ([id, value]: [any, any], index) => ({
+                        id: parseInt(id),
+                        text: id,
+                        mnemonic: value.mnemonic,
+                        password: value.password
+                    })
+                );
+                props.setStoredMnemonic(outputArr);
             } else {
-              console.error("Error fetching mnemonic");
-              console.error(errorMessage);
+                console.error("Error fetching mnemonic");
+                console.error(errorMessage);
             }
           }
         );
-        window.encryptionApi.reqStoredMnemonic();
+        window.encryptionApi.reqStoredAccount();
       }, []);
 
     const shortenMnemonic = (mnemonic: any) => {
@@ -64,26 +65,7 @@ const StoredMnemonicSelect: React.FC<StoredMnemonicSelectProps> = (props: Stored
     const getAndSetPassword = (entry: any, e: React.MouseEvent) => {
         e.stopPropagation();
         props.setMnemonic(entry.mnemonic);
-
-        window.encryptionApi.receiveGetPassword(
-            (
-                event: Electron.IpcMainEvent,
-                result: number,
-                password: any,
-                errorMessage: string
-            ) => {
-                if (result === 0) {
-                    props.setPassword(password)
-                    props.goNextStep();
-                    props.goNextStep();
-
-                } else {
-                    console.error("Error fetching mnemonic");
-                    console.error(errorMessage);
-                }
-            }
-        );
-        window.encryptionApi.reqGetPassword(entry.id.toString());
+        props.setPassword(entry.password);
     }
 
     return (

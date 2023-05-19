@@ -24,18 +24,16 @@ contextBridge.exposeInMainWorld("encryptionApi", {
     receiveNewMnemonic: function(func){
         ipcRenderer.once("receive-new-mnemonic", (event, ...args) => func(event, ...args));       
     },
-    reqStoredMnemonic: function() {
-        ipcRenderer.send("req-stored-mnemonic", []);
+    reqStoredAccount: function() {
+        ipcRenderer.send("req-stored-accounts", []);
     },
-    recieveStoredMnemonic: function (func) {
-        ipcRenderer.once("receive-req-stored-mnemonic-confirmation", (event, ...args) => func(event, ...args));       
+    recieveStoredAccount: function (func) {
+        ipcRenderer.once("receive-req-stored-account-confirmation", (event, ...args) => func(event, ...args));       
     },
     reqStoredValidators: function() {
-        console.log("In request")
         ipcRenderer.send("req-stored-validators", []);
     },
     receiveStoredValidators: function(func) {
-        console.log("In receive")
         ipcRenderer.once("receive-stored-validators", (event, ...args) => func(event, ...args))
     },
     reqGenValidatorKeysAndEncrypt: function(mnemonic, password, folder, stakeInfoPath, chain){

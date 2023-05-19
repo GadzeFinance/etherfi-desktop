@@ -1,76 +1,64 @@
-const CryptoJS = require('crypto-js')
 const Store = require('electron-store');
-
+const schema = require('./storageSchema');
 class Database {
-
-    _store;
-    _password;
+    _store
 
     constructor(store) {
         this._store = store;
     }
 
+    /**
+     * Returns EVERYTHING
+     * @returns {object}
+     */
     getEverything() {
-        return JSON.stringify(this._store.store)
+        return this._store.store;
     }
 
-    addValidator(key, value) {
-        this._store.set("validator/" + key.toString(), JSON.stringify(value))
+    /**
+     * Adds mnemonic and password to accounts
+     * @param {string} mnemonic 
+     * @param {string} password 
+     */
+    addAccount(mnemonic, password) {
+        const accountID = (this._store.get("stakers.count") | 0) + 1;
+        this._store.set(`stakers.data.${accountID}`, {mnemonic: mnemonic, password: password});
+        this._store.set("stakers.count", parseInt(accountID));
     }
 
-    getAllValidators() {
-
-        let encryptedValidators = this._store.store;
-        let decryptedValidators = new Map()
-        Object.entries(encryptedValidators).forEach(entry => {
-            const [key, value] = entry
-            const [prefix, validatorID] = key.split("/")
-            if (prefix == "validator") decryptedValidators[validatorID] = JSON.parse(value);
-        })
-        return decryptedValidators
+    /**
+     * Returns all accounts with mnemonic and password
+     * @returns {object} MUST STRINGIFY WHEN NEEDED!
+     */
+    getAccounts() {
+        const accounts = this._store.get("stakers.data")
+        return accounts ?? {}
+    }
+    /**
+     * Returns all validators with id and private key
+     * @param {string} validatorID 
+     * @param {string} privateKey This is a stringified JSON!!
+     */
+    addValidator(validatorID, privateKey) {
+        this._store.set(`validators.data.${validatorID}`, {validatorID: validatorID, fileData: privateKey})
+        const newCount = (this._store.get("validators.count") | 0) + 1
+        this._store.set("validators.count", newCount);
     }
 
-    setMnemonic(value) {
-        const key = "mnemonic/" + Object.keys(this._store.store).reduce((acc, key) => {
-            return key.startsWith("mnemonic") ? acc + 1 : acc
-        }, 0).toString()
-        this._store.set(key, value)
+    /**
+     * Returns all validators
+     * @returns {object} MUST STRINGIFY WHEN NEEDED!
+     */
+    getValidators() {
+        return this._store.get("validators.data")
     }
 
-    getAllMnemonics() {
-        let encryptedMnemonics = this._store.store;
-        let decryptedMnemonics = new Map()
-        Object.entries(encryptedMnemonics).forEach(entry => {
-            const [key, value] = entry
-            const [prefix, mnemonicID] = key.split("/")
-            if (prefix == "mnemonic") decryptedMnemonics[mnemonicID] = value;
-        })
-        return decryptedMnemonics
-    }
-
-    setPassword(password) {
-        const key = "password/" + Object.keys(this._store.store).reduce((acc, key) => {
-            return key.startsWith("password") ? acc + 1 : acc
-        }, 0).toString()
-        this._store.set(key, password)
-    }
-
-    getPassword(number) {
-        return this._store.get(`password/${number}`);
-    }
-
-    #encrypt = (content) => CryptoJS.AES.encrypt(JSON.stringify({ content }), this._password).toString()
-    #decrypt = (crypted) => JSON.parse(CryptoJS.AES.decrypt(crypted, this._password).toString(CryptoJS.enc.Utf8)).content
+    
 }
 
-const storeInstance = new Store()
-let database = new Database(storeInstance)
-
-// database.setMnemonic("Apple Bull Cat Dog Elephant")
-// database.setMnemonic("Ginger Hyena Ink Jellyfish Kangaroo")
-// console.log("Here: ", database.getAllMnemonics())
 
 
+const store = new Store({ schema });
+database = new Database(store)
 module.exports = database
-
 

@@ -232,7 +232,7 @@ const generateKeys = async (
   await execFileProm(executable, args, {env: env});
   const {file} = getMostRecentFile(folder)
   const filePathToKeystore = `${folder}/${file}`
-  const keystore = JSON.parse(readFileSync(filePathToKeystore))
+  const keystore = readFileSync(filePathToKeystore)
   storage.addValidator(validatorID.toString(), keystore)
 }
 

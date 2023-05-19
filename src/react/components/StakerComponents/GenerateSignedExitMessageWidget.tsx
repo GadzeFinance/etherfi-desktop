@@ -59,8 +59,8 @@ const GenerateSignedExitMessageWidget: React.FC = () => {
       ) => {
         if (result === 0) {
             let parsedValidators = JSON.parse(validators);
-            setFetchedValidators(Object.entries(parsedValidators).map(([key, value], i) => {
-                return JSON.stringify({key: key, value: value})
+            setFetchedValidators(Object.entries(parsedValidators).map(([key, value]: [any ,any], i) => {
+                return value
             }));
         } else {
           console.error("Error generating mnemonic");
@@ -204,8 +204,8 @@ const GenerateSignedExitMessageWidget: React.FC = () => {
                             value={selectedValidator}
                             onChange={(e) => setSelectedValidator(e.target.value)}
                           >
-                            {Object.entries(fetchedValidators).map(([key, value], i) => (
-                                <option value={value}>{JSON.parse(value).key}</option>
+                            {Object.entries(fetchedValidators).map(([key, value]: [any, any], i) => (
+                                <option value={value.fileData} key={key}>{value.validatorID}</option>
                             ))}
                           </Select>
                         </Box>

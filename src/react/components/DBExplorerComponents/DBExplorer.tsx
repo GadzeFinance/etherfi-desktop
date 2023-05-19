@@ -20,26 +20,26 @@ import {
 const DBExplorer = () => {
   const [dbcontents, setDbContents] = useState({})
 
-  useEffect(() => {
-    window.utilsApi.recieveDatabaseContents(
-        (
-          event: Electron.IpcMainEvent,
-          result: number,
-          data: string,
-          errorMessage: string
-        ) => {
-          if (result === 0) {
-            console.log(JSON.parse(data))
-            setDbContents(JSON.parse(data))
-          } else {
-            console.error("Error Fetching Data");
-            console.error(errorMessage);
-          }
-        }
-      );
-      window.utilsApi.reqDatabaseContents();
+  // useEffect(() => {
+  //   window.utilsApi.recieveDatabaseContents(
+  //       (
+  //         event: Electron.IpcMainEvent,
+  //         result: number,
+  //         data: string,
+  //         errorMessage: string
+  //       ) => {
+  //         if (result === 0) {
+  //           console.log(JSON.parse(data))
+  //           setDbContents(JSON.parse(data))
+  //         } else {
+  //           console.error("Error Fetching Data");
+  //           console.error(errorMessage);
+  //         }
+  //       }
+  //     );
+  //     window.utilsApi.reqDatabaseContents();
 
-  }, [])
+  // }, [])
 
 
   const [selectedCode, setSelectedCode] = useState("");

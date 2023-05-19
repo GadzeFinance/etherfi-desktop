@@ -16,10 +16,9 @@ const {
     listenSelectJsonFile,
     genValidatorKeysAndEncrypt,
     decryptValidatorKeys,
-    fetchStoredMnemonics,
     fetchStoredValidators,
     fetchDatabase,
-    getPassword
+    getAccounts
 } = require('./listeners');
 
 const {validateJsonFile} = require('./utils/validateFile')
@@ -145,20 +144,20 @@ ipcMain.on("req-decrypt-val-keys",  async (event, args) => {
 });
 
 
-ipcMain.on("req-stored-mnemonic", async (event, args) => {
+ipcMain.on("req-stored-accounts", async (event, args) => {
     try {
-        const mnemonic = await fetchStoredMnemonics();
-        event.sender.send("receive-req-stored-mnemonic-confirmation",  standardResultCodes.SUCCESS, JSON.stringify(mnemonic), '')
+        let accounts = await getAccounts();
+        accounts = accounts ?? {};
+        event.sender.send("receive-req-stored-account-confirmation",  standardResultCodes.SUCCESS, JSON.stringify(accounts), '')
     } catch (error) {
         logger.error("Error fetching stored mnemonic: ", error);
-        event.sender.send("receive-req-stored-mnemonic-confirmation",  standardResultCodes.ERROR, '', error.message)
+        event.sender.send("receive-req-stored-account-confirmation",  standardResultCodes.ERROR, '', error.message)
 
     }
 })
 
 ipcMain.on("req-stored-validators", async (event, args) => {
     try {
-        console.log("Getting validators")
         const validators = await fetchStoredValidators();
         event.sender.send("receive-stored-validators", standardResultCodes.SUCCESS, JSON.stringify(validators), '')
     } catch (error) {
@@ -166,7 +165,6 @@ ipcMain.on("req-stored-validators", async (event, args) => {
         event.sender.send("receive-stored-validators",  standardResultCodes.ERROR, '', error.message)
     }
 })
-
 
 ipcMain.on('req-get-password', async (event, args) => {
     const [number] = args;
@@ -188,7 +186,6 @@ ipcMain.on("req-signed-exit-message", async (event, args) => {
     const [usingStoredKeys, selectedValidator, keystorePath, keystorePassword, validatorIndex, epoch, saveFolder, chain] = args
     try {
         const exitMessageFilePath = await generateSignedExitMessage(usingStoredKeys, selectedValidator, chain, keystorePath, keystorePassword, validatorIndex, epoch, saveFolder)
-        console.log(exitMessageFilePath)
         event.sender.send("receive-signed-exit-message-confirmation", standardResultCodes.SUCCESS, exitMessageFilePath , '')
     } catch (error) {
         logger.error("Error Generating Signed Exit Message:", error)

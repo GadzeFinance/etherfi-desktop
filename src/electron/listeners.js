@@ -133,9 +133,11 @@ const genValidatorKeysAndEncrypt = async (mnemonic, password, folder, stakeInfoP
         throw new Error("Error encrypting validator keys")
     }
 
-    await storage.setMnemonic(mnemonic);
-    await storage.setPassword(password);
-    
+    // Only add to the db if we dont have mnemonic added already
+    const allAccounts = await storage.getAccounts();
+    if (Object.values(allAccounts).indexOf('mnemonic') < 0) {
+        await storage.addAccount(mnemonic, password)
+    }
 
     // Send back the folder where everything is save
     logger.info("genEncryptedKeys: End")
@@ -352,8 +354,13 @@ const fetchStoredMnemonics = async () => {
     return mnemonics
 }
 
+const getAccounts = async () => {
+    const accounts = await storage.getAccounts();
+    return accounts;
+}
+
 const fetchStoredValidators = async () => {
-    const validators = await storage.getAllValidators();
+    const validators = await storage.getValidators();
     return validators;
 }
 
@@ -453,5 +460,6 @@ module.exports = {
     fetchStoredMnemonics,
     fetchStoredValidators,
     fetchDatabase,
+    getAccounts,
     getPassword
 }
