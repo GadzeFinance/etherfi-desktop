@@ -263,3 +263,32 @@ ipcMain.on("req-update-stale-keys", async (event, args) => {
     const result = true;
     event.sender.send("receive-update-stale-keys-report", result)
 })
+
+
+
+
+
+/* -------------------- DATABASE API ---------------------- */
+
+ipcMain.on("req-set-password", async (event, args) => {
+    const [password] = args
+    try {
+        // call set password
+        event.sender.send("receive-set-password-confirmation", standardResultCodes.SUCCESS, '', '')
+    } catch (error) {
+        logger.error("Error setting password:", error)
+        event.sender.send("receive-set-password-confirmation", standardResultCodes.ERROR, '' , error.message)
+    }
+})
+
+
+ipcMain.on("req-validate-password", async (event, args) => {
+    const [password] = args
+    try {
+        // call set password
+        event.sender.send("receive-validate-password-confirmation", standardResultCodes.SUCCESS, '', '')
+    } catch (error) {
+        logger.error("Error validating password:", error)
+        event.sender.send("receive-validate-password-confirmation", standardResultCodes.ERROR, '' , error.message)
+    }
+})

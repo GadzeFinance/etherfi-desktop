@@ -159,6 +159,12 @@ contextBridge.exposeInMainWorld("databaseApi", {
     },
     receiveUpdateStaleKeysResult: function(func){
         ipcRenderer.once("receive-update-stale-keys-report", (event, ...args) => func(event, ...args));       
+    },
+    reqSetPassword: function(password) {
+        ipcRenderer.send("req-set-password", [password]);
+    },
+    reqValidatePassword: function(password) {
+        ipcRenderer.send("req-validate-password", [password]);
     }
 });
 

@@ -32,6 +32,10 @@ const LoginPage: React.FC<LoginPageProps> = (props: LoginPageProps) => {
     }
 
     // create password in backend
+    
+    // TODO: receive the confirmation
+
+    window.databaseApi.reqSetPassword(password);
 
     // if success, setIsFirstUse(false)
   }
