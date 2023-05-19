@@ -20,7 +20,9 @@ import {
 } from "@chakra-ui/react";
 
 const DBExplorer = () => {
-  const [dbcontents, setDbContents] = useState({})
+  const [dbcontents, setDbContents] = useState({
+    //"define blush there city under ready oak trap pluck correct regret angry program actor good receive umbrella mail merry divide average border juice cannon": [{}]
+  })
 
   // useEffect(() => {
   //   window.utilsApi.recieveDatabaseContents(
@@ -81,7 +83,8 @@ const DBExplorer = () => {
         { hasData && (<Table variant="simple">
           <Thead>
             <Tr>
-              <Td></Td>
+              <Td>Mnemonic</Td>
+              <Td>StakeInfo File</Td>
             </Tr>
           </Thead>
           <Tbody>

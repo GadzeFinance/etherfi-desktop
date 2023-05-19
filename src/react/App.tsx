@@ -19,6 +19,7 @@ declare global {
 
 const App: React.FC = () => {
   const [tabIndex, setTabIndex] = useState<number>(0)
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false)
 
   const handleTabsChange = (index: number) => {
     setTabIndex(index)
