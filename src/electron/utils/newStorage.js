@@ -93,7 +93,13 @@ class Database {
         this._store = store;
     }
 
+    isPasswordSet() {
+        const passwordSet = this._store.get("passwordSet");
+        return passwordSet;
+    }
+
     setPassword(password) {
+        // TODO: check the password has not already been set
         this._store.set("passwordSet", true);
         this._store.set(
             "passwordHash",
@@ -101,7 +107,7 @@ class Database {
         );
         // Since this is our first time using app, we also need to generate a password for validators
         const validatorPassword = this.#generatePassword();
-        this._store.set('validatorPassword', encrypt(validatorPassword, password))
+        this._store.set('validatorPassword', this.encrypt(validatorPassword, password))
     }
 
     validatePassword(password) {

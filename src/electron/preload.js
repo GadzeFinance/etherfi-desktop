@@ -164,13 +164,19 @@ contextBridge.exposeInMainWorld("databaseApi", {
         ipcRenderer.send("req-set-password", [password]);
     },
     receiveSetPasswordResult: function(func) {
-        ipcRenderer.send("receive-set-password-result", (event, ...args) => func(event, ...args));
+        ipcRenderer.once("receive-set-password-result", (event, ...args) => func(event, ...args));
     },
     reqValidatePassword: function(password) {
         ipcRenderer.send("req-validate-password", [password]);
     },
     receiveValidatePasswordResult: function(func) {
-        ipcRenderer.send("receive-validate-password-result", (event, ...args) => func(event, ...args));
+        ipcRenderer.once("receive-validate-password-result", (event, ...args) => func(event, ...args));
     },
+    reqIsPasswordSet: function() {
+        ipcRenderer.send("req-is-password-set", []);
+    },
+    receiveIsPasswordSet: function(func) {
+        ipcRenderer.once("receive-is-password-set", (event, ...args) => func(event, ...args))
+    }
 });
 

@@ -275,10 +275,10 @@ ipcMain.on("req-set-password", async (event, args) => {
     const [password] = args
     try {
         db.setPassword(password)
-        event.sender.send("receive-set-password-result", standardResultCodes.SUCCESS)
+        event.sender.send("receive-set-password-result", standardResultCodes.SUCCESS, '')
     } catch (error) {
         logger.error("Error setting password:", error)
-        event.sender.send("receive-set-password-result", standardResultCodes.ERROR, '' , error.message)
+        event.sender.send("receive-set-password-result", standardResultCodes.ERROR, error.message)
     }
 })
 
@@ -286,10 +286,20 @@ ipcMain.on("req-set-password", async (event, args) => {
 ipcMain.on("req-validate-password", async (event, args) => {
     const [password] = args
     try {
-        db.validatePassword(password)
-        event.sender.send("receive-validate-password-result", standardResultCodes.SUCCESS)
+        const valid = db.validatePassword(password)
+        event.sender.send("receive-validate-password-result", standardResultCodes.SUCCESS, valid, '')
     } catch (error) {
         logger.error("Error validating password:", error)
-        event.sender.send("receive-validate-password-result", standardResultCodes.ERROR, '' , error.message)
+        event.sender.send("receive-validate-password-result", standardResultCodes.ERROR, false, error.message)
+    }
+})
+
+ipcMain.on("req-is-password-set", async (event, args) => {
+    try {
+        const passwordSet = db.isPasswordSet()
+        event.sender.send("receive-is-password-set", standardResultCodes.SUCCESS, passwordSet, '')
+    } catch (error) {
+        logger.error("Error validating password:", error)
+        event.sender.send("receive-is-password-set", standardResultCodes.ERROR, false, error.message)
     }
 })
