@@ -8,6 +8,7 @@ const { selectFolder, selectJsonFile } = require('./utils/saveFile.js')
 const { decryptResultCodes, desktopAppVersion } = require('./constants')
 const logger = require('./utils/logger')
 const storage = require('./utils/storage')
+const newStorage = require('./utils/newStorage')
 
 /**
  * Generates public and private key pairs and saves them in two separate JSON files
@@ -372,6 +373,10 @@ const getPassword = async (number) => {
     return await storage.getPassword(number)
 }
 
+const getStakerAddress = async () => {
+    return await newStorage.getAllStakerAddresses()
+}
+
 
 /**
  * Opens dialog that allows user to select a folder path.
@@ -461,5 +466,6 @@ module.exports = {
     fetchStoredValidators,
     fetchDatabase,
     getAccounts,
-    getPassword
+    getPassword,
+    getStakerAddress
 }

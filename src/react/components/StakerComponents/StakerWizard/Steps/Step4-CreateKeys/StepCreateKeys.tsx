@@ -20,6 +20,7 @@ interface StepCreateKeysProps {
   setKeysGenerated: (generated: boolean) => void,
   filesCreatedPath: string
   setFilesCreatedPath: (path: string) => void,
+  newWalletAddress: boolean
 }
 
 const StepCreateKeys: React.FC<StepCreateKeysProps> = (props) => {

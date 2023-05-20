@@ -53,6 +53,12 @@ contextBridge.exposeInMainWorld("encryptionApi", {
     },
     receiveGetPassword: function(func) {
         ipcRenderer.once("receive-get-password", (event, ...args) => func(event, ...args));       
+    },
+    reqGetStakerAddresses: function () {
+        ipcRenderer.send('req-get-staker-address', [])
+    },
+    receieveGetStakerAddresses: function(func) {
+        ipcRenderer.once("receive-get-staker-address", (event, ...args) => func(event, ...args));
     }
 });
 

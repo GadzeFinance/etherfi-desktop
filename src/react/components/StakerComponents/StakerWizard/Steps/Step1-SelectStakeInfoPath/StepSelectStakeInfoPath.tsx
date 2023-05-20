@@ -21,12 +21,12 @@ const StepSelectStakeInfoPath: React.FC<StepSelectStakeInfoPathProps> = (
   const [staleKeysFound, setStaleKeysFound] = useState<Boolean>(false);
   const backDetails = {
     text: "back",
-    visible: false,
+    visible: true,
   };
 
   const backProps = {
     onClick: props.goBackStep,
-    variant: "white-button",
+    variant: "back-button",
   };
 
   const nextDetails = {

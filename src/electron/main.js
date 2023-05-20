@@ -18,7 +18,8 @@ const {
     decryptValidatorKeys,
     fetchStoredValidators,
     fetchDatabase,
-    getAccounts
+    getAccounts,
+    getStakerAddress
 } = require('./listeners');
 
 const {validateJsonFile} = require('./utils/validateFile')
@@ -177,6 +178,16 @@ ipcMain.on('req-get-password', async (event, args) => {
     } 
 })
 
+ipcMain.on('req-get-staker-address', async (event, args) => {
+    try {
+        const stakers = await getStakerAddress()
+        console.log(stakers)
+        event.sender.send("receive-get-staker-address",  standardResultCodes.SUCCESS, JSON.stringify(stakers), '')
+    } catch (error) {
+        logger.error("Error getting staker addresses: ", error);
+        event.sender.send("receive-get-staker-address",  standardResultCodes.ERROR, '', error.message)
+    } 
+})
 /* ------------------------------------------------------------- */
 /* ------------ Signed Exit Message Generation ----------------- */
 /* ------------------------------------------------------------- */

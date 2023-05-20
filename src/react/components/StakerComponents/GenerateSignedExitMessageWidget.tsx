@@ -1,6 +1,4 @@
 import React, { useState, useEffect } from "react";
-import isDev from 'react-is-dev';
-
 import {
   Box,
   Center,
@@ -23,11 +21,11 @@ import successBoxStyle from "../../styleClasses/successBoxStyle";
 import darkBoxWithBorderStyle from "../../styleClasses/darkBoxWithBorderStyle";
 import { COLORS } from "../../styleClasses/constants";
 import SavedFileBox from "../SavedFileBox";
-import PasswordInput from "../PasswordInput";
 import EtherFiSpinner from "../EtherFiSpinner";
 import SelectFile from "../SelectFile";
 import SelectSavePathButton from "../SelectSavePathButton";
 import ChainSelectionDropdown from "../ChainSelectionDropdown";
+import AddressInput from "../AddressInput";
 
 const GenerateSignedExitMessageWidget: React.FC = () => {
 
@@ -44,6 +42,7 @@ const GenerateSignedExitMessageWidget: React.FC = () => {
   // UI State Variables
   const [messageGenerating, setMessageGenerating] = useState<boolean>(false);
   const [messageGenerated, setMessageGenerated] = useState<boolean>(false);
+  const [addressOptions, setAddressOptions] = useState<string[]>([]);
 
   // TODO: MAKE ERROR MESSAGES BETTER!! I.E See if password is wrong for keystore
   // Right now we just show that a general error occured if the message generation fails
@@ -71,6 +70,26 @@ const GenerateSignedExitMessageWidget: React.FC = () => {
     );
     window.encryptionApi.reqStoredValidators();
   }, []);
+
+  useEffect(() => {
+    window.encryptionApi.receieveGetStakerAddresses(
+        (
+            event: Electron.IpcMainEvent,
+            result: number,
+            addresses: string,
+            errorMessage: string
+        ) => {
+            if (result === 0) {
+                setAddressOptions(Object.keys(JSON.parse(addresses)));
+            } else {
+                console.error("Error generating validator keys");
+                console.error(errorMessage);
+                // TODO: Show error screen on failure.
+            }
+        }
+    );
+    window.encryptionApi.reqGetStakerAddresses();
+}, []);
 
   const clearState = () => {
     setValidatorKeyFilePath("");
@@ -140,9 +159,29 @@ const GenerateSignedExitMessageWidget: React.FC = () => {
                   Generate Signed Voluntary Exit Message
                 </Text>
               </Box>
-
               <Box sx={darkBoxWithBorderStyle} bg="#2b2852">
                 <VStack spacing={4} align="stretch">
+                  <Select
+                    color="white"
+                    borderColor="purple.light"
+                    placeholder="Select Wallet Address"
+                  >
+                    {addressOptions.map((address) => (
+                      <option key={address}>{address}</option>
+                    ))}
+                  </Select>
+                  <Center>
+                    <Text color={"white"} fontSize="2xl" fontWeight={"semibold"}>
+                        or
+                    </Text>
+                  </Center>
+                  <AddressInput address={""} setAddress={function (address: string): void {
+                    throw new Error("Function not implemented.");
+                  } } setDropWalletAddress={function (address: string): void {
+                    throw new Error("Function not implemented.");
+                  } } isAddressValid={false} setIsAddressValid={function (valid: boolean): void {
+                    throw new Error("Function not implemented.");
+                  } } shouldDoValidation={false}/>
                   <Tabs
                     index={selectedTab}
                     onChange={(index) => setSelectedTab(index)}
@@ -212,19 +251,6 @@ const GenerateSignedExitMessageWidget: React.FC = () => {
                       </TabPanel>
                     </TabPanels>
                   </Tabs>
-                  <Box>
-                    <Text fontSize="14px" as="b" color="white">
-                      {" "}
-                      Validator Key Password
-                    </Text>
-                    <PasswordInput
-                      password={validatorKeyPassword}
-                      setPassword={setValidatorKeyPassword}
-                      isPasswordValid={false}
-                      setIsPasswordValid={() => null}
-                      shouldDoValidation={false}
-                    />
-                  </Box>
                   <Box>
                     <HStack>
                       <Text fontSize="14px" as="b" color="white">
