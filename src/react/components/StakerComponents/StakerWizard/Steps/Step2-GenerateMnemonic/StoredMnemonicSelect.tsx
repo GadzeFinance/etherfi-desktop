@@ -8,6 +8,8 @@ import {
     MenuList,
     MenuItem,
     IconButton,
+    Center,
+    Tooltip
 } from "@chakra-ui/react";
 import { AddIcon, ViewIcon, ViewOffIcon } from "@chakra-ui/icons";
 
@@ -70,17 +72,27 @@ const StoredMnemonicSelect: React.FC<StoredMnemonicSelectProps> = (props: Stored
 
     return (
         <Menu>
+            <Center>
             <MenuButton
+                w="393px !important" mt="12px" mb="16px" pt="23px" pb="23px"
                 as={Button}
                 rightIcon={<AddIcon />}
                 disabled={props.storedMnemonics?.length == 0}
             >
                 Use Previously Generated Mnemonic
             </MenuButton>
-            <MenuList maxW="80%">
-                {props.storedMnemonics?.map((entry: any) => (
+            <MenuList w="393px !important">
+                {props.storedMnemonics?.length === 0 && (<Box>
+                    <Text align="center" cursor={"default"}>There is no saved mnemonic.</Text>
+                </Box>)}
+                {props.storedMnemonics?.length > 0 && props.storedMnemonics?.map((entry: any) => (
                     <MenuItem key={entry.id}>
-                        <Button
+                        <Box w="100%">
+                            <Tooltip label={entry.mnemonic}>
+                            <Text isTruncated>{entry.mnemonic}</Text>
+                            </Tooltip>
+                        </Box>
+                        {/* <Button
                             mr={2}
                             variant="outline"
                             onClick={(e) => getAndSetPassword(entry, e)}
@@ -111,10 +123,11 @@ const StoredMnemonicSelect: React.FC<StoredMnemonicSelectProps> = (props: Stored
                                     onClick={handleEyeIconClick}
                                 />
                             )}
-                        </Box>
+                        </Box> */}
                     </MenuItem>
                 ))}
             </MenuList>
+            </Center>
         </Menu>
     );
 };

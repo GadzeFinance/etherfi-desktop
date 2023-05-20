@@ -5,6 +5,7 @@ import NavBar from "./components/Nav/NavBar";
 import StakerTab from "./components/StakerComponents/StakerTab";
 import NodeOperatorTab from "./components/NodeOperatorComponents/NodeOperatorTab";
 import DBExplorer from "./components/DBExplorerComponents/DBExplorer";
+import LoginPage from "./components/LoginPageComponents/LoginPage";
 declare global {
   interface Window {
     encryptionApi: any;
@@ -19,6 +20,7 @@ declare global {
 
 const App: React.FC = () => {
   const [tabIndex, setTabIndex] = useState<number>(0)
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false)
 
   const handleTabsChange = (index: number) => {
     setTabIndex(index)
@@ -36,7 +38,8 @@ const App: React.FC = () => {
   const [stakerOperation, setStakerOperation] = useState(0);
   return (
     <div>
-      <Tabs
+      { !isAuthenticated && <LoginPage setIsAuthenticated={setIsAuthenticated} /> }
+      { isAuthenticated && <Tabs
         variant="soft-rounded"
         index={tabIndex}
         onChange={handleTabsChange}
@@ -62,7 +65,7 @@ const App: React.FC = () => {
             )}
           </TabPanels>
         </Center>
-      </Tabs>
+      </Tabs>}
     </div>
   )
 };
