@@ -14,11 +14,15 @@ import {
   ModalBody,
   Code,
   Center,
-  Box
+  Box,
+  Text,
+  Thead
 } from "@chakra-ui/react";
 
 const DBExplorer = () => {
-  const [dbcontents, setDbContents] = useState({})
+  const [dbcontents, setDbContents] = useState({
+    //"define blush there city under ready oak trap pluck correct regret angry program actor good receive umbrella mail merry divide average border juice cannon": [{}]
+  })
 
   // useEffect(() => {
   //   window.utilsApi.recieveDatabaseContents(
@@ -61,10 +65,28 @@ const DBExplorer = () => {
     }
   }
 
+  // console.log("dbContents: ", dbcontents, Object.entries(dbcontents), Object.entries(dbcontents)?.length)
+  const hasData = Object.entries(dbcontents)?.length > 0
+
+
+  // const fakeData = [{
+  //   mnemonic: "define blush there city under ready oak trap pluck correct regret angry program actor good receive umbrella mail merry divide average border juice cannon",
+  //   keyStoreFiles: ""
+  // }]
+
   return (
     <Center>
       <Box sx={raisedWidgetStyle} bg="#2b2852">
-        <Table variant="simple">
+
+        { !hasData && <Box><Text color={"white"}>There is no saved data in the database</Text></Box>}
+
+        { hasData && (<Table variant="simple">
+          <Thead>
+            <Tr>
+              <Td>Mnemonic</Td>
+              <Td>StakeInfo File</Td>
+            </Tr>
+          </Thead>
           <Tbody>
             {Object.entries(dbcontents).map(([key, code]: [string, string]) => (
               <Tr key={key}>
@@ -87,7 +109,7 @@ const DBExplorer = () => {
               </Tr>
             ))}
           </Tbody>
-        </Table>
+        </Table>)}
 
         <Modal isOpen={selectedCode !== ""} onClose={closeModal} size="full">
           <ModalOverlay />

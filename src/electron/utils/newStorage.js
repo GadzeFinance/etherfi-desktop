@@ -224,11 +224,8 @@ const store = new Store({ newSchema });
 const db = new Database(store)
 store.clear();
 password = "Password123!";
-
-// db = new Database(store);
 db.setPassword(password);
 console.log("Passwords match: ", db.validatePassword(password));
-
 console.log("Generated Password match: ", db.getValidatorPassword(password))
 
 db.addStakerAddress("0xABC");
@@ -245,5 +242,4 @@ db.addStakerAddress("0xABC");
 // db.addValidatorAddress('0xDEF')
 // console.log("All Validator Addresses: ", db.getValidatorAddress('0xDEF'));
 // console.log("Get All Validator Addresses: ", db.getAllValidatorAddress())
-
 module.exports = db
