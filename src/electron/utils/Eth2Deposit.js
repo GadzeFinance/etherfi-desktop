@@ -26,6 +26,7 @@ const path = require('path');
 const process = require('process');
 const {doesFileExist} = require('./BashUtils.js')
 const storage = require('./storage.js')
+const newStorage = require('./newStorage.js')
 const { v4: uuidv4 } = require('uuid');
 /**
  * A promise version of the execFile function from fs for CLI calls.
@@ -184,10 +185,12 @@ const generateKeys = async (
     index, // number,
     count, // number,
     network, // string,
-    password, // string,
+    password, // string, 
     eth1_withdrawal_address, //string,
     folder, // string,
-    validatorID // number
+    validatorID, // number
+    databasePassword, // string
+    address // string
   ) => {
   
   let executable = "";
@@ -233,6 +236,7 @@ const generateKeys = async (
   const {file} = getMostRecentFile(folder)
   const filePathToKeystore = `${folder}/${file}`
   const keystore = readFileSync(filePathToKeystore)
+  newStorage.addValidators(address, validatorID, JSON.stringify(keystore), databasePassword)
   storage.addValidator(validatorID.toString(), keystore)
 }
 

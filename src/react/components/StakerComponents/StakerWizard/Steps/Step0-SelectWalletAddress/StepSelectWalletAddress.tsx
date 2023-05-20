@@ -58,7 +58,7 @@ const StepSelectWalletAddress: React.FC<StepSelectWalletAddressProps> = (
                 errorMessage: string
             ) => {
                 if (result === 0) {
-                    setAddressOptions(Object.keys(JSON.parse(addresses)));
+                    setAddressOptions(Object.keys(JSON.parse(addresses ? addresses : "{}")));
                 } else {
                     console.error("Error generating validator keys");
                     console.error(errorMessage);

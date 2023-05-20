@@ -21,6 +21,7 @@ declare global {
 const App: React.FC = () => {
   const [tabIndex, setTabIndex] = useState<number>(0)
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false)
+  const [password, setPassword] = useState<string>("")
 
   const handleTabsChange = (index: number) => {
     setTabIndex(index)
@@ -38,7 +39,7 @@ const App: React.FC = () => {
   const [stakerOperation, setStakerOperation] = useState(0);
   return (
     <div>
-      { !isAuthenticated && <LoginPage setIsAuthenticated={setIsAuthenticated} /> }
+      { !isAuthenticated && <LoginPage setIsAuthenticated={setIsAuthenticated} setPassword={setPassword} password={password}/> }
       { isAuthenticated && <Tabs
         variant="soft-rounded"
         index={tabIndex}
@@ -53,7 +54,7 @@ const App: React.FC = () => {
         <Center flex="auto">
           <TabPanels>
             <TabPanel>
-              <StakerTab tabIndex={tabIndex} selectedOption={stakerOperation} />
+              <StakerTab tabIndex={tabIndex} selectedOption={stakerOperation} password={password}/>
             </TabPanel>
             <TabPanel>
               <NodeOperatorTab tabIndex={tabIndex} selectedOption={selectedNodeOperatorOperation} />

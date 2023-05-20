@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import { Center, Flex } from "@chakra-ui/react";
 import { Step, Steps, useSteps } from "chakra-ui-steps";
 
@@ -27,6 +27,7 @@ const steps = [
 
 interface WizardProps {
     navigateTo: (tabIndex: number) => void;
+    password: string;
 }
 
 const getMenomicWordsToConfirmIndicies = () => {
@@ -47,12 +48,22 @@ const GenEncryptedKeysWizard: React.FC<WizardProps> = (props) => {
     });
     const [stakeInfoPath, setStakeInfoPath] = React.useState<string>("");
     const [mnemonic, setMnemonic] = useState<string>("");
-    const [password, setPassword] = useState<string>("");
     const [savePath, setSavePath] = useState<string>("");
     const [dropWalletAddress, setDropWalletAddress] = useState<string>("");
     const [typeWalletAddress, setTypeWalletAddress] = useState<string>("");
+    const [confirmedAddress, setConfirmedAddress] = useState<string>("");
     const [keysGenerated, setKeysGenerated] = useState<boolean>(false);
     const [filesCreatedPath, setFilesCreatedPath] = useState<string>("");
+
+    useEffect(() => {
+        if (typeWalletAddress == '') {
+            setConfirmedAddress(dropWalletAddress)
+        } else if (dropWalletAddress == '') {
+            setConfirmedAddress(typeWalletAddress)
+        }
+
+    }, [typeWalletAddress, dropWalletAddress])
+
 
     const wordsToConfirmIndicies = useMemo(
         () => getMenomicWordsToConfirmIndicies(),
@@ -109,7 +120,8 @@ const GenEncryptedKeysWizard: React.FC<WizardProps> = (props) => {
                             mnemonic={mnemonic}
                             setMnemonic={setMnemonic}
                             wordsToConfirmIndicies={wordsToConfirmIndicies}
-                            setPassword={setPassword}
+                            password={props.password}
+                            walletAddress={confirmedAddress}
                         />
                     )}
                     {activeStep === 3 && (
@@ -124,8 +136,8 @@ const GenEncryptedKeysWizard: React.FC<WizardProps> = (props) => {
                             setFilesCreatedPath={setFilesCreatedPath}
                             stakeInfoPath={stakeInfoPath}
                             mnemonic={mnemonic}
-                            password={password}
-                            newWalletAddress={!typeWalletAddress}
+                            password={props.password}
+                            address={confirmedAddress}
                         />
                     )}
                     {activeStep === 4 && <StepFinish goBackStep={prevStep} />}

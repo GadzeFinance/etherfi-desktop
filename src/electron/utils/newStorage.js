@@ -104,6 +104,10 @@ class Database {
         this._store.set('validatorPassword', this.encrypt(validatorPassword, password))
     }
 
+    isPasswordSet() {
+        return this._store.get("passwordSet") ? true : false;
+    }
+
     validatePassword(password) {
         const storedHash = this._store.get("passwordHash");
         return (
@@ -134,13 +138,17 @@ class Database {
     }
 
     addMnemonic(address, mnemonic, password) {
-        const mnemonicID = (this._store.get("stakerAddress.mnemonicCount") | 0) + 1;
+        const mnemonicID = (this._store.get(`stakerAddress.${address}.mnemonicCount`) | 0) + 1;
         this._store.set(`stakerAddress.${address}.mnemonics.${mnemonicID}`, this.encrypt(mnemonic, password));
-        this._store.set("stakerAddress.mnemonicCount", parseInt(mnemonicID));
+        this._store.set(`stakerAddress.${address}.mnemonicCount`, parseInt(mnemonicID));
     }
 
     getMnemonics(address, password) {
+
         let decrypedObject = this._store.get(`stakerAddress.${address}.mnemonics`);
+        if (!decrypedObject) {
+            return {}
+        }
         Object.keys(decrypedObject).forEach((key, index) => {
             decrypedObject[key] = this.decrypt(decrypedObject[key], password);
         });
@@ -206,8 +214,6 @@ class Database {
         const iv = Buffer.from(privateKeysJSON.iv, "hex");
         const salt = Buffer.from(privateKeysJSON.salt, "hex");
         const encryptedData = Buffer.from(privateKeysJSON.data, "hex");
-        console.log("PASSWORD: ", privKeysPassword)
-        console.log(privateKeysJSON)
         const key = crypto.pbkdf2Sync(privKeysPassword, salt, 100000, 32, "sha256");
         const decipher = crypto.createDecipheriv("aes-256-cbc", key, iv);
         const decryptedData = Buffer.concat([
@@ -222,13 +228,13 @@ class Database {
 
 const store = new Store({ newSchema });
 const db = new Database(store)
-store.clear();
-password = "Password123!";
-db.setPassword(password);
-console.log("Passwords match: ", db.validatePassword(password));
-console.log("Generated Password match: ", db.getValidatorPassword(password))
+// store.clear();
+// password = "Password123!";
+// db.setPassword(password);
+// console.log("Passwords match: ", db.validatePassword(password));
+// console.log("Generated Password match: ", db.getValidatorPassword(password))
 
-db.addStakerAddress("0xABC");
+// db.addStakerAddress("0xABC");
 // console.log("Current Addresses: ", db.getStakerAddress("0xABC"));
 // console.log("All Staker Addresses: ", db.getAllStakerAddresses());
 // db.addMnemonic("0xABC", "Apple Ball Cat Dog", password);

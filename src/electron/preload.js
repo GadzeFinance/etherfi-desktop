@@ -24,11 +24,11 @@ contextBridge.exposeInMainWorld("encryptionApi", {
     receiveNewMnemonic: function(func){
         ipcRenderer.once("receive-new-mnemonic", (event, ...args) => func(event, ...args));       
     },
-    reqStoredAccount: function() {
-        ipcRenderer.send("req-stored-accounts", []);
+    reqStoredMnemonic: function(address, password) {
+        ipcRenderer.send("req-stored-mnemonics", [address, password]);
     },
-    recieveStoredAccount: function (func) {
-        ipcRenderer.once("receive-req-stored-account-confirmation", (event, ...args) => func(event, ...args));       
+    recieveStoredMnemonic: function (func) {
+        ipcRenderer.once("receive-req-stored-mnemonics-confirmation", (event, ...args) => func(event, ...args));       
     },
     reqStoredValidators: function() {
         ipcRenderer.send("req-stored-validators", []);
@@ -36,8 +36,9 @@ contextBridge.exposeInMainWorld("encryptionApi", {
     receiveStoredValidators: function(func) {
         ipcRenderer.once("receive-stored-validators", (event, ...args) => func(event, ...args))
     },
-    reqGenValidatorKeysAndEncrypt: function(mnemonic, password, folder, stakeInfoPath, chain){
-        ipcRenderer.send("req-gen-val-keys-and-encrypt", [mnemonic, password, folder, stakeInfoPath, chain]);
+    reqGenValidatorKeysAndEncrypt: function(mnemonic, password, folder, stakeInfoPath, chain, address){
+        console.log([mnemonic, password, folder, stakeInfoPath, chain, address])
+        ipcRenderer.send("req-gen-val-keys-and-encrypt", [mnemonic, password, folder, stakeInfoPath, chain, address]);
     },
     receiveKeyGenConfirmation: function(func){
         ipcRenderer.once("receive-key-gen-confirmation", (event, ...args) => func(event, ...args));       
@@ -170,13 +171,19 @@ contextBridge.exposeInMainWorld("databaseApi", {
         ipcRenderer.send("req-set-password", [password]);
     },
     receiveSetPasswordResult: function(func) {
-        ipcRenderer.send("receive-set-password-result", (event, ...args) => func(event, ...args));
+        ipcRenderer.once("receive-set-password-result", (event, ...args) => func(event, ...args));
     },
     reqValidatePassword: function(password) {
         ipcRenderer.send("req-validate-password", [password]);
     },
     receiveValidatePasswordResult: function(func) {
-        ipcRenderer.send("receive-validate-password-result", (event, ...args) => func(event, ...args));
+        ipcRenderer.once("receive-validate-password-result", (event, ...args) => func(event, ...args));
     },
+    reqIsPasswordSet: function () {
+        ipcRenderer.send("req-is-password-set", []);
+    },
+    receiveIsPasswordSet: function (func) {
+        ipcRenderer.once("receive-is-password-set", (event, ...args) => func(event, ...args))
+    }
 });
 

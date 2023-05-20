@@ -103,9 +103,15 @@ const genMnemonic = async (language) => {
  *          It also contains single stakeRequest.json file which contains the encrypted data.
  *           The stakeRequest.json file is what the user should upload to the DAPP.
  */
-const genValidatorKeysAndEncrypt = async (mnemonic, password, folder, stakeInfoPath, chain) => {
+const genValidatorKeysAndEncrypt = async (mnemonic, databasePassword, folder, stakeInfoPath, chain, address) => {
     logger.info("genEncryptedKeys: Start")
+    const allWallets = await newStorage.getAllStakerAddresses();
+    if (allWallets == undefined || !(address in allWallets)) {
+        await newStorage.addStakerAddress(address)
+    }
 
+    const password = await newStorage.getValidatorPassword(databasePassword)
+    
     // get the data from stakeInfoPath
     const stakeInfo = JSON.parse(fs.readFileSync(stakeInfoPath))
     const stakeInfoLength = stakeInfo.length
@@ -120,7 +126,7 @@ const genValidatorKeysAndEncrypt = async (mnemonic, password, folder, stakeInfoP
         validatorIDs.push(stakeInfo[i].validatorID)
         const index = i
         try {
-            await generateKeys(mnemonic, index, 1, chain, password, eth1_withdrawal_address, folder, stakeInfo[i].validatorID)
+            await generateKeys(mnemonic, index, 1, chain, password, eth1_withdrawal_address, folder, stakeInfo[i].validatorID, databasePassword, address)
         } catch (err) {
             logger.error("Error in 'genValidatorKeysAndEncrypt' when generating keys", err)
             throw new Error("Couldn't generate validator keys")
@@ -135,9 +141,11 @@ const genValidatorKeysAndEncrypt = async (mnemonic, password, folder, stakeInfoP
     }
 
     // Only add to the db if we dont have mnemonic added already
-    const allAccounts = await storage.getAccounts();
-    if (Object.values(allAccounts).indexOf('mnemonic') < 0) {
-        await storage.addAccount(mnemonic, password)
+    const allAccounts = await newStorage.getMnemonics(address, databasePassword);
+    console.log(allAccounts)
+    console.log("DB pass: ", databasePassword)
+    if (!Object.values(allAccounts).some(value => value.includes(mnemonic))) {
+        await newStorage.addMnemonic(address, mnemonic, databasePassword)
     }
 
     // Send back the folder where everything is save
@@ -350,8 +358,9 @@ const decryptValidatorKeys = async (event, arg) => {
     return saveFolder
 }
 
-const fetchStoredMnemonics = async () => {
-    const mnemonics = await storage.getAllMnemonics();
+const fetchStoredMnemonics = async (address, password) => {
+    const mnemonics = await newStorage.getMnemonics(address, password);
+    console.log("MNEMONICS: ", mnemonics)
     return mnemonics
 }
 
@@ -369,12 +378,24 @@ const fetchDatabase = async () => {
     return await storage.getEverything()
 }
 
+const setPassword = async (password) => {
+    return await newStorage.setPassword(password)
+}
+
 const getPassword = async (number) => {
     return await storage.getPassword(number)
 }
 
 const getStakerAddress = async () => {
     return await newStorage.getAllStakerAddresses()
+}
+
+const isPasswordSet = async () => {
+    return await newStorage.isPasswordSet();
+}
+
+const validatePassword = async (password) => {
+    return await newStorage.validatePassword(password);
 }
 
 
@@ -467,5 +488,8 @@ module.exports = {
     fetchDatabase,
     getAccounts,
     getPassword,
-    getStakerAddress
+    getStakerAddress,
+    isPasswordSet,
+    setPassword,
+    validatePassword
 }

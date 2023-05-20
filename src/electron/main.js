@@ -19,7 +19,11 @@ const {
     fetchStoredValidators,
     fetchDatabase,
     getAccounts,
-    getStakerAddress
+    getStakerAddress,
+    isPasswordSet,
+    setPassword,
+    validatePassword,
+    fetchStoredMnemonics
 } = require('./listeners');
 
 const {validateJsonFile} = require('./utils/validateFile')
@@ -124,9 +128,9 @@ ipcMain.on("req-new-mnemonic", async (event, args) => {
 
 // Return (result, path_to_saved_folder | '', errorMessage | '') to frontend
 ipcMain.on("req-gen-val-keys-and-encrypt",  async (event, args) => {
-    var [mnemonic, password, folder, stakeInfoPath, chain] = args
+    var [mnemonic, password, folder, stakeInfoPath, chain, address] = args
     try {
-        const savePath = await genValidatorKeysAndEncrypt(mnemonic, password, folder, stakeInfoPath, chain)
+        const savePath = await genValidatorKeysAndEncrypt(mnemonic, password, folder, stakeInfoPath, chain, address)
         event.sender.send("receive-key-gen-confirmation", standardResultCodes.SUCCESS, savePath , '')
     } catch (error) {
         logger.error("Error Generating Validator Keys and Encrypting:", error)
@@ -146,14 +150,15 @@ ipcMain.on("req-decrypt-val-keys",  async (event, args) => {
 });
 
 
-ipcMain.on("req-stored-accounts", async (event, args) => {
+ipcMain.on("req-stored-mnemonics", async (event, args) => {
+    const [address, password] = args
     try {
-        let accounts = await getAccounts();
-        accounts = accounts ?? {};
-        event.sender.send("receive-req-stored-account-confirmation",  standardResultCodes.SUCCESS, JSON.stringify(accounts), '')
+        let mnemonics = await fetchStoredMnemonics(address, password)
+        mnemonics = mnemonics ?? {};
+        event.sender.send("receive-req-stored-mnemonics-confirmation",  standardResultCodes.SUCCESS, JSON.stringify(mnemonics), '')
     } catch (error) {
         logger.error("Error fetching stored mnemonic: ", error);
-        event.sender.send("receive-req-stored-account-confirmation",  standardResultCodes.ERROR, '', error.message)
+        event.sender.send("receive-req-stored-mnemonics-confirmation",  standardResultCodes.ERROR, '', error.message)
 
     }
 })
@@ -285,8 +290,8 @@ ipcMain.on("req-update-stale-keys", async (event, args) => {
 ipcMain.on("req-set-password", async (event, args) => {
     const [password] = args
     try {
-        db.setPassword(password)
-        event.sender.send("receive-set-password-result", standardResultCodes.SUCCESS)
+        await setPassword(password)
+        event.sender.send("receive-set-password-result", standardResultCodes.SUCCESS, '', '')
     } catch (error) {
         logger.error("Error setting password:", error)
         event.sender.send("receive-set-password-result", standardResultCodes.ERROR, '' , error.message)
@@ -297,10 +302,20 @@ ipcMain.on("req-set-password", async (event, args) => {
 ipcMain.on("req-validate-password", async (event, args) => {
     const [password] = args
     try {
-        db.validatePassword(password)
-        event.sender.send("receive-validate-password-result", standardResultCodes.SUCCESS)
+        const passwordValid = await validatePassword(password)
+        event.sender.send("receive-validate-password-result", standardResultCodes.SUCCESS, passwordValid, '')
     } catch (error) {
         logger.error("Error validating password:", error)
         event.sender.send("receive-validate-password-result", standardResultCodes.ERROR, '' , error.message)
+    }
+})
+
+ipcMain.on("req-is-password-set", async (event, args) => {
+    try {
+        const passwordSet = await isPasswordSet();
+        event.sender.send("receive-is-password-set", standardResultCodes.SUCCESS, passwordSet , '')
+    } catch (error) {
+        logger.error("Error checking password status", error)
+        event.sender.send("receive-is-password-set", standardResultCodes.ERROR, '' , error.message)
     }
 })
