@@ -27,7 +27,12 @@ import SelectSavePathButton from "../SelectSavePathButton";
 import ChainSelectionDropdown from "../ChainSelectionDropdown";
 import AddressInput from "../AddressInput";
 
-const GenerateSignedExitMessageWidget: React.FC = () => {
+interface GenerateSignedExitMessageWidgetProps {
+  password: string;
+}
+
+
+const GenerateSignedExitMessageWidget: React.FC<GenerateSignedExitMessageWidgetProps> = (props) => {
 
   const [validatorKeyFilePath, setValidatorKeyFilePath] = useState<string>("");
   const [validatorKeyPassword, setValidatorKeyPassword] = useState<string>("");
@@ -37,8 +42,14 @@ const GenerateSignedExitMessageWidget: React.FC = () => {
   const [exitMessageFilePath, setExitMessageFilePath] = useState<string>("");
   const [chain, setChain] = useState<string>("");
   const [selectedTab, setSelectedTab] = useState<number>(0);
-  const [selectedValidator, setSelectedValidator] = useState<string>("");
-  const [fetchedValidators, setFetchedValidators] = useState<string[]>([]);
+  const [selectedValidator, setSelectedValidator] = useState("");
+  const [fetchedValidators, setFetchedValidators] = useState([]);
+  const [isAddressValid, setIsAddressValid] = React.useState(false);
+
+  const [dropWalletAddress, setDropWalletAddress] = useState<string>("");
+  const [typeWalletAddress, setTypeWalletAddress] = useState<string>("");
+  const [confirmedAddress, setConfirmedAddress] = useState<string>("");
+
   // UI State Variables
   const [messageGenerating, setMessageGenerating] = useState<boolean>(false);
   const [messageGenerated, setMessageGenerated] = useState<boolean>(false);
@@ -49,6 +60,7 @@ const GenerateSignedExitMessageWidget: React.FC = () => {
   const [showErrorMessage, setShowErrorMessage] = useState<boolean>(false);
 
   useEffect(() => {
+    if (!confirmedAddress) return
     window.encryptionApi.receiveStoredValidators(
       (
         event: Electron.IpcMainEvent,
@@ -57,10 +69,12 @@ const GenerateSignedExitMessageWidget: React.FC = () => {
         errorMessage: string
       ) => {
         if (result === 0) {
-            let parsedValidators = JSON.parse(validators);
-            setFetchedValidators(Object.entries(parsedValidators).map(([key, value]: [any ,any], i) => {
-                return value
-            }));
+            setFetchedValidators(Object.entries(JSON.parse(validators)).map(([key, value]: [any ,any], i) => {
+              return {
+                validatorID: key,
+                fileData: JSON.stringify(JSON.parse(value))
+              }
+          }));
         } else {
           console.error("Error generating mnemonic");
           console.error(errorMessage);
@@ -68,8 +82,8 @@ const GenerateSignedExitMessageWidget: React.FC = () => {
         }
       }
     );
-    window.encryptionApi.reqStoredValidators();
-  }, []);
+    window.encryptionApi.reqStoredValidators(confirmedAddress, props.password);
+  }, [confirmedAddress]);
 
   useEffect(() => {
     window.encryptionApi.receieveGetStakerAddresses(
@@ -91,6 +105,17 @@ const GenerateSignedExitMessageWidget: React.FC = () => {
     window.encryptionApi.reqGetStakerAddresses();
 }, []);
 
+
+useEffect(() => {
+  if (dropWalletAddress != '') {
+      setTypeWalletAddress('');
+      setConfirmedAddress(dropWalletAddress);
+  } else if (typeWalletAddress != '') {
+      setDropWalletAddress('');
+      setConfirmedAddress(typeWalletAddress);
+  }
+}, [dropWalletAddress, typeWalletAddress])
+
   const clearState = () => {
     setValidatorKeyFilePath("");
     setValidatorKeyPassword("");
@@ -104,7 +129,6 @@ const GenerateSignedExitMessageWidget: React.FC = () => {
   };
 
   const requestSignedExitMessage = () => {
-    console.log(savePath)
     window.exitMessageApi.receiveSignedExitMessageConfirmation(
       (
         event: Electron.IpcMainEvent,
@@ -137,7 +161,8 @@ const GenerateSignedExitMessageWidget: React.FC = () => {
         validatorIndex,
         exitEpoch,
         savePath,
-        chain
+        chain,
+        props.password
     );
   };
 
@@ -165,6 +190,11 @@ const GenerateSignedExitMessageWidget: React.FC = () => {
                     color="white"
                     borderColor="purple.light"
                     placeholder="Select Wallet Address"
+                    onChange={(e) => {
+                      setDropWalletAddress(e.target.value)
+                      setTypeWalletAddress('')
+                  }}
+                  value={dropWalletAddress}
                   >
                     {addressOptions.map((address) => (
                       <option key={address}>{address}</option>
@@ -175,13 +205,14 @@ const GenerateSignedExitMessageWidget: React.FC = () => {
                         or
                     </Text>
                   </Center>
-                  <AddressInput address={""} setAddress={function (address: string): void {
-                    throw new Error("Function not implemented.");
-                  } } setDropWalletAddress={function (address: string): void {
-                    throw new Error("Function not implemented.");
-                  } } isAddressValid={false} setIsAddressValid={function (valid: boolean): void {
-                    throw new Error("Function not implemented.");
-                  } } shouldDoValidation={false}/>
+                  <AddressInput 
+                    address={typeWalletAddress}
+                    setAddress={setTypeWalletAddress}
+                    setDropWalletAddress={setDropWalletAddress}
+                    isAddressValid={isAddressValid}
+                    setIsAddressValid={setIsAddressValid}
+                    shouldDoValidation
+                  />
                   <Tabs
                     index={selectedTab}
                     onChange={(index) => setSelectedTab(index)}
@@ -241,10 +272,12 @@ const GenerateSignedExitMessageWidget: React.FC = () => {
                             borderColor="purple.light"
                             placeholder="Validator ID"
                             value={selectedValidator}
-                            onChange={(e) => setSelectedValidator(e.target.value)}
+                            onChange={(e) => {
+                              setSelectedValidator((e.target.value))
+                            }}
                           >
                             {Object.entries(fetchedValidators).map(([key, value]: [any, any], i) => (
-                                <option value={value.fileData} key={key}>{value.validatorID}</option>
+                                <option value={JSON.stringify(value)} key={key}>{value.validatorID}</option>
                             ))}
                           </Select>
                         </Box>
@@ -318,7 +351,6 @@ const GenerateSignedExitMessageWidget: React.FC = () => {
                       isDisabled={
                         (selectedTab && !selectedValidator) ||
                         (!selectedTab && (!validatorKeyFilePath || !validatorIndex)) ||
-                        !validatorKeyPassword ||
                         !exitEpoch ||
                         !savePath ||
                         !chain

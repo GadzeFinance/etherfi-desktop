@@ -369,8 +369,8 @@ const getAccounts = async () => {
     return accounts;
 }
 
-const fetchStoredValidators = async () => {
-    const validators = await storage.getValidators();
+const fetchStoredValidators = async (address, password) => {
+    const validators = await newStorage.getValidators(address, password);
     return validators;
 }
 

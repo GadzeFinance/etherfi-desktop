@@ -24,7 +24,7 @@ const StakerTab: React.FC<StakerTabProps> = ({ tabIndex, selectedOption, passwor
       )}
       {selectedOption === 1 && (
         <ScaleFade initialScale={0.5} in={selectedOption === 1}>
-          <GenerateSignedExitMessageWidget />
+          <GenerateSignedExitMessageWidget password={password}/>
         </ScaleFade>
       )}
     </ScaleFade>

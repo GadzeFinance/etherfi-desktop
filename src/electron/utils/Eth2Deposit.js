@@ -235,8 +235,8 @@ const generateKeys = async (
   await execFileProm(executable, args, {env: env});
   const {file} = getMostRecentFile(folder)
   const filePathToKeystore = `${folder}/${file}`
-  const keystore = readFileSync(filePathToKeystore)
-  newStorage.addValidators(address, validatorID, JSON.stringify(keystore), databasePassword)
+  const keystore = readFileSync(filePathToKeystore, 'utf8')
+  newStorage.addValidators(address, validatorID, keystore, databasePassword)
   storage.addValidator(validatorID.toString(), keystore)
 }
 
@@ -284,7 +284,8 @@ const generateSignedExitMessage = async (
   keystorePassword, // string
   validatorIndex, // number
   epoch, // number
-  saveFolder // string
+  saveFolder, // string
+  databasePassword
 ) => {
   let executable = "";
   let args = [];
@@ -295,9 +296,10 @@ const generateSignedExitMessage = async (
     // Then we need to save a file that the program can use, then delete at the end
   const tempKeystoreLocation = path.join(saveFolder, `${uuidv4()}.json`)
   if (usingStoredKeys) {
-    validatorIndex = parseInt(JSON.parse(selectedValidator).key);
-    const parsedValidator = JSON.stringify(JSON.parse(selectedValidator).value);
+    validatorIndex = parseInt(JSON.parse(selectedValidator).validatorID);
+    const parsedValidator = JSON.parse(selectedValidator).fileData;
     keystorePath = tempKeystoreLocation;
+    keystorePassword = await newStorage.getValidatorPassword(databasePassword)
     writeFile(tempKeystoreLocation, parsedValidator, (err) => {
       if (err) {
         console.error('Error writing JSON file:', err);
@@ -331,13 +333,15 @@ const generateSignedExitMessage = async (
   const { stdout, stderr } = await execFileProm(executable, args, {env: env});
   const exitMessageGenerationResultString = stdout.toString();
   const resultJson = JSON.parse(exitMessageGenerationResultString);
-  unlink(tempKeystoreLocation, (err) => {
-    if (err) {
-      console.error('Error deleting JSON file:', err);
-    } else {
-      console.log('JSON file deleted successfully!');
-    }
-  });
+  if (usingStoredKeys) {
+    unlink(tempKeystoreLocation, (err) => {
+      if (err) {
+        console.error('Error deleting JSON file:', err);
+      } else {
+        console.log('JSON file deleted successfully!');
+      }
+    });
+  }
   return resultJson.filefolder;
 }
 

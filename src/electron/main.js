@@ -164,8 +164,9 @@ ipcMain.on("req-stored-mnemonics", async (event, args) => {
 })
 
 ipcMain.on("req-stored-validators", async (event, args) => {
+    const [address, password] = args
     try {
-        const validators = await fetchStoredValidators();
+        const validators = await fetchStoredValidators(address, password);
         event.sender.send("receive-stored-validators", standardResultCodes.SUCCESS, JSON.stringify(validators), '')
     } catch (error) {
         logger.error("Error fetching stored mnemonic: ", error);
@@ -200,9 +201,9 @@ ipcMain.on('req-get-staker-address', async (event, args) => {
 // Return (result, exitMessageFilePath | '', errorMessage| '') to frontend
 ipcMain.on("req-signed-exit-message", async (event, args) => {
     // Get Arguments
-    const [usingStoredKeys, selectedValidator, keystorePath, keystorePassword, validatorIndex, epoch, saveFolder, chain] = args
+    const [usingStoredKeys, selectedValidator, keystorePath, keystorePassword, validatorIndex, epoch, saveFolder, chain, databasePassword] = args
     try {
-        const exitMessageFilePath = await generateSignedExitMessage(usingStoredKeys, selectedValidator, chain, keystorePath, keystorePassword, validatorIndex, epoch, saveFolder)
+        const exitMessageFilePath = await generateSignedExitMessage(usingStoredKeys, selectedValidator, chain, keystorePath, keystorePassword, validatorIndex, epoch, saveFolder, databasePassword)
         event.sender.send("receive-signed-exit-message-confirmation", standardResultCodes.SUCCESS, exitMessageFilePath , '')
     } catch (error) {
         logger.error("Error Generating Signed Exit Message:", error)

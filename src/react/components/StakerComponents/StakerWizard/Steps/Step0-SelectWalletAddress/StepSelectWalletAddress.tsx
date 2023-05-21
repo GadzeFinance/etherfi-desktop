@@ -40,7 +40,6 @@ const StepSelectWalletAddress: React.FC<StepSelectWalletAddressProps> = (
     };
 
     useEffect(() => {
-        console.log("Drop: ", typeof(props.dropWalletAddress))
         if (props.dropWalletAddress != '') {
             props.setTypeWalletAddress('');
         } else if (props.typeWalletAddress != '') {

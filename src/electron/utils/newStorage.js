@@ -34,10 +34,6 @@ const newSchema = {
                             },
                         },
                     },
-                    validatorCount: {
-                        type: "integer",
-                        default: 1,
-                    },
                     validators: {
                         type: "object",
                         properties: {
@@ -228,7 +224,7 @@ class Database {
 
 const store = new Store({ newSchema });
 const db = new Database(store)
-// store.clear();
+store.clear();
 // password = "Password123!";
 // db.setPassword(password);
 // console.log("Passwords match: ", db.validatePassword(password));
