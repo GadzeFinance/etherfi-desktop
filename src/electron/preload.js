@@ -24,20 +24,21 @@ contextBridge.exposeInMainWorld("encryptionApi", {
     receiveNewMnemonic: function(func){
         ipcRenderer.once("receive-new-mnemonic", (event, ...args) => func(event, ...args));       
     },
-    reqStoredAccount: function() {
-        ipcRenderer.send("req-stored-accounts", []);
+    reqStoredMnemonic: function(address, password) {
+        ipcRenderer.send("req-stored-mnemonics", [address, password]);
     },
-    recieveStoredAccount: function (func) {
-        ipcRenderer.once("receive-req-stored-account-confirmation", (event, ...args) => func(event, ...args));       
+    recieveStoredMnemonic: function (func) {
+        ipcRenderer.once("receive-req-stored-mnemonics-confirmation", (event, ...args) => func(event, ...args));       
     },
-    reqStoredValidators: function() {
-        ipcRenderer.send("req-stored-validators", []);
+    reqStoredValidators: function(address, password) {
+        ipcRenderer.send("req-stored-validators", [address, password]);
     },
     receiveStoredValidators: function(func) {
         ipcRenderer.once("receive-stored-validators", (event, ...args) => func(event, ...args))
     },
-    reqGenValidatorKeysAndEncrypt: function(mnemonic, password, folder, stakeInfoPath, chain){
-        ipcRenderer.send("req-gen-val-keys-and-encrypt", [mnemonic, password, folder, stakeInfoPath, chain]);
+    reqGenValidatorKeysAndEncrypt: function(mnemonic, password, folder, stakeInfoPath, chain, address){
+        console.log([mnemonic, password, folder, stakeInfoPath, chain, address])
+        ipcRenderer.send("req-gen-val-keys-and-encrypt", [mnemonic, password, folder, stakeInfoPath, chain, address]);
     },
     receiveKeyGenConfirmation: function(func){
         ipcRenderer.once("receive-key-gen-confirmation", (event, ...args) => func(event, ...args));       
@@ -53,13 +54,19 @@ contextBridge.exposeInMainWorld("encryptionApi", {
     },
     receiveGetPassword: function(func) {
         ipcRenderer.once("receive-get-password", (event, ...args) => func(event, ...args));       
+    },
+    reqGetStakerAddresses: function () {
+        ipcRenderer.send('req-get-staker-address', [])
+    },
+    receieveGetStakerAddresses: function(func) {
+        ipcRenderer.once("receive-get-staker-address", (event, ...args) => func(event, ...args));
     }
 });
 
 contextBridge.exposeInMainWorld("exitMessageApi", {
     // Function used in Node Operator Tab to generate public keys that will be registerd and private keys for decrypting
-    reqGenSignedExitMessage: function(useStoredKeys, selectedValidator, keystorePath, keystorePassword, validatorIndex, epoch, saveFolder, chain){
-        ipcRenderer.send("req-signed-exit-message", [useStoredKeys, selectedValidator, keystorePath, keystorePassword, validatorIndex, epoch, saveFolder, chain]);
+    reqGenSignedExitMessage: function(useStoredKeys, selectedValidator, keystorePath, keystorePassword, validatorIndex, epoch, saveFolder, chain, password){
+        ipcRenderer.send("req-signed-exit-message", [useStoredKeys, selectedValidator, keystorePath, keystorePassword, validatorIndex, epoch, saveFolder, chain, password]);
     },
     receiveSignedExitMessageConfirmation: function(func){
         ipcRenderer.once("receive-signed-exit-message-confirmation", (event, ...args) => func(event, ...args));
@@ -184,5 +191,8 @@ contextBridge.exposeInMainWorld("databaseApi", {
     receiveAllStakerAddresses: function(func) {
         ipcRenderer.once("receive-all-staker-addresses", (event, ...args) => func(event, ...args))
     },
+    receiveIsPasswordSet: function (func) {
+        ipcRenderer.once("receive-is-password-set", (event, ...args) => func(event, ...args))
+    }
 });
 

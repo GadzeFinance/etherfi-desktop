@@ -1,6 +1,4 @@
 import React, { useState, useEffect } from "react";
-import isDev from 'react-is-dev';
-
 import {
   Box,
   Center,
@@ -23,13 +21,18 @@ import successBoxStyle from "../../styleClasses/successBoxStyle";
 import darkBoxWithBorderStyle from "../../styleClasses/darkBoxWithBorderStyle";
 import { COLORS } from "../../styleClasses/constants";
 import SavedFileBox from "../SavedFileBox";
-import PasswordInput from "../PasswordInput";
 import EtherFiSpinner from "../EtherFiSpinner";
 import SelectFile from "../SelectFile";
 import SelectSavePathButton from "../SelectSavePathButton";
 import ChainSelectionDropdown from "../ChainSelectionDropdown";
+import AddressInput from "../AddressInput";
 
-const GenerateSignedExitMessageWidget: React.FC = () => {
+interface GenerateSignedExitMessageWidgetProps {
+  password: string;
+}
+
+
+const GenerateSignedExitMessageWidget: React.FC<GenerateSignedExitMessageWidgetProps> = (props) => {
 
   const [validatorKeyFilePath, setValidatorKeyFilePath] = useState<string>("");
   const [validatorKeyPassword, setValidatorKeyPassword] = useState<string>("");
@@ -39,17 +42,25 @@ const GenerateSignedExitMessageWidget: React.FC = () => {
   const [exitMessageFilePath, setExitMessageFilePath] = useState<string>("");
   const [chain, setChain] = useState<string>("");
   const [selectedTab, setSelectedTab] = useState<number>(0);
-  const [selectedValidator, setSelectedValidator] = useState<string>("");
-  const [fetchedValidators, setFetchedValidators] = useState<string[]>([]);
+  const [selectedValidator, setSelectedValidator] = useState("");
+  const [fetchedValidators, setFetchedValidators] = useState([]);
+  const [isAddressValid, setIsAddressValid] = React.useState(false);
+
+  const [dropWalletAddress, setDropWalletAddress] = useState<string>("");
+  const [typeWalletAddress, setTypeWalletAddress] = useState<string>("");
+  const [confirmedAddress, setConfirmedAddress] = useState<string>("");
+
   // UI State Variables
   const [messageGenerating, setMessageGenerating] = useState<boolean>(false);
   const [messageGenerated, setMessageGenerated] = useState<boolean>(false);
+  const [addressOptions, setAddressOptions] = useState<string[]>([]);
 
   // TODO: MAKE ERROR MESSAGES BETTER!! I.E See if password is wrong for keystore
   // Right now we just show that a general error occured if the message generation fails
   const [showErrorMessage, setShowErrorMessage] = useState<boolean>(false);
 
   useEffect(() => {
+    if (!confirmedAddress) return
     window.encryptionApi.receiveStoredValidators(
       (
         event: Electron.IpcMainEvent,
@@ -58,10 +69,12 @@ const GenerateSignedExitMessageWidget: React.FC = () => {
         errorMessage: string
       ) => {
         if (result === 0) {
-            let parsedValidators = JSON.parse(validators);
-            setFetchedValidators(Object.entries(parsedValidators).map(([key, value]: [any ,any], i) => {
-                return value
-            }));
+            setFetchedValidators(Object.entries(JSON.parse(validators)).map(([key, value]: [any ,any], i) => {
+              return {
+                validatorID: key,
+                fileData: JSON.stringify(JSON.parse(value))
+              }
+          }));
         } else {
           console.error("Error generating mnemonic");
           console.error(errorMessage);
@@ -69,8 +82,39 @@ const GenerateSignedExitMessageWidget: React.FC = () => {
         }
       }
     );
-    window.encryptionApi.reqStoredValidators();
-  }, []);
+    window.encryptionApi.reqStoredValidators(confirmedAddress, props.password);
+  }, [confirmedAddress]);
+
+  useEffect(() => {
+    window.encryptionApi.receieveGetStakerAddresses(
+        (
+            event: Electron.IpcMainEvent,
+            result: number,
+            addresses: string,
+            errorMessage: string
+        ) => {
+            if (result === 0) {
+                setAddressOptions(Object.keys(JSON.parse(addresses)));
+            } else {
+                console.error("Error generating validator keys");
+                console.error(errorMessage);
+                // TODO: Show error screen on failure.
+            }
+        }
+    );
+    window.encryptionApi.reqGetStakerAddresses();
+}, []);
+
+
+useEffect(() => {
+  if (dropWalletAddress != '') {
+      setTypeWalletAddress('');
+      setConfirmedAddress(dropWalletAddress);
+  } else if (typeWalletAddress != '') {
+      setDropWalletAddress('');
+      setConfirmedAddress(typeWalletAddress);
+  }
+}, [dropWalletAddress, typeWalletAddress])
 
   const clearState = () => {
     setValidatorKeyFilePath("");
@@ -85,7 +129,6 @@ const GenerateSignedExitMessageWidget: React.FC = () => {
   };
 
   const requestSignedExitMessage = () => {
-    console.log(savePath)
     window.exitMessageApi.receiveSignedExitMessageConfirmation(
       (
         event: Electron.IpcMainEvent,
@@ -118,7 +161,8 @@ const GenerateSignedExitMessageWidget: React.FC = () => {
         validatorIndex,
         exitEpoch,
         savePath,
-        chain
+        chain,
+        props.password
     );
   };
 
@@ -140,9 +184,35 @@ const GenerateSignedExitMessageWidget: React.FC = () => {
                   Generate Signed Voluntary Exit Message
                 </Text>
               </Box>
-
               <Box sx={darkBoxWithBorderStyle} bg="#2b2852">
                 <VStack spacing={4} align="stretch">
+                  <Select
+                    color="white"
+                    borderColor="purple.light"
+                    placeholder="Select Wallet Address"
+                    onChange={(e) => {
+                      setDropWalletAddress(e.target.value)
+                      setTypeWalletAddress('')
+                  }}
+                  value={dropWalletAddress}
+                  >
+                    {addressOptions.map((address) => (
+                      <option key={address}>{address}</option>
+                    ))}
+                  </Select>
+                  <Center>
+                    <Text color={"white"} fontSize="2xl" fontWeight={"semibold"}>
+                        or
+                    </Text>
+                  </Center>
+                  <AddressInput 
+                    address={typeWalletAddress}
+                    setAddress={setTypeWalletAddress}
+                    setDropWalletAddress={setDropWalletAddress}
+                    isAddressValid={isAddressValid}
+                    setIsAddressValid={setIsAddressValid}
+                    shouldDoValidation
+                  />
                   <Tabs
                     index={selectedTab}
                     onChange={(index) => setSelectedTab(index)}
@@ -202,29 +272,18 @@ const GenerateSignedExitMessageWidget: React.FC = () => {
                             borderColor="purple.light"
                             placeholder="Validator ID"
                             value={selectedValidator}
-                            onChange={(e) => setSelectedValidator(e.target.value)}
+                            onChange={(e) => {
+                              setSelectedValidator((e.target.value))
+                            }}
                           >
                             {Object.entries(fetchedValidators).map(([key, value]: [any, any], i) => (
-                                <option value={value.fileData} key={key}>{value.validatorID}</option>
+                                <option value={JSON.stringify(value)} key={key}>{value.validatorID}</option>
                             ))}
                           </Select>
                         </Box>
                       </TabPanel>
                     </TabPanels>
                   </Tabs>
-                  <Box>
-                    <Text fontSize="14px" as="b" color="white">
-                      {" "}
-                      Validator Key Password
-                    </Text>
-                    <PasswordInput
-                      password={validatorKeyPassword}
-                      setPassword={setValidatorKeyPassword}
-                      isPasswordValid={false}
-                      setIsPasswordValid={() => null}
-                      shouldDoValidation={false}
-                    />
-                  </Box>
                   <Box>
                     <HStack>
                       <Text fontSize="14px" as="b" color="white">
@@ -292,7 +351,6 @@ const GenerateSignedExitMessageWidget: React.FC = () => {
                       isDisabled={
                         (selectedTab && !selectedValidator) ||
                         (!selectedTab && (!validatorKeyFilePath || !validatorIndex)) ||
-                        !validatorKeyPassword ||
                         !exitEpoch ||
                         !savePath ||
                         !chain

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import {
     Text,
     Box,
@@ -11,21 +11,23 @@ import {
     Center,
     Tooltip
 } from "@chakra-ui/react";
-import { AddIcon, ViewIcon, ViewOffIcon } from "@chakra-ui/icons";
+import { AddIcon } from "@chakra-ui/icons";
 
 interface StoredMnemonicSelectProps {
     setStoredMnemonic: (mnemonic: object) => void;
     storedMnemonics: Array<object>;
     goNextStep: () => void;
     setMnemonic: (mnemonic: string) => void;
-    setPassword: (password: string) => void;
+    password: string;
+    walletAddress: string;
 }
 
 const StoredMnemonicSelect: React.FC<StoredMnemonicSelectProps> = (props: StoredMnemonicSelectProps) => {
-    const [showMnemonic, setShowMnemonic] = useState(false);
 
     useEffect(() => {
-        window.encryptionApi.recieveStoredAccount(
+        console.log("PAS: ", props.password)
+
+        window.encryptionApi.recieveStoredMnemonic(
           (
             event: Electron.IpcMainEvent,
             result: number,
@@ -33,12 +35,11 @@ const StoredMnemonicSelect: React.FC<StoredMnemonicSelectProps> = (props: Stored
             errorMessage: string
           ) => {
             if (result === 0) {
+                console.log(mnemonic)
                 const outputArr = Object.entries(JSON.parse(mnemonic)).map(
                     ([id, value]: [any, any], index) => ({
                         id: parseInt(id),
-                        text: id,
-                        mnemonic: value.mnemonic,
-                        password: value.password
+                        mnemonic: value,
                     })
                 );
                 props.setStoredMnemonic(outputArr);
@@ -48,27 +49,15 @@ const StoredMnemonicSelect: React.FC<StoredMnemonicSelectProps> = (props: Stored
             }
           }
         );
-        window.encryptionApi.reqStoredAccount();
+        window.encryptionApi.reqStoredMnemonic(props.walletAddress, props.password);
       }, []);
 
-    const shortenMnemonic = (mnemonic: any) => {
-        const wordArray = mnemonic.split(" ");
-        return `${wordArray.slice(0, 3).join(", ")}...${wordArray
-            .slice(-2)
-            .join(", ")}`;
-    };
+      const selectMnemonic = (mnemonic: string) => {
+        props.setMnemonic(mnemonic);
+        props.goNextStep();
 
-    const handleEyeIconClick = (event: any) => {
-        event.stopPropagation();
-        setShowMnemonic(!showMnemonic);
-    };
+      }
 
-
-    const getAndSetPassword = (entry: any, e: React.MouseEvent) => {
-        e.stopPropagation();
-        props.setMnemonic(entry.mnemonic);
-        props.setPassword(entry.password);
-    }
 
     return (
         <Menu>
@@ -86,44 +75,12 @@ const StoredMnemonicSelect: React.FC<StoredMnemonicSelectProps> = (props: Stored
                     <Text align="center" cursor={"default"}>There is no saved mnemonic.</Text>
                 </Box>)}
                 {props.storedMnemonics?.length > 0 && props.storedMnemonics?.map((entry: any) => (
-                    <MenuItem key={entry.id}>
+                    <MenuItem key={entry.id} onClick={() => selectMnemonic(entry.mnemonic)}>
                         <Box w="100%">
                             <Tooltip label={entry.mnemonic}>
                             <Text isTruncated>{entry.mnemonic}</Text>
                             </Tooltip>
-                        </Box>
-                        {/* <Button
-                            mr={2}
-                            variant="outline"
-                            onClick={(e) => getAndSetPassword(entry, e)}
-                        >
-                            <AddIcon />
-                        </Button>
-                        <Text>Mnemonic {entry.text}</Text>
-                        <Box display="flex" alignItems="center" ml="auto">
-                            {showMnemonic ? (
-                                <>
-                                    <Text>
-                                        {shortenMnemonic(entry.mnemonic)}
-                                    </Text>
-                                    <IconButton
-                                        ml={2}
-                                        icon={<ViewOffIcon />}
-                                        variant="ghost"
-                                        aria-label="Hide mnemonic"
-                                        onClick={handleEyeIconClick}
-                                    />
-                                </>
-                            ) : (
-                                <IconButton
-                                    ml={2}
-                                    icon={<ViewIcon />}
-                                    variant="ghost"
-                                    aria-label="Show mnemonic"
-                                    onClick={handleEyeIconClick}
-                                />
-                            )}
-                        </Box> */}
+                        </Box>           
                     </MenuItem>
                 ))}
             </MenuList>

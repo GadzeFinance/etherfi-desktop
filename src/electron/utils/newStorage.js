@@ -34,10 +34,6 @@ const newSchema = {
                             },
                         },
                     },
-                    validatorCount: {
-                        type: "integer",
-                        default: 1,
-                    },
                     validators: {
                         type: "object",
                         properties: {
@@ -119,7 +115,7 @@ class Database {
 
 
     getValidatorPassword(password) {
-        return decrypt(this._store.get('validatorPassword'), password)
+        return this.decrypt(this._store.get('validatorPassword'), password)
     }
 
 
@@ -140,27 +136,31 @@ class Database {
     }
 
     addMnemonic(address, mnemonic, password) {
-        const mnemonicID = (this._store.get("stakerAddress.mnemonicCount") | 0) + 1;
-        this._store.set(`stakerAddress.${address}.mnemonics.${mnemonicID}`, encrypt(mnemonic, password));
-        this._store.set("stakerAddress.mnemonicCount", parseInt(mnemonicID));
+        const mnemonicID = (this._store.get(`stakerAddress.${address}.mnemonicCount`) | 0) + 1;
+        this._store.set(`stakerAddress.${address}.mnemonics.${mnemonicID}`, this.encrypt(mnemonic, password));
+        this._store.set(`stakerAddress.${address}.mnemonicCount`, parseInt(mnemonicID));
     }
 
     getMnemonics(address, password) {
+
         let decrypedObject = this._store.get(`stakerAddress.${address}.mnemonics`);
+        if (!decrypedObject) {
+            return {}
+        }
         Object.keys(decrypedObject).forEach((key, index) => {
-            decrypedObject[key] = decrypt(decrypedObject[key], password);
+            decrypedObject[key] = this.decrypt(decrypedObject[key], password);
         });
         return decrypedObject;
     }
 
     addValidators(address, validatorID, keystoreFile, password) {
-        this._store.set(`stakerAddress.${address}.validators.${validatorID}`, encrypt(keystoreFile, password));
+        this._store.set(`stakerAddress.${address}.validators.${validatorID}`, this.encrypt(keystoreFile, password));
     }
 
     getValidators(address, password) {
         let decrypedObject = this._store.get(`stakerAddress.${address}.validators`);
         Object.keys(decrypedObject).forEach((key, index) => {
-            decrypedObject[key] = decrypt(decrypedObject[key], password);
+            decrypedObject[key] = this.decrypt(decrypedObject[key], password);
         });
         return decrypedObject;
     }
@@ -212,8 +212,6 @@ class Database {
         const iv = Buffer.from(privateKeysJSON.iv, "hex");
         const salt = Buffer.from(privateKeysJSON.salt, "hex");
         const encryptedData = Buffer.from(privateKeysJSON.data, "hex");
-        console.log("PASSWORD: ", privKeysPassword)
-        console.log(privateKeysJSON)
         const key = crypto.pbkdf2Sync(privKeysPassword, salt, 100000, 32, "sha256");
         const decipher = crypto.createDecipheriv("aes-256-cbc", key, iv);
         const decryptedData = Buffer.concat([
@@ -227,13 +225,11 @@ class Database {
 }
 
 const store = new Store({ newSchema });
-// store.clear();
+const db = new Database(store)
+store.clear();
 // password = "Password123!";
-
-const db = new Database(store);
 // db.setPassword(password);
 // console.log("Passwords match: ", db.validatePassword(password));
-
 // console.log("Generated Password match: ", db.getValidatorPassword(password))
 
 // db.addStakerAddress("0xABC");
@@ -250,8 +246,4 @@ const db = new Database(store);
 // db.addValidatorAddress('0xDEF')
 // console.log("All Validator Addresses: ", db.getValidatorAddress('0xDEF'));
 // console.log("Get All Validator Addresses: ", db.getAllValidatorAddress())
-
-module.exports = {
-    store,
-    db
-}
+module.exports = db

@@ -26,6 +26,7 @@ const path = require('path');
 const process = require('process');
 const {doesFileExist} = require('./BashUtils.js')
 const storage = require('./storage.js')
+const newStorage = require('./newStorage.js')
 const { v4: uuidv4 } = require('uuid');
 /**
  * A promise version of the execFile function from fs for CLI calls.
@@ -184,10 +185,12 @@ const generateKeys = async (
     index, // number,
     count, // number,
     network, // string,
-    password, // string,
+    password, // string, 
     eth1_withdrawal_address, //string,
     folder, // string,
-    validatorID // number
+    validatorID, // number
+    databasePassword, // string
+    address // string
   ) => {
   
   let executable = "";
@@ -232,7 +235,8 @@ const generateKeys = async (
   await execFileProm(executable, args, {env: env});
   const {file} = getMostRecentFile(folder)
   const filePathToKeystore = `${folder}/${file}`
-  const keystore = readFileSync(filePathToKeystore)
+  const keystore = readFileSync(filePathToKeystore, 'utf8')
+  newStorage.addValidators(address, validatorID, keystore, databasePassword)
   storage.addValidator(validatorID.toString(), keystore)
 }
 
@@ -280,7 +284,8 @@ const generateSignedExitMessage = async (
   keystorePassword, // string
   validatorIndex, // number
   epoch, // number
-  saveFolder // string
+  saveFolder, // string
+  databasePassword
 ) => {
   let executable = "";
   let args = [];
@@ -291,9 +296,10 @@ const generateSignedExitMessage = async (
     // Then we need to save a file that the program can use, then delete at the end
   const tempKeystoreLocation = path.join(saveFolder, `${uuidv4()}.json`)
   if (usingStoredKeys) {
-    validatorIndex = parseInt(JSON.parse(selectedValidator).key);
-    const parsedValidator = JSON.stringify(JSON.parse(selectedValidator).value);
+    validatorIndex = parseInt(JSON.parse(selectedValidator).validatorID);
+    const parsedValidator = JSON.parse(selectedValidator).fileData;
     keystorePath = tempKeystoreLocation;
+    keystorePassword = await newStorage.getValidatorPassword(databasePassword)
     writeFile(tempKeystoreLocation, parsedValidator, (err) => {
       if (err) {
         console.error('Error writing JSON file:', err);
@@ -327,13 +333,15 @@ const generateSignedExitMessage = async (
   const { stdout, stderr } = await execFileProm(executable, args, {env: env});
   const exitMessageGenerationResultString = stdout.toString();
   const resultJson = JSON.parse(exitMessageGenerationResultString);
-  unlink(tempKeystoreLocation, (err) => {
-    if (err) {
-      console.error('Error deleting JSON file:', err);
-    } else {
-      console.log('JSON file deleted successfully!');
-    }
-  });
+  if (usingStoredKeys) {
+    unlink(tempKeystoreLocation, (err) => {
+      if (err) {
+        console.error('Error deleting JSON file:', err);
+      } else {
+        console.log('JSON file deleted successfully!');
+      }
+    });
+  }
   return resultJson.filefolder;
 }
 

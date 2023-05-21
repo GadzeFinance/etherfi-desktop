@@ -8,6 +8,8 @@ import { useToast } from '@chakra-ui/react'
 
 interface LoginPageProps {
   setIsAuthenticated: (v: boolean) => void
+  setPassword: (password: string) => void
+  password: string
 }
 
 const LoginPage: React.FC<LoginPageProps> = (props: LoginPageProps) => {
@@ -137,7 +139,6 @@ const LoginPage: React.FC<LoginPageProps> = (props: LoginPageProps) => {
             }}
             
           >
-            
             <Flex 
               padding={"24px"}
               direction={"column"}
@@ -145,20 +146,19 @@ const LoginPage: React.FC<LoginPageProps> = (props: LoginPageProps) => {
               bgColor="purple.dark"
               height="full"
               width={"full"}
-              borderRadius="lg"
-              
+              borderRadius="lg"   
             >
               <Grid
                 height="100%"
                 templateRows='repeat(10fr, 1fr)'
               >
                 <GridItem>
-              <Text color={"white"} fontSize="2xl" fontWeight={"semibold"}>
-                { isFirstUse ? "Create a password for future use": "Log in to Ether.fi desktop app" }
-              </Text>
-              <Text color="white" fontSize="l" opacity={"0.7"}>
-                It's time to start your journey with Ether.fi!
-              </Text>
+                  <Text color={"white"} fontSize="2xl" fontWeight={"semibold"}>
+                    { isFirstUse ? "Create your desktop password": "Log in to the Ether.fi desktop app" }
+                  </Text>
+                  <Text color="white" fontSize="l" opacity={"0.7"}>
+                    This password will be used for encrypting your stored data
+                  </Text>
 
               { isFirstUse && <Box>
                 <VStack w="60%" pt={2} spacing={2}>
@@ -203,10 +203,7 @@ const LoginPage: React.FC<LoginPageProps> = (props: LoginPageProps) => {
               </GridItem>
               
               </Grid>
-              
-            </Flex>
-            
-            
+            </Flex>  
           </Flex>
         </Center>
       </Box>

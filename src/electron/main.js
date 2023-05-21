@@ -18,7 +18,12 @@ const {
     decryptValidatorKeys,
     fetchStoredValidators,
     fetchDatabase,
-    getAccounts
+    getAccounts,
+    getStakerAddress,
+    isPasswordSet,
+    setPassword,
+    validatePassword,
+    fetchStoredMnemonics
 } = require('./listeners');
 
 const {validateJsonFile} = require('./utils/validateFile')
@@ -123,9 +128,9 @@ ipcMain.on("req-new-mnemonic", async (event, args) => {
 
 // Return (result, path_to_saved_folder | '', errorMessage | '') to frontend
 ipcMain.on("req-gen-val-keys-and-encrypt",  async (event, args) => {
-    var [mnemonic, password, folder, stakeInfoPath, chain] = args
+    var [mnemonic, password, folder, stakeInfoPath, chain, address] = args
     try {
-        const savePath = await genValidatorKeysAndEncrypt(mnemonic, password, folder, stakeInfoPath, chain)
+        const savePath = await genValidatorKeysAndEncrypt(mnemonic, password, folder, stakeInfoPath, chain, address)
         event.sender.send("receive-key-gen-confirmation", standardResultCodes.SUCCESS, savePath , '')
     } catch (error) {
         logger.error("Error Generating Validator Keys and Encrypting:", error)
@@ -145,21 +150,23 @@ ipcMain.on("req-decrypt-val-keys",  async (event, args) => {
 });
 
 
-ipcMain.on("req-stored-accounts", async (event, args) => {
+ipcMain.on("req-stored-mnemonics", async (event, args) => {
+    const [address, password] = args
     try {
-        let accounts = await getAccounts();
-        accounts = accounts ?? {};
-        event.sender.send("receive-req-stored-account-confirmation",  standardResultCodes.SUCCESS, JSON.stringify(accounts), '')
+        let mnemonics = await fetchStoredMnemonics(address, password)
+        mnemonics = mnemonics ?? {};
+        event.sender.send("receive-req-stored-mnemonics-confirmation",  standardResultCodes.SUCCESS, JSON.stringify(mnemonics), '')
     } catch (error) {
         logger.error("Error fetching stored mnemonic: ", error);
-        event.sender.send("receive-req-stored-account-confirmation",  standardResultCodes.ERROR, '', error.message)
+        event.sender.send("receive-req-stored-mnemonics-confirmation",  standardResultCodes.ERROR, '', error.message)
 
     }
 })
 
 ipcMain.on("req-stored-validators", async (event, args) => {
+    const [address, password] = args
     try {
-        const validators = await fetchStoredValidators();
+        const validators = await fetchStoredValidators(address, password);
         event.sender.send("receive-stored-validators", standardResultCodes.SUCCESS, JSON.stringify(validators), '')
     } catch (error) {
         logger.error("Error fetching stored mnemonic: ", error);
@@ -178,15 +185,25 @@ ipcMain.on('req-get-password', async (event, args) => {
     } 
 })
 
+ipcMain.on('req-get-staker-address', async (event, args) => {
+    try {
+        const stakers = await getStakerAddress()
+        console.log(stakers)
+        event.sender.send("receive-get-staker-address",  standardResultCodes.SUCCESS, JSON.stringify(stakers), '')
+    } catch (error) {
+        logger.error("Error getting staker addresses: ", error);
+        event.sender.send("receive-get-staker-address",  standardResultCodes.ERROR, '', error.message)
+    } 
+})
 /* ------------------------------------------------------------- */
 /* ------------ Signed Exit Message Generation ----------------- */
 /* ------------------------------------------------------------- */
 // Return (result, exitMessageFilePath | '', errorMessage| '') to frontend
 ipcMain.on("req-signed-exit-message", async (event, args) => {
     // Get Arguments
-    const [usingStoredKeys, selectedValidator, keystorePath, keystorePassword, validatorIndex, epoch, saveFolder, chain] = args
+    const [usingStoredKeys, selectedValidator, keystorePath, keystorePassword, validatorIndex, epoch, saveFolder, chain, databasePassword] = args
     try {
-        const exitMessageFilePath = await generateSignedExitMessage(usingStoredKeys, selectedValidator, chain, keystorePath, keystorePassword, validatorIndex, epoch, saveFolder)
+        const exitMessageFilePath = await generateSignedExitMessage(usingStoredKeys, selectedValidator, chain, keystorePath, keystorePassword, validatorIndex, epoch, saveFolder, databasePassword)
         event.sender.send("receive-signed-exit-message-confirmation", standardResultCodes.SUCCESS, exitMessageFilePath , '')
     } catch (error) {
         logger.error("Error Generating Signed Exit Message:", error)
@@ -274,7 +291,7 @@ ipcMain.on("req-update-stale-keys", async (event, args) => {
 ipcMain.on("req-set-password", async (event, args) => {
     const [password] = args
     try {
-        db.setPassword(password)
+        await setPassword(password)
         event.sender.send("receive-set-password-result", standardResultCodes.SUCCESS, '')
     } catch (error) {
         logger.error("Error setting password:", error)
@@ -286,7 +303,7 @@ ipcMain.on("req-set-password", async (event, args) => {
 ipcMain.on("req-validate-password", async (event, args) => {
     const [password] = args
     try {
-        const valid = db.validatePassword(password)
+        const valid = await validatePassword(password)
         event.sender.send("receive-validate-password-result", standardResultCodes.SUCCESS, valid, '')
     } catch (error) {
         logger.error("Error validating password:", error)
@@ -296,7 +313,7 @@ ipcMain.on("req-validate-password", async (event, args) => {
 
 ipcMain.on("req-is-password-set", async (event, args) => {
     try {
-        const passwordSet = db.isPasswordSet()
+        const passwordSet = await db.isPasswordSet()
         event.sender.send("receive-is-password-set", standardResultCodes.SUCCESS, passwordSet, '')
     } catch (error) {
         logger.error("Error validating password:", error)
@@ -312,5 +329,15 @@ ipcMain.on("req-all-staker-addresses", async (event, args) => {
     } catch (error) {
         logger.error("Error getAllStakerAddresses:", error)
         event.sender.send("receive-all-staker-addresses", standardResultCodes.ERROR, '', error.message)
+    }
+})
+
+ipcMain.on("req-is-password-set", async (event, args) => {
+    try {
+        const passwordSet = await isPasswordSet();
+        event.sender.send("receive-is-password-set", standardResultCodes.SUCCESS, passwordSet , '')
+    } catch (error) {
+        logger.error("Error checking password status", error)
+        event.sender.send("receive-is-password-set", standardResultCodes.ERROR, '' , error.message)
     }
 })

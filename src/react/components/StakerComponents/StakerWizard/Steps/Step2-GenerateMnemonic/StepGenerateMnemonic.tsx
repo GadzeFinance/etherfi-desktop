@@ -18,7 +18,8 @@ interface StepGenerateMnemonicProps {
   mnemonic: string;
   setMnemonic: (mnemonic: string) => void;
   wordsToConfirmIndicies: Array<number>;
-  setPassword: (password: string) => void;
+  password: string;
+  walletAddress: string;
 }
 
 const StepGenerateMnemonic: React.FC<StepGenerateMnemonicProps> = (props) => {
@@ -149,7 +150,8 @@ const StepGenerateMnemonic: React.FC<StepGenerateMnemonicProps> = (props) => {
           storedMnemonics={storedMnemonics}
           goNextStep={props.goNextStep}
           setMnemonic={props.setMnemonic}
-          setPassword={props.setPassword}
+          password={props.password}
+          walletAddress={props.walletAddress}
           />
       )}
 
