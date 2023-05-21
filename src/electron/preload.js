@@ -179,8 +179,17 @@ contextBridge.exposeInMainWorld("databaseApi", {
     receiveValidatePasswordResult: function(func) {
         ipcRenderer.once("receive-validate-password-result", (event, ...args) => func(event, ...args));
     },
-    reqIsPasswordSet: function () {
+    reqIsPasswordSet: function() {
         ipcRenderer.send("req-is-password-set", []);
+    },
+    receiveIsPasswordSet: function(func) {
+        ipcRenderer.once("receive-is-password-set", (event, ...args) => func(event, ...args))
+    },
+    reqAllStakerAddresses: function(password) {
+        ipcRenderer.send("req-all-staker-addresses", [password]);
+    },
+    receiveAllStakerAddresses: function(func) {
+        ipcRenderer.once("receive-all-staker-addresses", (event, ...args) => func(event, ...args))
     },
     receiveIsPasswordSet: function (func) {
         ipcRenderer.once("receive-is-password-set", (event, ...args) => func(event, ...args))

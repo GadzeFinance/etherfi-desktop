@@ -292,10 +292,10 @@ ipcMain.on("req-set-password", async (event, args) => {
     const [password] = args
     try {
         await setPassword(password)
-        event.sender.send("receive-set-password-result", standardResultCodes.SUCCESS, '', '')
+        event.sender.send("receive-set-password-result", standardResultCodes.SUCCESS, '')
     } catch (error) {
         logger.error("Error setting password:", error)
-        event.sender.send("receive-set-password-result", standardResultCodes.ERROR, '' , error.message)
+        event.sender.send("receive-set-password-result", standardResultCodes.ERROR, error.message)
     }
 })
 
@@ -303,11 +303,32 @@ ipcMain.on("req-set-password", async (event, args) => {
 ipcMain.on("req-validate-password", async (event, args) => {
     const [password] = args
     try {
-        const passwordValid = await validatePassword(password)
-        event.sender.send("receive-validate-password-result", standardResultCodes.SUCCESS, passwordValid, '')
+        const valid = await validatePassword(password)
+        event.sender.send("receive-validate-password-result", standardResultCodes.SUCCESS, valid, '')
     } catch (error) {
         logger.error("Error validating password:", error)
-        event.sender.send("receive-validate-password-result", standardResultCodes.ERROR, '' , error.message)
+        event.sender.send("receive-validate-password-result", standardResultCodes.ERROR, false, error.message)
+    }
+})
+
+ipcMain.on("req-is-password-set", async (event, args) => {
+    try {
+        const passwordSet = await isPasswordSet()
+        event.sender.send("receive-is-password-set", standardResultCodes.SUCCESS, passwordSet, '')
+    } catch (error) {
+        logger.error("Error validating password:", error)
+        event.sender.send("receive-is-password-set", standardResultCodes.ERROR, false, error.message)
+    }
+})
+
+ipcMain.on("req-all-staker-addresses", async (event, args) => {
+    const [password] = args
+    try {
+        const stakerAddresses = await getStakerAddress(password)
+        event.sender.send("receive-all-staker-addresses", standardResultCodes.SUCCESS, stakerAddresses, '')
+    } catch (error) {
+        logger.error("Error getAllStakerAddresses:", error)
+        event.sender.send("receive-all-staker-addresses", standardResultCodes.ERROR, {}, error.message)
     }
 })
 

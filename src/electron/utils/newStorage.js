@@ -75,7 +75,13 @@ class Database {
         this._store = store;
     }
 
+    isPasswordSet() {
+        const passwordSet = this._store.get("passwordSet");
+        return passwordSet;
+    }
+
     setPassword(password) {
+        // TODO: check the password has not already been set
         this._store.set("passwordSet", true);
         this._store.set(
             "passwordHash",
@@ -86,10 +92,6 @@ class Database {
         const operatorPassword = this.#generatePassword();
         this._store.set('validatorPassword', this.encrypt(validatorPassword, password))
         this._store.set('operatorPassword', this.encrypt(operatorPassword, password))
-    }
-
-    isPasswordSet() {
-        return this._store.get("passwordSet") ? true : false;
     }
 
     validatePassword(password) {

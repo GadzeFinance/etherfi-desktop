@@ -1,6 +1,9 @@
-import { Box, Button, Center, Flex, Grid, GridItem, Text, VStack } from '@chakra-ui/react'
-import React, { useState, useEffect } from 'react'
+import { AbsoluteCenter, Box, Button, Center, Flex, Grid, GridItem, Input, Text, VStack } from '@chakra-ui/react'
+import { Steps } from 'chakra-ui-steps'
+import React, { useEffect, useState } from 'react'
+import widgetBoxStyle from '../../styleClasses/widgetBoxStyle'
 import PasswordInput from '../PasswordInput'
+import { useToast } from '@chakra-ui/react'
 
 
 interface LoginPageProps {
@@ -13,70 +16,108 @@ const LoginPage: React.FC<LoginPageProps> = (props: LoginPageProps) => {
   const [isFirstUse, setIsFirstUse] = useState<boolean>(true)
   const [isPasswordValid, setIsPasswordValid] = useState<boolean>(false)
   const [isConfirmed, setIsConfirmed] = useState<boolean>(false)
+  const [confirmPassword, setConfirmPassword] = useState<string>("")
+  const [generating, setGenerating] = useState<boolean>(false)
 
-  useEffect(() => {
-    window.databaseApi.receiveIsPasswordSet(
-          (
-              event: Electron.IpcMainEvent,
-              result: number,
-              passwordStatus: boolean,
-              errorMessage: string
-          ) => {
-              if (result === 0) {
-                  setIsFirstUse(!passwordStatus)
-              } else {
-                  console.error("Error fetching password status");
-                  console.error(errorMessage);
-              }
-          }
-      );
-      window.databaseApi.reqIsPasswordSet();
-  }, []);
+  const toast = useToast()
 
+  const showToast = (
+    title: string, 
+    description: string, 
+    status: "warning" | "info" | "success" | "error" | "loading"
+  ) => {
+    toast({
+      title,
+      description,
+      status,
+      position: "top-right",
+      duration: 9000,
+      isClosable: true,
+    })
+  }
 
-  const login = () => {
+  const reqAuthenticate = () => {
+    if (!isPasswordValid) {
+      showToast('Authentication Failed.', 'Please input the correct password.', 'warning')
+      return
+    }
 
     window.databaseApi.receiveValidatePasswordResult(
-        (
-            event: Electron.IpcMainEvent,
-            result: number,
-            validPassword: boolean,
-            errorMessage: string
-        ) => {
-            if (result === 0) {
-              if (validPassword) {
-                  props.setIsAuthenticated(true);
-                  console.log(props.password)
-                  // Add some toast for authentication
-                }
-                  // Add some toast for failed authentication
-            } else {
-                console.error("Error validating password");
-                console.error(errorMessage);
-            }
+      (
+        event: Electron.IpcMainEvent,
+        result: number,
+        valid: boolean,
+        errorMessage: string
+      ) => {
+        console.log("receiveValidatePasswordResult:", result, valid, errorMessage);
+        if (result === 0) {
+          props.setIsAuthenticated(valid);
+          if (!valid) {
+            showToast('Authentication Failed.', 'Please input the correct password.', 'warning')
+          } else {
+            showToast('Authentication Passed.', "We've logged you in!", 'success')
+          }
+        } else {
+          showToast('Authentication Failed.', 'Please input the correct password.', 'warning')
+          console.error("Error validating password");
+          console.error(errorMessage);
         }
+      }
     );
-    window.databaseApi.reqValidatePassword(props.password);  
+    window.databaseApi.reqValidatePassword(props.password)
   }
 
   const reqCreatePassword = () => {
+    console.log("reqCreatePassword:", isConfirmed, props.password, confirmPassword)
+    if (!isPasswordValid || props.password != confirmPassword) {
+      showToast("Form Incomplete", "Please follow the instructions in the form.", "warning")
+      return
+    }
     window.databaseApi.receiveSetPasswordResult(
       (
-          event: Electron.IpcMainEvent,
-          result: number,
-          body: boolean,
-          errorMessage: string
+        event: Electron.IpcMainEvent,
+        result: number,
+        errorMessage: string
       ) => {
-          if (result === 0) {
-            props.setIsAuthenticated(true)
-          } else {
-              console.error("Error fetching password status");
-              console.error(errorMessage);
-          }
+        console.log("received SetPasswordResult:", result, errorMessage);
+        if (result === 0) {
+          props.setIsAuthenticated(true);
+          showToast("Password Saved!", "You can use this password for future authentication", "success")
+        } else {
+          showToast("Failed", "Something wrong in the backend", "error")
+          console.error("Error setting password");
+          console.error(errorMessage);
+        }
       }
     );
-    window.databaseApi.reqSetPassword(props.password);
+    window.databaseApi.reqSetPassword(props.password)
   }
+
+
+
+  useEffect(() => {
+    window.databaseApi.receiveIsPasswordSet(
+      (
+        event: Electron.IpcMainEvent,
+        result: number,
+        passwordSet: boolean,
+        errorMessage: string
+      ) => {
+        console.log("received passwordSet:", result, passwordSet, errorMessage);
+        if (result === 0) {
+          
+          setIsFirstUse(!passwordSet);
+        } else {
+          console.error("Error quering passwordSet");
+          console.error(errorMessage);
+        }
+        setGenerating(false);
+      }
+    );
+    window.databaseApi.reqIsPasswordSet();
+    setGenerating(true);
+  }, [])
+
 
   return (
     <>
@@ -118,6 +159,29 @@ const LoginPage: React.FC<LoginPageProps> = (props: LoginPageProps) => {
                     This password will be used for encrypting your stored data
                   </Text>
 
+              { isFirstUse && <Box>
+                <VStack w="60%" pt={2} spacing={2}>
+                  <PasswordInput 
+                    password={props.password} 
+                    setPassword={props.setPassword} 
+                    isPasswordValid={isPasswordValid} 
+                    setIsPasswordValid={setIsPasswordValid} 
+                    shouldDoValidation={true} 
+                    noText 
+                    withConfirm 
+                    confirmPassword={confirmPassword}
+                    setConfirmPassword={setConfirmPassword}
+                  />
+                </VStack>
+                
+
+                <Text color="white" fontSize="md" opacity={"0.7"}>
+                  Note: Please remember this password for future use. Since this is a decentralized app running in an offline environment, if you forget the password,
+                  we can't restore the data for you.
+                </Text>
+              </Box> }
+
+              { !isFirstUse && <Box>
                   <VStack w="60%" pt={2} spacing={2}>
                     <PasswordInput 
                       password={props.password} 
@@ -125,27 +189,18 @@ const LoginPage: React.FC<LoginPageProps> = (props: LoginPageProps) => {
                       isPasswordValid={isPasswordValid} 
                       setIsPasswordValid={setIsPasswordValid} 
                       shouldDoValidation={true} 
-                      noText 
-                      withConfirm={isFirstUse}
-                      isConfirmed={isConfirmed}
-                      setIsConfirmed={setIsConfirmed}
+                      noText
                     />
                   </VStack>
-                  <Text color="white" fontSize="md" opacity={"0.7"}>
-                    Note: Please remember this password for future use. Since this is a decentralized app running in an offline environment, if you forget the password,
-                    we can't restore the data for you.
-                  </Text>
-                  </GridItem>
-                  <GridItem>
-                    <Button
-                      onClick={isFirstUse ? reqCreatePassword: login}
-                      disabled={!isPasswordValid}
-                      width={"200px"}
-                      alignSelf={"end"}
-                    >
-                      {isFirstUse ? "Create Password" : "Log In"}
-                    </Button>
-                  </GridItem>
+                </Box>}
+
+              </GridItem>
+              <GridItem>
+                { isFirstUse ?
+                  <Button onClick={reqCreatePassword} width={"200px"} alignSelf={"end"}>Create Password</Button> :
+                  <Button onClick={reqAuthenticate} width={"200px"} alignSelf={"end"}>Log in</Button> }
+              </GridItem>
+              
               </Grid>
             </Flex>  
           </Flex>
