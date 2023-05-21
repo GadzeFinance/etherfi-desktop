@@ -303,3 +303,14 @@ ipcMain.on("req-is-password-set", async (event, args) => {
         event.sender.send("receive-is-password-set", standardResultCodes.ERROR, false, error.message)
     }
 })
+
+ipcMain.on("req-all-staker-addresses", async (event, args) => {
+    try {
+        const stakerAddresses = db.getAllStakerAddresses()
+        console.log("req-all:", stakerAddresses)
+        event.sender.send("receive-all-staker-addresses", standardResultCodes.SUCCESS, JSON.stringify(stakerAddresses), '')
+    } catch (error) {
+        logger.error("Error getAllStakerAddresses:", error)
+        event.sender.send("receive-all-staker-addresses", standardResultCodes.ERROR, '', error.message)
+    }
+})

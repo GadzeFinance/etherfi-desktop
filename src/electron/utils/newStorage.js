@@ -107,7 +107,7 @@ class Database {
         );
         // Since this is our first time using app, we also need to generate a password for validators
         const validatorPassword = this.#generatePassword();
-        this._store.set('validatorPassword', this.encrypt(validatorPassword, password))
+        this._store.set('validatorPassword', encrypt(validatorPassword, password))
     }
 
     validatePassword(password) {

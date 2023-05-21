@@ -148,8 +148,8 @@ const GenerateSignedExitMessageWidget: React.FC = () => {
                     onChange={(index) => setSelectedTab(index)}
                   >
                     <TabList>
-                      <Tab>Select Validator</Tab>
-                      <Tab>Import Validator</Tab>
+                      <Tab color={"white"}>Select Validator</Tab>
+                      <Tab color={"white"}>Import Validator</Tab>
                     </TabList>
 
                     <TabPanels>

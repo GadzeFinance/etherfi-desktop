@@ -38,8 +38,8 @@ const App: React.FC = () => {
   const [stakerOperation, setStakerOperation] = useState(0);
   return (
     <div>
-      { !isAuthenticated && <LoginPage setIsAuthenticated={setIsAuthenticated} /> }
-      { isAuthenticated && <Tabs
+      {/* { !isAuthenticated && <LoginPage setIsAuthenticated={setIsAuthenticated} /> } */}
+      { true && <Tabs
         variant="soft-rounded"
         index={tabIndex}
         onChange={handleTabsChange}
@@ -58,11 +58,9 @@ const App: React.FC = () => {
             <TabPanel>
               <NodeOperatorTab tabIndex={tabIndex} selectedOption={selectedNodeOperatorOperation} />
             </TabPanel>
-            {isDev(React) && (
-              <TabPanel>
-                <DBExplorer/>
-              </TabPanel>
-            )}
+            <TabPanel flexDirection={'row'}>
+              <DBExplorer/>
+            </TabPanel>
           </TabPanels>
         </Center>
       </Tabs>}
