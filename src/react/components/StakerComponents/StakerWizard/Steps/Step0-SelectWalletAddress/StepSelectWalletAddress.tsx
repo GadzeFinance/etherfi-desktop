@@ -3,6 +3,8 @@ import { Flex, Text, Center, Select } from "@chakra-ui/react";
 import WizardNavigator from "../../WizardNavigator";
 import AddressInput from "../../../../AddressInput";
 
+import useGetStakerAddresses from "../../../../../hooks/useGetStakerAddress";
+
 interface StepSelectWalletAddressProps {
     goNextStep: () => void;
     goBackStep: () => void;
@@ -15,7 +17,7 @@ interface StepSelectWalletAddressProps {
 const StepSelectWalletAddress: React.FC<StepSelectWalletAddressProps> = (
     props
 ) => {
-    const [addressOptions, setAddressOptions] = useState<string[]>([]);
+    const {addressOptions, error} = useGetStakerAddresses();
     const [isAddressValid, setIsAddressValid] = React.useState(false);
 
     const backDetails = {
@@ -47,27 +49,6 @@ const StepSelectWalletAddress: React.FC<StepSelectWalletAddressProps> = (
         }
     }, [props.dropWalletAddress, props.typeWalletAddress])
 
-
-    useEffect(() => {
-        window.encryptionApi.receieveGetStakerAddresses(
-            (
-                event: Electron.IpcMainEvent,
-                result: number,
-                addresses: string,
-                errorMessage: string
-            ) => {
-                if (result === 0) {
-                    setAddressOptions(Object.keys(JSON.parse(addresses ? addresses : "{}")));
-                } else {
-                    console.error("Error generating validator keys");
-                    console.error(errorMessage);
-                    // TODO: Show error screen on failure.
-                }
-            }
-        );
-        window.encryptionApi.reqGetStakerAddresses();
-    }, []);
-
     return (
         <Flex
             padding={"24px"}
@@ -94,7 +75,7 @@ const StepSelectWalletAddress: React.FC<StepSelectWalletAddressProps> = (
                 }}
                 value={props.dropWalletAddress}
             >
-                {addressOptions.map((address) => (
+                {!error && addressOptions?.map((address: string) => (
                     <option key={address}>{address}</option>
                 ))}
             </Select>

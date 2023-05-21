@@ -12,7 +12,6 @@ import SavedFileBox from '../SavedFileBox'
 import PasswordInput from '../PasswordInput'
 import EtherFiSpinner from '../EtherFiSpinner';
 
-
 const MAX_KEYS = 7000
 
 const GenerateKeysWidget: React.FC = () => {
@@ -24,8 +23,6 @@ const GenerateKeysWidget: React.FC = () => {
     const [privKeysFilePath, setPrivKeysFilePath] = useState<string>("")
     const [privKeysPassword, setPrivKeysPassword] = useState<string>("")
     const [isPrivKeysPasswordValid, setIsPrivKeysPasswordValid] = useState<boolean>(false)
-
-
 
     const generateKeys = () => {
         window.encryptionApi.receiveNOKeysConfirmation(
@@ -118,7 +115,6 @@ const GenerateKeysWidget: React.FC = () => {
                         </Box>
                     </VStack>
                 </Box >
-
             )}
             {
                 keysGenerating && (

@@ -27,6 +27,9 @@ import SelectSavePathButton from "../SelectSavePathButton";
 import ChainSelectionDropdown from "../ChainSelectionDropdown";
 import AddressInput from "../AddressInput";
 
+import useGetStakerAddresses from "../../hooks/useGetStakerAddress";
+import useGetValidators from "../../hooks/useGetValidators";
+
 interface GenerateSignedExitMessageWidgetProps {
   password: string;
 }
@@ -43,7 +46,6 @@ const GenerateSignedExitMessageWidget: React.FC<GenerateSignedExitMessageWidgetP
   const [chain, setChain] = useState<string>("");
   const [selectedTab, setSelectedTab] = useState<number>(0);
   const [selectedValidator, setSelectedValidator] = useState("");
-  const [fetchedValidators, setFetchedValidators] = useState([]);
   const [isAddressValid, setIsAddressValid] = React.useState(false);
 
   const [dropWalletAddress, setDropWalletAddress] = useState<string>("");
@@ -53,58 +55,11 @@ const GenerateSignedExitMessageWidget: React.FC<GenerateSignedExitMessageWidgetP
   // UI State Variables
   const [messageGenerating, setMessageGenerating] = useState<boolean>(false);
   const [messageGenerated, setMessageGenerated] = useState<boolean>(false);
-  const [addressOptions, setAddressOptions] = useState<string[]>([]);
-
+  const { addressOptions, error } = useGetStakerAddresses();
+  const fetchedValidators = useGetValidators(confirmedAddress, props.password)
   // TODO: MAKE ERROR MESSAGES BETTER!! I.E See if password is wrong for keystore
   // Right now we just show that a general error occured if the message generation fails
   const [showErrorMessage, setShowErrorMessage] = useState<boolean>(false);
-
-  useEffect(() => {
-    if (!confirmedAddress) return
-    window.encryptionApi.receiveStoredValidators(
-      (
-        event: Electron.IpcMainEvent,
-        result: number,
-        validators: string,
-        errorMessage: string
-      ) => {
-        if (result === 0) {
-            setFetchedValidators(Object.entries(JSON.parse(validators)).map(([key, value]: [any ,any], i) => {
-              return {
-                validatorID: key,
-                fileData: JSON.stringify(JSON.parse(value))
-              }
-          }));
-        } else {
-          console.error("Error generating mnemonic");
-          console.error(errorMessage);
-          // TODO: Show error screen on failure.
-        }
-      }
-    );
-    window.encryptionApi.reqStoredValidators(confirmedAddress, props.password);
-  }, [confirmedAddress]);
-
-  useEffect(() => {
-    window.encryptionApi.receieveGetStakerAddresses(
-        (
-            event: Electron.IpcMainEvent,
-            result: number,
-            addresses: string,
-            errorMessage: string
-        ) => {
-            if (result === 0) {
-                setAddressOptions(Object.keys(JSON.parse(addresses)));
-            } else {
-                console.error("Error generating validator keys");
-                console.error(errorMessage);
-                // TODO: Show error screen on failure.
-            }
-        }
-    );
-    window.encryptionApi.reqGetStakerAddresses();
-}, []);
-
 
 useEffect(() => {
   if (dropWalletAddress != '') {
@@ -162,7 +117,8 @@ useEffect(() => {
         exitEpoch,
         savePath,
         chain,
-        props.password
+        props.password,
+        confirmedAddress
     );
   };
 
@@ -196,7 +152,7 @@ useEffect(() => {
                   }}
                   value={dropWalletAddress}
                   >
-                    {addressOptions.map((address) => (
+                    {!error && addressOptions?.map((address: string) => (
                       <option key={address}>{address}</option>
                     ))}
                   </Select>
@@ -276,7 +232,7 @@ useEffect(() => {
                               setSelectedValidator((e.target.value))
                             }}
                           >
-                            {Object.entries(fetchedValidators).map(([key, value]: [any, any], i) => (
+                            {fetchedValidators && Object.entries(fetchedValidators).map(([key, value]: [any, any], i) => (
                                 <option value={JSON.stringify(value)} key={key}>{value.validatorID}</option>
                             ))}
                           </Select>

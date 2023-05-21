@@ -19,8 +19,14 @@ const newStorage = require('./utils/newStorage')
  * 
  * @returns {Array<String>} - 2 element list containing the file paths to the public and private key files
  */
-const genNodeOperatorKeystores = async (numKeys, saveFolder, privKeysPassword) => {
+const genNodeOperatorKeystores = async (numKeys, saveFolder, privKeysPassword, address) => {
     logger.info("genNodeOperatorKeystores: Start")
+
+    const allWallets = await newStorage.getAllStakerAddresses();
+    if (allWallets == undefined || !(address in allWallets)) {
+        await newStorage.addStakerAddress(address)
+    }
+
     const curve = new EC('secp256k1')
 
     const publicFileJSON = {}
@@ -69,6 +75,16 @@ const genNodeOperatorKeystores = async (numKeys, saveFolder, privKeysPassword) =
             logger.error("Error in 'genNodeOperatorKeystores' writing PrivateKeyFile", err);
           throw new Error("Error writing private keys file")
     }})
+
+    // for (const publicKey of pubKeyArray) {
+    //     newStorage.addOperatorKey(address, publicKey, )
+    // }
+
+    // 1 Hash the private key file using sha256
+    // 2 upon adding a new operator key, if the private key hashed is already in the storage, we relate pulic key to the hash
+    // else, we will hash the private key, store a mapping from hash to the actual file (this will only happen once, ever)
+    // 3 store public key to private key hash in map
+
 
     logger.info("genNodeOperatorKeystores: End")
     return [pubKeysFilePath, privKeysFilePath]

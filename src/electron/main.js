@@ -104,9 +104,9 @@ app.on("window-all-closed", function () {
 /* ------------------------------------------------------------- */
 // Returns (result, pubkeyFilePath| '', privKeyFilePath | '', errorMessag e| '') to frontend
 ipcMain.on("req-gen-node-operator-keys", async (event, args) => {
-    const [numKeys, saveFolder, privKeysPassword] = args
+    const [numKeys, saveFolder, privKeysPassword, address] = args
     try {
-        const [pubKeysFilePath, privKeysFilePath] = await genNodeOperatorKeystores(numKeys, saveFolder, privKeysPassword)
+        const [pubKeysFilePath, privKeysFilePath] = await genNodeOperatorKeystores(numKeys, saveFolder, privKeysPassword, address)
         event.sender.send("receive-NO-keys-generated-result", standardResultCodes.SUCCESS, pubKeysFilePath, privKeysFilePath, '')
     } catch (error) {
         logger.error("Error Generating Encryption Keys:", error)
@@ -201,9 +201,9 @@ ipcMain.on('req-get-staker-address', async (event, args) => {
 // Return (result, exitMessageFilePath | '', errorMessage| '') to frontend
 ipcMain.on("req-signed-exit-message", async (event, args) => {
     // Get Arguments
-    const [usingStoredKeys, selectedValidator, keystorePath, keystorePassword, validatorIndex, epoch, saveFolder, chain, databasePassword] = args
+    const [usingStoredKeys, selectedValidator, keystorePath, keystorePassword, validatorIndex, epoch, saveFolder, chain, databasePassword, address] = args
     try {
-        const exitMessageFilePath = await generateSignedExitMessage(usingStoredKeys, selectedValidator, chain, keystorePath, keystorePassword, validatorIndex, epoch, saveFolder, databasePassword)
+        const exitMessageFilePath = await generateSignedExitMessage(usingStoredKeys, selectedValidator, chain, keystorePath, keystorePassword, validatorIndex, epoch, saveFolder, databasePassword, address)
         event.sender.send("receive-signed-exit-message-confirmation", standardResultCodes.SUCCESS, exitMessageFilePath , '')
     } catch (error) {
         logger.error("Error Generating Signed Exit Message:", error)

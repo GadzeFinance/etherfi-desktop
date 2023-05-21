@@ -14,6 +14,10 @@ const newSchema = {
         type: "string",
         default: "",
     },
+    operatorPassword: {
+        type: "string",
+        default: "",
+    },
     stakerAddresses: {
         type: "object",
         properties: {
@@ -54,27 +58,9 @@ const newSchema = {
             validatorAddress: {
                 type: "object",
                 properties: {
-                    operatorKeysCount: {
-                        type: "integer",
-                        default: 0,
-                    },
-                    operatorKeys: {
-                        type: "object",
-                        properties: {
-                            operatorKeyID: {
-                                type: "object",
-                                properties: {
-                                    privateKey: {
-                                        type: "string",
-                                        default: "",
-                                    },
-                                    publicKey: {
-                                        type: "string",
-                                        default: "",
-                                    },
-                                },
-                            },
-                        },
+                    privateKey: { // Public Key is the Key, private key is the value
+                        type: "string",
+                        default: "",
                     },
                 },
             },
@@ -97,7 +83,9 @@ class Database {
         );
         // Since this is our first time using app, we also need to generate a password for validators
         const validatorPassword = this.#generatePassword();
+        const operatorPassword = this.#generatePassword();
         this._store.set('validatorPassword', this.encrypt(validatorPassword, password))
+        this._store.set('operatorPassword', this.encrypt(operatorPassword, password))
     }
 
     isPasswordSet() {
@@ -180,6 +168,10 @@ class Database {
         return this._store.get("validatorAddress");
     }
 
+    addOperatorKey(address, publicKey, privateKey, password) {
+        this._store.set(`validatorAddresses.${address}.${publicKey}`, this.encrypt(privateKey, password));
+    }
+
     #generatePassword () {
         const wishlist = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz~!@-#$'
         return Array.from(crypto.randomFillSync(new Uint32Array(20)))
@@ -224,7 +216,7 @@ class Database {
 
 const store = new Store({ newSchema });
 const db = new Database(store)
-store.clear();
+// store.clear();
 // password = "Password123!";
 // db.setPassword(password);
 // console.log("Passwords match: ", db.validatePassword(password));

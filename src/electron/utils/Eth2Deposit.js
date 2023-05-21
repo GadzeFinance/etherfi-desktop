@@ -285,7 +285,8 @@ const generateSignedExitMessage = async (
   validatorIndex, // number
   epoch, // number
   saveFolder, // string
-  databasePassword
+  databasePassword,
+  address // string
 ) => {
   let executable = "";
   let args = [];
@@ -307,6 +308,11 @@ const generateSignedExitMessage = async (
         console.log('JSON file saved successfully!');
       }
     })
+  }
+
+  const allWallets = await newStorage.getAllStakerAddresses();
+  if (allWallets == undefined || !(address in allWallets)) {
+      await newStorage.addStakerAddress(address)
   }
 
   if (await doesFileExist(BUNDLED_SFE_PATH)) {
