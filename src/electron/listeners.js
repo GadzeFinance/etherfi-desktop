@@ -404,7 +404,7 @@ const getPassword = async (number) => {
 
 const getStakerAddress = async (password) => {
     const allStakers = await newStorage.getAllStakerAddresses();
-    if (!allStakers) {
+    if (!allStakers || !password) {
         return {};
     }
     // Decrypt here if efficiency allows

@@ -40,8 +40,8 @@ interface DBExplorerProps {
 const DBExplorer = (props: DBExplorerProps) => {
   const [allStakers, setAllStakers] = useState<StakerMap>({});
   const [generating, setGenerating] = useState(false);
-  const [currAddress, setCurrAddress] = useState("0x1");
-  const [addressList, setAddressList] = useState(["0x1", "0x2"]);
+  const [currAddress, setCurrAddress] = useState("");
+  const [addressList, setAddressList] = useState([]);
   const [selectedTab, setSelectedTab] = useState<number>(0);
 
   useEffect(() => {
@@ -73,7 +73,8 @@ const DBExplorer = (props: DBExplorerProps) => {
   }, [])
 
   const currStaker = allStakers[currAddress]
-  const { mnemonics, validators } = currStaker
+  const mnemonics = currStaker?.mnemonics ?? {}
+  const validators = currStaker?.validators ?? {}
   const mnemonicCount = Object.keys(mnemonics).length;
   const validatorCount = Object.keys(validators).length;
 
