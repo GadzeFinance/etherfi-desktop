@@ -1,19 +1,9 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import raisedWidgetStyle from "../../styleClasses/widgetBoxStyle";
 import {
-  Button,
-  Modal,
-  ModalOverlay,
-  ModalContent,
-  ModalHeader,
-  ModalCloseButton,
-  ModalBody,
-  Code,
   Center,
   Box,
   Text,
-  Thead,
-  Flex,
   Tabs,
   Tab,
   TabList,
@@ -39,7 +29,6 @@ interface DBExplorerProps {
 
 const DBExplorer = (props: DBExplorerProps) => {
   const [allStakers, setAllStakers] = useState<StakerMap>({});
-  const [generating, setGenerating] = useState(false);
   const [currAddress, setCurrAddress] = useState("");
   const [addressList, setAddressList] = useState([]);
   const [selectedTab, setSelectedTab] = useState<number>(0);
@@ -64,11 +53,9 @@ const DBExplorer = (props: DBExplorerProps) => {
           console.error("Error AllStakerAddresses");
           console.error(errorMessage);
         }
-        setGenerating(false);
       }
     );
     window.databaseApi.reqAllStakerAddresses(props.password);
-    setGenerating(true);
 
   }, [])
 
@@ -81,7 +68,6 @@ const DBExplorer = (props: DBExplorerProps) => {
   return (<>
     <Center>
       <Box sx={raisedWidgetStyle} bg="#2b2852">
-
         <Box
           width={'905px'}
           height={'70vh'}
@@ -92,9 +78,7 @@ const DBExplorer = (props: DBExplorerProps) => {
             borderRadius: '16px',
           }}
         >
-
           { addressList.length === 0 && <Box><Text color={"white"}>There is no saved data in the database</Text></Box>}
-
           { addressList.length > 0 && (
             <>
               <AddressSelect currAddress={currAddress} setCurrAddress={setCurrAddress} addressList={addressList} />

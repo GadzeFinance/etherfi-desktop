@@ -1,5 +1,4 @@
-import React, { useState, useEffect } from "react";
-import raisedWidgetStyle from "../../styleClasses/widgetBoxStyle";
+import { useState } from "react";
 import {
   Text,
   Table,
@@ -8,8 +7,6 @@ import {
   Tr,
   Td,
   Box,
-  Center,
-  Container,
   useClipboard,
   Modal,
   ModalOverlay,
@@ -23,8 +20,7 @@ import {
   ModalFooter,
   Button,
 } from "@chakra-ui/react";
-import { useToast } from '@chakra-ui/react'
-import { ChevronDownIcon, CopyIcon, ViewIcon } from "@chakra-ui/icons";
+import { CopyIcon, ViewIcon } from "@chakra-ui/icons";
 
 interface DataTableProps {
   title: string
@@ -36,9 +32,7 @@ const DataTable = ({title, dataCount, data}: DataTableProps) => {
 
   const [selectedCode, setSelectedCode] = useState<string>("")
 
-  const { onCopy, value, setValue, hasCopied } = useClipboard("");
-  
-  const toast = useToast()
+  const { onCopy, setValue } = useClipboard("");
 
   const shortenMnemonic = (mnemonic: any) => {
     const wordArray = mnemonic.split(" ");
@@ -74,7 +68,6 @@ const DataTable = ({title, dataCount, data}: DataTableProps) => {
 
   return (
     <Box py="5">
-    {/* <Text color={"white"} fontSize={"xl"}>{title}</Text> */}
     <Table mt={2} color={"white"}>
       <Thead>
         <Tr>
@@ -148,8 +141,8 @@ const DataTable = ({title, dataCount, data}: DataTableProps) => {
           </ModalFooter>
         </ModalContent>
       </Modal>
-    </Box>)
-
+    </Box>
+  )
 }
 
 export default DataTable;
