@@ -16,7 +16,6 @@ const LoginPage: React.FC<LoginPageProps> = (props: LoginPageProps) => {
   const [isFirstUse, setIsFirstUse] = useState<boolean>(true)
   const [isPasswordValid, setIsPasswordValid] = useState<boolean>(false)
   const [isConfirmed, setIsConfirmed] = useState<boolean>(false)
-  const [password, setPassword] = useState<string>("")
   const [confirmPassword, setConfirmPassword] = useState<string>("")
   const [generating, setGenerating] = useState<boolean>(false)
 
@@ -65,12 +64,12 @@ const LoginPage: React.FC<LoginPageProps> = (props: LoginPageProps) => {
         }
       }
     );
-    window.databaseApi.reqValidatePassword(password)
+    window.databaseApi.reqValidatePassword(props.password)
   }
 
   const reqCreatePassword = () => {
-    console.log("reqCreatePassword:", isConfirmed, password, confirmPassword)
-    if (!isPasswordValid || password != confirmPassword) {
+    console.log("reqCreatePassword:", isConfirmed, props.password, confirmPassword)
+    if (!isPasswordValid || props.password != confirmPassword) {
       showToast("Form Incomplete", "Please follow the instructions in the form.", "warning")
       return
     }
@@ -91,7 +90,7 @@ const LoginPage: React.FC<LoginPageProps> = (props: LoginPageProps) => {
         }
       }
     );
-    window.databaseApi.reqSetPassword(password)
+    window.databaseApi.reqSetPassword(props.password)
   }
 
 
@@ -163,8 +162,8 @@ const LoginPage: React.FC<LoginPageProps> = (props: LoginPageProps) => {
               { isFirstUse && <Box>
                 <VStack w="60%" pt={2} spacing={2}>
                   <PasswordInput 
-                    password={password} 
-                    setPassword={setPassword} 
+                    password={props.password} 
+                    setPassword={props.setPassword} 
                     isPasswordValid={isPasswordValid} 
                     setIsPasswordValid={setIsPasswordValid} 
                     shouldDoValidation={true} 
@@ -185,8 +184,8 @@ const LoginPage: React.FC<LoginPageProps> = (props: LoginPageProps) => {
               { !isFirstUse && <Box>
                   <VStack w="60%" pt={2} spacing={2}>
                     <PasswordInput 
-                      password={password} 
-                      setPassword={setPassword} 
+                      password={props.password} 
+                      setPassword={props.setPassword} 
                       isPasswordValid={isPasswordValid} 
                       setIsPasswordValid={setIsPasswordValid} 
                       shouldDoValidation={true} 

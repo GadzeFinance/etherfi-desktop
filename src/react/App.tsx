@@ -37,6 +37,7 @@ const App: React.FC = () => {
 
   const [selectedNodeOperatorOperation, setNodeOperatorOperation] = useState(0);
   const [stakerOperation, setStakerOperation] = useState(0);
+
   return (
     <div>
       { !isAuthenticated && <LoginPage setIsAuthenticated={setIsAuthenticated} setPassword={setPassword} password={password}/> }
@@ -60,7 +61,7 @@ const App: React.FC = () => {
               <NodeOperatorTab tabIndex={tabIndex} selectedOption={selectedNodeOperatorOperation} />
             </TabPanel>
             <TabPanel flexDirection={'row'}>
-              <DBExplorer/>
+              <DBExplorer password={password}/>
             </TabPanel>
           </TabPanels>
         </Center>

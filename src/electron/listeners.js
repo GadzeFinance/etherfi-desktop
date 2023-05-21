@@ -386,8 +386,23 @@ const getPassword = async (number) => {
     return await storage.getPassword(number)
 }
 
-const getStakerAddress = async () => {
-    return await newStorage.getAllStakerAddresses()
+const getStakerAddress = async (password) => {
+    const allStakers = await newStorage.getAllStakerAddresses();
+    if (!allStakers) {
+        return {};
+    }
+    // Decrypt here if efficiency allows
+    for (const [addr, stakerInfo] of Object.entries(allStakers)) {
+        const { validators, mnemonics } = stakerInfo;
+        for (const [id, validator] of Object.entries(validators ? validators : {})) {
+            validators[id] = await newStorage.decrypt(validator, password);
+        }
+        for (const [id, mnemonic] of Object.entries(mnemonics ? mnemonics : {})) {
+            mnemonics[id] = await newStorage.decrypt(mnemonic, password);
+        }
+    }
+    console.log("result:", allStakers)
+    return allStakers;
 }
 
 const isPasswordSet = async () => {

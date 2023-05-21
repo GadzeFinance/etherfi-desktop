@@ -42,7 +42,7 @@ const DataTable = ({title, dataCount, data}: DataTableProps) => {
 
   const shortenMnemonic = (mnemonic: any) => {
     const wordArray = mnemonic.split(" ");
-    return `${wordArray.slice(0, 7).join(", ")} ... ${wordArray
+    return `${wordArray.slice(0, 5).join(", ")} ... ${wordArray
         .slice(-3)
         .join(", ")}`;
   };

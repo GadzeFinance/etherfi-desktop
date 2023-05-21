@@ -313,7 +313,7 @@ ipcMain.on("req-validate-password", async (event, args) => {
 
 ipcMain.on("req-is-password-set", async (event, args) => {
     try {
-        const passwordSet = await db.isPasswordSet()
+        const passwordSet = await isPasswordSet()
         event.sender.send("receive-is-password-set", standardResultCodes.SUCCESS, passwordSet, '')
     } catch (error) {
         logger.error("Error validating password:", error)
@@ -322,13 +322,13 @@ ipcMain.on("req-is-password-set", async (event, args) => {
 })
 
 ipcMain.on("req-all-staker-addresses", async (event, args) => {
+    const [password] = args
     try {
-        const stakerAddresses = db.getAllStakerAddresses()
-        console.log("req-all:", stakerAddresses)
-        event.sender.send("receive-all-staker-addresses", standardResultCodes.SUCCESS, JSON.stringify(stakerAddresses), '')
+        const stakerAddresses = await getStakerAddress(password)
+        event.sender.send("receive-all-staker-addresses", standardResultCodes.SUCCESS, stakerAddresses, '')
     } catch (error) {
         logger.error("Error getAllStakerAddresses:", error)
-        event.sender.send("receive-all-staker-addresses", standardResultCodes.ERROR, '', error.message)
+        event.sender.send("receive-all-staker-addresses", standardResultCodes.ERROR, {}, error.message)
     }
 })
 

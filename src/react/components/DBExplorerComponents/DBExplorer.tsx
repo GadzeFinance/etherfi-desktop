@@ -30,11 +30,14 @@ interface StakerMap {
 interface StakerInfo {
   mnemonicCount: number
   mnemonics: {[idx: string]: string}
-  validatorCount: number
   validators: {[idx: string]: string}
 }
 
-const DBExplorer = () => {
+interface DBExplorerProps {
+  password: string
+}
+
+const DBExplorer = (props: DBExplorerProps) => {
   const [allStakers, setAllStakers] = useState<StakerMap>({
     "0x1": {
       mnemonicCount: 2,
@@ -42,7 +45,6 @@ const DBExplorer = () => {
         0: "define blush there city under ready oak trap pluck correct regret angry program actor good receive umbrella mail merry divide average border juice cannon",
         1: "fefine flush fhere fity fnder ready oak trap pluck correct regret angry program actor good receive umbrella mail merry divide average border juice cannon"
       },
-      validatorCount: 2,
       validators: {
         55: `{
           "crypto": {
@@ -116,7 +118,6 @@ const DBExplorer = () => {
         0: "define blush there city under ready oak trap pluck correct regret angry program actor good receive umbrella mail merry divide average border juice cannon",
         1: "define blush there city under ready oak trap pluck correct regret angry program actor good receive umbrella mail merry divide average border juice cannon"
       },
-      validatorCount: 2,
       validators: {
         55: `{
           "crypto": {
@@ -192,34 +193,36 @@ const DBExplorer = () => {
 
   useEffect(() => {
     
-    // window.databaseApi.receiveAllStakerAddresses(
-    //   (
-    //     event: Electron.IpcMainEvent,
-    //     result: number,
-    //     data: string,
-    //     errorMessage: string
-    //   ) => {
-    //     console.log("received AllStakerAddresses:", result, data, errorMessage);
-    //     if (result === 0) {
+    window.databaseApi.receiveAllStakerAddresses(
+      (
+        event: Electron.IpcMainEvent,
+        result: number,
+        data: StakerMap,
+        errorMessage: string
+      ) => {
+        console.log("received AllStakerAddresses:", result, data, errorMessage);
+        if (result === 0) {
           
-    //       setAllStakers(data);
-    //       setAddressList(Object.entries(data));
-    //       setCurrAddress(Object.entries(data).length > 0 ? Object.entries(data)[0] : "")
+          setAllStakers(data);
+          setAddressList(Object.keys(data));
+          setCurrAddress(Object.keys(data).length > 0 ? Object.keys(data)[0] : "")
 
-    //     } else {
-    //       console.error("Error AllStakerAddresses");
-    //       console.error(errorMessage);
-    //     }
-    //     setGenerating(false);
-    //   }
-    // );
-    // window.databaseApi.reqAllStakerAddresses();
-    // setGenerating(true);
+        } else {
+          console.error("Error AllStakerAddresses");
+          console.error(errorMessage);
+        }
+        setGenerating(false);
+      }
+    );
+    window.databaseApi.reqAllStakerAddresses(props.password);
+    setGenerating(true);
 
   }, [])
 
   const currStaker = allStakers[currAddress]
-  const { mnemonicCount, mnemonics, validatorCount, validators } = currStaker
+  const { mnemonics, validators } = currStaker
+  const mnemonicCount = Object.keys(mnemonics).length;
+  const validatorCount = Object.keys(validators).length;
 
   return (<>
     <Center>

@@ -226,7 +226,7 @@ class Database {
 
 const store = new Store({ newSchema });
 const db = new Database(store)
-store.clear();
+// store.clear();
 // password = "Password123!";
 // db.setPassword(password);
 // console.log("Passwords match: ", db.validatePassword(password));

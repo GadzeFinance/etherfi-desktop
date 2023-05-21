@@ -28,14 +28,14 @@ const AddressSelect = (props: AddressSelectProps) => {
     <Menu>
       <Center>
         <MenuButton
-            w="393px !important" mt="12px" mb="16px" pt="23px" pb="23px"
+            w="450px !important" mt="12px" mb="16px" pt="23px" pb="23px"
             as={Button}
             rightIcon={<ChevronDownIcon />}
             disabled={props.addressList?.length === 0}
         >
           { props.addressList?.length > 0 ? props.currAddress : "There is no address stored." }
         </MenuButton>
-        <MenuList w="393px !important">
+        <MenuList w="450px !important">
             { props.addressList?.map((address: string) => (
                 <MenuItem onClick={() => menuOnClick(address)} key={address}>
                     <Box w="100%">
