@@ -1,10 +1,7 @@
-import { AbsoluteCenter, Box, Button, Center, Flex, Grid, GridItem, Input, Text, VStack } from '@chakra-ui/react'
-import { Steps } from 'chakra-ui-steps'
+import { Box, Button, Center, Flex, Grid, GridItem, Text, VStack } from '@chakra-ui/react'
 import React, { useEffect, useState } from 'react'
-import widgetBoxStyle from '../../styleClasses/widgetBoxStyle'
 import PasswordInput from '../PasswordInput'
 import { useToast } from '@chakra-ui/react'
-
 
 interface LoginPageProps {
   setIsAuthenticated: (v: boolean) => void
@@ -15,10 +12,7 @@ interface LoginPageProps {
 const LoginPage: React.FC<LoginPageProps> = (props: LoginPageProps) => {
   const [isFirstUse, setIsFirstUse] = useState<boolean>(true)
   const [isPasswordValid, setIsPasswordValid] = useState<boolean>(false)
-  const [isConfirmed, setIsConfirmed] = useState<boolean>(false)
   const [confirmPassword, setConfirmPassword] = useState<string>("")
-  const [generating, setGenerating] = useState<boolean>(false)
-
   const toast = useToast()
 
   const showToast = (
@@ -49,7 +43,6 @@ const LoginPage: React.FC<LoginPageProps> = (props: LoginPageProps) => {
         valid: boolean,
         errorMessage: string
       ) => {
-        console.log("receiveValidatePasswordResult:", result, valid, errorMessage);
         if (result === 0) {
           props.setIsAuthenticated(valid);
           if (!valid) {
@@ -68,7 +61,6 @@ const LoginPage: React.FC<LoginPageProps> = (props: LoginPageProps) => {
   }
 
   const reqCreatePassword = () => {
-    console.log("reqCreatePassword:", isConfirmed, props.password, confirmPassword)
     if (!isPasswordValid || props.password != confirmPassword) {
       showToast("Form Incomplete", "Please follow the instructions in the form.", "warning")
       return
@@ -93,8 +85,6 @@ const LoginPage: React.FC<LoginPageProps> = (props: LoginPageProps) => {
     window.databaseApi.reqSetPassword(props.password)
   }
 
-
-
   useEffect(() => {
     window.databaseApi.receiveIsPasswordSet(
       (
@@ -111,13 +101,10 @@ const LoginPage: React.FC<LoginPageProps> = (props: LoginPageProps) => {
           console.error("Error quering passwordSet");
           console.error(errorMessage);
         }
-        setGenerating(false);
       }
     );
     window.databaseApi.reqIsPasswordSet();
-    setGenerating(true);
   }, [])
-
 
   return (
     <>
@@ -136,7 +123,6 @@ const LoginPage: React.FC<LoginPageProps> = (props: LoginPageProps) => {
               padding: '24px',
               borderRadius: '16px',
             }}
-            
           >
             <Flex 
               padding={"24px"}
@@ -188,7 +174,7 @@ const LoginPage: React.FC<LoginPageProps> = (props: LoginPageProps) => {
                       setPassword={props.setPassword} 
                       isPasswordValid={isPasswordValid} 
                       setIsPasswordValid={setIsPasswordValid} 
-                      shouldDoValidation={true} 
+                      shouldDoValidation={isFirstUse} 
                       noText
                     />
                   </VStack>
