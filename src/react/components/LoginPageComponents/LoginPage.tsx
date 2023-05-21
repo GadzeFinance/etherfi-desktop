@@ -3,6 +3,7 @@ import { Steps } from 'chakra-ui-steps'
 import React, { useEffect, useState } from 'react'
 import widgetBoxStyle from '../../styleClasses/widgetBoxStyle'
 import PasswordInput from '../PasswordInput'
+import { useToast } from '@chakra-ui/react'
 
 
 interface LoginPageProps {
@@ -14,13 +15,29 @@ const LoginPage: React.FC<LoginPageProps> = (props: LoginPageProps) => {
   const [isPasswordValid, setIsPasswordValid] = useState<boolean>(false)
   const [isConfirmed, setIsConfirmed] = useState<boolean>(false)
   const [password, setPassword] = useState<string>("")
+  const [confirmPassword, setConfirmPassword] = useState<string>("")
   const [generating, setGenerating] = useState<boolean>(false)
 
-  // TODO:? Remember for several days
+  const toast = useToast()
+
+  const showToast = (
+    title: string, 
+    description: string, 
+    status: "warning" | "info" | "success" | "error" | "loading"
+  ) => {
+    toast({
+      title,
+      description,
+      status,
+      position: "top-right",
+      duration: 9000,
+      isClosable: true,
+    })
+  }
 
   const reqAuthenticate = () => {
     if (!isPasswordValid) {
-      console.log('format not valid')
+      showToast('Authentication Failed.', 'Please input the correct password.', 'warning')
       return
     }
 
@@ -33,25 +50,28 @@ const LoginPage: React.FC<LoginPageProps> = (props: LoginPageProps) => {
       ) => {
         console.log("receiveValidatePasswordResult:", result, valid, errorMessage);
         if (result === 0) {
-          
           props.setIsAuthenticated(valid);
-          
+          if (!valid) {
+            showToast('Authentication Failed.', 'Please input the correct password.', 'warning')
+          } else {
+            showToast('Authentication Passed.', "We've logged you in!", 'success')
+          }
         } else {
+          showToast('Authentication Failed.', 'Please input the correct password.', 'warning')
           console.error("Error validating password");
           console.error(errorMessage);
         }
       }
     );
-
     window.databaseApi.reqValidatePassword(password)
-  
   }
 
   const reqCreatePassword = () => {
-    if (!isPasswordValid) {
+    console.log("reqCreatePassword:", isConfirmed, password, confirmPassword)
+    if (!isPasswordValid || password != confirmPassword) {
+      showToast("Form Incomplete", "Please follow the instructions in the form.", "warning")
       return
     }
-
     window.databaseApi.receiveSetPasswordResult(
       (
         event: Electron.IpcMainEvent,
@@ -60,19 +80,16 @@ const LoginPage: React.FC<LoginPageProps> = (props: LoginPageProps) => {
       ) => {
         console.log("received SetPasswordResult:", result, errorMessage);
         if (result === 0) {
-          
           props.setIsAuthenticated(true);
-          
+          showToast("Password Saved!", "You can use this password for future authentication", "success")
         } else {
+          showToast("Failed", "Something wrong in the backend", "error")
           console.error("Error setting password");
           console.error(errorMessage);
         }
       }
     );
-
-    // create password in backend
     window.databaseApi.reqSetPassword(password)
-
   }
 
 
@@ -153,8 +170,8 @@ const LoginPage: React.FC<LoginPageProps> = (props: LoginPageProps) => {
                     shouldDoValidation={true} 
                     noText 
                     withConfirm 
-                    isConfirmed={isConfirmed}
-                    setIsConfirmed={setIsConfirmed}
+                    confirmPassword={confirmPassword}
+                    setConfirmPassword={setConfirmPassword}
                   />
                 </VStack>
                 

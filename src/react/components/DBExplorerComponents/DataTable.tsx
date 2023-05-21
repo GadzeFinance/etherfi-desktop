@@ -23,6 +23,7 @@ import {
   ModalFooter,
   Button,
 } from "@chakra-ui/react";
+import { useToast } from '@chakra-ui/react'
 import { ChevronDownIcon, CopyIcon, ViewIcon } from "@chakra-ui/icons";
 
 interface DataTableProps {
@@ -33,11 +34,11 @@ interface DataTableProps {
 
 const DataTable = ({title, dataCount, data}: DataTableProps) => {
 
-  const { onCopy, value, setValue, hasCopied } = useClipboard("");
-
   const [selectedCode, setSelectedCode] = useState<string>("")
 
-  const indices = Object.entries(data);
+  const { onCopy, value, setValue, hasCopied } = useClipboard("");
+  
+  const toast = useToast()
 
   const shortenMnemonic = (mnemonic: any) => {
     const wordArray = mnemonic.split(" ");
@@ -97,37 +98,50 @@ const DataTable = ({title, dataCount, data}: DataTableProps) => {
           </>)}
       </Tbody>
     </Table>
-      <Modal size="lg" isOpen={selectedCode !== ""} onClose={closeModal}>
+      <Modal size={ title === "mnemonics" ? "lg" : "full" } isOpen={selectedCode !== ""} onClose={closeModal}>
         <ModalOverlay />
         <ModalContent bgColor="purple.dark">
           <ModalHeader color={"white"}>{title === "mnemonics" ? "menmonic" : "validator"}</ModalHeader>
           <ModalCloseButton color={"white"} />
           <ModalBody>
-          <Grid
-        templateColumns="repeat(4, 1fr)"
-        templateRows="repeat(6, 1fr)"
-        gap={2}
-      >
-        {selectedCode.split(" ").map((word, index) => (
-          <GridItem key={index} colSpan={1} rowSpan={1} >
-              <Box
-                borderWidth="1px"
-                borderStyle="solid"
-                borderColor='purple.light'
-                borderRadius="5px"
-                bg='purple.darkBackground'
-                justifyContent='center'
-                alignItems='center'
-              >
+            { title === "mnemonics" && (
+            <Grid
+              templateColumns="repeat(4, 1fr)"
+              templateRows="repeat(6, 1fr)"
+              gap={2}
+            >
+              {selectedCode.split(" ").map((word, index) => (
+                <GridItem key={index} colSpan={1} rowSpan={1} >
+                    <Box
+                      borderWidth="1px"
+                      borderStyle="solid"
+                      borderColor='purple.light'
+                      borderRadius="5px"
+                      bg='purple.darkBackground'
+                      justifyContent='center'
+                      alignItems='center'
+                    >
 
-                <Text ml="5px" color="white" fontSize="12px" as='b' >
-                  {index + 1}: {<Text ml="5px" color="white" fontSize="12px" as='b'> {word} </Text>}
-                </Text>
-              </Box>
-            </GridItem>
-          ))
-          }
-        </Grid >
+                      <Text ml="5px" color="white" fontSize="12px" as='b' >
+                        {index + 1}: {<Text ml="5px" color="white" fontSize="12px" as='b'> {word} </Text>}
+                      </Text>
+                    </Box>
+                  </GridItem>
+                ))
+              }
+            </Grid >) }
+            { title !== "mnemonics" && 
+              <Code
+                colorScheme="purple.dark"
+                fontSize="sm"
+                color={"white"}
+                whiteSpace="pre"
+                fontFamily="monospace"
+                overflowX="auto"
+                p={4}>
+                {JSON.stringify(renderParsedCode(selectedCode), null, 2)}
+              </Code>
+            }
           </ModalBody>
           <ModalFooter>
             <Button>Copy</Button>

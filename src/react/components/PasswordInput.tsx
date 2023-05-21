@@ -11,6 +11,7 @@ import { COLORS } from "../styleClasses/constants"
 import IconEyeSlash from "./Icons/IconEyeSlash"
 import clickableIconStyle from "../styleClasses/clickableIconStyle"
 import { isContext } from "vm"
+import { useToast } from '@chakra-ui/react'
 
 interface PasswordInputProps {
   password: string
@@ -19,8 +20,8 @@ interface PasswordInputProps {
   setIsPasswordValid: (valid: boolean) => void
   shouldDoValidation: boolean
   withConfirm?: boolean
-  isConfirmed?: boolean
-  setIsConfirmed?: (password: boolean) => void
+  confirmPassword?: string
+  setConfirmPassword?: (cp: string) => void
   noText?: boolean
 }
 
@@ -28,22 +29,38 @@ const PasswordInput: FC<PasswordInputProps> = (props) => {
   const [showPassword, setShowPassword] = useState(false)
   const [passwordResults, setPasswordResults] = useState([])
   const [showConfirmPassword, setShowConfirmPassword] = useState<boolean>(false)
-  const [confirmPassword, setConfirmPassword] = useState<string>("")
   const [confirmPasswordResults, setConfirmPasswordResults] = useState([])
+
+  const toast = useToast()
 
   const updatePassword = (newPassword: string) => {
     validatePassword(newPassword)
     props.setPassword(newPassword)
-    validateConfirmPassword(confirmPassword)
+    if (props.withConfirm && props.confirmPassword !== "") validateConfirmPassword(props.confirmPassword)
   }
 
-  const matched = () => (props.password.length !== 0 && props.password === confirmPassword)
+  const showToast = (
+    title: string, 
+    description: string, 
+    status: "warning" | "info" | "success" | "error" | "loading"
+  ) => {
+    toast({
+      title,
+      description,
+      status,
+      position: "top-right",
+      duration: 9000,
+      isClosable: true,
+    })
+  }
+
+  const match = () => {
+    return props.password === props.confirmPassword && props.password !== ""
+  }
 
   const updateConfirmPassword = (newInput: string) => {
     validateConfirmPassword(newInput)
-    props.setIsConfirmed(matched())
-    console.log("isConfirmed:", props.isConfirmed)
-    setConfirmPassword(newInput)
+    props.setConfirmPassword(newInput)
   }
 
   function validatePassword(password: string) {
@@ -86,7 +103,6 @@ const PasswordInput: FC<PasswordInputProps> = (props) => {
       },
     ]
     setConfirmPasswordResults(tests)
-    props.setIsConfirmed(tests.every((test) => test.passed))
   }
 
   return (
@@ -139,24 +155,20 @@ const PasswordInput: FC<PasswordInputProps> = (props) => {
         { props.withConfirm && <InputGroup>
           <Input
             isRequired={true}
-            // isInvalid={
-            //   matched()
-            // }
             borderColor={
-              props.isConfirmed
-                ? "green.main"
-                : COLORS.lightPurple
+              match()
+              ? "green.main"
+              : COLORS.lightPurple
             }
-            errorBorderColor="red.warning"
             focusBorderColor={
-              props.isConfirmed
+              match()
                 ? "green.main"
                 : "blue.secondary"
             }
             color="white"
             placeholder="Confirm the password"
-            type={showPassword ? "text" : "password"}
-            value={confirmPassword}
+            type={showConfirmPassword ? "text" : "password"}
+            value={props.confirmPassword}
             onChange={(e) => {
               updateConfirmPassword(e.target.value)
             }}
@@ -167,7 +179,7 @@ const PasswordInput: FC<PasswordInputProps> = (props) => {
               sx={clickableIconStyle}
               boxSize={6}
               onClick={() => {
-                setShowPassword(!showPassword)
+                setShowConfirmPassword(!showConfirmPassword)
               }}
             />
           </InputRightElement>

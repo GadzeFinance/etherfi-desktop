@@ -218,26 +218,6 @@ const DBExplorer = () => {
 
   }, [])
 
-
-  const [selectedCode, setSelectedCode] = useState("");
-
-  const openModal = (code :string) => {
-    setSelectedCode(code);
-  };
-
-  const closeModal = () => {
-    setSelectedCode("");
-  };
-
-  const renderParsedCode = (code: string) => {
-    try {
-        const parsedCode = JSON.parse(code)
-        return parsedCode
-    } catch(e) {
-        return selectedCode
-    }
-  }
-
   const currStaker = allStakers[currAddress]
   const { mnemonicCount, mnemonics, validatorCount, validators } = currStaker
 

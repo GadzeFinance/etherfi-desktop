@@ -38,8 +38,8 @@ const App: React.FC = () => {
   const [stakerOperation, setStakerOperation] = useState(0);
   return (
     <div>
-      {/* { !isAuthenticated && <LoginPage setIsAuthenticated={setIsAuthenticated} /> } */}
-      { true && <Tabs
+      { !isAuthenticated && <LoginPage setIsAuthenticated={setIsAuthenticated} /> }
+      { isAuthenticated && <Tabs
         variant="soft-rounded"
         index={tabIndex}
         onChange={handleTabsChange}
