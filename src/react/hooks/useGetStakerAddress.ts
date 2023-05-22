@@ -10,7 +10,7 @@ export default function useGetStakerAddresses() {
     const fetchData = async () => {
       try {
         const result = await new Promise((resolve, reject) => {
-          window.encryptionApi.receieveGetStakerAddresses(
+          window.databaseApi.receiveGetStakerAddressList(
             (
               event: Electron.IpcMainEvent,
               result: number,
@@ -18,21 +18,22 @@ export default function useGetStakerAddresses() {
               errorMessage: string
             ) => {
               if (result === 0) {
-                resolve(Object.keys(JSON.parse(addresses)));
+                resolve(Object.keys(addresses));
               } else {
                 reject(errorMessage);
               }
             }
           );
-          window.encryptionApi.reqGetStakerAddresses();
+          window.databaseApi.reqGetStakerAddressList();
         });
 
         setData(result);
       } catch (error) {
         setError(error);
+        // Note: can't use error directly in description, because it's an object, will throw error
         toast({
           title: 'Error',
-          description: error,
+          description: 'Something bad happend in the backend',
           status: 'error',
           duration: 5000,
           isClosable: true,
