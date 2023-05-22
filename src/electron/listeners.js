@@ -428,7 +428,6 @@ const getStakerAddress = async (password) => {
             mnemonics[id] = await newStorage.decrypt(mnemonic, password);
         }
     }
-    console.log("result:", allStakers)
     return allStakers;
 }
 
@@ -438,6 +437,10 @@ const isPasswordSet = async () => {
 
 const validatePassword = async (password) => {
     return await newStorage.validatePassword(password);
+}
+
+const getStakerAddressList = async () => {
+    return await newStorage.getStakerAddressList();
 }
 
 
@@ -531,6 +534,7 @@ module.exports = {
     getAccounts,
     getPassword,
     getStakerAddress,
+    getStakerAddressList,
     isPasswordSet,
     setPassword,
     validatePassword

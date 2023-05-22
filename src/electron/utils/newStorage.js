@@ -123,6 +123,10 @@ class Database {
         return this._store.get("stakerAddress");
     }
 
+    getStakerAddressList() {
+        return this._store.get("stakerAddress");
+    }
+
     addMnemonic(address, mnemonic, password) {
         const mnemonicID = (this._store.get(`stakerAddress.${address}.mnemonicCount`) | 0) + 1;
         this._store.set(`stakerAddress.${address}.mnemonics.${mnemonicID}`, this.encrypt(mnemonic, password));
@@ -130,7 +134,6 @@ class Database {
     }
 
     getMnemonics(address, password) {
-
         let decrypedObject = this._store.get(`stakerAddress.${address}.mnemonics`);
         if (!decrypedObject) {
             return {}

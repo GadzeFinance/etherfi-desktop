@@ -193,6 +193,12 @@ contextBridge.exposeInMainWorld("databaseApi", {
     },
     receiveIsPasswordSet: function (func) {
         ipcRenderer.once("receive-is-password-set", (event, ...args) => func(event, ...args))
-    }
+    },
+    reqGetStakerAddressList: function() {
+        ipcRenderer.send("req-get-staker-address-list", []);
+    },
+    receiveGetStakerAddressList: function (func) {
+        ipcRenderer.once("receive-get-staker-address-list", (event, ...args) => func(event, ...args))
+    },
 });
 

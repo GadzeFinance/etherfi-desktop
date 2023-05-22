@@ -67,7 +67,7 @@ const DataTable = ({title, dataCount, data}: DataTableProps) => {
   }
 
   return (
-    <Box py="5">
+    <Box h={"380px"} overflowY="auto" py="5">
     <Table mt={2} color={"white"}>
       <Thead>
         <Tr>

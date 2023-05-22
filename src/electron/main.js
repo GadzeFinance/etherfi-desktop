@@ -20,6 +20,7 @@ const {
     fetchDatabase,
     getAccounts,
     getStakerAddress,
+    getStakerAddressList,
     isPasswordSet,
     setPassword,
     validatePassword,
@@ -329,6 +330,16 @@ ipcMain.on("req-all-staker-addresses", async (event, args) => {
     } catch (error) {
         logger.error("Error getAllStakerAddresses:", error)
         event.sender.send("receive-all-staker-addresses", standardResultCodes.ERROR, {}, error.message)
+    }
+})
+
+ipcMain.on("req-get-staker-address-list", async (event, args) => {
+    try {
+        const stakerAddressList = await getStakerAddressList()
+        event.sender.send("receive-get-staker-address-list", standardResultCodes.SUCCESS, stakerAddressList, '')
+    } catch (error) {
+        logger.error("Error getAllStakerAddresses:", error)
+        event.sender.send("receive-get-staker-address-list", standardResultCodes.ERROR, {}, error.message)
     }
 })
 
