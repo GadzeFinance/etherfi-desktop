@@ -140,22 +140,28 @@ const genValidatorKeysAndEncrypt = async (mnemonic, databasePassword, folder, st
     const nodeOperatorPublicKeys = []
     const validatorIDs = []
 
+    const proms = []
+
     for (var i = 0; i < stakeInfoLength; i++) {
         const eth1_withdrawal_address = stakeInfo[i].withdrawalSafeAddress; 
         nodeOperatorPublicKeys.push(stakeInfo[i].bidderPublicKey)
         validatorIDs.push(stakeInfo[i].validatorID)
         const index = i
         try {
-            const genKeysStart = new Date().getTime();
+            //const genKeysStart = new Date().getTime();
             //await generateKeys(mnemonic, index, 1, chain, password, eth1_withdrawal_address, folder, stakeInfo[i].validatorID, databasePassword, address)
-            generateKeys(mnemonic, index, 1, chain, password, eth1_withdrawal_address, folder, stakeInfo[i].validatorID, databasePassword, address)
-            const genKeysEnd = new Date().getTime();
-            console.log(`generateKeys time: ${(genKeysEnd - genKeysStart) / 1000}s`)
+            const prom = generateKeys(mnemonic, index, 1, chain, password, eth1_withdrawal_address, folder, stakeInfo[i].validatorID, databasePassword, address)
+            proms.push(prom)
+            //const genKeysEnd = new Date().getTime();
+            //console.log(`generateKeys time: ${(genKeysEnd - genKeysStart) / 1000}s`)
         } catch (err) {
             logger.error("Error in 'genValidatorKeysAndEncrypt' when generating keys", err)
             throw new Error("Couldn't generate validator keys")
         }
     }
+
+    await Promise.all(proms)
+
     // now we need to encrypt the keys and generate "stakeRequest.json"
     try {
         const enKeysStart = new Date().getTime();
