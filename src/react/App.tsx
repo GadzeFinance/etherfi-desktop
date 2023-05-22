@@ -61,7 +61,7 @@ const App: React.FC = () => {
               <NodeOperatorTab tabIndex={tabIndex} selectedOption={selectedNodeOperatorOperation} />
             </TabPanel>
             <TabPanel flexDirection={'row'}>
-              <DBExplorer password={password}/>
+              <DBExplorer tabIndex={tabIndex} password={password}/>
             </TabPanel>
           </TabPanels>
         </Center>

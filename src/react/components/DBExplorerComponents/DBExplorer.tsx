@@ -25,6 +25,7 @@ interface StakerInfo {
 
 interface DBExplorerProps {
   password: string
+  tabIndex: number
 }
 
 const DBExplorer = (props: DBExplorerProps) => {
@@ -34,6 +35,8 @@ const DBExplorer = (props: DBExplorerProps) => {
   const [selectedTab, setSelectedTab] = useState<number>(0);
 
   useEffect(() => {
+
+    if (props.tabIndex !== 2) return
     
     window.databaseApi.receiveAllStakerAddresses(
       (
@@ -57,7 +60,7 @@ const DBExplorer = (props: DBExplorerProps) => {
     );
     window.databaseApi.reqAllStakerAddresses(props.password);
 
-  }, [])
+  }, [props.tabIndex])
 
   const currStaker = allStakers[currAddress]
   const mnemonics = currStaker?.mnemonics ?? {}
