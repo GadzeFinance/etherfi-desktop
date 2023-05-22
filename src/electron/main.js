@@ -188,7 +188,7 @@ ipcMain.on('req-get-password', async (event, args) => {
 ipcMain.on('req-get-staker-address', async (event, args) => {
     try {
         const stakers = await getStakerAddress()
-        console.log(stakers)
+        console.log("stakers:", stakers)
         event.sender.send("receive-get-staker-address",  standardResultCodes.SUCCESS, JSON.stringify(stakers), '')
     } catch (error) {
         logger.error("Error getting staker addresses: ", error);

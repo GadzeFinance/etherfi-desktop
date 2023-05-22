@@ -18,6 +18,7 @@ export default function useGetStakerAddresses() {
               errorMessage: string
             ) => {
               if (result === 0) {
+                console.log("receieveGetStakerAddresses:", result, addresses, errorMessage)
                 resolve(Object.keys(JSON.parse(addresses)));
               } else {
                 reject(errorMessage);

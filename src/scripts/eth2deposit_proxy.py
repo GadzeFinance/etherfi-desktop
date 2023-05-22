@@ -101,6 +101,7 @@ def generate_keys(args):
     if not os.path.exists(folder):
         os.mkdir(folder)
 
+    start = time.time()
     credentials = CredentialList.from_mnemonic(
         mnemonic=mnemonic,
         mnemonic_password=mnemonic_password,
@@ -110,6 +111,8 @@ def generate_keys(args):
         start_index=args.index,
         hex_eth1_withdrawal_address=eth1_withdrawal_address,
     )
+    end = time.time()
+    print("credentials:", (end - start) / 1000)
 
     keystore_filefolders = credentials.export_keystores(password=args.password, folder=folder)
     deposits_file = credentials.export_deposit_data_json(folder=folder)

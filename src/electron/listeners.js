@@ -126,8 +126,12 @@ const genValidatorKeysAndEncrypt = async (mnemonic, databasePassword, folder, st
         await newStorage.addStakerAddress(address)
     }
 
+    const getPwdStart = new Date().getTime();
     const password = await newStorage.getValidatorPassword(databasePassword)
+    const getPwdEnd = new Date().getTime();
     
+    console.log(`newStorage.getValidatorPassword time: ${(getPwdEnd - getPwdStart) / 1000}s`)
+
     // get the data from stakeInfoPath
     const stakeInfo = JSON.parse(fs.readFileSync(stakeInfoPath))
     const stakeInfoLength = stakeInfo.length
@@ -142,7 +146,11 @@ const genValidatorKeysAndEncrypt = async (mnemonic, databasePassword, folder, st
         validatorIDs.push(stakeInfo[i].validatorID)
         const index = i
         try {
-            await generateKeys(mnemonic, index, 1, chain, password, eth1_withdrawal_address, folder, stakeInfo[i].validatorID, databasePassword, address)
+            const genKeysStart = new Date().getTime();
+            //await generateKeys(mnemonic, index, 1, chain, password, eth1_withdrawal_address, folder, stakeInfo[i].validatorID, databasePassword, address)
+            generateKeys(mnemonic, index, 1, chain, password, eth1_withdrawal_address, folder, stakeInfo[i].validatorID, databasePassword, address)
+            const genKeysEnd = new Date().getTime();
+            console.log(`generateKeys time: ${(genKeysEnd - genKeysStart) / 1000}s`)
         } catch (err) {
             logger.error("Error in 'genValidatorKeysAndEncrypt' when generating keys", err)
             throw new Error("Couldn't generate validator keys")
@@ -150,7 +158,10 @@ const genValidatorKeysAndEncrypt = async (mnemonic, databasePassword, folder, st
     }
     // now we need to encrypt the keys and generate "stakeRequest.json"
     try {
+        const enKeysStart = new Date().getTime();
         await _encryptValidatorKeys(folder, password, nodeOperatorPublicKeys, validatorIDs)
+        const enKeysEnd = new Date().getTime();
+        console.log(`generateKeys time: ${(enKeysEnd - enKeysStart) / 1000}s`)
     } catch(err) {
         logger.error("Error in 'genValidatorKeysAndEncrypt' when encrypting keys", err)
         throw new Error("Error encrypting validator keys")
