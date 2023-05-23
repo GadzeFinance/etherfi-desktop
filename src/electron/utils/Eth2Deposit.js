@@ -232,10 +232,7 @@ const generateKeys = async (
       network.toLowerCase(), password]);
   }
   
-  const startTime = new Date().getTime();
   await execFileProm(executable, args, {env: env});
-  const endTime = new Date().getTime();
-  console.log(`execFileProm time: ${(endTime - startTime) / 1000}`)
   const {file} = getMostRecentFile(folder)
   const filePathToKeystore = `${folder}/${file}`
   const keystore = readFileSync(filePathToKeystore, 'utf8')

@@ -128,12 +128,8 @@ const genValidatorKeysAndEncrypt = async (event, mnemonic, databasePassword, fol
     if (allWallets == undefined || !(address in allWallets)) {
         await newStorage.addStakerAddress(address)
     }
-
-    const getPwdStart = new Date().getTime();
-    const password = await newStorage.getValidatorPassword(databasePassword)
-    const getPwdEnd = new Date().getTime();
     
-    console.log(`newStorage.getValidatorPassword time: ${(getPwdEnd - getPwdStart) / 1000}s`)
+    const password = await newStorage.getValidatorPassword(databasePassword)
 
     // get the data from stakeInfoPath
     const stakeInfo = JSON.parse(fs.readFileSync(stakeInfoPath))
@@ -149,24 +145,16 @@ const genValidatorKeysAndEncrypt = async (event, mnemonic, databasePassword, fol
         validatorIDs.push(stakeInfo[i].validatorID)
         const index = i
         try {
-            //const genKeysStart = 
             const startTime = new Date().getTime();
             await generateKeys(mnemonic, index, 1, chain, password, eth1_withdrawal_address, folder, stakeInfo[i].validatorID, databasePassword, address)
             const endTime = new Date().getTime();
             const usedTime = (endTime - startTime) / 1000;
             event.sender.send("receive-generate-key", index, stakeInfoLength, usedTime)
-            //const prom = generateKeys(mnemonic, index, 1, chain, password, eth1_withdrawal_address, folder, stakeInfo[i].validatorID, databasePassword, address)
-            //proms.push(prom)
-            //const genKeysEnd = new Date().getTime();
-            //console.log(`generateKeys time: ${(genKeysEnd - genKeysStart) / 1000}s`)
         } catch (err) {
             logger.error("Error in 'genValidatorKeysAndEncrypt' when generating keys", err)
             throw new Error("Couldn't generate validator keys")
         }
     }
-
-    //console.log("proms:", proms)
-    //await Promise.all(proms)
 
     // now we need to encrypt the keys and generate "stakeRequest.json"
     try {

@@ -84,8 +84,6 @@ def generate_keys(args):
             - eth1_withdrawal_address: (Optional) eth1 address that will be used to create the
                                        withdrawal credentials
     """
-    
-    generate_key_start = time.time()
 
     eth1_withdrawal_address = None
     if args.eth1_withdrawal_address:
@@ -103,7 +101,6 @@ def generate_keys(args):
     if not os.path.exists(folder):
         os.mkdir(folder)
 
-    start = time.time()
     credentials = CredentialList.from_mnemonic(
         mnemonic=mnemonic,
         mnemonic_password=mnemonic_password,
@@ -113,8 +110,6 @@ def generate_keys(args):
         start_index=args.index,
         hex_eth1_withdrawal_address=eth1_withdrawal_address,
     )
-    end = time.time()
-    print("credentials:", (end - start) / 1000)
 
     keystore_filefolders = credentials.export_keystores(password=args.password, folder=folder)
     deposits_file = credentials.export_deposit_data_json(folder=folder)
@@ -122,9 +117,6 @@ def generate_keys(args):
         raise ValidationError("Failed to verify the keystores.")
     if not verify_deposit_data_json(deposits_file, credentials.credentials):
         raise ValidationError("Failed to verify the deposit data JSON files.")
-
-    generate_key_end = time.time()
-    print("generate_key time:", generate_key_end - generate_key_start)
 
 def parse_create_mnemonic(args):
     """Parse CLI arguments to call the create_mnemonic function.
