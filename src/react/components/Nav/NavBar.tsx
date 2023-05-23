@@ -1,4 +1,5 @@
 import React from 'react'
+import isDev from 'react-is-dev'
 import {
     Tab, TabList, Image, Center, Grid, GridItem,
     Menu, MenuButton, MenuList, MenuItem, Button, useTab
@@ -94,6 +95,18 @@ const NavBar: React.FC<NavBarProps> = ({ setNodeOperatorOperation, selectedNodeO
         )
     })
 
+    const DBExplorerDropdown = React.forwardRef((props, ref: any) => {
+        const tabProps = useTab({ ...props, ref })
+
+        return (
+            <Menu>
+                <MenuButton fontSize="18px" as={Button} width="10px" sx={tabButtonStyle} {...tabProps}>
+                    Database Explorer!
+                </MenuButton>
+            </Menu>
+        )
+    })
+
     return (
         <nav>
             <Grid templateColumns="1fr 1fr" gap={6} alignItems="center" justifyContent="center" mt="10px">
@@ -106,6 +119,7 @@ const NavBar: React.FC<NavBarProps> = ({ setNodeOperatorOperation, selectedNodeO
                     <TabList color='white' gap={4} justifyContent="flex-end" mr="30px">
                         <StakerTabDropDown />
                         <NodeOperatorTabDropDown />
+                        {isDev(React) && <DBExplorerDropdown/>}
                     </TabList>
                 </GridItem>
             </Grid>

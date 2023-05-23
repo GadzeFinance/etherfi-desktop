@@ -20,6 +20,7 @@ interface StepCreateKeysProps {
   setKeysGenerated: (generated: boolean) => void,
   filesCreatedPath: string
   setFilesCreatedPath: (path: string) => void,
+  address: string
 }
 
 const StepCreateKeys: React.FC<StepCreateKeysProps> = (props) => {
@@ -48,7 +49,7 @@ const StepCreateKeys: React.FC<StepCreateKeysProps> = (props) => {
         }
         setGeneratingKeys(false)
       })
-    window.encryptionApi.reqGenValidatorKeysAndEncrypt(props.mnemonic, props.password, props.savePath, props.stakeInfoPath, chain);
+    window.encryptionApi.reqGenValidatorKeysAndEncrypt(props.mnemonic, props.password, props.savePath, props.stakeInfoPath, chain, props.address);
     setGeneratingKeys(true)
   }
 

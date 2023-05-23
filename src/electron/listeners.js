@@ -7,6 +7,8 @@ const { createMnemonic, generateKeys } = require('./utils/Eth2Deposit.js')
 const { selectFolder, selectJsonFile } = require('./utils/saveFile.js')
 const { decryptResultCodes, desktopAppVersion } = require('./constants')
 const logger = require('./utils/logger')
+const storage = require('./utils/storage')
+const newStorage = require('./utils/newStorage')
 
 /**
  * Generates public and private key pairs and saves them in two separate JSON files
@@ -17,8 +19,14 @@ const logger = require('./utils/logger')
  * 
  * @returns {Array<String>} - 2 element list containing the file paths to the public and private key files
  */
-const genNodeOperatorKeystores = async (numKeys, saveFolder, privKeysPassword) => {
+const genNodeOperatorKeystores = async (numKeys, saveFolder, privKeysPassword, address) => {
     logger.info("genNodeOperatorKeystores: Start")
+
+    const allWallets = await newStorage.getAllStakerAddresses();
+    if (allWallets == undefined || !(address in allWallets)) {
+        await newStorage.addStakerAddress(address)
+    }
+
     const curve = new EC('secp256k1')
 
     const publicFileJSON = {}
@@ -68,6 +76,16 @@ const genNodeOperatorKeystores = async (numKeys, saveFolder, privKeysPassword) =
           throw new Error("Error writing private keys file")
     }})
 
+    // for (const publicKey of pubKeyArray) {
+    //     newStorage.addOperatorKey(address, publicKey, )
+    // }
+
+    // 1 Hash the private key file using sha256
+    // 2 upon adding a new operator key, if the private key hashed is already in the storage, we relate pulic key to the hash
+    // else, we will hash the private key, store a mapping from hash to the actual file (this will only happen once, ever)
+    // 3 store public key to private key hash in map
+
+
     logger.info("genNodeOperatorKeystores: End")
     return [pubKeysFilePath, privKeysFilePath]
 }
@@ -101,9 +119,15 @@ const genMnemonic = async (language) => {
  *          It also contains single stakeRequest.json file which contains the encrypted data.
  *           The stakeRequest.json file is what the user should upload to the DAPP.
  */
-const genValidatorKeysAndEncrypt = async (mnemonic, password, folder, stakeInfoPath, chain) => {
+const genValidatorKeysAndEncrypt = async (mnemonic, databasePassword, folder, stakeInfoPath, chain, address) => {
     logger.info("genEncryptedKeys: Start")
+    const allWallets = await newStorage.getAllStakerAddresses();
+    if (allWallets == undefined || !(address in allWallets)) {
+        await newStorage.addStakerAddress(address)
+    }
 
+    const password = await newStorage.getValidatorPassword(databasePassword)
+    
     // get the data from stakeInfoPath
     const stakeInfo = JSON.parse(fs.readFileSync(stakeInfoPath))
     const stakeInfoLength = stakeInfo.length
@@ -118,7 +142,7 @@ const genValidatorKeysAndEncrypt = async (mnemonic, password, folder, stakeInfoP
         validatorIDs.push(stakeInfo[i].validatorID)
         const index = i
         try {
-            await generateKeys(mnemonic, index, 1, chain, password, eth1_withdrawal_address, folder)
+            await generateKeys(mnemonic, index, 1, chain, password, eth1_withdrawal_address, folder, stakeInfo[i].validatorID, databasePassword, address)
         } catch (err) {
             logger.error("Error in 'genValidatorKeysAndEncrypt' when generating keys", err)
             throw new Error("Couldn't generate validator keys")
@@ -131,6 +155,15 @@ const genValidatorKeysAndEncrypt = async (mnemonic, password, folder, stakeInfoP
         logger.error("Error in 'genValidatorKeysAndEncrypt' when encrypting keys", err)
         throw new Error("Error encrypting validator keys")
     }
+
+    // Only add to the db if we dont have mnemonic added already
+    const allAccounts = await newStorage.getMnemonics(address, databasePassword);
+    console.log(allAccounts)
+    console.log("DB pass: ", databasePassword)
+    if (!Object.values(allAccounts).some(value => value.includes(mnemonic))) {
+        await newStorage.addMnemonic(address, mnemonic, databasePassword)
+    }
+
     // Send back the folder where everything is save
     logger.info("genEncryptedKeys: End")
     return folder
@@ -341,6 +374,64 @@ const decryptValidatorKeys = async (event, arg) => {
     return saveFolder
 }
 
+const fetchStoredMnemonics = async (address, password) => {
+    const mnemonics = await newStorage.getMnemonics(address, password);
+    console.log("MNEMONICS: ", mnemonics)
+    return mnemonics
+}
+
+const getAccounts = async () => {
+    const accounts = await storage.getAccounts();
+    return accounts;
+}
+
+const fetchStoredValidators = async (address, password) => {
+    const validators = await newStorage.getValidators(address, password);
+    return validators;
+}
+
+const fetchDatabase = async () => {
+    return await storage.getEverything()
+}
+
+const setPassword = async (password) => {
+    return await newStorage.setPassword(password)
+}
+
+const getPassword = async (number) => {
+    return await storage.getPassword(number)
+}
+
+const getStakerAddress = async (password) => {
+    const allStakers = await newStorage.getAllStakerAddresses();
+    if (!allStakers || !password) {
+        return {};
+    }
+    // Decrypt here if efficiency allows
+    for (const [addr, stakerInfo] of Object.entries(allStakers)) {
+        const { validators, mnemonics } = stakerInfo;
+        for (const [id, validator] of Object.entries(validators ? validators : {})) {
+            validators[id] = await newStorage.decrypt(validator, password);
+        }
+        for (const [id, mnemonic] of Object.entries(mnemonics ? mnemonics : {})) {
+            mnemonics[id] = await newStorage.decrypt(mnemonic, password);
+        }
+    }
+    return allStakers;
+}
+
+const isPasswordSet = async () => {
+    return await newStorage.isPasswordSet();
+}
+
+const validatePassword = async (password) => {
+    return await newStorage.validatePassword(password);
+}
+
+const getStakerAddressList = async () => {
+    return await newStorage.getStakerAddressList();
+}
+
 
 /**
  * Opens dialog that allows user to select a folder path.
@@ -427,5 +518,15 @@ module.exports = {
     decryptValidatorKeys,
     listenSelectFolder,
     listenSelectJsonFile,
-    testWholeEncryptDecryptFlow
+    testWholeEncryptDecryptFlow,
+    fetchStoredMnemonics,
+    fetchStoredValidators,
+    fetchDatabase,
+    getAccounts,
+    getPassword,
+    getStakerAddress,
+    getStakerAddressList,
+    isPasswordSet,
+    setPassword,
+    validatePassword
 }

@@ -10,6 +10,8 @@ import {
 import { COLORS } from "../styleClasses/constants"
 import IconEyeSlash from "./Icons/IconEyeSlash"
 import clickableIconStyle from "../styleClasses/clickableIconStyle"
+import { isContext } from "vm"
+import { useToast } from '@chakra-ui/react'
 
 interface PasswordInputProps {
   password: string
@@ -17,15 +19,48 @@ interface PasswordInputProps {
   isPasswordValid: boolean
   setIsPasswordValid: (valid: boolean) => void
   shouldDoValidation: boolean
+  withConfirm?: boolean
+  confirmPassword?: string
+  setConfirmPassword?: (cp: string) => void
+  noText?: boolean
 }
 
 const PasswordInput: FC<PasswordInputProps> = (props) => {
   const [showPassword, setShowPassword] = useState(false)
   const [passwordResults, setPasswordResults] = useState([])
+  const [showConfirmPassword, setShowConfirmPassword] = useState<boolean>(false)
+  const [confirmPasswordResults, setConfirmPasswordResults] = useState([])
+
+  const toast = useToast()
 
   const updatePassword = (newPassword: string) => {
     validatePassword(newPassword)
     props.setPassword(newPassword)
+    if (props.withConfirm && props.confirmPassword !== "") validateConfirmPassword(props.confirmPassword)
+  }
+
+  const showToast = (
+    title: string, 
+    description: string, 
+    status: "warning" | "info" | "success" | "error" | "loading"
+  ) => {
+    toast({
+      title,
+      description,
+      status,
+      position: "top-right",
+      duration: 9000,
+      isClosable: true,
+    })
+  }
+
+  const match = () => {
+    return props.password === props.confirmPassword && props.password !== ""
+  }
+
+  const updateConfirmPassword = (newInput: string) => {
+    validateConfirmPassword(newInput)
+    props.setConfirmPassword(newInput)
   }
 
   function validatePassword(password: string) {
@@ -59,12 +94,23 @@ const PasswordInput: FC<PasswordInputProps> = (props) => {
     props.setIsPasswordValid(tests.every((test) => test.passed))
   }
 
+  function validateConfirmPassword(confirmPassword: string) {
+    console.log("validateConfirmPassword:", props.password, confirmPassword)
+    const tests = [
+      {
+        passed: props.password.length > 0 && props.password === confirmPassword,
+        message: "The two passwords not match",
+      },
+    ]
+    setConfirmPasswordResults(tests)
+  }
+
   return (
     <>
       <>
-        <Text mt="10px" color="white" opacity={"0.7"} fontSize="11px">
+        { !props.noText && <Text mt="10px" color="white" opacity={"0.7"} fontSize="11px">
           Password*
-        </Text>
+        </Text> }
         <InputGroup>
           <Input
             isRequired={true}
@@ -103,6 +149,41 @@ const PasswordInput: FC<PasswordInputProps> = (props) => {
             />
           </InputRightElement>
         </InputGroup>
+        { props.withConfirm && !props.noText && <Text mt="10px" color="white" opacity={"0.7"} fontSize="11px">
+          Confirm Password*
+        </Text> }
+        { props.withConfirm && <InputGroup>
+          <Input
+            isRequired={true}
+            borderColor={
+              match()
+              ? "green.main"
+              : COLORS.lightPurple
+            }
+            focusBorderColor={
+              match()
+                ? "green.main"
+                : "blue.secondary"
+            }
+            color="white"
+            placeholder="Confirm the password"
+            type={showConfirmPassword ? "text" : "password"}
+            value={props.confirmPassword}
+            onChange={(e) => {
+              updateConfirmPassword(e.target.value)
+            }}
+          />
+
+          <InputRightElement width="4.5rem">
+            <IconEyeSlash
+              sx={clickableIconStyle}
+              boxSize={6}
+              onClick={() => {
+                setShowConfirmPassword(!showConfirmPassword)
+              }}
+            />
+          </InputRightElement>
+        </InputGroup>}
       </>
       {props.shouldDoValidation && (
         <UnorderedList>
@@ -116,6 +197,17 @@ const PasswordInput: FC<PasswordInputProps> = (props) => {
           )}
         </UnorderedList>
       )}
+      { props.withConfirm && <UnorderedList>
+        {confirmPasswordResults.map(
+          (confirmPasswordRequirement, index) =>
+            !confirmPasswordRequirement.passed && (
+              <ListItem key={index} fontSize="12px" color="red.warning">
+                {confirmPasswordRequirement.message}
+              </ListItem>
+            )
+        )}
+      </UnorderedList>
+      }
     </>
   )
 }

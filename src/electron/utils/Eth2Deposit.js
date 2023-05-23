@@ -19,13 +19,15 @@
 
 const {execFile} = require('child_process');
 const {promisify} = require('util');
-const {constants} = require('fs');
+const {constants, readdirSync, lstatSync, readFileSync, writeFile, unlink} = require('fs');
 const {access, mkdir} = require('fs/promises');
 const {cwd} = require('process');
 const path = require('path');
 const process = require('process');
 const {doesFileExist} = require('./BashUtils.js')
-
+const storage = require('./storage.js')
+const newStorage = require('./newStorage.js')
+const { v4: uuidv4 } = require('uuid');
 /**
  * A promise version of the execFile function from fs for CLI calls.
  */
@@ -68,6 +70,20 @@ const GENERATE_SIGNED_EXIT_TRANSACTION = "generate_exit_transaction";
 
 const PYTHON_EXE = (process.platform == "win32" ? "python" : "python3");
 const PATH_DELIM = (process.platform == "win32" ? ";" : ":");
+
+
+const getMostRecentFile = (dir) => {
+  const files = orderReccentFiles(dir);
+  return files.length ? files[0] : undefined;
+};
+
+const orderReccentFiles = (dir) => {
+  return readdirSync(dir)
+    .filter((file) => lstatSync(path.join(dir, file)).isFile())
+    .map((file) => ({ file, mtime: lstatSync(path.join(dir, file)).mtime }))
+    .filter((fileInfo) => fileInfo.file.includes("keystore"))
+    .sort((a, b) => b.mtime.getTime() - a.mtime.getTime());
+};
 
 /**
  * Install the required Python packages needed to call the eth2deposit_proxy application using the
@@ -169,9 +185,12 @@ const generateKeys = async (
     index, // number,
     count, // number,
     network, // string,
-    password, // string,
+    password, // string, 
     eth1_withdrawal_address, //string,
     folder, // string,
+    validatorID, // number
+    databasePassword, // string
+    address // string
   ) => {
   
   let executable = "";
@@ -214,6 +233,11 @@ const generateKeys = async (
   }
   
   await execFileProm(executable, args, {env: env});
+  const {file} = getMostRecentFile(folder)
+  const filePathToKeystore = `${folder}/${file}`
+  const keystore = readFileSync(filePathToKeystore, 'utf8')
+  newStorage.addValidators(address, validatorID, keystore, databasePassword)
+  storage.addValidator(validatorID.toString(), keystore)
 }
 
 /**
@@ -253,16 +277,43 @@ const validateMnemonic = async (
 }
 
 const generateSignedExitMessage = async (
+  usingStoredKeys, // boolean
+  selectedValidator,
   chain, // string,
   keystorePath, // string
   keystorePassword, // string
   validatorIndex, // number
   epoch, // number
-  saveFolder // string
+  saveFolder, // string
+  databasePassword,
+  address // string
 ) => {
   let executable = "";
   let args = [];
   let env = process.env;
+
+  // TODO: Change selectedTab to a boolean with a better meaning
+  // IF selectedTab == 1 
+    // Then we need to save a file that the program can use, then delete at the end
+  const tempKeystoreLocation = path.join(saveFolder, `${uuidv4()}.json`)
+  if (usingStoredKeys) {
+    validatorIndex = parseInt(JSON.parse(selectedValidator).validatorID);
+    const parsedValidator = JSON.parse(selectedValidator).fileData;
+    keystorePath = tempKeystoreLocation;
+    keystorePassword = await newStorage.getValidatorPassword(databasePassword)
+    writeFile(tempKeystoreLocation, parsedValidator, (err) => {
+      if (err) {
+        console.error('Error writing JSON file:', err);
+      } else {
+        console.log('JSON file saved successfully!');
+      }
+    })
+  }
+
+  const allWallets = await newStorage.getAllStakerAddresses();
+  if (allWallets == undefined || !(address in allWallets)) {
+      await newStorage.addStakerAddress(address)
+  }
 
   if (await doesFileExist(BUNDLED_SFE_PATH)) {
     executable = BUNDLED_SFE_PATH;
@@ -288,6 +339,15 @@ const generateSignedExitMessage = async (
   const { stdout, stderr } = await execFileProm(executable, args, {env: env});
   const exitMessageGenerationResultString = stdout.toString();
   const resultJson = JSON.parse(exitMessageGenerationResultString);
+  if (usingStoredKeys) {
+    unlink(tempKeystoreLocation, (err) => {
+      if (err) {
+        console.error('Error deleting JSON file:', err);
+      } else {
+        console.log('JSON file deleted successfully!');
+      }
+    });
+  }
   return resultJson.filefolder;
 }
 
