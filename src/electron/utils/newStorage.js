@@ -2,13 +2,8 @@ const Store = require("electron-store");
 const crypto = require("crypto");
 
 const newSchema = {
-    passwordSet: {
-        type: "boolean",
-        default: true,
-    },
     passwordHash: {
         type: "string",
-        default: "",
     },
     validatorPassword: {
         type: "string",
@@ -18,51 +13,40 @@ const newSchema = {
         type: "string",
         default: "",
     },
-    stakerAddresses: {
-        type: "object",
-        properties: {
-            stakerAddress: {
-                type: "object",
-                properties: {
-                    mnemonicCount: {
-                        type: "integer",
-                        default: 1,
-                    },
-                    mnemonics: {
+    stakerAccounts: {
+        type: "array",
+        items: {
+            type: "object",
+            properties: {
+                address: {
+                    type: "string",
+                },
+                mnemonics: {
+                    type: "array",
+                    items: { type: "string" },
+                },
+                validators: {
+                    type: "array",
+                    items: {
                         type: "object",
                         properties: {
-                            mnemonicID: {
-                                // Key is auto increment, value is mnemonic
-                                type: "string",
-                                default: "",
-                            },
-                        },
-                    },
-                    validators: {
-                        type: "object",
-                        properties: {
-                            validatorID: {
-                                // Value will be the keystore file
-                                type: "string",
-                                default: "",
-                            },
+                            id: "string",
+                            data: "string",
                         },
                     },
                 },
             },
         },
     },
-    validatorAddresses: {
-        type: "object",
-        properties: {
-            validatorAddress: {
-                type: "object",
-                properties: {
-                    privateKey: { // Public Key is the Key, private key is the value
-                        type: "string",
-                        default: "",
-                    },
-                },
+    // not sure this is the right shape for this data, but it's a start
+    nodeOperatorAccounts: {
+        type: "array",
+        items: {
+            type: "object",
+            properties: {
+                index: { type: "integer" },
+                publicKey: { type: "string" },
+                privateKey: { type: "string" },
             },
         },
     },
@@ -75,19 +59,43 @@ class Database {
         this._store = store;
     }
 
+    _getStakerAccountByAddress(address) {
+        return this._store.get("stakerAccounts").find((account) => account.address === address);
+    }
+
+    _updateStakerAccount(account) {
+        const allAccounts = this._store.get("stakerAccounts");
+        const rest = allAccounts.filter((account) => account.address !== address);
+        const account = allAccounts.find((account) => account.address === address);
+        if (!account) return;
+
+        this.store.set("stakerAccounts", [...rest, account]);
+    }
+
+    _getValidatorAccountByAddress(address) {
+        return this._store.get("validatorAccounts").find((account) => account.address === address);
+    }
+
+    _updateValidatorAccount(account) {
+        const allAccounts = this._store.get("validatorAccounts");
+        const rest = allAccounts.filter((account) => account.address !== address);
+        const account = allAccounts.find((account) => account.address === address);
+        if (!account) return;
+
+        this.store.set("validatorAccounts", [...rest, account]);
+    }
+
     isPasswordSet() {
-        const passwordSet = this._store.get("passwordSet");
-        return passwordSet;
+        return !!this._store.get("passwordHash");
     }
 
     setPassword(password) {
         // TODO: check the password has not already been set
-        this._store.set("passwordSet", true);
         this._store.set(
             "passwordHash",
             crypto.createHash("sha256").update(password).digest("hex")
         );
-        // Since this is our first time using app, we also need to generate a password for validators
+        // // Since this is our first time using app, we also need to generate a password for validators
         const validatorPassword = this.#generatePassword();
         const operatorPassword = this.#generatePassword();
         this._store.set('validatorPassword', this.encrypt(validatorPassword, password))
@@ -107,56 +115,75 @@ class Database {
     }
 
 
-    addStakerAddress(address) {
-        const path = `stakerAddress.${address}`;
-        if (!this._store.get(path)) {
-            this._store.set(path, {});
+    addStakerAccount(address) {
+        if (!address) return;
+
+        const current = this._store.get("stakerAccounts");
+        if (!current.find((account) => account.address === address)) {
+            this._store.set("stakerAccounts", [
+                ...current,
+                {
+                    address,
+                    mnemonics: [],
+                    validatorIDs: [],
+                },
+            ]);
         }
     }
 
-    getStakerAddress(address) {
-        const path = `stakerAddress.${address}`;
-        return this._store.get(path);
+    getStakerAccount(address) {
+        return this._store.get('stakerAccounts').find((account) => account.address === address);
     }
 
+    // TODO: why are these functions the same?
     getAllStakerAddresses() {
-        return this._store.get("stakerAddress");
+        return this._store.get("stakerAccounts").map((account) => account.address);
     }
-
     getStakerAddressList() {
-        return this._store.get("stakerAddress");
+        return this._store.get("stakerAccounts").map((account) => account.address);
     }
 
     addMnemonic(address, mnemonic, password) {
-        const mnemonicID = (this._store.get(`stakerAddress.${address}.mnemonicCount`) | 0) + 1;
-        this._store.set(`stakerAddress.${address}.mnemonics.${mnemonicID}`, this.encrypt(mnemonic, password));
-        this._store.set(`stakerAddress.${address}.mnemonicCount`, parseInt(mnemonicID));
+        const account = this._getStakerAccountByAddress(address);
+        if (!account) return;
+
+        const encryptedMnemonic = this.encrypt(mnemonic, password);
+        this._updateStakerAccount({
+            ...account,
+            mnemonics: [...account.mnemonics, encryptedMnemonic],
+        })
     }
 
     getMnemonics(address, password) {
-        let decrypedObject = this._store.get(`stakerAddress.${address}.mnemonics`);
-        if (!decrypedObject) {
-            return {}
-        }
-        Object.keys(decrypedObject).forEach((key, index) => {
-            decrypedObject[key] = this.decrypt(decrypedObject[key], password);
-        });
-        return decrypedObject;
+        const account = this._getStakerAccountByAddress(address);
+        if (!account) return [];
+
+        return account.mnemonics.map((mnemonic) => this.decrypt(mnemonic, password));
     }
 
-    addValidators(address, validatorID, keystoreFile, password) {
+    addValidator(address, validatorID, keystoreFile, password) {
         this._store.set(`stakerAddress.${address}.validators.${validatorID}`, this.encrypt(keystoreFile, password));
-    }
+        const account = this._getStakerAccountByAddress(address);
+        if (!account) return;
 
-    getValidators(address, password) {
-        let decrypedObject = this._store.get(`stakerAddress.${address}.validators`);
-        Object.keys(decrypedObject).forEach((key, index) => {
-            decrypedObject[key] = this.decrypt(decrypedObject[key], password);
+        const encryptedKeystore = this.encrypt(keystoreFile, password);
+        this._updateStakerAccount({
+            ...account,
+            validators: [...account.validators, { id: validatorID, data: encryptedKeystore }],
         });
-        return decrypedObject;
     }
 
+    getValidatorsByAddress(address, password) {
+        const account = this._getValidatorAccountByAddress(address);
+        if (!account) return [];
 
+        return account.validators.map((validator) => ({
+            id: validator.id,
+            data: this.decrypt(validator.keystore, password),
+        }));
+    }
+
+    // busted
     addValidatorAddress(address) {
         const path = `validatorAddress.${address}`;
         if (!this._store.get(path)) {
@@ -164,15 +191,18 @@ class Database {
         }
     }
 
+    // busted
     getValidatorAddress(address) {
         const path = `validatorAddress.${address}`;
         return this._store.get(path);
     }
 
+    // busted
     getAllValidatorAddress() {
         return this._store.get("validatorAddress");
     }
 
+    // busted
     addOperatorKey(address, publicKey, privateKey, password) {
         this._store.set(`validatorAddresses.${address}.${publicKey}`, this.encrypt(privateKey, password));
     }
@@ -219,7 +249,7 @@ class Database {
 
 }
 
-const store = new Store({ newSchema });
+const store = new Store({ schema: newSchema });
 const db = new Database(store)
 // store.clear();
 // password = "Password123!";
