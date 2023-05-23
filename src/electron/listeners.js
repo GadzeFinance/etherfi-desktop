@@ -2,6 +2,9 @@ const fs = require('fs');
 const EC = require('elliptic').ec
 const BN = require('bn.js');
 const path = require('path')
+const {
+    ipcRenderer
+} = require("electron");
 const { encrypt, decrypt, encryptPrivateKeys, decryptPrivateKeys } = require('./utils/encryptionUtils');
 const { createMnemonic, generateKeys } = require('./utils/Eth2Deposit.js')
 const { selectFolder, selectJsonFile } = require('./utils/saveFile.js')
@@ -119,7 +122,7 @@ const genMnemonic = async (language) => {
  *          It also contains single stakeRequest.json file which contains the encrypted data.
  *           The stakeRequest.json file is what the user should upload to the DAPP.
  */
-const genValidatorKeysAndEncrypt = async (mnemonic, databasePassword, folder, stakeInfoPath, chain, address) => {
+const genValidatorKeysAndEncrypt = async (event, mnemonic, databasePassword, folder, stakeInfoPath, chain, address) => {
     logger.info("genEncryptedKeys: Start")
     const allWallets = await newStorage.getAllStakerAddresses();
     if (allWallets == undefined || !(address in allWallets)) {
@@ -140,18 +143,20 @@ const genValidatorKeysAndEncrypt = async (mnemonic, databasePassword, folder, st
     const nodeOperatorPublicKeys = []
     const validatorIDs = []
 
-    const proms = []
-
     for (var i = 0; i < stakeInfoLength; i++) {
         const eth1_withdrawal_address = stakeInfo[i].withdrawalSafeAddress; 
         nodeOperatorPublicKeys.push(stakeInfo[i].bidderPublicKey)
         validatorIDs.push(stakeInfo[i].validatorID)
         const index = i
         try {
-            //const genKeysStart = new Date().getTime();
-            //await generateKeys(mnemonic, index, 1, chain, password, eth1_withdrawal_address, folder, stakeInfo[i].validatorID, databasePassword, address)
-            const prom = generateKeys(mnemonic, index, 1, chain, password, eth1_withdrawal_address, folder, stakeInfo[i].validatorID, databasePassword, address)
-            proms.push(prom)
+            //const genKeysStart = 
+            const startTime = new Date().getTime();
+            await generateKeys(mnemonic, index, 1, chain, password, eth1_withdrawal_address, folder, stakeInfo[i].validatorID, databasePassword, address)
+            const endTime = new Date().getTime();
+            const usedTime = (endTime - startTime) / 1000;
+            event.sender.send("receive-generate-key", index, stakeInfoLength, usedTime)
+            //const prom = generateKeys(mnemonic, index, 1, chain, password, eth1_withdrawal_address, folder, stakeInfo[i].validatorID, databasePassword, address)
+            //proms.push(prom)
             //const genKeysEnd = new Date().getTime();
             //console.log(`generateKeys time: ${(genKeysEnd - genKeysStart) / 1000}s`)
         } catch (err) {
@@ -160,7 +165,8 @@ const genValidatorKeysAndEncrypt = async (mnemonic, databasePassword, folder, st
         }
     }
 
-    await Promise.all(proms)
+    //console.log("proms:", proms)
+    //await Promise.all(proms)
 
     // now we need to encrypt the keys and generate "stakeRequest.json"
     try {

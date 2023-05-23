@@ -27,6 +27,10 @@ const StepCreateKeys: React.FC<StepCreateKeysProps> = (props) => {
 
   const [generatingKeys, setGeneratingKeys] = useState(false)
   const [chain, setChain] = useState("")
+  const [keysGenerated, setKeysGenerated] = useState(0);
+  const [keysTotal, setKeysTotal] = useState(0);
+  // const [lastTimestamp, setLastTimestamp] = useState(-1);
+  const [recentUsedTime, setRecentUsedTime] = useState(-1);
 
   const selectSavePath = () => {
     window.fileSystemApi.receiveSelectedFolderPath((event: Electron.IpcMainEvent, path: string) => {
@@ -36,6 +40,12 @@ const StepCreateKeys: React.FC<StepCreateKeysProps> = (props) => {
   }
 
   const generateEncryptedKeys = () => {
+    window.encryptionApi.receiveGenerateKey(
+      (event: Electron.IpcMainEvent, index: number, total: number, usedTime: number) => {
+        setKeysGenerated(index + 1)
+        setKeysTotal(total)
+        setRecentUsedTime(usedTime)
+      })
     window.encryptionApi.receiveKeyGenConfirmation(
       (event: Electron.IpcMainEvent, result: number, savePath: string, errorMessage: string) => {
         if (result === 0) {
@@ -94,6 +104,8 @@ const StepCreateKeys: React.FC<StepCreateKeysProps> = (props) => {
     variant: "white-button",
   }
 
+  console.log("keys:", keysGenerated, keysTotal)
+
   return (
     <Flex
       padding={'24px'}
@@ -133,7 +145,7 @@ const StepCreateKeys: React.FC<StepCreateKeysProps> = (props) => {
         </>
       )
       }
-      {generatingKeys && <EtherFiSpinner loading={generatingKeys} text="Generating & Encrypting Keys..." />}
+      {generatingKeys && <EtherFiSpinner loading={generatingKeys} text="Generating & Encrypting Keys..." keysGenerated={keysGenerated} keysTotal={keysTotal} recentUsedTime={recentUsedTime} />}
       {props.keysGenerated && (
         <Box
           padding={'24px'}

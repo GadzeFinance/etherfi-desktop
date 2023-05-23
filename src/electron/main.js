@@ -131,7 +131,7 @@ ipcMain.on("req-new-mnemonic", async (event, args) => {
 ipcMain.on("req-gen-val-keys-and-encrypt",  async (event, args) => {
     var [mnemonic, password, folder, stakeInfoPath, chain, address] = args
     try {
-        const savePath = await genValidatorKeysAndEncrypt(mnemonic, password, folder, stakeInfoPath, chain, address)
+        const savePath = await genValidatorKeysAndEncrypt(event, mnemonic, password, folder, stakeInfoPath, chain, address)
         event.sender.send("receive-key-gen-confirmation", standardResultCodes.SUCCESS, savePath , '')
     } catch (error) {
         logger.error("Error Generating Validator Keys and Encrypting:", error)

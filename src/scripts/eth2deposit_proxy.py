@@ -85,6 +85,8 @@ def generate_keys(args):
                                        withdrawal credentials
     """
     
+    generate_key_start = time.time()
+
     eth1_withdrawal_address = None
     if args.eth1_withdrawal_address:
         eth1_withdrawal_address = args.eth1_withdrawal_address
@@ -120,6 +122,9 @@ def generate_keys(args):
         raise ValidationError("Failed to verify the keystores.")
     if not verify_deposit_data_json(deposits_file, credentials.credentials):
         raise ValidationError("Failed to verify the deposit data JSON files.")
+
+    generate_key_end = time.time()
+    print("generate_key time:", generate_key_end - generate_key_start)
 
 def parse_create_mnemonic(args):
     """Parse CLI arguments to call the create_mnemonic function.

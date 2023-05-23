@@ -58,12 +58,16 @@ const DataTable = ({title, dataCount, data}: DataTableProps) => {
     }
   }
 
-  const copyData = (content: string) => {
-    setValue(content);
-    setTimeout(() => {
-      // setValue is asynchronous.
-      onCopy()
-    }, 3000)
+  // const copyData = (content: string) => {
+  //   setValue(content);
+  //   setTimeout(() => {
+  //     // setValue is asynchronous.
+  //     onCopy()
+  //   }, 3000)
+  // }
+
+  const copyData = (data: string) => {
+    window.utilsApi.copyToClipBoard(data)
   }
 
   return (
@@ -137,7 +141,7 @@ const DataTable = ({title, dataCount, data}: DataTableProps) => {
             }
           </ModalBody>
           <ModalFooter>
-            <Button>Copy</Button>
+            <Button onClick={() => copyData(selectedCode)}>Copy</Button>
           </ModalFooter>
         </ModalContent>
       </Modal>

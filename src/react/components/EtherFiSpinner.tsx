@@ -2,11 +2,15 @@ import React from 'react';
 import { Flex, Text, VStack, Box, keyframes } from '@chakra-ui/react';
 import { COLORS } from '../styleClasses/constants';
 import { ClockWiseElipse, CounterClockWiseElipse } from './Icons/Elipses';
+import { time } from 'console';
 
 
 interface SpinnerData {
     text: string,
     loading: boolean,
+    keysGenerated?: number,
+    keysTotal?: number,
+    recentUsedTime?: number
 }
 
 const EtherFiSpinner: React.FC<SpinnerData> = (props: SpinnerData) => {
@@ -52,8 +56,14 @@ const EtherFiSpinner: React.FC<SpinnerData> = (props: SpinnerData) => {
                     <Text color={'white'} fontSize="2xl" fontWeight={'semibold'} align="center">
                         {props.text}
                     </Text>
+                    { props.keysGenerated && props.keysTotal && (
+                        <Box>
+                            <Text fontSize="xl" color="white">
+                                {props.keysGenerated} / {props.keysTotal} Estimated Time: {`${Math.floor(props.recentUsedTime * (props.keysTotal - props.keysGenerated))}s`}
+                            </Text>
+                        </Box>) }
                 </VStack>
-
+                
             )}
 
         </>
