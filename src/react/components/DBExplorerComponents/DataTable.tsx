@@ -7,7 +7,6 @@ import {
   Tr,
   Td,
   Box,
-  useClipboard,
   Modal,
   ModalOverlay,
   ModalContent,
@@ -19,6 +18,7 @@ import {
   Grid,
   ModalFooter,
   Button,
+  Center,
 } from "@chakra-ui/react";
 import { CopyIcon, ViewIcon } from "@chakra-ui/icons";
 
@@ -31,8 +31,6 @@ interface DataTableProps {
 const DataTable = ({title, dataCount, data}: DataTableProps) => {
 
   const [selectedCode, setSelectedCode] = useState<string>("")
-
-  const { onCopy, setValue } = useClipboard("");
 
   const shortenMnemonic = (mnemonic: any) => {
     const wordArray = mnemonic.split(" ");
@@ -58,43 +56,36 @@ const DataTable = ({title, dataCount, data}: DataTableProps) => {
     }
   }
 
-  // const copyData = (content: string) => {
-  //   setValue(content);
-  //   setTimeout(() => {
-  //     // setValue is asynchronous.
-  //     onCopy()
-  //   }, 3000)
-  // }
-
   const copyData = (data: string) => {
     window.utilsApi.copyToClipBoard(data)
   }
 
   return (
     <Box h={"380px"} overflowY="auto" py="5">
-    <Table mt={2} color={"white"}>
-      <Thead>
-        <Tr>
-          <Td w="100px">Index</Td>
-          <Td>{ title === "mnemonics" ? "Preview" : "File Name"}</Td>
-          <Td w="90px">View</Td>
-          <Td w="90px">Copy</Td>
-        </Tr>
-      </Thead>
-      <Tbody>
-        { dataCount === 0 && <Text>There is no {title} stored.</Text> }
-        { dataCount > 0 && Object.entries(data).map(([idx, content]) => <>
-            <Tr key={idx}>
-              <Td w="100px" textAlign={"center"}>{idx}</Td>
-              <Td><Text>{
-                title === "mnemonics" ? shortenMnemonic(content) : `validtor-${idx}-keystore.json`
-                }</Text></Td>
-              <Td w="90px" cursor={"pointer"} onClick={() => { viewData(content); }} textAlign={"center"}><ViewIcon/></Td>
-              <Td w="90px" cursor={"pointer"} onClick={() => { copyData(content);}} textAlign={"center"}><CopyIcon/></Td>
+      { dataCount === 0 && <Center><Text color="white">There is no {title} stored.</Text></Center> }
+      { dataCount > 0 && (
+        <Table mt={2} color={"white"}>
+          <Thead>
+            <Tr>
+              <Td w="100px">Index</Td>
+              <Td>{ title === "mnemonics" ? "Preview" : "File Name"}</Td>
+              <Td w="90px">View</Td>
+              <Td w="90px">Copy</Td>
             </Tr>
-          </>)}
-      </Tbody>
-    </Table>
+          </Thead>
+          <Tbody>
+            { Object.entries(data).map(([idx, content]) => <>
+                <Tr key={idx}>
+                  <Td w="100px" textAlign={"center"}>{idx}</Td>
+                  <Td><Text>{
+                    title === "mnemonics" ? shortenMnemonic(content) : `validtor-${idx}-keystore.json`
+                    }</Text></Td>
+                  <Td w="90px" cursor={"pointer"} onClick={() => { viewData(content); }} textAlign={"center"}><ViewIcon/></Td>
+                  <Td w="90px" cursor={"pointer"} onClick={() => { copyData(content);}} textAlign={"center"}><CopyIcon/></Td>
+                </Tr>
+              </>)}
+          </Tbody>
+        </Table>)}
       <Modal size={ title === "mnemonics" ? "lg" : "full" } isOpen={selectedCode !== ""} onClose={closeModal}>
         <ModalOverlay />
         <ModalContent bgColor="purple.dark">

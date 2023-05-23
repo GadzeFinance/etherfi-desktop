@@ -56,12 +56,16 @@ const EtherFiSpinner: React.FC<SpinnerData> = (props: SpinnerData) => {
                     <Text color={'white'} fontSize="2xl" fontWeight={'semibold'} align="center">
                         {props.text}
                     </Text>
-                    { props.keysGenerated && props.keysTotal && (
-                        <Box>
-                            <Text fontSize="xl" color="white">
-                                {props.keysGenerated} / {props.keysTotal} Estimated Time: {`${Math.floor(props.recentUsedTime * (props.keysTotal - props.keysGenerated))}s`}
-                            </Text>
-                        </Box>) }
+                    <Box>
+                        { props.keysGenerated && props.keysTotal ? (
+                            <Text fontSize="l" color="white">
+                                Progress: {props.keysGenerated} / {props.keysTotal}... {`  `} Est. Time Left: {`${Math.floor(props.recentUsedTime * (props.keysTotal - props.keysGenerated))}s`}
+                            </Text>) : (
+                            <Text fontSize="l" color="white">
+                                Encrypting...
+                            </Text>) 
+                        }
+                    </Box>
                 </VStack>
                 
             )}

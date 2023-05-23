@@ -75,7 +75,7 @@ const StepSelectWalletAddress: React.FC<StepSelectWalletAddressProps> = (
                 }}
                 value={props.dropWalletAddress}
             >
-                {!error && addressOptions?.map((address: string) => (
+                {!error && addressOptions?.filter((x: string) => x !== "")?.map((address: string) => (
                     <option key={address}>{address}</option>
                 ))}
             </Select>
