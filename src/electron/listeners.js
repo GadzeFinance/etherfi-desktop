@@ -2,6 +2,9 @@ const fs = require('fs');
 const EC = require('elliptic').ec
 const BN = require('bn.js');
 const path = require('path')
+const {
+    ipcRenderer
+} = require("electron");
 const { encrypt, decrypt, encryptPrivateKeys, decryptPrivateKeys } = require('./utils/encryptionUtils');
 const { createMnemonic, generateKeys } = require('./utils/Eth2Deposit.js')
 const { selectFolder, selectJsonFile } = require('./utils/saveFile.js')
@@ -118,7 +121,7 @@ const genMnemonic = async (language) => {
  *          It also contains single stakeRequest.json file which contains the encrypted data.
  *           The stakeRequest.json file is what the user should upload to the DAPP.
  */
-const genValidatorKeysAndEncrypt = async (mnemonic, databasePassword, folder, stakeInfoPath, chain, address) => {
+const genValidatorKeysAndEncrypt = async (event, mnemonic, databasePassword, folder, stakeInfoPath, chain, address) => {
     logger.info("genEncryptedKeys: Start")
     const allWallets = await storage.getAllStakerAddresses();
     if (allWallets == undefined || !(address in allWallets)) {
@@ -141,15 +144,23 @@ const genValidatorKeysAndEncrypt = async (mnemonic, databasePassword, folder, st
         validatorIDs.push(stakeInfo[i].validatorID)
         const index = i
         try {
+            const startTime = new Date().getTime();
             await generateKeys(mnemonic, index, 1, chain, password, eth1_withdrawal_address, folder, stakeInfo[i].validatorID, databasePassword, address)
+            const endTime = new Date().getTime();
+            const usedTime = (endTime - startTime) / 1000;
+            event.sender.send("receive-generate-key", index, stakeInfoLength, usedTime)
         } catch (err) {
             logger.error("Error in 'genValidatorKeysAndEncrypt' when generating keys", err)
             throw new Error("Couldn't generate validator keys")
         }
     }
+
     // now we need to encrypt the keys and generate "stakeRequest.json"
     try {
+        const enKeysStart = new Date().getTime();
         await _encryptValidatorKeys(folder, password, nodeOperatorPublicKeys, validatorIDs)
+        const enKeysEnd = new Date().getTime();
+        console.log(`generateKeys time: ${(enKeysEnd - enKeysStart) / 1000}s`)
     } catch(err) {
         logger.error("Error in 'genValidatorKeysAndEncrypt' when encrypting keys", err)
         throw new Error("Error encrypting validator keys")

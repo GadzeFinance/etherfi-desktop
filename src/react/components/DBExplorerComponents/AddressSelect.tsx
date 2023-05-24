@@ -36,7 +36,7 @@ const AddressSelect = (props: AddressSelectProps) => {
           { props.addressList?.length > 0 ? props.currAddress : "There is no address stored." }
         </MenuButton>
         <MenuList w="450px !important">
-            { props.addressList?.map((address: string) => (
+            { props.addressList?.filter((x: string) => x !== "")?.map((address: string) => (
                 <MenuItem onClick={() => menuOnClick(address)} key={address}>
                     <Box w="100%">
                       <Text>{address}</Text>
