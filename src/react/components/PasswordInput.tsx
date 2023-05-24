@@ -1,4 +1,4 @@
-import { FC, useState } from "react"
+import { FC, useEffect, useState } from "react"
 import {
   Text,
   InputGroup,
@@ -10,7 +10,7 @@ import {
 import { COLORS } from "../styleClasses/constants"
 import IconEyeSlash from "./Icons/IconEyeSlash"
 import clickableIconStyle from "../styleClasses/clickableIconStyle"
-import { isContext } from "vm"
+import { useFormContext } from "react-hook-form";
 import { useToast } from '@chakra-ui/react'
 
 interface PasswordInputProps {
@@ -23,6 +23,7 @@ interface PasswordInputProps {
   confirmPassword?: string
   setConfirmPassword?: (cp: string) => void
   noText?: boolean
+  registerText: string
 }
 
 const PasswordInput: FC<PasswordInputProps> = (props) => {
@@ -32,30 +33,12 @@ const PasswordInput: FC<PasswordInputProps> = (props) => {
   const [confirmPasswordResults, setConfirmPasswordResults] = useState([])
 
   const toast = useToast()
+  const { register, watch } = useFormContext();
+  const loginPassword = watch(props.registerText)
 
-  const updatePassword = (newPassword: string) => {
-    validatePassword(newPassword)
-    props.setPassword(newPassword)
-    if (props.withConfirm && props.confirmPassword !== "") validateConfirmPassword(props.confirmPassword)
-  }
-
-  const showToast = (
-    title: string, 
-    description: string, 
-    status: "warning" | "info" | "success" | "error" | "loading"
-  ) => {
-    toast({
-      title,
-      description,
-      status,
-      position: "top-right",
-      duration: 9000,
-      isClosable: true,
-    })
-  }
 
   const match = () => {
-    return props.password === props.confirmPassword && props.password !== ""
+    return loginPassword === props.confirmPassword && loginPassword !== ""
   }
 
   const updateConfirmPassword = (newInput: string) => {
@@ -63,42 +46,44 @@ const PasswordInput: FC<PasswordInputProps> = (props) => {
     props.setConfirmPassword(newInput)
   }
 
-  function validatePassword(password: string) {
+  useEffect(() => {
+
+    if (props.withConfirm && props.confirmPassword !== "") validateConfirmPassword(props.confirmPassword)
     const tests = [
       {
-        passed: password.length >= 8,
+        passed: loginPassword?.length >= 8,
         message: "password should be at least 8 characters long",
       },
       {
-        passed: /[A-Z]/.test(password),
+        passed: /[A-Z]/.test(loginPassword),
         message: "password should contain at least one uppercase letter",
       },
       {
-        passed: /[a-z]/.test(password),
+        passed: /[a-z]/.test(loginPassword),
         message: "password should contain at least one lowercase letter",
       },
       {
-        passed: /[\W_]/.test(password),
+        passed: /[\W_]/.test(loginPassword),
         message: "password should contain at least one special character",
       },
       {
-        passed: /\d/.test(password),
+        passed: /\d/.test(loginPassword),
         message: "password should contain at least one number",
       },
       {
-        passed: !/\s/.test(password),
+        passed: !/\s/.test(loginPassword),
         message: "password should not contain any spaces",
       },
     ]
-    setPasswordResults(tests)
     props.setIsPasswordValid(tests.every((test) => test.passed))
-  }
+  }, [loginPassword])
+
 
   function validateConfirmPassword(confirmPassword: string) {
-    console.log("validateConfirmPassword:", props.password, confirmPassword)
+    console.log("validateConfirmPassword:", loginPassword, confirmPassword)
     const tests = [
       {
-        passed: props.password.length > 0 && props.password === confirmPassword,
+        passed: loginPassword?.length > 0 && loginPassword === confirmPassword,
         message: "The two passwords not match",
       },
     ]
@@ -117,7 +102,7 @@ const PasswordInput: FC<PasswordInputProps> = (props) => {
             isInvalid={
               props.shouldDoValidation &&
               !props.isPasswordValid &&
-              props.password.length > 1
+              loginPassword?.length > 1
             }
             borderColor={
               props.shouldDoValidation && props.isPasswordValid
@@ -133,10 +118,8 @@ const PasswordInput: FC<PasswordInputProps> = (props) => {
             color="white"
             placeholder="Enter password"
             type={showPassword ? "text" : "password"}
-            value={props.password}
-            onChange={(e) => {
-              updatePassword(e.target.value)
-            }}
+            value={loginPassword}
+            {...register(props.registerText)} 
           />
 
           <InputRightElement width="4.5rem">
