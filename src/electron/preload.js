@@ -49,12 +49,6 @@ contextBridge.exposeInMainWorld("encryptionApi", {
     receiveDecryptReport: function(func){
         ipcRenderer.once("receive-decrypt-val-keys-report", (event, ...args) => func(event, ...args));       
     },
-    reqGetPassword: function(number) {
-        ipcRenderer.send('req-get-password', [number])
-    },
-    receiveGetPassword: function(func) {
-        ipcRenderer.once("receive-get-password", (event, ...args) => func(event, ...args));       
-    },
     reqGetStakerAddresses: function () {
         ipcRenderer.send('req-get-staker-address', [])
     },
@@ -143,12 +137,6 @@ contextBridge.exposeInMainWorld("utilsApi", {
     },
     stakerFinish: function(){
         ipcRenderer.send("staker-finish", null);
-    },
-    reqDatabaseContents: function() {
-        ipcRenderer.send("req-database-contents", []);
-    },
-    recieveDatabaseContents: function(func) {
-        ipcRenderer.once("receive-database-contents", (event, ...args) => func(event, ...args));       
     }
 });
 

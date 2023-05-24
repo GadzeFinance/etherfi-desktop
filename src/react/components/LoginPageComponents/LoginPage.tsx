@@ -1,7 +1,7 @@
-import { Box, Button, Center, Flex, Grid, GridItem, Text, VStack } from '@chakra-ui/react'
+import { Box, Button, Center, Flex, Grid, GridItem, Text, VStack, useToast } from '@chakra-ui/react'
 import React, { useEffect, useState } from 'react'
 import PasswordInput from '../PasswordInput'
-import { useToast } from '@chakra-ui/react'
+import { useFormContext } from "react-hook-form";
 
 interface LoginPageProps {
   setIsAuthenticated: (v: boolean) => void
@@ -14,6 +14,10 @@ const LoginPage: React.FC<LoginPageProps> = (props: LoginPageProps) => {
   const [isPasswordValid, setIsPasswordValid] = useState<boolean>(false)
   const [confirmPassword, setConfirmPassword] = useState<string>("")
   const toast = useToast()
+  const { register, watch } = useFormContext();
+
+  const loginPassword = watch("loginPassword")
+  console.log(loginPassword)
 
   const showToast = (
     title: string, 
@@ -57,11 +61,11 @@ const LoginPage: React.FC<LoginPageProps> = (props: LoginPageProps) => {
         }
       }
     );
-    window.databaseApi.reqValidatePassword(props.password)
+    window.databaseApi.reqValidatePassword(loginPassword)
   }
 
   const reqCreatePassword = () => {
-    if (!isPasswordValid || props.password != confirmPassword) {
+    if (!isPasswordValid || loginPassword != confirmPassword) {
       showToast("Form Incomplete", "Please follow the instructions in the form.", "warning")
       return
     }
@@ -82,7 +86,7 @@ const LoginPage: React.FC<LoginPageProps> = (props: LoginPageProps) => {
         }
       }
     );
-    window.databaseApi.reqSetPassword(props.password)
+    window.databaseApi.reqSetPassword(loginPassword)
   }
 
   useEffect(() => {
@@ -148,7 +152,7 @@ const LoginPage: React.FC<LoginPageProps> = (props: LoginPageProps) => {
               { isFirstUse && <Box>
                 <VStack w="60%" pt={2} spacing={2}>
                   <PasswordInput 
-                    password={props.password} 
+                    password={loginPassword} 
                     setPassword={props.setPassword} 
                     isPasswordValid={isPasswordValid} 
                     setIsPasswordValid={setIsPasswordValid} 
@@ -157,6 +161,7 @@ const LoginPage: React.FC<LoginPageProps> = (props: LoginPageProps) => {
                     withConfirm 
                     confirmPassword={confirmPassword}
                     setConfirmPassword={setConfirmPassword}
+                    registerText="loginPasswordConfirmation"
                   />
                 </VStack>
                 
@@ -170,11 +175,12 @@ const LoginPage: React.FC<LoginPageProps> = (props: LoginPageProps) => {
               { !isFirstUse && <Box>
                   <VStack w="60%" pt={2} spacing={2}>
                     <PasswordInput 
-                      password={props.password} 
+                      password={loginPassword} 
                       setPassword={props.setPassword} 
                       isPasswordValid={isPasswordValid} 
                       setIsPasswordValid={setIsPasswordValid} 
                       shouldDoValidation={isFirstUse} 
+                      registerText="loginPassword"
                       noText
                     />
                   </VStack>

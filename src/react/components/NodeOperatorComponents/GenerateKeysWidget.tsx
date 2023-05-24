@@ -90,7 +90,7 @@ const GenerateKeysWidget: React.FC = () => {
                                     <InputRightElement children={<Box height="32px" width="50px" mr="44px" onClick={() => setNumKeys(`${MAX_KEYS}`)}><Button bg={COLORS.primaryBlue}>Max</Button></Box>} />
                                 </NumberInput>
                             </InputGroup>
-                            <PasswordInput password={privKeysPassword} setPassword={setPrivKeysPassword} isPasswordValid={isPrivKeysPasswordValid} setIsPasswordValid={setIsPrivKeysPasswordValid} shouldDoValidation={true} />
+                            <PasswordInput password={privKeysPassword} setPassword={setPrivKeysPassword} isPasswordValid={isPrivKeysPasswordValid} setIsPasswordValid={setIsPrivKeysPasswordValid} shouldDoValidation={true} registerText="privKeyPassword"/>
                             {savePath &&
                                 <VStack
                                     mt="10px"

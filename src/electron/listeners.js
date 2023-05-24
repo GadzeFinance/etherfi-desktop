@@ -8,7 +8,6 @@ const { selectFolder, selectJsonFile } = require('./utils/saveFile.js')
 const { decryptResultCodes, desktopAppVersion } = require('./constants')
 const logger = require('./utils/logger')
 const storage = require('./utils/storage')
-const newStorage = require('./utils/newStorage')
 
 /**
  * Generates public and private key pairs and saves them in two separate JSON files
@@ -22,9 +21,9 @@ const newStorage = require('./utils/newStorage')
 const genNodeOperatorKeystores = async (numKeys, saveFolder, privKeysPassword, address) => {
     logger.info("genNodeOperatorKeystores: Start")
 
-    const allWallets = await newStorage.getAllStakerAddresses();
+    const allWallets = await storage.getAllStakerAddresses();
     if (allWallets == undefined || !(address in allWallets)) {
-        await newStorage.addStakerAddress(address)
+        await storage.addStakerAddress(address)
     }
 
     const curve = new EC('secp256k1')
@@ -77,7 +76,7 @@ const genNodeOperatorKeystores = async (numKeys, saveFolder, privKeysPassword, a
     }})
 
     // for (const publicKey of pubKeyArray) {
-    //     newStorage.addOperatorKey(address, publicKey, )
+    //     storage.addOperatorKey(address, publicKey, )
     // }
 
     // 1 Hash the private key file using sha256
@@ -121,12 +120,12 @@ const genMnemonic = async (language) => {
  */
 const genValidatorKeysAndEncrypt = async (mnemonic, databasePassword, folder, stakeInfoPath, chain, address) => {
     logger.info("genEncryptedKeys: Start")
-    const allWallets = await newStorage.getAllStakerAddresses();
+    const allWallets = await storage.getAllStakerAddresses();
     if (allWallets == undefined || !(address in allWallets)) {
-        await newStorage.addStakerAddress(address)
+        await storage.addStakerAddress(address)
     }
 
-    const password = await newStorage.getValidatorPassword(databasePassword)
+    const password = await storage.getValidatorPassword(databasePassword)
     
     // get the data from stakeInfoPath
     const stakeInfo = JSON.parse(fs.readFileSync(stakeInfoPath))
@@ -157,11 +156,11 @@ const genValidatorKeysAndEncrypt = async (mnemonic, databasePassword, folder, st
     }
 
     // Only add to the db if we dont have mnemonic added already
-    const allAccounts = await newStorage.getMnemonics(address, databasePassword);
+    const allAccounts = await storage.getMnemonics(address, databasePassword);
     console.log(allAccounts)
     console.log("DB pass: ", databasePassword)
     if (!Object.values(allAccounts).some(value => value.includes(mnemonic))) {
-        await newStorage.addMnemonic(address, mnemonic, databasePassword)
+        await storage.addMnemonic(address, mnemonic, databasePassword)
     }
 
     // Send back the folder where everything is save
@@ -375,35 +374,22 @@ const decryptValidatorKeys = async (event, arg) => {
 }
 
 const fetchStoredMnemonics = async (address, password) => {
-    const mnemonics = await newStorage.getMnemonics(address, password);
+    const mnemonics = await storage.getMnemonics(address, password);
     console.log("MNEMONICS: ", mnemonics)
     return mnemonics
 }
 
-const getAccounts = async () => {
-    const accounts = await storage.getAccounts();
-    return accounts;
-}
-
 const fetchStoredValidators = async (address, password) => {
-    const validators = await newStorage.getValidators(address, password);
+    const validators = await storage.getValidators(address, password);
     return validators;
 }
 
-const fetchDatabase = async () => {
-    return await storage.getEverything()
-}
-
 const setPassword = async (password) => {
-    return await newStorage.setPassword(password)
-}
-
-const getPassword = async (number) => {
-    return await storage.getPassword(number)
+    return await storage.setPassword(password)
 }
 
 const getStakerAddress = async (password) => {
-    const allStakers = await newStorage.getAllStakerAddresses();
+    const allStakers = await storage.getAllStakerAddresses();
     if (!allStakers || !password) {
         return {};
     }
@@ -411,25 +397,25 @@ const getStakerAddress = async (password) => {
     for (const [addr, stakerInfo] of Object.entries(allStakers)) {
         const { validators, mnemonics } = stakerInfo;
         for (const [id, validator] of Object.entries(validators ? validators : {})) {
-            validators[id] = await newStorage.decrypt(validator, password);
+            validators[id] = await storage.decrypt(validator, password);
         }
         for (const [id, mnemonic] of Object.entries(mnemonics ? mnemonics : {})) {
-            mnemonics[id] = await newStorage.decrypt(mnemonic, password);
+            mnemonics[id] = await storage.decrypt(mnemonic, password);
         }
     }
     return allStakers;
 }
 
 const isPasswordSet = async () => {
-    return await newStorage.isPasswordSet();
+    return await storage.isPasswordSet();
 }
 
 const validatePassword = async (password) => {
-    return await newStorage.validatePassword(password);
+    return await storage.validatePassword(password);
 }
 
 const getStakerAddressList = async () => {
-    return await newStorage.getStakerAddressList();
+    return await storage.getStakerAddressList();
 }
 
 
@@ -521,9 +507,6 @@ module.exports = {
     testWholeEncryptDecryptFlow,
     fetchStoredMnemonics,
     fetchStoredValidators,
-    fetchDatabase,
-    getAccounts,
-    getPassword,
     getStakerAddress,
     getStakerAddressList,
     isPasswordSet,

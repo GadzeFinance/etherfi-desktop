@@ -9,6 +9,7 @@ export default function useGetValidators(confirmedAddress: string, password: str
     if (!confirmedAddress) return;
 
     const fetchValidators = async () => {
+      console.log("PASSWORD: ", password)
       try {
        const fetchedValidatorsQuery = await new Promise((resolve, reject) => {
           window.encryptionApi.receiveStoredValidators(

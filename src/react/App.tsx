@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import isDev from "react-is-dev";
+import { useForm, FormProvider, useFormContext } from "react-hook-form";
 import { Tabs, Center, TabPanel, TabPanels } from '@chakra-ui/react'
 import NavBar from "./components/Nav/NavBar";
 import StakerTab from "./components/StakerComponents/StakerTab";
@@ -23,9 +23,9 @@ const App: React.FC = () => {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false)
   const [password, setPassword] = useState<string>("")
 
-  const handleTabsChange = (index: number) => {
-    setTabIndex(index)
-  }
+  const [selectedNodeOperatorOperation, setNodeOperatorOperation] = useState(0);
+  const [stakerOperation, setStakerOperation] = useState(0);
+  const methods = useForm({ shouldUseNativeValidation: true });
 
   useEffect(() => {
     console.log('Enabling backend logs')
@@ -35,11 +35,13 @@ const App: React.FC = () => {
   }, [])
 
 
-  const [selectedNodeOperatorOperation, setNodeOperatorOperation] = useState(0);
-  const [stakerOperation, setStakerOperation] = useState(0);
+  const handleTabsChange = (index: number) => {
+    setTabIndex(index)
+  }
+
 
   return (
-    <div>
+    <FormProvider {...methods} >
       { !isAuthenticated && <LoginPage setIsAuthenticated={setIsAuthenticated} setPassword={setPassword} password={password}/> }
       { isAuthenticated && <Tabs
         variant="soft-rounded"
@@ -66,7 +68,7 @@ const App: React.FC = () => {
           </TabPanels>
         </Center>
       </Tabs>}
-    </div>
+    </FormProvider>
   )
 };
 

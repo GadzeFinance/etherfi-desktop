@@ -26,7 +26,6 @@ const path = require('path');
 const process = require('process');
 const {doesFileExist} = require('./BashUtils.js')
 const storage = require('./storage.js')
-const newStorage = require('./newStorage.js')
 const { v4: uuidv4 } = require('uuid');
 /**
  * A promise version of the execFile function from fs for CLI calls.
@@ -236,8 +235,7 @@ const generateKeys = async (
   const {file} = getMostRecentFile(folder)
   const filePathToKeystore = `${folder}/${file}`
   const keystore = readFileSync(filePathToKeystore, 'utf8')
-  newStorage.addValidators(address, validatorID, keystore, databasePassword)
-  storage.addValidator(validatorID.toString(), keystore)
+  storage.addValidators(address, validatorID, keystore, databasePassword)
 }
 
 /**
@@ -300,7 +298,7 @@ const generateSignedExitMessage = async (
     validatorIndex = parseInt(JSON.parse(selectedValidator).validatorID);
     const parsedValidator = JSON.parse(selectedValidator).fileData;
     keystorePath = tempKeystoreLocation;
-    keystorePassword = await newStorage.getValidatorPassword(databasePassword)
+    keystorePassword = await storage.getValidatorPassword(databasePassword)
     writeFile(tempKeystoreLocation, parsedValidator, (err) => {
       if (err) {
         console.error('Error writing JSON file:', err);
@@ -310,9 +308,9 @@ const generateSignedExitMessage = async (
     })
   }
 
-  const allWallets = await newStorage.getAllStakerAddresses();
+  const allWallets = await storage.getAllStakerAddresses();
   if (allWallets == undefined || !(address in allWallets)) {
-      await newStorage.addStakerAddress(address)
+      await storage.addStakerAddress(address)
   }
 
   if (await doesFileExist(BUNDLED_SFE_PATH)) {
