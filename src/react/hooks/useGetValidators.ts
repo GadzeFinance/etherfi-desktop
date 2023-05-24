@@ -9,7 +9,6 @@ export default function useGetValidators(confirmedAddress: string, password: str
     if (!confirmedAddress) return;
 
     const fetchValidators = async () => {
-      console.log("PASSWORD: ", password)
       try {
        const fetchedValidatorsQuery = await new Promise((resolve, reject) => {
           window.encryptionApi.receiveStoredValidators(
@@ -20,7 +19,6 @@ export default function useGetValidators(confirmedAddress: string, password: str
               errorMessage: string
             ) => {
               if (result === 0) {
-                console.log(validators)
                 resolve(Object.entries(JSON.parse(validators)).map(([key, value]: [string, string]) => ({
                     validatorID: key,
                     fileData: JSON.stringify(JSON.parse(value))

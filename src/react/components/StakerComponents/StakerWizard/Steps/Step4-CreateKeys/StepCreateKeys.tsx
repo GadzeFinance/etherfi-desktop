@@ -27,7 +27,7 @@ const StepCreateKeys: React.FC<StepCreateKeysProps> = (props) => {
 
   const [generatingKeys, setGeneratingKeys] = useState(false)
   const [chain, setChain] = useState("")
-  const { watch } = useFormContext();
+  const { watch, getValues } = useFormContext();
   const loginPassword = watch("loginPassword")
 
   const selectSavePath = () => {
@@ -50,7 +50,7 @@ const StepCreateKeys: React.FC<StepCreateKeysProps> = (props) => {
         }
         setGeneratingKeys(false)
       })
-    window.encryptionApi.reqGenValidatorKeysAndEncrypt(props.mnemonic, loginPassword, props.savePath, props.stakeInfoPath, chain, props.address);
+    window.encryptionApi.reqGenValidatorKeysAndEncrypt(props.mnemonic, loginPassword, props.savePath, props.stakeInfoPath, chain, getValues('confirmedAddress'));
     setGeneratingKeys(true)
   }
 

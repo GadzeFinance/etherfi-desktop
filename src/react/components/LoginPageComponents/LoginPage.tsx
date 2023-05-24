@@ -12,12 +12,11 @@ interface LoginPageProps {
 const LoginPage: React.FC<LoginPageProps> = (props: LoginPageProps) => {
   const [isFirstUse, setIsFirstUse] = useState<boolean>(true)
   const [isPasswordValid, setIsPasswordValid] = useState<boolean>(false)
-  const [confirmPassword, setConfirmPassword] = useState<string>("")
   const toast = useToast()
-  const { register, watch } = useFormContext();
+  const { watch } = useFormContext();
 
   const loginPassword = watch("loginPassword")
-  console.log(loginPassword)
+  const confirmPassword = watch("confirmPassword")
 
   const showToast = (
     title: string, 
@@ -75,7 +74,6 @@ const LoginPage: React.FC<LoginPageProps> = (props: LoginPageProps) => {
         result: number,
         errorMessage: string
       ) => {
-        console.log("received SetPasswordResult:", result, errorMessage);
         if (result === 0) {
           props.setIsAuthenticated(true);
           showToast("Password Saved!", "You can use this password for future authentication", "success")
@@ -97,7 +95,6 @@ const LoginPage: React.FC<LoginPageProps> = (props: LoginPageProps) => {
         passwordSet: boolean,
         errorMessage: string
       ) => {
-        console.log("received passwordSet:", result, passwordSet, errorMessage);
         if (result === 0) {
           
           setIsFirstUse(!passwordSet);
@@ -159,9 +156,7 @@ const LoginPage: React.FC<LoginPageProps> = (props: LoginPageProps) => {
                     shouldDoValidation={true} 
                     noText 
                     withConfirm 
-                    confirmPassword={confirmPassword}
-                    setConfirmPassword={setConfirmPassword}
-                    registerText="loginPasswordConfirmation"
+                    registerText="loginPassword"
                   />
                 </VStack>
                 

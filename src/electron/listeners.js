@@ -157,8 +157,7 @@ const genValidatorKeysAndEncrypt = async (mnemonic, databasePassword, folder, st
 
     // Only add to the db if we dont have mnemonic added already
     const allAccounts = await storage.getMnemonics(address, databasePassword);
-    console.log(allAccounts)
-    console.log("DB pass: ", databasePassword)
+
     if (!Object.values(allAccounts).some(value => value.includes(mnemonic))) {
         await storage.addMnemonic(address, mnemonic, databasePassword)
     }
@@ -375,7 +374,6 @@ const decryptValidatorKeys = async (event, arg) => {
 
 const fetchStoredMnemonics = async (address, password) => {
     const mnemonics = await storage.getMnemonics(address, password);
-    console.log("MNEMONICS: ", mnemonics)
     return mnemonics
 }
 
@@ -416,6 +414,10 @@ const validatePassword = async (password) => {
 
 const getStakerAddressList = async () => {
     return await storage.getStakerAddressList();
+}
+
+const getValidatorPassword = async (password) => {
+    return await storage.getValidatorPassword(password)
 }
 
 
@@ -511,5 +513,6 @@ module.exports = {
     getStakerAddressList,
     isPasswordSet,
     setPassword,
-    validatePassword
+    validatePassword,
+    getValidatorPassword
 }

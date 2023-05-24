@@ -84,6 +84,8 @@ class Database {
 
     getValidators(address, password) {
         let decrypedObject = this._store.get(`stakerAddress.${address}.validators`);
+        if (!decrypedObject) return {}
+
         Object.keys(decrypedObject).forEach((key, index) => {
             decrypedObject[key] = this.decrypt(decrypedObject[key], password);
         });
@@ -154,7 +156,7 @@ class Database {
 
 const store = new Store({ schema });
 const db = new Database(store)
-// console.log(store.store)
 // store.clear();
+console.log(store.store)
 
 module.exports = db

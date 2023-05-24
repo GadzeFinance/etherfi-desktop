@@ -53,7 +53,6 @@ const SelectFile: React.FC<SelectFileProps> = (props) => {
         )
         // Request Validation of file
         props.reqFileValidaton(path)
-        console.log(path)
       }
     )
     window.fileSystemApi.reqSelectFilePath()

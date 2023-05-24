@@ -20,8 +20,6 @@ interface PasswordInputProps {
   setIsPasswordValid: (valid: boolean) => void
   shouldDoValidation: boolean
   withConfirm?: boolean
-  confirmPassword?: string
-  setConfirmPassword?: (cp: string) => void
   noText?: boolean
   registerText: string
 }
@@ -35,20 +33,16 @@ const PasswordInput: FC<PasswordInputProps> = (props) => {
   const toast = useToast()
   const { register, watch } = useFormContext();
   const loginPassword = watch(props.registerText)
-
+  const confirmPassword = watch("confirmPassword")
 
   const match = () => {
-    return loginPassword === props.confirmPassword && loginPassword !== ""
+    return loginPassword === confirmPassword && loginPassword !== ""
   }
 
-  const updateConfirmPassword = (newInput: string) => {
-    validateConfirmPassword(newInput)
-    props.setConfirmPassword(newInput)
-  }
 
   useEffect(() => {
 
-    if (props.withConfirm && props.confirmPassword !== "") validateConfirmPassword(props.confirmPassword)
+    if (props.withConfirm && confirmPassword !== "") validateConfirmPassword(confirmPassword)
     const tests = [
       {
         passed: loginPassword?.length >= 8,
@@ -80,7 +74,6 @@ const PasswordInput: FC<PasswordInputProps> = (props) => {
 
 
   function validateConfirmPassword(confirmPassword: string) {
-    console.log("validateConfirmPassword:", loginPassword, confirmPassword)
     const tests = [
       {
         passed: loginPassword?.length > 0 && loginPassword === confirmPassword,
@@ -89,6 +82,11 @@ const PasswordInput: FC<PasswordInputProps> = (props) => {
     ]
     setConfirmPasswordResults(tests)
   }
+
+  const invalidate = props.shouldDoValidation &&
+  !props.isPasswordValid &&
+  loginPassword?.length > 1
+
 
   return (
     <>
@@ -99,11 +97,7 @@ const PasswordInput: FC<PasswordInputProps> = (props) => {
         <InputGroup>
           <Input
             isRequired={true}
-            isInvalid={
-              props.shouldDoValidation &&
-              !props.isPasswordValid &&
-              loginPassword?.length > 1
-            }
+            isInvalid={invalidate}
             borderColor={
               props.shouldDoValidation && props.isPasswordValid
                 ? "green.main"
@@ -151,10 +145,7 @@ const PasswordInput: FC<PasswordInputProps> = (props) => {
             color="white"
             placeholder="Confirm the password"
             type={showConfirmPassword ? "text" : "password"}
-            value={props.confirmPassword}
-            onChange={(e) => {
-              updateConfirmPassword(e.target.value)
-            }}
+            {...register("confirmPassword")} 
           />
 
           <InputRightElement width="4.5rem">

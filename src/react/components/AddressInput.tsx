@@ -9,7 +9,6 @@ import { useFormContext } from "react-hook-form"
 import { COLORS } from "../styleClasses/constants"
 
 interface AddressInputProps {
-  setDropWalletAddress: (address: string) => void
   isAddressValid: boolean
   setIsAddressValid: (valid: boolean) => void
   shouldDoValidation: boolean
@@ -63,7 +62,6 @@ const AddressInput: FC<AddressInputProps> = (props) => {
             color="white"
             placeholder="Enter Wallet Address"
             type={"text"}
-            onChange={(e) => props.setDropWalletAddress('')}
             {...register(props.registerText)}
           />
         </InputGroup>

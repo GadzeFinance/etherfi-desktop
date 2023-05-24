@@ -16,7 +16,7 @@ import {
   TabPanel,
   Select,
 } from "@chakra-ui/react";
-import { useFormContext } from "react-hook-form";
+import { useFormContext, Controller } from "react-hook-form";
 import raisedWidgetStyle from "../../styleClasses/widgetBoxStyle";
 import successBoxStyle from "../../styleClasses/successBoxStyle";
 import darkBoxWithBorderStyle from "../../styleClasses/darkBoxWithBorderStyle";
@@ -47,34 +47,32 @@ const GenerateSignedExitMessageWidget: React.FC<GenerateSignedExitMessageWidgetP
   const [selectedValidator, setSelectedValidator] = useState("");
   const [isAddressValid, setIsAddressValid] = React.useState(false);
 
-  const [dropWalletAddress, setDropWalletAddress] = useState<string>("");
-  const [typeWalletAddress, setTypeWalletAddress] = useState<string>("");
-  const [confirmedAddress, setConfirmedAddress] = useState<string>("");
 
   // UI State Variables
   const [messageGenerating, setMessageGenerating] = useState<boolean>(false);
   const [messageGenerated, setMessageGenerated] = useState<boolean>(false);
 
-  const { watch, handleSubmit, register, getValues } = useFormContext();
+  const { watch, handleSubmit, register, control, getValues } = useFormContext();
   const { loginPassword, exitEpoch, validatorIndex } = watch();
 
-  const { addressOptions, error } = useGetStakerAddresses();
-  const fetchedValidators = useGetValidators(confirmedAddress, loginPassword)
+  const { addressOptions } = useGetStakerAddresses();
   // TODO: MAKE ERROR MESSAGES BETTER!! I.E See if password is wrong for keystore
   // Right now we just show that a general error occured if the message generation fails
   const [showErrorMessage, setShowErrorMessage] = useState<boolean>(false);
 
-
-
-useEffect(() => {
-  if (dropWalletAddress != '') {
-      setTypeWalletAddress('');
-      setConfirmedAddress(dropWalletAddress);
-  } else if (typeWalletAddress != '') {
-      setDropWalletAddress('');
-      setConfirmedAddress(typeWalletAddress);
+  const getFinalAddress = () => {
+    const finalDrop = getValues("dropdownAddress")
+    const finalType = getValues("exitAddress")
+    if (finalDrop == "" || finalDrop == undefined) {
+      return finalType
+    } else if (finalType == "" || finalType == undefined) {
+      return finalDrop
+    }
   }
-}, [dropWalletAddress, typeWalletAddress])
+
+
+
+  const fetchedValidators = useGetValidators(getFinalAddress(), loginPassword)
 
   const clearState = () => {
     setValidatorKeyFilePath("");
@@ -87,6 +85,7 @@ useEffect(() => {
   };
 
   const requestSignedExitMessage = () => {
+
     window.exitMessageApi.receiveSignedExitMessageConfirmation(
       (
         event: Electron.IpcMainEvent,
@@ -120,8 +119,8 @@ useEffect(() => {
         exitEpoch,
         savePath,
         chain,
-        props.password,
-        confirmedAddress
+        loginPassword,
+        getFinalAddress()
     );
   };
 
@@ -148,31 +147,37 @@ useEffect(() => {
                 </Box>
                 <Box sx={darkBoxWithBorderStyle} bg="#2b2852">
                   <VStack spacing={4} align="stretch">
-                    <Select
-                      color="white"
-                      borderColor="purple.light"
-                      placeholder="Select Wallet Address"
-                      onChange={(e) => {
-                        setDropWalletAddress(e.target.value)
-                        setTypeWalletAddress('')
-                    }}
-                    value={dropWalletAddress}
+                  <Controller
+                    control={control}
+                    name="dropdownAddress"
+                    render={({
+                        field: { onChange, onBlur, value, name, ref },
+                        fieldState: { error }
+                      }) => (
+                      <Select
+                        color="white"
+                        borderColor="purple.light"
+                        placeholder="Select Wallet Address"
+                        onChange={(e) => {
+                            onChange(e)
+                        }}
                     >
-                      {!error && addressOptions?.map((address: string) => (
-                        <option key={address}>{address}</option>
-                      ))}
+                        {!error && addressOptions?.map((address: string) => (
+                            <option key={address}>{address}</option>
+                        ))}
                     </Select>
+                    )}
+                    />
                     <Center>
                       <Text color={"white"} fontSize="2xl" fontWeight={"semibold"}>
                           or
                       </Text>
                     </Center>
                     <AddressInput
-                      setDropWalletAddress={setDropWalletAddress}
                       isAddressValid={isAddressValid}
                       setIsAddressValid={setIsAddressValid}
                       shouldDoValidation
-                      registerText="address"
+                      registerText="exitAddress"
                     />
                     <Tabs
                       index={selectedTab}
@@ -307,7 +312,7 @@ useEffect(() => {
                           !chain
                         }
                         type="submit"
-                        // onClick={requestSignedExitMessage}
+                        onClick={requestSignedExitMessage}
                       >
                         Generate Exit Message
                       </Button>

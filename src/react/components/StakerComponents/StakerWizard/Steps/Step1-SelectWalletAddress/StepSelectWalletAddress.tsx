@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useFormContext } from "react-hook-form";
+import { useFormContext, Controller } from "react-hook-form";
 import { Flex, Text, Center, Select } from "@chakra-ui/react";
 import WizardNavigator from "../../WizardNavigator";
 import AddressInput from "../../../../AddressInput";
@@ -9,9 +9,7 @@ import useGetStakerAddresses from "../../../../../hooks/useGetStakerAddress";
 interface StepSelectWalletAddressProps {
     goNextStep: () => void;
     goBackStep: () => void;
-    setDropWalletAddress: (wallet: string) => void;
     dropWalletAddress: string;
-    setTypeWalletAddress: (wallet: string) => void;
     typeWalletAddress: string
 }
 
@@ -21,7 +19,7 @@ const StepSelectWalletAddress: React.FC<StepSelectWalletAddressProps> = (
     const {addressOptions, error} = useGetStakerAddresses();
     const [isAddressValid, setIsAddressValid] = React.useState(false);
 
-    const { watch, setValue } = useFormContext()
+    const { watch, setValue, control } = useFormContext()
 
     const typedAddress = watch('address')
 
@@ -46,16 +44,6 @@ const StepSelectWalletAddress: React.FC<StepSelectWalletAddressProps> = (
         variant: "white-button",
     };
 
-    useEffect(() => {
-
-        console.log(typedAddress)
-        if (!props.dropWalletAddress) {
-            props.setTypeWalletAddress('');
-        } else if (typedAddress != '') {
-            props.setDropWalletAddress('')
-        }
-    }, [props.dropWalletAddress, typedAddress])
-
     return (
         <Flex
             padding={"24px"}
@@ -72,27 +60,33 @@ const StepSelectWalletAddress: React.FC<StepSelectWalletAddressProps> = (
             <Text color="white" opacity={"0.7"}>
                 Something about wallet address IDK
             </Text>
-            <Select
-                color="white"
-                borderColor="purple.light"
-                placeholder="Select Wallet Address"
-                onChange={(e) => {
-                    props.setDropWalletAddress(e.target.value)
-                    props.setTypeWalletAddress('')
-                }}
-                value={props.dropWalletAddress}
-            >
-                {!error && addressOptions?.map((address: string) => (
-                    <option key={address}>{address}</option>
-                ))}
-            </Select>
+            <Controller
+                control={control}
+                name="dropdownAddress"
+                render={({
+                    field: { onChange, onBlur, value, name, ref },
+                    fieldState: { error }
+                  }) => (
+                  <Select
+                    color="white"
+                    borderColor="purple.light"
+                    placeholder="Select Wallet Address"
+                    onChange={(e) => {
+                        onChange(e)
+                    }}
+                >
+                    {!error && addressOptions?.map((address: string) => (
+                        <option key={address}>{address}</option>
+                    ))}
+                </Select>
+                )}
+            />
             <Center>
                 <Text color={"white"} fontSize="2xl" fontWeight={"semibold"}>
                     or
                 </Text>
             </Center>
             <AddressInput
-                setDropWalletAddress={props.setDropWalletAddress}
                 isAddressValid={isAddressValid}
                 setIsAddressValid={setIsAddressValid}
                 shouldDoValidation={true}

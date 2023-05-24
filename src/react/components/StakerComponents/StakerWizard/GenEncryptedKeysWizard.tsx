@@ -1,7 +1,7 @@
 import React, { useState, useMemo, useEffect } from "react";
 import { Center, Flex } from "@chakra-ui/react";
 import { Step, Steps, useSteps } from "chakra-ui-steps";
-
+import { useFormContext } from "react-hook-form";
 // STEP 1:
 import StepSelectWalletAddress from "./Steps/Step1-SelectWalletAddress/StepSelectWalletAddress";
 // STEP 2:
@@ -47,17 +47,22 @@ const GenEncryptedKeysWizard: React.FC<WizardProps> = (props) => {
     const [stakeInfoPath, setStakeInfoPath] = React.useState<string>("");
     const [mnemonic, setMnemonic] = useState<string>("");
     const [savePath, setSavePath] = useState<string>("");
-    const [dropWalletAddress, setDropWalletAddress] = useState<string>("");
-    const [typeWalletAddress, setTypeWalletAddress] = useState<string>("");
+
     const [confirmedAddress, setConfirmedAddress] = useState<string>("");
     const [keysGenerated, setKeysGenerated] = useState<boolean>(false);
     const [filesCreatedPath, setFilesCreatedPath] = useState<string>("");
+    const {watch, setValue} = useFormContext()
+
+    const typeWalletAddress = watch("address")
+    const dropWalletAddress = watch("dropdownAddress")
 
     useEffect(() => {
-        if (typeWalletAddress == '') {
-            setConfirmedAddress(dropWalletAddress)
-        } else if (dropWalletAddress == '') {
-            setConfirmedAddress(typeWalletAddress)
+        if (!typeWalletAddress) {
+            setValue('confirmedAddress', dropWalletAddress)
+            setConfirmedAddress(() => dropWalletAddress)
+        } else if (!dropWalletAddress) {
+            setValue('confirmedAddress', typeWalletAddress)
+            setConfirmedAddress(() => typeWalletAddress)
         }
 
     }, [typeWalletAddress, dropWalletAddress])
@@ -98,9 +103,7 @@ const GenEncryptedKeysWizard: React.FC<WizardProps> = (props) => {
                             goBackStep={prevStep}
                             goNextStep={nextStep}
                             dropWalletAddress={dropWalletAddress}
-                            setDropWalletAddress={setDropWalletAddress}
                             typeWalletAddress={typeWalletAddress}
-                            setTypeWalletAddress={setTypeWalletAddress}
                         />
                     )}
                     {activeStep === 1 && (

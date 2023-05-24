@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useFormContext } from "react-hook-form";
 import raisedWidgetStyle from "../../styleClasses/widgetBoxStyle";
 import {
   Center,
@@ -12,6 +13,7 @@ import {
 } from "@chakra-ui/react";
 import AddressSelect from "./AddressSelect";
 import DataTable from "./DataTable";
+import useGetPassword from "../../hooks/useGetPassword";
 
 interface StakerMap {
   [stakerAddress: string]: StakerInfo
@@ -34,6 +36,9 @@ const DBExplorer = (props: DBExplorerProps) => {
   const [addressList, setAddressList] = useState([]);
   const [selectedTab, setSelectedTab] = useState<number>(0);
 
+  const {watch} = useFormContext()
+  const dbPassword = watch("loginPassword")
+
   useEffect(() => {
 
     if (props.tabIndex !== 2) return
@@ -45,7 +50,6 @@ const DBExplorer = (props: DBExplorerProps) => {
         data: StakerMap,
         errorMessage: string
       ) => {
-        console.log("received AllStakerAddresses:", result, data, errorMessage);
         if (result === 0) {
           
           setAllStakers(data);
@@ -58,7 +62,7 @@ const DBExplorer = (props: DBExplorerProps) => {
         }
       }
     );
-    window.databaseApi.reqAllStakerAddresses(props.password);
+    window.databaseApi.reqAllStakerAddresses(dbPassword);
 
   }, [props.tabIndex])
 

@@ -28,7 +28,6 @@ const StoredMnemonicSelect: React.FC<StoredMnemonicSelectProps> = (props: Stored
     const loginPassword = watch("loginPassword")
 
     useEffect(() => {
-        console.log("PAS: ", loginPassword)
 
         window.encryptionApi.recieveStoredMnemonic(
           (
@@ -38,7 +37,6 @@ const StoredMnemonicSelect: React.FC<StoredMnemonicSelectProps> = (props: Stored
             errorMessage: string
           ) => {
             if (result === 0) {
-                console.log(mnemonic)
                 const outputArr = Object.entries(JSON.parse(mnemonic)).map(
                     ([id, value]: [any, any], index) => ({
                         id: parseInt(id),
