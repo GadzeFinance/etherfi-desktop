@@ -2,14 +2,12 @@ import React, { useState, useMemo, useEffect } from "react";
 import { Center, Flex } from "@chakra-ui/react";
 import { Step, Steps, useSteps } from "chakra-ui-steps";
 
-// STEP 0:
-import StepSelectWalletAddress from "./Steps/Step0-SelectWalletAddress/StepSelectWalletAddress";
 // STEP 1:
-import StepSelectStakeInfoPath from "./Steps/Step1-SelectStakeInfoPath/StepSelectStakeInfoPath";
+import StepSelectWalletAddress from "./Steps/Step1-SelectWalletAddress/StepSelectWalletAddress";
 // STEP 2:
-import StepGenerateMnemonic from "./Steps/Step2-GenerateMnemonic/StepGenerateMnemonic";
+import StepSelectStakeInfoPath from "./Steps/Step2-SelectStakeInfoPath/StepSelectStakeInfoPath";
 // STEP 3:
-import StepCreatePassword from "./Steps/Step3-CreatePassword/StepCreatePassword";
+import StepGenerateMnemonic from "./Steps/Step3-GenerateMnemonic/StepGenerateMnemonic";
 //STEP 4:
 import StepCreateKeys from "./Steps/Step4-CreateKeys/StepCreateKeys";
 //STEP 5:
@@ -120,7 +118,6 @@ const GenEncryptedKeysWizard: React.FC<WizardProps> = (props) => {
                             mnemonic={mnemonic}
                             setMnemonic={setMnemonic}
                             wordsToConfirmIndicies={wordsToConfirmIndicies}
-                            password={props.password}
                             walletAddress={confirmedAddress}
                         />
                     )}
@@ -136,7 +133,6 @@ const GenEncryptedKeysWizard: React.FC<WizardProps> = (props) => {
                             setFilesCreatedPath={setFilesCreatedPath}
                             stakeInfoPath={stakeInfoPath}
                             mnemonic={mnemonic}
-                            password={props.password}
                             address={confirmedAddress}
                         />
                     )}

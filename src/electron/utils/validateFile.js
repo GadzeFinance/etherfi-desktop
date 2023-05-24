@@ -2,6 +2,9 @@ const { z, ZodError } = require('zod')
 const  { readFileSync } = require ('fs')
 const logger = require('./logger')
 
+const IV_LENGTH = 12; // IV length for aes-gcm should be 12 now
+const DIGITS_PER_BYTE = 2; // every byte takes two hex digits
+
 const SCHEMAS = {
   "EncryptedValidatorKeys": z.array( 
     z.object({
@@ -15,9 +18,10 @@ const SCHEMAS = {
   ).nonempty(),
 
   "NodeOperatorPrivateKeystore": z.object({
-      iv: z.string().length(32),
+      iv: z.string().length(IV_LENGTH * DIGITS_PER_BYTE),
       salt: z.string(),
       data: z.string(),
+      authTag: z.string(),
       etherfiDesktopAppVersion: z.string().length(5),
     }).required().strict(),
 

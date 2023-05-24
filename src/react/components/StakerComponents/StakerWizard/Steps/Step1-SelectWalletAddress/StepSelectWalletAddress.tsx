@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { useFormContext } from "react-hook-form";
 import { Flex, Text, Center, Select } from "@chakra-ui/react";
 import WizardNavigator from "../../WizardNavigator";
 import AddressInput from "../../../../AddressInput";
@@ -19,6 +20,10 @@ const StepSelectWalletAddress: React.FC<StepSelectWalletAddressProps> = (
 ) => {
     const {addressOptions, error} = useGetStakerAddresses();
     const [isAddressValid, setIsAddressValid] = React.useState(false);
+
+    const { watch, setValue } = useFormContext()
+
+    const typedAddress = watch('address')
 
     const backDetails = {
         text: "back",
@@ -42,12 +47,14 @@ const StepSelectWalletAddress: React.FC<StepSelectWalletAddressProps> = (
     };
 
     useEffect(() => {
-        if (props.dropWalletAddress != '') {
+
+        console.log(typedAddress)
+        if (!props.dropWalletAddress) {
             props.setTypeWalletAddress('');
-        } else if (props.typeWalletAddress != '') {
+        } else if (typedAddress != '') {
             props.setDropWalletAddress('')
         }
-    }, [props.dropWalletAddress, props.typeWalletAddress])
+    }, [props.dropWalletAddress, typedAddress])
 
     return (
         <Flex
@@ -85,12 +92,11 @@ const StepSelectWalletAddress: React.FC<StepSelectWalletAddressProps> = (
                 </Text>
             </Center>
             <AddressInput
-                address={props.typeWalletAddress}
-                setAddress={props.setTypeWalletAddress}
                 setDropWalletAddress={props.setDropWalletAddress}
                 isAddressValid={isAddressValid}
                 setIsAddressValid={setIsAddressValid}
                 shouldDoValidation={true}
+                registerText="address"
             />
             <WizardNavigator
                 nextProps={nextProps}

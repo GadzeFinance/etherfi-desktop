@@ -6,6 +6,7 @@ import EtherFiSpinner from '../../../../EtherFiSpinner'
 import successBoxStyle from '../../../../../styleClasses/successBoxStyle'
 import { COLORS } from '../../../../../styleClasses/constants'
 import ChainSelectionDropdown from '../../../../ChainSelectionDropdown'
+import { useFormContext } from "react-hook-form";
 
 
 interface StepCreateKeysProps {
@@ -14,7 +15,6 @@ interface StepCreateKeysProps {
   savePath: string,
   setSavePath: (path: string) => void,
   mnemonic: string,
-  password: string,
   stakeInfoPath: Object,
   keysGenerated: boolean,
   setKeysGenerated: (generated: boolean) => void,
@@ -31,6 +31,8 @@ const StepCreateKeys: React.FC<StepCreateKeysProps> = (props) => {
   const [keysTotal, setKeysTotal] = useState(0);
   // const [lastTimestamp, setLastTimestamp] = useState(-1);
   const [recentUsedTime, setRecentUsedTime] = useState(-1);
+  const { watch } = useFormContext();
+  const loginPassword = watch("loginPassword")
 
   const selectSavePath = () => {
     window.fileSystemApi.receiveSelectedFolderPath((event: Electron.IpcMainEvent, path: string) => {
@@ -49,7 +51,6 @@ const StepCreateKeys: React.FC<StepCreateKeysProps> = (props) => {
     window.encryptionApi.receiveKeyGenConfirmation(
       (event: Electron.IpcMainEvent, result: number, savePath: string, errorMessage: string) => {
         if (result === 0) {
-          console.log("Key Gen Complete. Files saved too: " + savePath)
           props.setFilesCreatedPath(savePath)
           props.setKeysGenerated(true)
         } else {
@@ -59,7 +60,7 @@ const StepCreateKeys: React.FC<StepCreateKeysProps> = (props) => {
         }
         setGeneratingKeys(false)
       })
-    window.encryptionApi.reqGenValidatorKeysAndEncrypt(props.mnemonic, props.password, props.savePath, props.stakeInfoPath, chain, props.address);
+    window.encryptionApi.reqGenValidatorKeysAndEncrypt(props.mnemonic, loginPassword, props.savePath, props.stakeInfoPath, chain, props.address);
     setGeneratingKeys(true)
   }
 
@@ -162,7 +163,6 @@ const StepCreateKeys: React.FC<StepCreateKeysProps> = (props) => {
             <Text fontSize="14px" color={COLORS.textSecondary}>
               Your files have been created here:
             </Text>
-
             <Box sx={successBoxStyle}>
               <HStack>
                 <IconSavedFile boxSize="8" />
@@ -176,11 +176,8 @@ const StepCreateKeys: React.FC<StepCreateKeysProps> = (props) => {
               <Button variant='white-button' onClick={props.goNextStep}>Continue</Button>
             </Center>
           </VStack>
-
         </Box>
-      )
-      }
-
+      )}
     </Flex >
   )
 }

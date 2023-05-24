@@ -11,7 +11,6 @@ const { selectFolder, selectJsonFile } = require('./utils/saveFile.js')
 const { decryptResultCodes, desktopAppVersion } = require('./constants')
 const logger = require('./utils/logger')
 const storage = require('./utils/storage')
-const newStorage = require('./utils/newStorage')
 
 /**
  * Generates public and private key pairs and saves them in two separate JSON files
@@ -25,9 +24,9 @@ const newStorage = require('./utils/newStorage')
 const genNodeOperatorKeystores = async (numKeys, saveFolder, privKeysPassword, address) => {
     logger.info("genNodeOperatorKeystores: Start")
 
-    const allWallets = await newStorage.getAllStakerAddresses();
+    const allWallets = await storage.getAllStakerAddresses();
     if (allWallets == undefined || !(address in allWallets)) {
-        await newStorage.addStakerAddress(address)
+        await storage.addStakerAddress(address)
     }
 
     const curve = new EC('secp256k1')
@@ -80,7 +79,7 @@ const genNodeOperatorKeystores = async (numKeys, saveFolder, privKeysPassword, a
     }})
 
     // for (const publicKey of pubKeyArray) {
-    //     newStorage.addOperatorKey(address, publicKey, )
+    //     storage.addOperatorKey(address, publicKey, )
     // }
 
     // 1 Hash the private key file using sha256
@@ -124,13 +123,13 @@ const genMnemonic = async (language) => {
  */
 const genValidatorKeysAndEncrypt = async (event, mnemonic, databasePassword, folder, stakeInfoPath, chain, address) => {
     logger.info("genEncryptedKeys: Start")
-    const allWallets = await newStorage.getAllStakerAddresses();
+    const allWallets = await storage.getAllStakerAddresses();
     if (allWallets == undefined || !(address in allWallets)) {
-        await newStorage.addStakerAddress(address)
+        await storage.addStakerAddress(address)
     }
-    
-    const password = await newStorage.getValidatorPassword(databasePassword)
 
+    const password = await storage.getValidatorPassword(databasePassword)
+    
     // get the data from stakeInfoPath
     const stakeInfo = JSON.parse(fs.readFileSync(stakeInfoPath))
     const stakeInfoLength = stakeInfo.length
@@ -168,11 +167,11 @@ const genValidatorKeysAndEncrypt = async (event, mnemonic, databasePassword, fol
     }
 
     // Only add to the db if we dont have mnemonic added already
-    const allAccounts = await newStorage.getMnemonics(address, databasePassword);
+    const allAccounts = await storage.getMnemonics(address, databasePassword);
     console.log(allAccounts)
     console.log("DB pass: ", databasePassword)
     if (!Object.values(allAccounts).some(value => value.includes(mnemonic))) {
-        await newStorage.addMnemonic(address, mnemonic, databasePassword)
+        await storage.addMnemonic(address, mnemonic, databasePassword)
     }
 
     // Send back the folder where everything is save
@@ -386,35 +385,22 @@ const decryptValidatorKeys = async (event, arg) => {
 }
 
 const fetchStoredMnemonics = async (address, password) => {
-    const mnemonics = await newStorage.getMnemonics(address, password);
+    const mnemonics = await storage.getMnemonics(address, password);
     console.log("MNEMONICS: ", mnemonics)
     return mnemonics
 }
 
-const getAccounts = async () => {
-    const accounts = await storage.getAccounts();
-    return accounts;
-}
-
 const fetchStoredValidators = async (address, password) => {
-    const validators = await newStorage.getValidators(address, password);
+    const validators = await storage.getValidators(address, password);
     return validators;
 }
 
-const fetchDatabase = async () => {
-    return await storage.getEverything()
-}
-
 const setPassword = async (password) => {
-    return await newStorage.setPassword(password)
-}
-
-const getPassword = async (number) => {
-    return await storage.getPassword(number)
+    return await storage.setPassword(password)
 }
 
 const getStakerAddress = async (password) => {
-    const allStakers = await newStorage.getAllStakerAddresses();
+    const allStakers = await storage.getAllStakerAddresses();
     if (!allStakers || !password) {
         return {};
     }
@@ -422,25 +408,25 @@ const getStakerAddress = async (password) => {
     for (const [addr, stakerInfo] of Object.entries(allStakers)) {
         const { validators, mnemonics } = stakerInfo;
         for (const [id, validator] of Object.entries(validators ? validators : {})) {
-            validators[id] = await newStorage.decrypt(validator, password);
+            validators[id] = await storage.decrypt(validator, password);
         }
         for (const [id, mnemonic] of Object.entries(mnemonics ? mnemonics : {})) {
-            mnemonics[id] = await newStorage.decrypt(mnemonic, password);
+            mnemonics[id] = await storage.decrypt(mnemonic, password);
         }
     }
     return allStakers;
 }
 
 const isPasswordSet = async () => {
-    return await newStorage.isPasswordSet();
+    return await storage.isPasswordSet();
 }
 
 const validatePassword = async (password) => {
-    return await newStorage.validatePassword(password);
+    return await storage.validatePassword(password);
 }
 
 const getStakerAddressList = async () => {
-    return await newStorage.getStakerAddressList();
+    return await storage.getStakerAddressList();
 }
 
 
@@ -480,6 +466,7 @@ const listenSelectJsonFile = async (event, arg) => {
 
 
 // Test Function too see the whole encryption and decryption flow.
+// TODO: outdated. we use aes-gcm now. need to update
 const testWholeEncryptDecryptFlow = (event, arg) => {
     const curve = new EC('secp256k1')
     // Step 1: BIDDER -> Node Operator Key Gen Tab
@@ -497,6 +484,7 @@ const testWholeEncryptDecryptFlow = (event, arg) => {
 
     const recievedNodeOpPubKeyPoint = curve.keyFromPublic(nodeOperatorPubKeyHex, 'hex').getPublic()
     const stakerSharedSecret = recievedNodeOpPubKeyPoint.mul(stakerPrivKey).getX()
+  
     const valKey = {"crypto": {"kdf": {"function": "scrypt", "params": {"dklen": 32, "n": 262144, "r": 8, "p": 1, "salt": "0463d22d68366006c3e61d551255d49cc16339d5445bdaa1a59f5dae30dac3e7"}, "message": ""}, "checksum": {"function": "sha256", "params": {}, "message": "cd87b4b75a340239782919e7d81bf253dd9c7fd7d8956e83436b0e48ea8301dc"}, "cipher": {"function": "aes-128-ctr", "params": {"iv": "9ad66f5a200048b7c1933dc0a39adcc9"}, "message": "c469bf7d17899947ec78c4fe31676f3814a7bf696a85384aff4f0f7b4fbc9945"}}, "description": "", "pubkey": "96cadf6d4ff420ffd36c6f3d389564ad8f64a42c3c8e6b9ad7ef119b245248cef57ae4191f4c91163c23d79f4e77c275", "path": "m/12381/3600/1/0/0", "uuid": "61504df3-f306-4b65-ab7b-726ffa73bcbe", "version": 4}
     const validatorKey = JSON.stringify(valKey);
     const encryptedMsg = encrypt(validatorKey, stakerSharedSecret.toArrayLike(Buffer, 'be', 32))
@@ -530,9 +518,6 @@ module.exports = {
     testWholeEncryptDecryptFlow,
     fetchStoredMnemonics,
     fetchStoredValidators,
-    fetchDatabase,
-    getAccounts,
-    getPassword,
     getStakerAddress,
     getStakerAddressList,
     isPasswordSet,

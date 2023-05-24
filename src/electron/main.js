@@ -17,8 +17,6 @@ const {
     genValidatorKeysAndEncrypt,
     decryptValidatorKeys,
     fetchStoredValidators,
-    fetchDatabase,
-    getAccounts,
     getStakerAddress,
     getStakerAddressList,
     isPasswordSet,
@@ -30,7 +28,6 @@ const {
 const {validateJsonFile} = require('./utils/validateFile')
 const { standardResultCodes, decryptResultCodes } = require('./constants')
 const { generateSignedExitMessage } = require('./utils/Eth2Deposit')
-const { db } = require('./utils/newStorage')
 
 
 function createWindow() {
@@ -175,16 +172,6 @@ ipcMain.on("req-stored-validators", async (event, args) => {
     }
 })
 
-ipcMain.on('req-get-password', async (event, args) => {
-    const [number] = args;
-    try {
-        const password = await getPassword(number)
-        event.sender.send("receive-get-password",  standardResultCodes.SUCCESS, password, '')
-    } catch (error) {
-        logger.error("Error getting password: ", error);
-        event.sender.send("receive-get-password",  standardResultCodes.ERROR, '', error.message)
-    } 
-})
 
 ipcMain.on('req-get-staker-address', async (event, args) => {
     try {
@@ -249,16 +236,6 @@ ipcMain.on("req-show-file", (event, arg) => {
 ipcMain.on("staker-finish", (event, arg) => {
     clipboard.clear();
     app.quit();
-})
-
-ipcMain.on("req-database-contents", async (event, arg) => {
-    try {
-        const databaseContents = await fetchDatabase();
-        event.sender.send("receive-database-contents",  standardResultCodes.SUCCESS, databaseContents, '')
-    } catch (error) {
-        logger.error("Error getting database contents: ", error);
-        event.sender.send("receive-database-contents",  standardResultCodes.ERROR, '', error.message)
-    }
 })
 
 /* ------------------------------------------------------------- */

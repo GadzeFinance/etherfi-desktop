@@ -1,39 +1,42 @@
-import { FC, useState } from "react"
+import { FC, useState, useEffect } from "react"
 import {
   InputGroup,
   Input,
   UnorderedList,
   ListItem,
 } from "@chakra-ui/react"
+import { useFormContext } from "react-hook-form"
 import { COLORS } from "../styleClasses/constants"
 
 interface AddressInputProps {
-  address: string
-  setAddress: (address: string) => void
   setDropWalletAddress: (address: string) => void
   isAddressValid: boolean
   setIsAddressValid: (valid: boolean) => void
   shouldDoValidation: boolean
+  registerText: string
 }
 
 const AddressInput: FC<AddressInputProps> = (props) => {
   const [addressResults, setAddressResults] = useState([])
+  const { register, watch } = useFormContext()
 
-  const updateAddress = (newAddress: string) => {
-    validateAddress(newAddress)
-    props.setAddress(newAddress)
-  }
+  const fieldVal = watch(props.registerText)
 
-  function validateAddress(address: string) {
+  useEffect(() => {
+
+    if (!fieldVal) return
+
     const tests = [
       {
-        passed: /^0x[a-fA-F0-9]{40}$/.test(address),
+        passed: /^0x[a-fA-F0-9]{40}$/.test(fieldVal),
         message: "Address not a valid ETH address",
       },
     ]
     setAddressResults(tests)
     props.setIsAddressValid(tests.every((test) => test.passed))
-  }
+    
+  }, [fieldVal])
+
 
   return (
     <>
@@ -44,7 +47,7 @@ const AddressInput: FC<AddressInputProps> = (props) => {
             isInvalid={
               props.shouldDoValidation &&
               !props.isAddressValid &&
-              props.address.length > 1
+              fieldVal?.length > 1
             }
             borderColor={
               props.shouldDoValidation && props.isAddressValid
@@ -60,11 +63,8 @@ const AddressInput: FC<AddressInputProps> = (props) => {
             color="white"
             placeholder="Enter Wallet Address"
             type={"text"}
-            value={props.address}
-            onChange={(e) => {
-              updateAddress(e.target.value)
-              props.setDropWalletAddress('')
-            }}
+            onChange={(e) => props.setDropWalletAddress('')}
+            {...register(props.registerText)}
           />
         </InputGroup>
       </>

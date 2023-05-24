@@ -1,78 +1,69 @@
 const schema = {
-    stakers: {
-      type: 'object',
-      properties: {
-        count: { type: 'integer', default: 0 },
-        data: {
-          type: 'object',
-          properties: {
-            'id': {
-              type: 'object',
-              properties: {
-                mnemonic: { type: 'string' },
-                password: { type: 'string' }
-              }
-            }
-          }
-        }
-      }
+    passwordSet: {
+        type: "boolean",
+        default: true,
     },
-    validators: {
-      type: 'object',
-      properties: {
-        count: { type: 'integer', default: 0 },
-        data: {
-          type: 'object',
-          properties: {
-            'id': {
-              type: 'object',
-              properties: {
-                validatorID: { type: 'integer' },
-                fileData: { type: 'string' }
-              }
-            }
-          }
-        }
-      }
+    passwordHash: {
+        type: "string",
+        default: "",
     },
-    operatorPrivateKeys: {
-      type: 'object',
-      properties: {
-        count: { type: 'integer', default: 0 },
-        data: {
-          type: 'object',
-          properties: {
-            'id': {
-              type: 'object',
-              properties: {
-                id: { type: 'integer' },
-                privateKey: { type: 'string' }
-              }
-            }
-          }
-        }
-      }
+    validatorPassword: {
+        type: "string",
+        default: "",
     },
-    importedValidatorKeys: {
-      type: 'object',
-      properties: {
-        count: { type: 'integer', default: 0 },
-        data: {
-          type: 'object',
-          properties: {
-            'id': {
-              type: 'object',
-              properties: {
-                validatorID: { type: 'integer' },
-                password: { type: 'string' },
-                encryptedKeys: { type: 'string' }
-              }
-            }
-          }
-        }
-      }
-    }
+    operatorPassword: {
+        type: "string",
+        default: "",
+    },
+    stakerAddresses: {
+        type: "object",
+        properties: {
+            stakerAddress: {
+                type: "object",
+                properties: {
+                    mnemonicCount: {
+                        type: "integer",
+                        default: 1,
+                    },
+                    mnemonics: {
+                        type: "object",
+                        properties: {
+                            mnemonicID: {
+                                // Key is auto increment, value is mnemonic
+                                type: "string",
+                                default: "",
+                            },
+                        },
+                    },
+                    validators: {
+                        type: "object",
+                        properties: {
+                            validatorID: {
+                                // Value will be the keystore file
+                                type: "string",
+                                default: "",
+                            },
+                        },
+                    },
+                },
+            },
+        },
+    },
+    validatorAddresses: {
+        type: "object",
+        properties: {
+            validatorAddress: {
+                type: "object",
+                properties: {
+                    privateKey: {
+                        // Public Key is the Key, private key is the value
+                        type: "string",
+                        default: "",
+                    },
+                },
+            },
+        },
+    },
 };
 
 module.export = schema;
-
