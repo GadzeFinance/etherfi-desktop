@@ -84,7 +84,7 @@ def generate_keys(args):
             - eth1_withdrawal_address: (Optional) eth1 address that will be used to create the
                                        withdrawal credentials
     """
-    
+
     eth1_withdrawal_address = None
     if args.eth1_withdrawal_address:
         eth1_withdrawal_address = args.eth1_withdrawal_address

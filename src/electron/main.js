@@ -128,7 +128,7 @@ ipcMain.on("req-new-mnemonic", async (event, args) => {
 ipcMain.on("req-gen-val-keys-and-encrypt",  async (event, args) => {
     var [mnemonic, password, folder, stakeInfoPath, chain, address] = args
     try {
-        const savePath = await genValidatorKeysAndEncrypt(mnemonic, password, folder, stakeInfoPath, chain, address)
+        const savePath = await genValidatorKeysAndEncrypt(event, mnemonic, password, folder, stakeInfoPath, chain, address)
         event.sender.send("receive-key-gen-confirmation", standardResultCodes.SUCCESS, savePath , '')
     } catch (error) {
         logger.error("Error Generating Validator Keys and Encrypting:", error)
@@ -176,7 +176,7 @@ ipcMain.on("req-stored-validators", async (event, args) => {
 ipcMain.on('req-get-staker-address', async (event, args) => {
     try {
         const stakers = await getStakerAddress()
-        console.log(stakers)
+        console.log("stakers:", stakers)
         event.sender.send("receive-get-staker-address",  standardResultCodes.SUCCESS, JSON.stringify(stakers), '')
     } catch (error) {
         logger.error("Error getting staker addresses: ", error);
