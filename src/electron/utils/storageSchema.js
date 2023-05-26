@@ -64,6 +64,33 @@ const schema = {
             },
         },
     },
+    historyPages: {
+        type: "object",
+        properties: {
+            page: {
+                type: "object",
+                properties: {
+                    recordCount: {
+                        type: "number",
+                        default: 0
+                    },
+                    records: {
+                        type: "object",
+                        properties: {
+                            timestamp: {
+                                type: "string",
+                                default: ""
+                            }
+                        } 
+                    }
+                }
+            }
+        }
+    },
+    historyPageCount: {
+        type: "number",
+        default: 0
+    }
 };
 
 module.export = schema;

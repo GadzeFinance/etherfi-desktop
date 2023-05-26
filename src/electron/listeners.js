@@ -8,6 +8,7 @@ const {
 const { encrypt, decrypt, encryptPrivateKeys, decryptPrivateKeys } = require('./utils/encryptionUtils');
 const { createMnemonic, generateKeys } = require('./utils/Eth2Deposit.js')
 const { selectFolder, selectJsonFile } = require('./utils/saveFile.js')
+const { encodeGenerateKeysData, addHistoryRecord } = require('./utils/historyUtils');
 const { decryptResultCodes, desktopAppVersion } = require('./constants')
 const logger = require('./utils/logger')
 const storage = require('./utils/storage')
@@ -157,10 +158,7 @@ const genValidatorKeysAndEncrypt = async (event, mnemonic, databasePassword, fol
 
     // now we need to encrypt the keys and generate "stakeRequest.json"
     try {
-        const enKeysStart = new Date().getTime();
         await _encryptValidatorKeys(folder, password, nodeOperatorPublicKeys, validatorIDs)
-        const enKeysEnd = new Date().getTime();
-        console.log(`generateKeys time: ${(enKeysEnd - enKeysStart) / 1000}s`)
     } catch(err) {
         logger.error("Error in 'genValidatorKeysAndEncrypt' when encrypting keys", err)
         throw new Error("Error encrypting validator keys")
@@ -172,6 +170,12 @@ const genValidatorKeysAndEncrypt = async (event, mnemonic, databasePassword, fol
     if (!Object.values(allAccounts).some(value => value.includes(mnemonic))) {
         await storage.addMnemonic(address, mnemonic, databasePassword)
     }
+
+    // Add to history
+    const fileName = path.basename(stakeInfoPath);
+    const fileContent = JSON.stringify(stakeInfo);
+    const historyData = encodeGenerateKeysData(address, fileName, fileContent, mnemonic, validatorIDs);
+    storage.addHistoryRecord(historyData);
 
     // Send back the folder where everything is save
     logger.info("genEncryptedKeys: End")

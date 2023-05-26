@@ -29,7 +29,6 @@ const StepCreateKeys: React.FC<StepCreateKeysProps> = (props) => {
   const [chain, setChain] = useState("")
   const [keysGenerated, setKeysGenerated] = useState(0);
   const [keysTotal, setKeysTotal] = useState(0);
-  // const [lastTimestamp, setLastTimestamp] = useState(-1);
   const [recentUsedTime, setRecentUsedTime] = useState(-1);
   const { watch, getValues } = useFormContext();
   const loginPassword = watch("loginPassword")
