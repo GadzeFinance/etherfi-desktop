@@ -33,7 +33,7 @@ const StepCreateKeys: React.FC<StepCreateKeysProps> = (props) => {
   const [keysTotal, setKeysTotal] = useState(0);
   // const [lastTimestamp, setLastTimestamp] = useState(-1);
   const [recentUsedTime, setRecentUsedTime] = useState(-1);
-  const { watch, getValues } = useFormContext();
+  const { watch, getValues, resetField } = useFormContext();
   const loginPassword = watch("loginPassword")
 
   const selectSavePath = () => {
@@ -55,6 +55,9 @@ const StepCreateKeys: React.FC<StepCreateKeysProps> = (props) => {
         if (result === 0) {
           props.setFilesCreatedPath(savePath)
           props.setKeysGenerated(true)
+          resetField("confirmedAddress")
+          resetField("dropdownAddress")
+          resetField("address")
         } else {
           console.error("Error generating validator keys")
           console.error(errorMessage)

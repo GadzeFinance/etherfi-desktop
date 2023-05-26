@@ -120,6 +120,7 @@
     "@emotion/react": "^11.10.5",
     "@emotion/styled": "^11.10.5",
     "@testing-library/react": "^14.0.0",
+    "axios": "^1.4.0",
     "bn": "^1.0.5",
     "chakra-ui-steps": "^2.0.4",
     "crypto-js": "^4.1.1",

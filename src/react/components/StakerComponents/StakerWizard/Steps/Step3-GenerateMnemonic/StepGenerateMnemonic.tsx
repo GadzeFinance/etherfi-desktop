@@ -31,7 +31,7 @@ interface StepGenerateMnemonicProps {
 const StepGenerateMnemonic: React.FC<StepGenerateMnemonicProps> = (props) => {
   const [generating, setGenerating] = useState(false);
   // This is a hacky way to determine if we should show ConfirmMnemonic or DisplayMnemonic compoennts when this renders.
-  const [confirmMnemonic, setConfirmMnemonic] = useState(props.mnemonic !== "");
+  const [confirmMnemonic, setConfirmMnemonic] = useState(props.mnemonicOption != "generate");
   const [mnemonicConfirmed, setMnemonicConfirmed] = useState(false);
   const [storedMnemonics, setStoredMnemonic] = useState(undefined);
   const [importMnemonic, setImportMnemonic] = useState("")
@@ -61,23 +61,25 @@ const StepGenerateMnemonic: React.FC<StepGenerateMnemonicProps> = (props) => {
 
   const nextAction = () => {
     // No Mneomoic Generated
+    console.log(props)
     if (!props.mnemonic) {
       if (props.mnemonicOption == "import") {
         props.setMnemonic(importMnemonic)
         props.goNextStep()
       } else if (props.mnemonicOption == "generate") {
-        return generateMnemonic
+        generateMnemonic()
       }
     };
     // Mneomoic Generated and viewing the whole mnemonic screen
-    if (props.mnemonic && !confirmMnemonic)
-      return () => setConfirmMnemonic(true);
+    if (props.mnemonic && !confirmMnemonic) {
+      setConfirmMnemonic(true)
+      return
+    }
     // Mneomoic Generated and viewing the Confirm Mnemonic screen
-    if (props.mnemonic && confirmMnemonic)
-      return () => {
-        setConfirmMnemonic(false);
-        props.goNextStep();
-      };
+    if (props.mnemonic && confirmMnemonic) {
+      setConfirmMnemonic(false)
+      props.goNextStep();
+    }
   };
 
   const backAction = () => {
