@@ -22,8 +22,7 @@ const {
     isPasswordSet,
     setPassword,
     validatePassword,
-    fetchStoredMnemonics,
-    getValidatorPassword
+    fetchStoredMnemonics
 } = require('./listeners');
 
 const {validateJsonFile} = require('./utils/validateFile')
@@ -127,9 +126,9 @@ ipcMain.on("req-new-mnemonic", async (event, args) => {
 
 // Return (result, path_to_saved_folder | '', errorMessage | '') to frontend
 ipcMain.on("req-gen-val-keys-and-encrypt",  async (event, args) => {
-    var [mnemonic, password, folder, stakeInfoPath, chain, address] = args
+    var [mnemonic, password, folder, stakeInfoPath, chain, address, mnemonicOption, importPassword] = args
     try {
-        const savePath = await genValidatorKeysAndEncrypt(event, mnemonic, password, folder, stakeInfoPath, chain, address)
+        const savePath = await genValidatorKeysAndEncrypt(event, mnemonic, password, folder, stakeInfoPath, chain, address, mnemonicOption, importPassword)
         event.sender.send("receive-key-gen-confirmation", standardResultCodes.SUCCESS, savePath , '')
     } catch (error) {
         logger.error("Error Generating Validator Keys and Encrypting:", error)
@@ -327,16 +326,5 @@ ipcMain.on("req-is-password-set", async (event, args) => {
     } catch (error) {
         logger.error("Error checking password status", error)
         event.sender.send("receive-is-password-set", standardResultCodes.ERROR, '' , error.message)
-    }
-})
-
-ipcMain.on("req-get-password", async (event, args) => {
-    const [password] = args
-    try {
-        const passwordSet = await getValidatorPassword(password);
-        event.sender.send("receive-get-password", standardResultCodes.SUCCESS, passwordSet , '')
-    } catch (error) {
-        logger.error("Error getting password", error)
-        event.sender.send("receive-get-password", standardResultCodes.ERROR, '' , error.message)
     }
 })

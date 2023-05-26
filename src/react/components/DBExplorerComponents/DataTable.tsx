@@ -30,10 +30,10 @@ interface DataTableProps {
 
 const DataTable = ({title, dataCount, data}: DataTableProps) => {
 
-  const [selectedCode, setSelectedCode] = useState<string>("")
+  const [selectedCode, setSelectedCode] = useState<any>("")
 
   const shortenMnemonic = (mnemonic: any) => {
-    const wordArray = mnemonic.split(" ");
+    const wordArray = mnemonic.mnemonic.split(" ");
     return `${wordArray.slice(0, 5).join(", ")} ... ${wordArray
         .slice(-3)
         .join(", ")}`;
@@ -69,19 +69,23 @@ const DataTable = ({title, dataCount, data}: DataTableProps) => {
             <Tr>
               <Td w="100px">Index</Td>
               <Td>{ title === "mnemonics" ? "Preview" : "File Name"}</Td>
+              <Td>Password</Td>
               <Td w="90px">View</Td>
               <Td w="90px">Copy</Td>
             </Tr>
           </Thead>
           <Tbody>
-            { Object.entries(data).map(([idx, content]) => <>
+            { Object.entries(data).map(([idx, content]: [any, any], index) => <>
                 <Tr key={idx}>
-                  <Td w="100px" textAlign={"center"}>{idx}</Td>
-                  <Td><Text>{
-                    title === "mnemonics" ? shortenMnemonic(content) : `validtor-${idx}-keystore.json`
-                    }</Text></Td>
-                  <Td w="90px" cursor={"pointer"} onClick={() => { viewData(content); }} textAlign={"center"}><ViewIcon/></Td>
-                  <Td w="90px" cursor={"pointer"} onClick={() => { copyData(content);}} textAlign={"center"}><CopyIcon/></Td>
+                  <Td w="100px" textAlign={"center"}>{title === "mnemonics" ? index : idx }</Td>
+                  <Td>
+                    <Text>
+                      {title === "mnemonics" ? shortenMnemonic(content) : `validator-${idx}-keystore.json`}
+                    </Text>
+                  </Td>
+                  <Td>{content.password}</Td>
+                  <Td w="90px" cursor={"pointer"} onClick={() => { viewData(title === "mnemonics" ? content.mnemonic: content.keystore); }} textAlign={"center"}><ViewIcon/></Td>
+                  <Td w="90px" cursor={"pointer"} onClick={() => { copyData( title === "mnemonics" ? content.mnemonic : content.keystore);}} textAlign={"center"}><CopyIcon/></Td>
                 </Tr>
               </>)}
           </Tbody>
@@ -98,7 +102,7 @@ const DataTable = ({title, dataCount, data}: DataTableProps) => {
               templateRows="repeat(6, 1fr)"
               gap={2}
             >
-              {selectedCode.split(" ").map((word, index) => (
+              {selectedCode.split(" ").map((word: string, index: string) => (
                 <GridItem key={index} colSpan={1} rowSpan={1} >
                     <Box
                       borderWidth="1px"
@@ -127,12 +131,12 @@ const DataTable = ({title, dataCount, data}: DataTableProps) => {
                 fontFamily="monospace"
                 overflowX="auto"
                 p={4}>
-                {JSON.stringify(renderParsedCode(selectedCode), null, 2)}
+                {JSON.stringify((selectedCode.keystore), null, 2)}
               </Code>
             }
           </ModalBody>
           <ModalFooter>
-            <Button onClick={() => copyData(selectedCode)}>Copy</Button>
+            <Button onClick={() => copyData(selectedCode.keystore)}>Copy</Button>
           </ModalFooter>
         </ModalContent>
       </Modal>

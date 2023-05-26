@@ -36,8 +36,8 @@ contextBridge.exposeInMainWorld("encryptionApi", {
     receiveStoredValidators: function(func) {
         ipcRenderer.once("receive-stored-validators", (event, ...args) => func(event, ...args))
     },
-    reqGenValidatorKeysAndEncrypt: function(mnemonic, password, folder, stakeInfoPath, chain, address){
-        ipcRenderer.send("req-gen-val-keys-and-encrypt", [mnemonic, password, folder, stakeInfoPath, chain, address]);
+    reqGenValidatorKeysAndEncrypt: function(mnemonic, password, folder, stakeInfoPath, chain, address, mnemonicOption, importPassword){
+        ipcRenderer.send("req-gen-val-keys-and-encrypt", [mnemonic, password, folder, stakeInfoPath, chain, address, mnemonicOption, importPassword]);
     },
     receiveKeyGenConfirmation: function(func){
         ipcRenderer.once("receive-key-gen-confirmation", (event, ...args) => func(event, ...args));       
@@ -189,12 +189,6 @@ contextBridge.exposeInMainWorld("databaseApi", {
     },
     receiveGetStakerAddressList: function (func) {
         ipcRenderer.once("receive-get-staker-address-list", (event, ...args) => func(event, ...args))
-    },
-    reqGetPassword: function(password) {
-        ipcRenderer.send("req-get-password", [password]);
-    },
-    recievePassword: function (func) {
-        ipcRenderer.once("receive-get-password", (event, ...args) => func(event, ...args))
-    },
+    }
 });
 

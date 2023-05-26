@@ -13,7 +13,6 @@ import {
 } from "@chakra-ui/react";
 import AddressSelect from "./AddressSelect";
 import DataTable from "./DataTable";
-import useGetPassword from "../../hooks/useGetPassword";
 
 interface StakerMap {
   [stakerAddress: string]: StakerInfo
@@ -51,7 +50,6 @@ const DBExplorer = (props: DBExplorerProps) => {
         errorMessage: string
       ) => {
         if (result === 0) {
-          
           setAllStakers(data);
           setAddressList(Object.keys(data));
           setCurrAddress(Object.keys(data).length > 0 ? Object.keys(data)[0] : "")

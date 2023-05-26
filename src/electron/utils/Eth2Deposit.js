@@ -235,7 +235,7 @@ const generateKeys = async (
   const {file} = getMostRecentFile(folder)
   const filePathToKeystore = `${folder}/${file}`
   const keystore = readFileSync(filePathToKeystore, 'utf8')
-  storage.addValidators(address, validatorID, keystore, databasePassword)
+  storage.addValidators(address, validatorID, keystore, password, databasePassword)
 }
 
 /**
@@ -271,7 +271,7 @@ const validateMnemonic = async (
     args = [ETH2DEPOSIT_PROXY_PATH, VALIDATE_MNEMONIC_SUBCOMMAND, WORD_LIST_PATH, mnemonic];
   }
 
-  await execFileProm(executable, args, {env: env});
+  return await execFileProm(executable, args, {env: env});
 }
 
 const generateSignedExitMessage = async (
@@ -298,7 +298,7 @@ const generateSignedExitMessage = async (
     validatorIndex = parseInt(JSON.parse(selectedValidator).validatorID);
     const parsedValidator = JSON.parse(selectedValidator).fileData;
     keystorePath = tempKeystoreLocation;
-    keystorePassword = await storage.getValidatorPassword(databasePassword)
+    keystorePassword = await storage.getValidatorPassword(address, validatorIndex, databasePassword)
     writeFile(tempKeystoreLocation, parsedValidator, (err) => {
       if (err) {
         console.error('Error writing JSON file:', err);
