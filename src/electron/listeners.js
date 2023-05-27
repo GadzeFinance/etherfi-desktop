@@ -7,7 +7,7 @@ const { createMnemonic, generateKeys, validateMnemonic } = require('./utils/Eth2
 const { selectFolder, selectJsonFile } = require('./utils/saveFile.js')
 const { decryptResultCodes, desktopAppVersion } = require('./constants')
 const logger = require('./utils/logger')
-const storage = require('./utils/storage')
+const {storage} = require('./utils/storage')
 
 /**
  * Generates public and private key pairs and saves them in two separate JSON files
@@ -433,7 +433,7 @@ const validatePassword = async (password) => {
 }
 
 const getStakerAddressList = async () => {
-    return await storage.getStakerAddressList();
+    return await storage.getAllStakerAddresses();
 }
 
 

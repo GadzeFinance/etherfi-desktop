@@ -1,6 +1,6 @@
 import React from "react"
 import { render, fireEvent, waitFor } from "@testing-library/react"
-import StepSelectStakeInfoPath from "../../../../../src/react/components/StakerComponents/StakerWizard/Steps/Step1-SelectStakeInfoPath/StepSelectStakeInfoPath"
+import StepSelectStakeInfoPath from "../../../../../src/react/components/StakerComponents/StakerWizard/Steps/Step2-SelectStakeInfoPath/StepSelectStakeInfoPath"
 
 // Mock the window.validateFilesApi and window.databaseApi calls
 const mockValidateStakeInfoJson = jest.fn()

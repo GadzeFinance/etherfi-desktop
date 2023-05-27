@@ -1,5 +1,5 @@
 import React from "react"
-import { render, fireEvent, screen } from "@testing-library/react"
+import { render, fireEvent, screen, waitFor } from "@testing-library/react"
 import DecryptValidatorKeysWidget from "../../../../src/react/components/NodeOperatorComponents/DecryptValidatorKeysWidget"
 
 // Mock the Electron APIs
@@ -46,16 +46,16 @@ describe("DecryptValidatorKeysWidget", () => {
     }
   })
 
-  it("renders the component", () => {
+  it("renders the component", async () => {
     render(<DecryptValidatorKeysWidget />)
 
     const titleLabel = screen.getAllByText("Decrypt Validator Keys")
-    expect(titleLabel).not.toBeNull()
+    await waitFor(() => expect(titleLabel).not.toBeNull())
   })
 
   it("selects save path when button is clicked", async () => {
     render(<DecryptValidatorKeysWidget />)
     const selectSavePathButton = screen.getByText("Select Save Path")
-    fireEvent.click(selectSavePathButton)
+    await waitFor(() => fireEvent.click(selectSavePathButton))
   })
 })

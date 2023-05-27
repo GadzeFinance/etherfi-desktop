@@ -26,7 +26,7 @@ const path = require('path');
 const process = require('process');
 const axios = require('axios');
 const {doesFileExist} = require('./BashUtils.js')
-const storage = require('./storage.js')
+const {storage} = require('./storage.js')
 const { v4: uuidv4 } = require('uuid');
 /**
  * A promise version of the execFile function from fs for CLI calls.

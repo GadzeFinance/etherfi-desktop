@@ -54,10 +54,6 @@ class Database {
         return this._store.get("stakerAddress");
     }
 
-    getStakerAddressList() {
-        return this._store.get("stakerAddress");
-    }
-
     addMnemonic(address, mnemonic, validatorPassword, password) {
         this._store.set(`stakerAddress.${address}.mnemonics.${mnemonic}`, {
             password: this.encrypt(validatorPassword, password),
@@ -162,7 +158,11 @@ class Database {
 }
 
 const store = new Store({ schema });
-const db = new Database(store)
+const storage = new Database(store)
 // store.clear();
 
-module.exports = db
+module.exports = {
+    storage,
+    store,
+    Database
+}
