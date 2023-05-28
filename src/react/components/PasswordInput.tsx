@@ -14,8 +14,6 @@ import { useFormContext } from "react-hook-form";
 import { useToast } from '@chakra-ui/react'
 
 interface PasswordInputProps {
-  password: string
-  setPassword: (password: string) => void
   isPasswordValid: boolean
   setIsPasswordValid: (valid: boolean) => void
   shouldDoValidation: boolean

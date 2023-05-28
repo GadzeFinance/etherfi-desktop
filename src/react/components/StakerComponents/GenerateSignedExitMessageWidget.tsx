@@ -30,6 +30,7 @@ import AddressInput from "../AddressInput";
 
 import useGetStakerAddresses from "../../hooks/useGetStakerAddress";
 import useGetValidators from "../../hooks/useGetValidators";
+import PasswordInput from "../PasswordInput";
 
 interface GenerateSignedExitMessageWidgetProps {
   password: string;
@@ -53,7 +54,7 @@ const GenerateSignedExitMessageWidget: React.FC<GenerateSignedExitMessageWidgetP
   const [messageGenerated, setMessageGenerated] = useState<boolean>(false);
 
   const { watch, handleSubmit, register, control, getValues } = useFormContext();
-  const { loginPassword, exitEpoch, validatorIndex } = watch();
+  const { loginPassword, exitEpoch, validatorIndex, validatorKeysPassword } = watch();
 
   const { addressOptions } = useGetStakerAddresses();
   // TODO: MAKE ERROR MESSAGES BETTER!! I.E See if password is wrong for keystore
@@ -110,11 +111,12 @@ const GenerateSignedExitMessageWidget: React.FC<GenerateSignedExitMessageWidgetP
       }
     );
     setMessageGenerating(true);
+
     window.exitMessageApi.reqGenSignedExitMessage(
         selectedTab ? true : false,
         selectedValidator,
         validatorKeyFilePath,
-        validatorKeyPassword,
+        validatorKeysPassword,
         validatorIndex,
         exitEpoch,
         savePath,
@@ -224,6 +226,15 @@ const GenerateSignedExitMessageWidget: React.FC<GenerateSignedExitMessageWidgetP
                                 />
                               </NumberInput>
                             </InputGroup>
+                            <Box>
+                            <Text fontSize="14px" as="b" color="white">
+                              {" "}
+                              Keystore File Password
+                            </Text>
+                            <InputGroup>
+                              <PasswordInput isPasswordValid={true} setIsPasswordValid={() => true} shouldDoValidation={false} noText registerText="validatorKeysPassword" />
+                            </InputGroup>
+                          </Box>
                           </Box>
                         </TabPanel>
                         <TabPanel sx={{ width: "100%" }}>

@@ -149,8 +149,6 @@ const LoginPage: React.FC<LoginPageProps> = (props: LoginPageProps) => {
               { isFirstUse && <Box>
                 <VStack w="60%" pt={2} spacing={2}>
                   <PasswordInput 
-                    password={loginPassword} 
-                    setPassword={props.setPassword} 
                     isPasswordValid={isPasswordValid} 
                     setIsPasswordValid={setIsPasswordValid} 
                     shouldDoValidation={true} 
@@ -170,8 +168,6 @@ const LoginPage: React.FC<LoginPageProps> = (props: LoginPageProps) => {
               { !isFirstUse && <Box>
                   <VStack w="60%" pt={2} spacing={2}>
                     <PasswordInput 
-                      password={loginPassword} 
-                      setPassword={props.setPassword} 
                       isPasswordValid={isPasswordValid} 
                       setIsPasswordValid={setIsPasswordValid} 
                       shouldDoValidation={isFirstUse} 
