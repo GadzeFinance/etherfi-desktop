@@ -134,6 +134,7 @@ const StepGenerateMnemonic: React.FC<StepGenerateMnemonicProps> = (props) => {
       height="full"
       width={"full"}
       borderRadius="lg"
+      overflowY="scroll"
     >
       {!props.mnemonic && !generating && (
         <>

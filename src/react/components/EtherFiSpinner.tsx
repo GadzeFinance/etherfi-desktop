@@ -11,6 +11,7 @@ interface SpinnerData {
     keysGenerated?: number,
     keysTotal?: number,
     recentUsedTime?: number
+    showProgress?: boolean
 }
 
 const EtherFiSpinner: React.FC<SpinnerData> = (props: SpinnerData) => {
@@ -56,7 +57,7 @@ const EtherFiSpinner: React.FC<SpinnerData> = (props: SpinnerData) => {
                     <Text color={'white'} fontSize="2xl" fontWeight={'semibold'} align="center">
                         {props.text}
                     </Text>
-                    <Box>
+                    { props.showProgress && <Box>
                         { props.keysGenerated && props.keysTotal ? (
                             <Text fontSize="l" color="white">
                                 Progress: {props.keysGenerated} / {props.keysTotal}... {`  `} Est. Time Left: {`${Math.floor(props.recentUsedTime * (props.keysTotal - props.keysGenerated))}s`}
@@ -65,7 +66,7 @@ const EtherFiSpinner: React.FC<SpinnerData> = (props: SpinnerData) => {
                                 Encrypting...
                             </Text>) 
                         }
-                    </Box>
+                    </Box>}
                 </VStack>
                 
             )}

@@ -33,6 +33,7 @@ const StepCreateKeys: React.FC<StepCreateKeysProps> = (props) => {
   const [keysTotal, setKeysTotal] = useState(0);
   // const [lastTimestamp, setLastTimestamp] = useState(-1);
   const [recentUsedTime, setRecentUsedTime] = useState(-1);
+  const [storageChecked, setStorageChecked] = useState(false);
   const { watch, getValues, resetField } = useFormContext();
   const loginPassword = watch("loginPassword")
 
@@ -55,6 +56,7 @@ const StepCreateKeys: React.FC<StepCreateKeysProps> = (props) => {
         if (result === 0) {
           props.setFilesCreatedPath(savePath)
           props.setKeysGenerated(true)
+          setLocalStorage();
           resetField("confirmedAddress")
           resetField("dropdownAddress")
           resetField("address")
@@ -69,6 +71,23 @@ const StepCreateKeys: React.FC<StepCreateKeysProps> = (props) => {
     setGeneratingKeys(true)
   }
 
+  const getLocalStorage = () => {
+    const storedPath = localStorage.getItem("storedPath");
+    if (storedPath) {
+      props.setSavePath(storedPath)
+    }
+    const storedChain = localStorage.getItem("storedChain");
+    if (storedChain) {
+      setChain(storedChain)
+    }
+    console.log("get local:", storedPath, storedChain)
+  }
+
+  const setLocalStorage = () => {
+    localStorage.setItem("storedPath", props.savePath)
+    localStorage.setItem("storedChain", chain)
+  }
+
   useEffect(() => {
     // Check to see if there are any stale keys in the StakeInfo.json file the user selected.
     // (i.e have the keys been used to encrypt Validator Keys by this dekstop app before )
@@ -81,6 +100,10 @@ const StepCreateKeys: React.FC<StepCreateKeysProps> = (props) => {
         }
       })
       window.databaseApi.reqUpdateStaleKeys(props.stakeInfoPath)
+    }
+    if (!storageChecked) {
+      getLocalStorage()
+      setStorageChecked(true)
     }
   }, [props.keysGenerated]);
 
@@ -151,7 +174,7 @@ const StepCreateKeys: React.FC<StepCreateKeysProps> = (props) => {
         </>
       )
       }
-      {generatingKeys && <EtherFiSpinner loading={generatingKeys} text="Generating & Encrypting Keys..." keysGenerated={keysGenerated} keysTotal={keysTotal} recentUsedTime={recentUsedTime} />}
+      {generatingKeys && <EtherFiSpinner loading={generatingKeys} text="Generating & Encrypting Keys..." showProgress={true} keysGenerated={keysGenerated} keysTotal={keysTotal} recentUsedTime={recentUsedTime} />}
       {props.keysGenerated && (
         <Box
           padding={'24px'}
