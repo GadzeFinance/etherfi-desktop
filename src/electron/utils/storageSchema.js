@@ -11,10 +11,6 @@ const schema = {
         type: "string",
         default: "",
     },
-    operatorPassword: {
-        type: "string",
-        default: "",
-    },
     stakerAddress: {
         type: "object",
         properties: {

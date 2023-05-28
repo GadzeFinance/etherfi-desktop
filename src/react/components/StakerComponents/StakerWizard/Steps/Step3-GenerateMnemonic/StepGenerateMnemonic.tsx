@@ -110,7 +110,7 @@ const StepGenerateMnemonic: React.FC<StepGenerateMnemonicProps> = (props) => {
   useEffect(() => {
     if (props.mnemonic) setNextText("Continue")
     if (props.mnemonicOption == "import") setNextText("Import")
-    if (props.mnemonicOption == "generate") setNextText("Generate")
+    if (props.mnemonicOption == "generate") setNextText("Continue")
   }, [props.mnemonicOption, props.mnemonic])
 
   const nextDetails = {
