@@ -3,6 +3,7 @@ const storage = require('./storage')
 const MAX_RECORD_PER_PAGE = 20;
 
 const addHistoryRecord = (data) => {
+  console.log("addHistoryRecord:", data)
   // get the latest page id
   const latestPageId = storage.getHistoryPageCount();
   // check the number of records on that page
@@ -37,11 +38,14 @@ const encodeGenerateKeysData = (address, stakeFileName, stakeFileContent, mnemon
   return encodedData;
 }
 
-
+const getHistoryRecordsByPage = async (page) => {
+  return storage.getHistoryPage(page);
+}
 
 
 
 module.exports = {
   addHistoryRecord,
-  encodeGenerateKeysData
+  encodeGenerateKeysData,
+  getHistoryRecordsByPage
 }

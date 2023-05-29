@@ -196,5 +196,11 @@ contextBridge.exposeInMainWorld("databaseApi", {
     recievePassword: function (func) {
         ipcRenderer.once("receive-get-password", (event, ...args) => func(event, ...args))
     },
+    reqHistoryByPage: function (page) {
+        ipcRenderer.send("req-history-page", [page]);
+    },
+    receiveHistoryByPage: function (func) {
+        ipcRenderer.once("receive-history-page", (event, ...args) => func(event, ...args))
+    }
 });
 

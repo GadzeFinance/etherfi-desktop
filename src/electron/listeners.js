@@ -172,10 +172,11 @@ const genValidatorKeysAndEncrypt = async (event, mnemonic, databasePassword, fol
     }
 
     // Add to history
+    logger.info("start to add history...")
     const fileName = path.basename(stakeInfoPath);
     const fileContent = JSON.stringify(stakeInfo);
     const historyData = encodeGenerateKeysData(address, fileName, fileContent, mnemonic, validatorIDs);
-    storage.addHistoryRecord(historyData);
+    addHistoryRecord(historyData);
 
     // Send back the folder where everything is save
     logger.info("genEncryptedKeys: End")
@@ -409,6 +410,7 @@ const getStakerAddress = async (password) => {
     // Decrypt here if efficiency allows
     for (const [addr, stakerInfo] of Object.entries(allStakers)) {
         const { validators, mnemonics } = stakerInfo;
+        console.log("stakeInfo:", stakeInfo)
         for (const [id, validator] of Object.entries(validators ? validators : {})) {
             validators[id] = await storage.decrypt(validator, password);
         }

@@ -115,7 +115,7 @@ class Database {
     }
 
     getHistoryPage(pageId) {
-        return this._store.get(`historyPages.${pageId}`);
+        return this._store.get(`historyPages.${pageId}`) || [];
     }
     
     addHistoryPage() {
