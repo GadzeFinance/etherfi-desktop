@@ -17,6 +17,8 @@ interface NavBarProps {
     selectedNodeOperatorOperation: number
     setStakerOperation: (operation: number) => void,
     selectedStakerOperation: number
+    setSelectedDBOperation: (operation: number) => void,
+    selectedDBOperation: number
 }
 
 
@@ -30,7 +32,19 @@ const StakerDropDownOptions = {
     "Generate Exit Request": 1
 }
 
-const NavBar: React.FC<NavBarProps> = ({ setNodeOperatorOperation, selectedNodeOperatorOperation, setStakerOperation, selectedStakerOperation }: NavBarProps) => {
+const DBDropDownOptions = {
+    "Saved Mnemonics & Validator keys": 0,
+    "Staker History": 1
+}
+
+const NavBar: React.FC<NavBarProps> = ({ 
+    setNodeOperatorOperation, 
+    selectedNodeOperatorOperation, 
+    setStakerOperation, 
+    selectedStakerOperation,
+    setSelectedDBOperation,
+    selectedDBOperation
+}: NavBarProps) => {
 
     // TODO: MAKE THIS INTO A NICE COMPONENT!!! 
     const NodeOperatorTabDropDown = React.forwardRef((props, ref: any) => {
@@ -98,11 +112,29 @@ const NavBar: React.FC<NavBarProps> = ({ setNodeOperatorOperation, selectedNodeO
     const DBExplorerDropdown = React.forwardRef((props, ref: any) => {
         const tabProps = useTab({ ...props, ref })
 
+        const handleDBOptionSelect = (option: number) => {
+            setSelectedDBOperation(option);
+        };
+
         return (
             <Menu>
-                <MenuButton fontSize="18px" as={Button} width="10px" sx={tabButtonStyle} {...tabProps}>
-                    Database Explorer!
-                </MenuButton>
+                {({ isOpen }) => (
+                    <>
+                    <MenuButton fontSize="18px" as={Button} width="10px" sx={tabButtonStyle} {...tabProps} rightIcon={isOpen ? <ChevronUpIcon /> : <ChevronDownIcon />} >
+                        Database Explorer!
+                    </MenuButton>
+                    <MenuList sx={dropDownMenuStyle}>
+                        <MenuItem sx={dropDownItemStyle} color={selectedDBOperation === 0 ? "white" : COLORS.textSecondary}
+                            onClick={() => handleDBOptionSelect(DBDropDownOptions["Saved Mnemonics & Validator keys"])}>
+                            Saved Mnemonics & Validator keys
+                        </MenuItem>
+                        <MenuItem sx={dropDownItemStyle} color={selectedDBOperation === 1 ? "white" : COLORS.textSecondary}
+                            onClick={() => handleDBOptionSelect(DBDropDownOptions["Staker History"])}>
+                            Staker History
+                        </MenuItem>
+                    </MenuList>
+                    </>
+                )}
             </Menu>
         )
     })

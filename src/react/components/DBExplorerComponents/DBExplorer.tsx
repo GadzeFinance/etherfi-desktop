@@ -28,6 +28,7 @@ interface StakerInfo {
 interface DBExplorerProps {
   password: string
   tabIndex: number
+  selectedOption: number
 }
 
 const DBExplorer = (props: DBExplorerProps) => {

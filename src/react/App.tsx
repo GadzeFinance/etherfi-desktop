@@ -22,7 +22,7 @@ const App: React.FC = () => {
   const [tabIndex, setTabIndex] = useState<number>(0)
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false)
   const [password, setPassword] = useState<string>("")
-
+  const [selectedDBOperation, setSelectedDBOperation] = useState(0);
   const [selectedNodeOperatorOperation, setNodeOperatorOperation] = useState(0);
   const [stakerOperation, setStakerOperation] = useState(0);
   const methods = useForm({ shouldUseNativeValidation: true });
@@ -51,8 +51,13 @@ const App: React.FC = () => {
         flexDirection={'column'}
         height="100vh"
       >
-        <NavBar setNodeOperatorOperation={setNodeOperatorOperation} selectedNodeOperatorOperation={selectedNodeOperatorOperation}
-          setStakerOperation={setStakerOperation} selectedStakerOperation={stakerOperation}
+        <NavBar 
+          setNodeOperatorOperation={setNodeOperatorOperation} 
+          selectedNodeOperatorOperation={selectedNodeOperatorOperation}
+          setStakerOperation={setStakerOperation} 
+          selectedStakerOperation={stakerOperation}
+          setSelectedDBOperation={setSelectedDBOperation}
+          selectedDBOperation={selectedDBOperation}
         />
         <Center flex="auto">
           <TabPanels>
@@ -63,7 +68,7 @@ const App: React.FC = () => {
               <NodeOperatorTab tabIndex={tabIndex} selectedOption={selectedNodeOperatorOperation} />
             </TabPanel>
             <TabPanel flexDirection={'row'}>
-              <DBExplorer tabIndex={tabIndex} password={password}/>
+              <DBExplorer tabIndex={tabIndex} selectedOption={selectedDBOperation} password={password}/>
             </TabPanel>
           </TabPanels>
         </Center>
