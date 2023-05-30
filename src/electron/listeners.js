@@ -2,16 +2,13 @@ const fs = require('fs');
 const EC = require('elliptic').ec
 const BN = require('bn.js');
 const path = require('path')
-const {
-    ipcRenderer
-} = require("electron");
 const { encrypt, decrypt, encryptPrivateKeys, decryptPrivateKeys } = require('./utils/encryptionUtils');
-const { createMnemonic, generateKeys } = require('./utils/Eth2Deposit.js')
+const { createMnemonic, generateKeys, validateMnemonic } = require('./utils/Eth2Deposit.js')
 const { selectFolder, selectJsonFile } = require('./utils/saveFile.js')
 const { encodeGenerateKeysData, addHistoryRecord } = require('./utils/historyUtils');
 const { decryptResultCodes, desktopAppVersion } = require('./constants')
 const logger = require('./utils/logger')
-const storage = require('./utils/storage')
+const {storage} = require('./utils/storage')
 
 /**
  * Generates public and private key pairs and saves them in two separate JSON files
@@ -122,14 +119,20 @@ const genMnemonic = async (language) => {
  *          It also contains single stakeRequest.json file which contains the encrypted data.
  *           The stakeRequest.json file is what the user should upload to the DAPP.
  */
-const genValidatorKeysAndEncrypt = async (event, mnemonic, databasePassword, folder, stakeInfoPath, chain, address) => {
+const genValidatorKeysAndEncrypt = async (event, mnemonic, databasePassword, folder, stakeInfoPath, chain, address, mnemonicOption, importPassword) => {
     logger.info("genEncryptedKeys: Start")
     const allWallets = await storage.getAllStakerAddresses();
     if (allWallets == undefined || !(address in allWallets)) {
         await storage.addStakerAddress(address)
     }
 
-    const password = await storage.getValidatorPassword(databasePassword)
+
+    let password = await storage.generatePassword()
+    if (mnemonicOption == "import") {
+        const response = await validateMnemonic(mnemonic);
+        if (response.stderr != '') throw new Error(response.stderr)
+        password = importPassword
+    }
     
     // get the data from stakeInfoPath
     const stakeInfo = JSON.parse(fs.readFileSync(stakeInfoPath))
@@ -167,8 +170,8 @@ const genValidatorKeysAndEncrypt = async (event, mnemonic, databasePassword, fol
     // Only add to the db if we dont have mnemonic added already
     const allAccounts = await storage.getMnemonics(address, databasePassword);
 
-    if (!Object.values(allAccounts).some(value => value.includes(mnemonic))) {
-        await storage.addMnemonic(address, mnemonic, databasePassword)
+    if (!Object.values(allAccounts).some(value => value.mnemonic.includes(mnemonic))) {
+        await storage.addMnemonic(address, mnemonic, password, databasePassword)
     }
 
     // Add to history
@@ -412,10 +415,16 @@ const getStakerAddress = async (password) => {
         const { validators, mnemonics } = stakerInfo;
         console.log("stakeInfo:", stakeInfo)
         for (const [id, validator] of Object.entries(validators ? validators : {})) {
-            validators[id] = await storage.decrypt(validator, password);
+            validators[id] = {
+                keystore: await storage.decrypt(validator.keystore, password),
+                password: await storage.decrypt(validator.password, password)
+            };
         }
         for (const [id, mnemonic] of Object.entries(mnemonics ? mnemonics : {})) {
-            mnemonics[id] = await storage.decrypt(mnemonic, password);
+            mnemonics[id] = {
+                mnemonic: await storage.decrypt(mnemonic.mnemonic, password),
+                password: await storage.decrypt(mnemonic.password, password)
+            };
         }
     }
     return allStakers;
@@ -430,11 +439,7 @@ const validatePassword = async (password) => {
 }
 
 const getStakerAddressList = async () => {
-    return await storage.getStakerAddressList();
-}
-
-const getValidatorPassword = async (password) => {
-    return await storage.getValidatorPassword(password)
+    return await storage.getAllStakerAddresses();
 }
 
 
@@ -530,6 +535,5 @@ module.exports = {
     getStakerAddressList,
     isPasswordSet,
     setPassword,
-    validatePassword,
-    getValidatorPassword
+    validatePassword
 }

@@ -40,7 +40,7 @@ const StoredMnemonicSelect: React.FC<StoredMnemonicSelectProps> = (props: Stored
                 const outputArr = Object.entries(JSON.parse(mnemonic)).map(
                     ([id, value]: [any, any], index) => ({
                         id: parseInt(id),
-                        mnemonic: value,
+                        mnemonic: value.mnemonic,
                     })
                 );
                 props.setStoredMnemonic(outputArr);
@@ -53,12 +53,10 @@ const StoredMnemonicSelect: React.FC<StoredMnemonicSelectProps> = (props: Stored
         window.encryptionApi.reqStoredMnemonic(props.walletAddress, loginPassword);
       }, []);
 
-      const selectMnemonic = (mnemonic: string) => {
+    const selectMnemonic = (mnemonic: string) => {
         props.setMnemonic(mnemonic);
         props.goNextStep();
-
-      }
-
+    }
 
     return (
         <Menu>

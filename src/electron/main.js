@@ -22,8 +22,7 @@ const {
     isPasswordSet,
     setPassword,
     validatePassword,
-    fetchStoredMnemonics,
-    getValidatorPassword
+    fetchStoredMnemonics
 } = require('./listeners');
 
 const {validateJsonFile} = require('./utils/validateFile')
@@ -127,9 +126,9 @@ ipcMain.on("req-new-mnemonic", async (event, args) => {
 
 // Return (result, path_to_saved_folder | '', errorMessage | '') to frontend
 ipcMain.on("req-gen-val-keys-and-encrypt",  async (event, args) => {
-    var [mnemonic, password, folder, stakeInfoPath, chain, address] = args
+    var [mnemonic, password, folder, stakeInfoPath, chain, address, mnemonicOption, importPassword] = args
     try {
-        const savePath = await genValidatorKeysAndEncrypt(event, mnemonic, password, folder, stakeInfoPath, chain, address)
+        const savePath = await genValidatorKeysAndEncrypt(event, mnemonic, password, folder, stakeInfoPath, chain, address, mnemonicOption, importPassword)
         event.sender.send("receive-key-gen-confirmation", standardResultCodes.SUCCESS, savePath , '')
     } catch (error) {
         logger.error("Error Generating Validator Keys and Encrypting:", error)
@@ -190,6 +189,8 @@ ipcMain.on('req-get-staker-address', async (event, args) => {
 ipcMain.on("req-signed-exit-message", async (event, args) => {
     // Get Arguments
     const [usingStoredKeys, selectedValidator, keystorePath, keystorePassword, validatorIndex, epoch, saveFolder, chain, databasePassword, address] = args
+    
+    console.log("ARGS: ", args)
     try {
         const exitMessageFilePath = await generateSignedExitMessage(usingStoredKeys, selectedValidator, chain, keystorePath, keystorePassword, validatorIndex, epoch, saveFolder, databasePassword, address)
         event.sender.send("receive-signed-exit-message-confirmation", standardResultCodes.SUCCESS, exitMessageFilePath , '')

@@ -14,8 +14,6 @@ import { useFormContext } from "react-hook-form";
 import { useToast } from '@chakra-ui/react'
 
 interface PasswordInputProps {
-  password: string
-  setPassword: (password: string) => void
   isPasswordValid: boolean
   setIsPasswordValid: (valid: boolean) => void
   shouldDoValidation: boolean
@@ -36,13 +34,13 @@ const PasswordInput: FC<PasswordInputProps> = (props) => {
   const confirmPassword = watch("confirmPassword")
 
   const match = () => {
-    return loginPassword === confirmPassword && loginPassword !== ""
+    return loginPassword === confirmPassword && (loginPassword)
   }
 
 
   useEffect(() => {
 
-    if (props.withConfirm && confirmPassword !== "") validateConfirmPassword(confirmPassword)
+    if (props.withConfirm && confirmPassword) validateConfirmPassword(confirmPassword)
     const tests = [
       {
         passed: loginPassword?.length >= 8,
@@ -69,7 +67,10 @@ const PasswordInput: FC<PasswordInputProps> = (props) => {
         message: "password should not contain any spaces",
       },
     ]
-    props.setIsPasswordValid(tests.every((test) => test.passed))
+    if (loginPassword) {
+      props.setIsPasswordValid(tests.every((test) => test.passed))
+      setPasswordResults(tests)
+    }
   }, [loginPassword])
 
 

@@ -1,8 +1,11 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Flex,
   Text,
   Center,
+  Select,
+  Input,
+  InputGroup
 } from "@chakra-ui/react";
 
 import DisplayMnemonic from "./DisplayMnemonic";
@@ -19,14 +22,20 @@ interface StepGenerateMnemonicProps {
   setMnemonic: (mnemonic: string) => void;
   wordsToConfirmIndicies: Array<number>;
   walletAddress: string;
+  setImportMnemonicPassword: (password: string) => void;
+  importMnemonicPassword: string;
+  setMnemonicOption: (mnemonic: string) => void;
+  mnemonicOption: string;
 }
 
 const StepGenerateMnemonic: React.FC<StepGenerateMnemonicProps> = (props) => {
   const [generating, setGenerating] = useState(false);
   // This is a hacky way to determine if we should show ConfirmMnemonic or DisplayMnemonic compoennts when this renders.
-  const [confirmMnemonic, setConfirmMnemonic] = useState(props.mnemonic !== "");
+  const [confirmMnemonic, setConfirmMnemonic] = useState(props.mnemonicOption != "generate");
   const [mnemonicConfirmed, setMnemonicConfirmed] = useState(false);
   const [storedMnemonics, setStoredMnemonic] = useState(undefined);
+  const [importMnemonic, setImportMnemonic] = useState("")
+  const [nextText, setNextText] = useState("")
 
   const generateMnemonic = () => {
     window.encryptionApi.receiveNewMnemonic(
@@ -52,16 +61,25 @@ const StepGenerateMnemonic: React.FC<StepGenerateMnemonicProps> = (props) => {
 
   const nextAction = () => {
     // No Mneomoic Generated
-    if (!props.mnemonic) return generateMnemonic;
+    console.log(props)
+    if (!props.mnemonic) {
+      if (props.mnemonicOption == "import") {
+        props.setMnemonic(importMnemonic)
+        props.goNextStep()
+      } else if (props.mnemonicOption == "generate") {
+        generateMnemonic()
+      }
+    };
     // Mneomoic Generated and viewing the whole mnemonic screen
-    if (props.mnemonic && !confirmMnemonic)
-      return () => setConfirmMnemonic(true);
+    if (props.mnemonic && !confirmMnemonic) {
+      setConfirmMnemonic(true)
+      return
+    }
     // Mneomoic Generated and viewing the Confirm Mnemonic screen
-    if (props.mnemonic && confirmMnemonic)
-      return () => {
-        setConfirmMnemonic(false);
-        props.goNextStep();
-      };
+    if (props.mnemonic && confirmMnemonic) {
+      setConfirmMnemonic(false)
+      props.goNextStep();
+    }
   };
 
   const backAction = () => {
@@ -89,19 +107,23 @@ const StepGenerateMnemonic: React.FC<StepGenerateMnemonicProps> = (props) => {
     variant: "back-button",
   };
 
+  useEffect(() => {
+    if (props.mnemonic) setNextText("Continue")
+    if (props.mnemonicOption == "import") setNextText("Import")
+    if (props.mnemonicOption == "generate") setNextText("Continue")
+  }, [props.mnemonicOption, props.mnemonic])
+
   const nextDetails = {
-    text: !props.mnemonic ? "Generate Mnemonic" : "Continue",
-    visible: true,
+    text: nextText,
+    visible: props.mnemonicOption != "stored",
   };
 
   const nextProps = {
-    // isDisabled: !props.stakeInfoPath,
-    // If confrimMnemonc is show then check if the user has entered all the words.
-    // Otherwise the button is not disabled
     isDisabled: confirmMnemonic ? !mnemonicConfirmed : false,
-    onClick: nextAction(),
+    onClick: () => nextAction(),
     variant: "white-button",
   };
+
 
   return (
     <Flex
@@ -112,6 +134,7 @@ const StepGenerateMnemonic: React.FC<StepGenerateMnemonicProps> = (props) => {
       height="full"
       width={"full"}
       borderRadius="lg"
+      overflowY="scroll"
     >
       {!props.mnemonic && !generating && (
         <>
@@ -144,13 +167,48 @@ const StepGenerateMnemonic: React.FC<StepGenerateMnemonicProps> = (props) => {
         />
       )}
       {!props.mnemonic && !generating && (
-        <StoredMnemonicSelect
-          setStoredMnemonic={setStoredMnemonic} 
-          storedMnemonics={storedMnemonics}
-          goNextStep={props.goNextStep}
-          setMnemonic={props.setMnemonic}
-          walletAddress={props.walletAddress}
+        <>
+          <Select color="white" borderColor="purple.light" onChange={(e) => props.setMnemonicOption(e.target.value)}>
+            <option value="generate">Generate mnemonic</option>
+            <option value="stored">Use stored mnemonic</option>
+            <option value="import">Import mnemonic</option>
+          </Select>
+        </>
+      )}
+      {!props.mnemonic && !generating && props.mnemonicOption == "stored" && (
+        <>
+          <StoredMnemonicSelect
+            setStoredMnemonic={setStoredMnemonic} 
+            storedMnemonics={storedMnemonics}
+            goNextStep={props.goNextStep}
+            setMnemonic={props.setMnemonic}
+            walletAddress={props.walletAddress}
           />
+        </>
+      )}
+      {!props.mnemonic && !generating && props.mnemonicOption == "import" && (
+        <>
+        <InputGroup>
+          <Input
+            isRequired={true}
+            color="white"
+            placeholder="Enter Mnemonic"
+            type={"password"}
+            margin="5px"
+            value={importMnemonic}
+            onChange={(e) => setImportMnemonic(e.target.value)}
+          />
+          <Input
+            isRequired={true}
+            color="white"
+            placeholder="Enter Password"
+            type={"password"}
+            margin="5px"
+            onChange={(e) => props.setImportMnemonicPassword(e.target.value)}
+            value={props.importMnemonicPassword}
+          />
+        </InputGroup>
+        </>
       )}
 
       {!generating && (

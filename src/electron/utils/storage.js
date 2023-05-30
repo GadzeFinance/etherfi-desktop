@@ -22,9 +22,7 @@ class Database {
             crypto.createHash("sha256").update(password).digest("hex")
         );
         // Since this is our first time using app, we also need to generate a password for validators
-        const validatorPassword = this.#generatePassword();
-        const operatorPassword = this.#generatePassword();
-        this._store.set('validatorPassword', this.encrypt(validatorPassword, password))
+        const operatorPassword = this.generatePassword();
         this._store.set('operatorPassword', this.encrypt(operatorPassword, password))
     }
 
@@ -35,11 +33,10 @@ class Database {
         );
     }
 
-
-    getValidatorPassword(password) {
-        return this.decrypt(this._store.get('validatorPassword'), password)
+    getValidatorPassword(address, validatorIndex, password) {
+        const encryptedPassword = this._store.get(`stakerAddress.${address}.validators.${validatorIndex}.password`)
+        return this.decrypt(encryptedPassword, password)
     }
-
 
     addStakerAddress(address) {
         const path = `stakerAddress.${address}`;
@@ -57,14 +54,11 @@ class Database {
         return this._store.get("stakerAddress");
     }
 
-    getStakerAddressList() {
-        return this._store.get("stakerAddress");
-    }
-
-    addMnemonic(address, mnemonic, password) {
-        const mnemonicID = (this._store.get(`stakerAddress.${address}.mnemonicCount`) | 0) + 1;
-        this._store.set(`stakerAddress.${address}.mnemonics.${mnemonicID}`, this.encrypt(mnemonic, password));
-        this._store.set(`stakerAddress.${address}.mnemonicCount`, parseInt(mnemonicID));
+    addMnemonic(address, mnemonic, validatorPassword, password) {
+        this._store.set(`stakerAddress.${address}.mnemonics.${mnemonic}`, {
+            password: this.encrypt(validatorPassword, password),
+            mnemonic: this.encrypt(mnemonic, password)
+        });
     }
 
     getMnemonics(address, password) {
@@ -73,13 +67,19 @@ class Database {
             return {}
         }
         Object.keys(decrypedObject).forEach((key, index) => {
-            decrypedObject[key] = this.decrypt(decrypedObject[key], password);
+            decrypedObject[key] = {
+                password: this.decrypt(decrypedObject[key].password, password),
+                mnemonic: this.decrypt(decrypedObject[key].mnemonic, password)
+            };
         });
         return decrypedObject;
     }
 
-    addValidators(address, validatorID, keystoreFile, password) {
-        this._store.set(`stakerAddress.${address}.validators.${validatorID}`, this.encrypt(keystoreFile, password));
+    addValidators(address, validatorID, keystoreFile, mnemonicPassword, password) {
+        this._store.set(`stakerAddress.${address}.validators.${validatorID}`, {
+            password: this.encrypt(mnemonicPassword, password),
+            keystore: this.encrypt(keystoreFile, password)
+        });
     }
 
     getValidators(address, password) {
@@ -87,7 +87,10 @@ class Database {
         if (!decrypedObject) return {}
 
         Object.keys(decrypedObject).forEach((key, index) => {
-            decrypedObject[key] = this.decrypt(decrypedObject[key], password);
+            decrypedObject[key] = {
+                password: this.decrypt(decrypedObject[key].password, password),
+                keystore: this.decrypt(decrypedObject[key].keystore, password)
+            };
         });
         return decrypedObject;
     }
@@ -140,7 +143,7 @@ class Database {
         this._store.set(`validatorAddresses.${address}.${publicKey}`, this.encrypt(privateKey, password));
     }
 
-    #generatePassword () {
+    generatePassword () {
         const wishlist = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz~!@-#$'
         return Array.from(crypto.randomFillSync(new Uint32Array(20)))
         .map((x) => wishlist[x % wishlist.length])
@@ -182,8 +185,11 @@ class Database {
 }
 
 const store = new Store({ schema });
-const db = new Database(store)
+const storage = new Database(store)
 // store.clear();
-console.log(store.store)
 
-module.exports = db
+module.exports = {
+    storage,
+    store,
+    Database
+}

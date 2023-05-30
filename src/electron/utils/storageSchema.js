@@ -11,11 +11,7 @@ const schema = {
         type: "string",
         default: "",
     },
-    operatorPassword: {
-        type: "string",
-        default: "",
-    },
-    stakerAddresses: {
+    stakerAddress: {
         type: "object",
         properties: {
             stakerAddress: {
@@ -29,9 +25,17 @@ const schema = {
                         type: "object",
                         properties: {
                             mnemonicID: {
-                                // Key is auto increment, value is mnemonic
-                                type: "string",
-                                default: "",
+                                type: "object",
+                                properties: {
+                                    mnemonic: {
+                                        type: "string",
+                                        default: ""
+                                    },
+                                    password: {
+                                        type: "string",
+                                        default: ""
+                                    }
+                                }
                             },
                         },
                     },
@@ -40,8 +44,17 @@ const schema = {
                         properties: {
                             validatorID: {
                                 // Value will be the keystore file
-                                type: "string",
-                                default: "",
+                                type: "object",
+                                properties: {
+                                    keystore: {
+                                        type: "string",
+                                        default: ""
+                                    },
+                                    password: {
+                                        type: "string",
+                                        default: ""
+                                    }
+                                }
                             },
                         },
                     },

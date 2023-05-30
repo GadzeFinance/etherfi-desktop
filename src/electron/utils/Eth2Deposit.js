@@ -24,8 +24,9 @@ const {access, mkdir} = require('fs/promises');
 const {cwd} = require('process');
 const path = require('path');
 const process = require('process');
+const axios = require('axios');
 const {doesFileExist} = require('./BashUtils.js')
-const storage = require('./storage.js')
+const {storage} = require('./storage.js')
 const { v4: uuidv4 } = require('uuid');
 /**
  * A promise version of the execFile function from fs for CLI calls.
@@ -235,7 +236,7 @@ const generateKeys = async (
   const {file} = getMostRecentFile(folder)
   const filePathToKeystore = `${folder}/${file}`
   const keystore = readFileSync(filePathToKeystore, 'utf8')
-  storage.addValidators(address, validatorID, keystore, databasePassword)
+  storage.addValidators(address, validatorID, keystore, password, databasePassword)
 }
 
 /**
@@ -271,7 +272,7 @@ const validateMnemonic = async (
     args = [ETH2DEPOSIT_PROXY_PATH, VALIDATE_MNEMONIC_SUBCOMMAND, WORD_LIST_PATH, mnemonic];
   }
 
-  await execFileProm(executable, args, {env: env});
+  return await execFileProm(executable, args, {env: env});
 }
 
 const generateSignedExitMessage = async (
@@ -295,10 +296,42 @@ const generateSignedExitMessage = async (
     // Then we need to save a file that the program can use, then delete at the end
   const tempKeystoreLocation = path.join(saveFolder, `${uuidv4()}.json`)
   if (usingStoredKeys) {
-    validatorIndex = parseInt(JSON.parse(selectedValidator).validatorID);
+    validatorID = parseInt(JSON.parse(selectedValidator).validatorID);
     const parsedValidator = JSON.parse(selectedValidator).fileData;
     keystorePath = tempKeystoreLocation;
-    keystorePassword = await storage.getValidatorPassword(databasePassword)
+
+    const hexID = `0x${validatorID.toString(16)}`
+    
+    const graphqlEndpoint = 'https://api.studio.thegraph.com/query/41778/etherfi-goerli/0.0.1';
+    
+    const data = {
+        query: `{
+            validators(where: {id: "${hexID}"}) {
+              id
+              validatorPubKey
+            }
+          }`,
+      };
+    
+    try {
+        const response = await axios.post(graphqlEndpoint, data);
+
+        if (response.status === 200) {
+            let pub = response.data.data.validators[0].validatorPubKey;
+            const queryURL = `https://goerli.etherfi.vercel.app/api/beaconChain/findOneCollated?pubkey=${pub}`;
+            const newResp = await axios.post(queryURL);
+            validatorIndex = newResp.data.db.validatorIndex;
+        } else {
+            throw new Error(
+                "GraphQL request failed with status: " + response.status
+            );
+        }
+    } catch (error) {
+        throw new Error("GraphQL request failed: " + error.message);
+    }
+
+
+    keystorePassword = await storage.getValidatorPassword(address, validatorID, databasePassword)
     writeFile(tempKeystoreLocation, parsedValidator, (err) => {
       if (err) {
         console.error('Error writing JSON file:', err);
@@ -307,6 +340,8 @@ const generateSignedExitMessage = async (
       }
     })
   }
+
+  console.log("PASSWORD: ", keystorePassword)
 
   const allWallets = await storage.getAllStakerAddresses();
   if (allWallets == undefined || !(address in allWallets)) {
@@ -333,6 +368,8 @@ const generateSignedExitMessage = async (
     args = [ETH2DEPOSIT_PROXY_PATH, GENERATE_SIGNED_EXIT_TRANSACTION, chain, 
             keystorePath, keystorePassword, validatorIndex, epoch, saveFolder];
   }
+
+  console.log("eth2deposit:", args)
 
   const { stdout, stderr } = await execFileProm(executable, args, {env: env});
   const exitMessageGenerationResultString = stdout.toString();

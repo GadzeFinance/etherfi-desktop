@@ -19,9 +19,9 @@ export default function useGetValidators(confirmedAddress: string, password: str
               errorMessage: string
             ) => {
               if (result === 0) {
-                resolve(Object.entries(JSON.parse(validators)).map(([key, value]: [string, string]) => ({
+                resolve(Object.entries(JSON.parse(validators)).map(([key, value]: [string, any]) => ({
                     validatorID: key,
-                    fileData: JSON.stringify(JSON.parse(value))
+                    fileData: JSON.stringify(JSON.parse(value.keystore))
                 })))
               } else {
                 reject(errorMessage);

@@ -21,6 +21,8 @@ interface StepCreateKeysProps {
   filesCreatedPath: string
   setFilesCreatedPath: (path: string) => void,
   address: string
+  importMnemonicPassword: string
+  mnemonicOption: string
 }
 
 const StepCreateKeys: React.FC<StepCreateKeysProps> = (props) => {
@@ -30,7 +32,8 @@ const StepCreateKeys: React.FC<StepCreateKeysProps> = (props) => {
   const [keysGenerated, setKeysGenerated] = useState(0);
   const [keysTotal, setKeysTotal] = useState(0);
   const [recentUsedTime, setRecentUsedTime] = useState(-1);
-  const { watch, getValues } = useFormContext();
+  const [storageChecked, setStorageChecked] = useState(false);
+  const { watch, getValues, resetField } = useFormContext();
   const loginPassword = watch("loginPassword")
 
   const selectSavePath = () => {
@@ -52,6 +55,10 @@ const StepCreateKeys: React.FC<StepCreateKeysProps> = (props) => {
         if (result === 0) {
           props.setFilesCreatedPath(savePath)
           props.setKeysGenerated(true)
+          setLocalStorage();
+          resetField("confirmedAddress")
+          resetField("dropdownAddress")
+          resetField("address")
         } else {
           console.error("Error generating validator keys")
           console.error(errorMessage)
@@ -59,8 +66,25 @@ const StepCreateKeys: React.FC<StepCreateKeysProps> = (props) => {
         }
         setGeneratingKeys(false)
       })
-    window.encryptionApi.reqGenValidatorKeysAndEncrypt(props.mnemonic, loginPassword, props.savePath, props.stakeInfoPath, chain, getValues('confirmedAddress'));
+    window.encryptionApi.reqGenValidatorKeysAndEncrypt(props.mnemonic, loginPassword, props.savePath, props.stakeInfoPath, chain, getValues('confirmedAddress'), props.mnemonicOption, props.importMnemonicPassword);
     setGeneratingKeys(true)
+  }
+
+  const getLocalStorage = () => {
+    const storedPath = localStorage.getItem("storedPath");
+    if (storedPath) {
+      props.setSavePath(storedPath)
+    }
+    const storedChain = localStorage.getItem("storedChain");
+    if (storedChain) {
+      setChain(storedChain)
+    }
+    console.log("get local:", storedPath, storedChain)
+  }
+
+  const setLocalStorage = () => {
+    localStorage.setItem("storedPath", props.savePath)
+    localStorage.setItem("storedChain", chain)
   }
 
   useEffect(() => {
@@ -75,6 +99,10 @@ const StepCreateKeys: React.FC<StepCreateKeysProps> = (props) => {
         }
       })
       window.databaseApi.reqUpdateStaleKeys(props.stakeInfoPath)
+    }
+    if (!storageChecked) {
+      getLocalStorage()
+      setStorageChecked(true)
     }
   }, [props.keysGenerated]);
 
@@ -145,7 +173,7 @@ const StepCreateKeys: React.FC<StepCreateKeysProps> = (props) => {
         </>
       )
       }
-      {generatingKeys && <EtherFiSpinner loading={generatingKeys} text="Generating & Encrypting Keys..." keysGenerated={keysGenerated} keysTotal={keysTotal} recentUsedTime={recentUsedTime} />}
+      {generatingKeys && <EtherFiSpinner loading={generatingKeys} text="Generating & Encrypting Keys..." showProgress={true} keysGenerated={keysGenerated} keysTotal={keysTotal} recentUsedTime={recentUsedTime} />}
       {props.keysGenerated && (
         <Box
           padding={'24px'}

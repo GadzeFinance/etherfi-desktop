@@ -107,8 +107,17 @@ const LoginPage: React.FC<LoginPageProps> = (props: LoginPageProps) => {
     window.databaseApi.reqIsPasswordSet();
   }, [])
 
+  const onFormSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+    if (isFirstUse) {
+      reqCreatePassword()
+    } else {
+      reqAuthenticate()
+    }
+  }
+
   return (
-    <>
+    <form onSubmit={onFormSubmit}>
     <Box
       display="flex"
       flexDirection={'column'}
@@ -142,15 +151,9 @@ const LoginPage: React.FC<LoginPageProps> = (props: LoginPageProps) => {
                   <Text color={"white"} fontSize="2xl" fontWeight={"semibold"}>
                     { isFirstUse ? "Create your desktop password": "Log in to the Ether.fi desktop app" }
                   </Text>
-                  <Text color="white" fontSize="l" opacity={"0.7"}>
-                    This password will be used for encrypting your stored data
-                  </Text>
-
               { isFirstUse && <Box>
                 <VStack w="60%" pt={2} spacing={2}>
                   <PasswordInput 
-                    password={loginPassword} 
-                    setPassword={props.setPassword} 
                     isPasswordValid={isPasswordValid} 
                     setIsPasswordValid={setIsPasswordValid} 
                     shouldDoValidation={true} 
@@ -159,19 +162,17 @@ const LoginPage: React.FC<LoginPageProps> = (props: LoginPageProps) => {
                     registerText="loginPassword"
                   />
                 </VStack>
-                
-
+          
                 <Text color="white" fontSize="md" opacity={"0.7"}>
-                  Note: Please remember this password for future use. Since this is a decentralized app running in an offline environment, if you forget the password,
-                  we can't restore the data for you.
+                  Please not that the password you are about to create will be used solely to encrypt the application's database.
+                  It is important to understand that this password is not the same as the validator password
+                  We cannot recover your password if you forget it, so it's curcial to commit it to memory.
                 </Text>
               </Box> }
 
               { !isFirstUse && <Box>
                   <VStack w="60%" pt={2} spacing={2}>
                     <PasswordInput 
-                      password={loginPassword} 
-                      setPassword={props.setPassword} 
                       isPasswordValid={isPasswordValid} 
                       setIsPasswordValid={setIsPasswordValid} 
                       shouldDoValidation={isFirstUse} 
@@ -193,7 +194,7 @@ const LoginPage: React.FC<LoginPageProps> = (props: LoginPageProps) => {
           </Flex>
         </Center>
       </Box>
-    </>
+    </form>
   )
 }
 
