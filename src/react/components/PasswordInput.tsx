@@ -144,6 +144,7 @@ const PasswordInput: FC<PasswordInputProps> = (props) => {
                 : "blue.secondary"
             }
             color="white"
+            my="20px"
             placeholder="Confirm the password"
             type={showConfirmPassword ? "text" : "password"}
             {...register("confirmPassword")} 

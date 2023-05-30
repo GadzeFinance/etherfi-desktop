@@ -91,7 +91,6 @@ const DecryptValidatorKeysWidget: React.FC = () => {
     }
 
     const openFilesCreatedFolder = () => {
-        console.log(filesCreatedPath)
         window.fileSystemApi.reqOpenFolder(filesCreatedPath);
     }
 

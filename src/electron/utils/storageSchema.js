@@ -3,6 +3,10 @@ const schema = {
         type: "boolean",
         default: true,
     },
+    passwordSalt: {
+        type: "string",
+        default: "",
+    },
     passwordHash: {
         type: "string",
         default: "",

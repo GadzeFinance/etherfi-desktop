@@ -20,7 +20,7 @@ const StepSelectStakeInfoPath: React.FC<StepSelectStakeInfoPathProps> = (
 ) => {
   const [staleKeysFound, setStaleKeysFound] = useState<Boolean>(false);
   const backDetails = {
-    text: "back",
+    text: "Back",
     visible: true,
   };
 

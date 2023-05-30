@@ -15,11 +15,15 @@ class Database {
     }
 
     setPassword(password) {
+
+        const salt = crypto.randomBytes(16).toString('base64');
+        this._store.set("passwordSalt", salt)
+
         // TODO: check the password has not already been set
         this._store.set("passwordSet", true);
         this._store.set(
             "passwordHash",
-            crypto.createHash("sha256").update(password).digest("hex")
+            crypto.createHash("sha256").update(`${password}:${salt}`).digest("hex")
         );
         // Since this is our first time using app, we also need to generate a password for validators
         const operatorPassword = this.generatePassword();
@@ -28,8 +32,9 @@ class Database {
 
     validatePassword(password) {
         const storedHash = this._store.get("passwordHash");
+        const salt = this._store.get("passwordSalt")
         return (
-            storedHash === crypto.createHash("sha256").update(password).digest("hex")
+            storedHash === crypto.createHash("sha256").update(`${password}:${salt}`).digest("hex")
         );
     }
 

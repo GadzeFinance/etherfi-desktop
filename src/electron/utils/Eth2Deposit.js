@@ -341,8 +341,6 @@ const generateSignedExitMessage = async (
     })
   }
 
-  console.log("PASSWORD: ", keystorePassword)
-
   const allWallets = await storage.getAllStakerAddresses();
   if (allWallets == undefined || !(address in allWallets)) {
       await storage.addStakerAddress(address)

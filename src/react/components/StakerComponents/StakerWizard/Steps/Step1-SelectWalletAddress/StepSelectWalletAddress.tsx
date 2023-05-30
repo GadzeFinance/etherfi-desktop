@@ -58,7 +58,7 @@ const StepSelectWalletAddress: React.FC<StepSelectWalletAddressProps> = (
                 Select Wallet Address
             </Text>
             <Text color="white" opacity={"0.7"}>
-                Something about wallet address IDK
+                Pick the wallet address where you want to save your keys.
             </Text>
             <Controller
                 control={control}

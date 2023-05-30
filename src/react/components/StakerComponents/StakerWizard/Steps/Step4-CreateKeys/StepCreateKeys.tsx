@@ -28,7 +28,7 @@ interface StepCreateKeysProps {
 const StepCreateKeys: React.FC<StepCreateKeysProps> = (props) => {
 
   const [generatingKeys, setGeneratingKeys] = useState(false)
-  const [chain, setChain] = useState("")
+  const [chain, setChain] = useState("mainnet")
   const [keysGenerated, setKeysGenerated] = useState(0);
   const [keysTotal, setKeysTotal] = useState(0);
   // const [lastTimestamp, setLastTimestamp] = useState(-1);
@@ -108,7 +108,6 @@ const StepCreateKeys: React.FC<StepCreateKeysProps> = (props) => {
   }, [props.keysGenerated]);
 
   const openFilesCreatedFolder = () => {
-    console.log(props.filesCreatedPath)
     window.fileSystemApi.reqOpenFolder(props.filesCreatedPath);
   }
 
@@ -133,7 +132,6 @@ const StepCreateKeys: React.FC<StepCreateKeysProps> = (props) => {
     variant: "white-button",
   }
 
-  console.log("keys:", keysGenerated, keysTotal)
 
   return (
     <Flex
@@ -154,7 +152,7 @@ const StepCreateKeys: React.FC<StepCreateKeysProps> = (props) => {
             Create Keys
           </Text>
           <Text color="white" align="center">
-            Choose a folder where we should save your keys
+            Choose a folder where we should save your generated validator keys
           </Text>
           <Center>
             <Button variant="browse-folder-button" onClick={selectSavePath}>
