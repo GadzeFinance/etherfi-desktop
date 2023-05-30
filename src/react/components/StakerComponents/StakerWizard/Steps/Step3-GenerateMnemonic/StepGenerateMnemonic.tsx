@@ -61,13 +61,14 @@ const StepGenerateMnemonic: React.FC<StepGenerateMnemonicProps> = (props) => {
 
   const nextAction = () => {
     // No Mneomoic Generated
-    console.log(props)
     if (!props.mnemonic) {
       if (props.mnemonicOption == "import") {
         props.setMnemonic(importMnemonic)
         props.goNextStep()
       } else if (props.mnemonicOption == "generate") {
         generateMnemonic()
+      } else if (props.mnemonicOption == "stored") {
+        props.goNextStep()
       }
     };
     // Mneomoic Generated and viewing the whole mnemonic screen

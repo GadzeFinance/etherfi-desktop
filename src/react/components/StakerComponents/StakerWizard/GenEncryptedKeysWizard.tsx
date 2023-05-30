@@ -79,7 +79,7 @@ const GenEncryptedKeysWizard: React.FC<WizardProps> = (props) => {
         <Center>
             <Flex
                 width={"905px"}
-                height={"450px"}
+                height={"500px"}
                 sx={{
                     border: "1px solid",
                     borderColor: "purple.light",
@@ -87,7 +87,7 @@ const GenEncryptedKeysWizard: React.FC<WizardProps> = (props) => {
                     borderRadius: "16px",
                 }}
             >
-                <Flex flexDir="column" width="600px" height="350px">
+                <Flex flexDir="column" width="600px" height="450px">
                     <Steps
                         colorScheme="black-alpha"
                         orientation="vertical"

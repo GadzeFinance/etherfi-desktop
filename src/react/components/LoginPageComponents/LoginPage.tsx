@@ -35,7 +35,7 @@ const LoginPage: React.FC<LoginPageProps> = (props: LoginPageProps) => {
 
   const reqAuthenticate = () => {
     if (!isPasswordValid) {
-      showToast('Authentication Failed.', 'Please input the correct password.', 'warning')
+      showToast('Authentication Failed', 'Incorrect Password', 'warning')
       return
     }
 
@@ -49,12 +49,12 @@ const LoginPage: React.FC<LoginPageProps> = (props: LoginPageProps) => {
         if (result === 0) {
           props.setIsAuthenticated(valid);
           if (!valid) {
-            showToast('Authentication Failed.', 'Please input the correct password.', 'warning')
+            showToast('Authentication Failed', 'Incorrect Password', 'warning')
           } else {
-            showToast('Authentication Passed.', "We've logged you in!", 'success')
+            showToast('Authentication Passed', "Logging you in!", 'success')
           }
         } else {
-          showToast('Authentication Failed.', 'Please input the correct password.', 'warning')
+          showToast('Authentication Failed', 'Incorrect Password', 'warning')
           console.error("Error validating password");
           console.error(errorMessage);
         }
@@ -65,7 +65,7 @@ const LoginPage: React.FC<LoginPageProps> = (props: LoginPageProps) => {
 
   const reqCreatePassword = () => {
     if (!isPasswordValid || loginPassword != confirmPassword) {
-      showToast("Form Incomplete", "Please follow the instructions in the form.", "warning")
+      showToast("Form Incomplete", "Match the criteria given to continue", "warning")
       return
     }
     window.databaseApi.receiveSetPasswordResult(
@@ -76,9 +76,9 @@ const LoginPage: React.FC<LoginPageProps> = (props: LoginPageProps) => {
       ) => {
         if (result === 0) {
           props.setIsAuthenticated(true);
-          showToast("Password Saved!", "You can use this password for future authentication", "success")
+          showToast("Password Saved!", "", "success")
         } else {
-          showToast("Failed", "Something wrong in the backend", "error")
+          showToast("Failed", "Something went wrong logging you in", "error")
           console.error("Error setting password");
           console.error(errorMessage);
         }
@@ -126,7 +126,6 @@ const LoginPage: React.FC<LoginPageProps> = (props: LoginPageProps) => {
       <Center flex="auto">
         <Flex
             width={'905px'}
-            height={'550px'}
             sx={{
               border: '1px solid',
               borderColor: 'purple.light',
@@ -164,7 +163,7 @@ const LoginPage: React.FC<LoginPageProps> = (props: LoginPageProps) => {
                 </VStack>
           
                 <Text color="white" fontSize="md" opacity={"0.7"}>
-                  Please not that the password you are about to create will be used solely to encrypt the application's database.
+                  Please note that the password you are about to create will be used solely to encrypt the application's database.
                   It is important to understand that this password is not the same as the validator password
                   We cannot recover your password if you forget it, so it's curcial to commit it to memory.
                 </Text>
@@ -185,8 +184,8 @@ const LoginPage: React.FC<LoginPageProps> = (props: LoginPageProps) => {
               </GridItem>
               <GridItem>
                 { isFirstUse ?
-                  <Button onClick={reqCreatePassword} width={"200px"} alignSelf={"end"}>Create Password</Button> :
-                  <Button onClick={reqAuthenticate} width={"200px"} alignSelf={"end"}>Log in</Button> }
+                  <Button onClick={reqCreatePassword} width={"200px"} my="20px" alignSelf={"end"}>Create Password</Button> :
+                  <Button onClick={reqAuthenticate} width={"200px"} my="20px" alignSelf={"end"}>Log in</Button> }
               </GridItem>
               
               </Grid>

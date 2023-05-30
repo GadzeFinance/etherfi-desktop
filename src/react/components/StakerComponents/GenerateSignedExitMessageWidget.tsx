@@ -226,7 +226,7 @@ const GenerateSignedExitMessageWidget: React.FC<GenerateSignedExitMessageWidgetP
                                 />
                               </NumberInput>
                             </InputGroup>
-                            <Box>
+                            <Box my="20px">
                             <Text fontSize="14px" as="b" color="white">
                               {" "}
                               Keystore File Password
@@ -350,7 +350,7 @@ const GenerateSignedExitMessageWidget: React.FC<GenerateSignedExitMessageWidgetP
                       Saved
                     </Text>
                     <Text fontSize="14px" color={COLORS.textSecondary}>
-                      The signedExitMessage.json has been saved to your machine
+                      The signedExitMessage.json has been saved to the folder specified
                     </Text>
                   </HStack>
                 </Box>
