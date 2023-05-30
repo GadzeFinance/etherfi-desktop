@@ -13,7 +13,6 @@ import {
 } from "@chakra-ui/react";
 import AddressSelect from "./AddressSelect";
 import DataTable from "./DataTable";
-import useGetPassword from "../../hooks/useGetPassword";
 
 interface HistoryWidgetProps {
   tabIndex: number
