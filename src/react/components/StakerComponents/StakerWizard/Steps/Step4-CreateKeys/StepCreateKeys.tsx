@@ -31,7 +31,6 @@ const StepCreateKeys: React.FC<StepCreateKeysProps> = (props) => {
   const [chain, setChain] = useState("mainnet")
   const [keysGenerated, setKeysGenerated] = useState(0);
   const [keysTotal, setKeysTotal] = useState(0);
-  // const [lastTimestamp, setLastTimestamp] = useState(-1);
   const [recentUsedTime, setRecentUsedTime] = useState(-1);
   const [storageChecked, setStorageChecked] = useState(false);
   const { watch, getValues, resetField } = useFormContext();
