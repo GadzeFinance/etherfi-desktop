@@ -22,18 +22,12 @@ const DBExplorer = ({
   console.log("DBExplorer:", tabIndex, selectedOption)
 
   return (<>
-    {/* <ScaleFade initialScale={0.5} in={tabIndex === 1}> */}
-      {/* {selectedOption === 0 && (
-        <ScaleFade initialScale={0.5} in={selectedOption === 0}>
+      { selectedOption === 0 && (
           <SavedDataWidget tabIndex={0} />
-        </ScaleFade>
-      )} */}
-      {selectedOption === 1 && (
-        // <ScaleFade initialScale={0.5} in={selectedOption === 1}>
-          <HistoryWidget tabIndex={1} />
-        // </ScaleFade>
       )}
-     {/* </ScaleFade> */}
+      { selectedOption === 1 && (
+          <HistoryWidget tabIndex={1} />
+      )}
     </>
   );
 };

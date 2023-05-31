@@ -106,7 +106,7 @@ const schema = {
     },
     historyPageCount: {
         type: "number",
-        default: 0
+        default: 1
     }
 };
 

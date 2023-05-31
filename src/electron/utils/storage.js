@@ -119,11 +119,14 @@ class Database {
 
     // if the history data gets large we might need pagination
     getHistoryPageCount() {
+        if (!this._store.get("historyPageCount")) {
+            this._store.set("historyPageCount", 1)
+        }
         return this._store.get("historyPageCount");
     }
 
     getHistoryPage(pageId) {
-        return this._store.get(`historyPages.${pageId}`) || [];
+        return this._store.get(`historyPages.${pageId}`) || {};
     }
     
     addHistoryPage() {
@@ -134,7 +137,7 @@ class Database {
     }
 
     getHistoryRecordCount(pageId) {
-        return this._store.get(`historyPages.${pageId}.recordCount`);
+        return this._store.get(`historyPages.${pageId}.recordCount`) || 0;
     }
 
     addHistoryRecord(pageId, timestamp, data) {

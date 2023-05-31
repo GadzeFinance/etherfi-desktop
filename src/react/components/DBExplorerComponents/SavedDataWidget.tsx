@@ -13,7 +13,6 @@ import {
 } from "@chakra-ui/react";
 import AddressSelect from "./AddressSelect";
 import DataTable from "./DataTable";
-import useGetPassword from "../../hooks/useGetPassword";
 
 interface StakerMap {
   [stakerAddress: string]: StakerInfo
@@ -49,6 +48,10 @@ const SavedDataWidget = (props: SavedDataWidgetProps) => {
         data: StakerMap,
         errorMessage: string
       ) => {
+        
+        console.log("receiveAllStakerAddresses", result, data, errorMessage)
+        console.log("dbPassword:", dbPassword)
+
         if (result === 0) {
           
           setAllStakers(data);

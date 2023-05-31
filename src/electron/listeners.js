@@ -413,7 +413,6 @@ const getStakerAddress = async (password) => {
     // Decrypt here if efficiency allows
     for (const [addr, stakerInfo] of Object.entries(allStakers)) {
         const { validators, mnemonics } = stakerInfo;
-        console.log("stakeInfo:", stakeInfo)
         for (const [id, validator] of Object.entries(validators ? validators : {})) {
             validators[id] = {
                 keystore: await storage.decrypt(validator.keystore, password),
