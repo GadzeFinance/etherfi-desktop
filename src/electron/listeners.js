@@ -104,11 +104,13 @@ const genMnemonic = async (language) => {
 
 /**
  * Generates validator keys and encrypts them using the bidderPublicKeys in given stakeInfo.json file and mnemonic
+ * 
+ * @typedef {Object.<string, string>} StakeInfo
  *
  * @param {string} mnemonic - The 24 word mnmonic seed phrase
  * @param {string} password - The password to encrypt the validator keystores with
  * @param {string} folder - The folder to save the files that are generated too
- * @param {string} stakeInfoPath - The path to the stakeinfo.json file
+ * @param {StakeInfo[]} stakeInfo - The stakeinfo array
  * @param {string} chain - The chain to generate the keys for
  * 
 
@@ -118,7 +120,7 @@ const genMnemonic = async (language) => {
  *          It also contains single stakeRequest.json file which contains the encrypted data.
  *           The stakeRequest.json file is what the user should upload to the DAPP.
  */
-const genValidatorKeysAndEncrypt = async (event, mnemonic, databasePassword, folder, stakeInfoPath, chain, address, mnemonicOption, importPassword) => {
+const genValidatorKeysAndEncrypt = async (event, mnemonic, databasePassword, folder, stakeInfo, chain, address, mnemonicOption, importPassword) => {
     logger.info("genEncryptedKeys: Start")
     const allWallets = await storage.getAllStakerAddresses();
     if (allWallets == undefined || !(address in allWallets)) {
@@ -133,8 +135,6 @@ const genValidatorKeysAndEncrypt = async (event, mnemonic, databasePassword, fol
         password = importPassword
     }
     
-    // get the data from stakeInfoPath
-    const stakeInfo = JSON.parse(fs.readFileSync(stakeInfoPath))
     const stakeInfoLength = stakeInfo.length
     const timeStamp = Date.now()
     folder = path.join(folder, `etherfi_keys-${timeStamp}`)

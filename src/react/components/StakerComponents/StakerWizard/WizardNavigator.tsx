@@ -18,7 +18,7 @@ const WizardNavigator: React.FC<WizardNavigatorProps> = (props: WizardNavigatorP
 
     return (
         <>
-            <Grid templateColumns='repeat(2, 1fr)' gap={6}>
+            <Grid templateColumns='repeat(2, 1fr)' gap={6} mt="auto">
                 <GridItem w='100%'>
                     <Center>
                         {props.backDetails.visible &&

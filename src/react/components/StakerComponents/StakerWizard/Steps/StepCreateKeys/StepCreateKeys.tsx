@@ -15,7 +15,7 @@ interface StepCreateKeysProps {
   savePath: string,
   setSavePath: (path: string) => void,
   mnemonic: string,
-  stakeInfoPath: Object,
+  stakeInfo: { [key: string]: string }[],
   keysGenerated: boolean,
   setKeysGenerated: (generated: boolean) => void,
   filesCreatedPath: string
@@ -67,7 +67,7 @@ const StepCreateKeys: React.FC<StepCreateKeysProps> = (props) => {
         }
         setGeneratingKeys(false)
       })
-    window.encryptionApi.reqGenValidatorKeysAndEncrypt(props.mnemonic, loginPassword, props.savePath, props.stakeInfoPath, chain, getValues('confirmedAddress'), props.mnemonicOption, props.importMnemonicPassword);
+    window.encryptionApi.reqGenValidatorKeysAndEncrypt(props.mnemonic, loginPassword, props.savePath, props.stakeInfo, chain, getValues('confirmedAddress'), props.mnemonicOption, props.importMnemonicPassword);
     setGeneratingKeys(true)
   }
 
@@ -99,7 +99,7 @@ const StepCreateKeys: React.FC<StepCreateKeysProps> = (props) => {
           console.warn("Could not update Stale Keys DB")
         }
       })
-      window.databaseApi.reqUpdateStaleKeys(props.stakeInfoPath)
+      window.databaseApi.reqUpdateStaleKeys(props.stakeInfo)
     }
     if (!storageChecked) {
       getLocalStorage()
