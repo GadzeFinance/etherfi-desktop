@@ -28,7 +28,7 @@ const {
 const {validateJsonFile} = require('./utils/validateFile')
 const { standardResultCodes, decryptResultCodes } = require('./constants')
 const { generateSignedExitMessage } = require('./utils/Eth2Deposit')
-const { getHistoryRecordsByPage } = require("./utils/historyUtils")
+const { getHistoryRecordsByPage, getHistoryPageCount } = require("./utils/historyUtils")
 
 function createWindow() {
     // Create a new window
@@ -343,11 +343,22 @@ ipcMain.on("req-get-password", async (event, args) => {
 
 ipcMain.on("req-history-page", async (event, args) => {
     const [page] = args
+    console.log("req-history-page:", args)
     try {
         const historyRecords = await getHistoryRecordsByPage(page);
         event.sender.send("receive-history-page", standardResultCodes.SUCCESS, historyRecords, '')
     } catch (error) {
         logger.error("Error getting password", error)
-        event.sender.send("receive-history-page", standardResultCodes.ERROR, '' , error.message)
+        event.sender.send("receive-history-page", standardResultCodes.ERROR, '', error.message)
+    }
+})
+
+ipcMain.on("req-history-page-count", async (event, args) => {
+    try {
+        const historyPageCount = await getHistoryPageCount();
+        event.sender.send("receive-history-page-count", standardResultCodes.SUCCESS, historyPageCount, '')
+    } catch (error) {
+        logger.error("Error getting password", error)
+        event.sender.send("receive-history-page-count", standardResultCodes.ERROR, '', error.message)
     }
 })

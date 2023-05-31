@@ -21,16 +21,19 @@ import {
   Center,
 } from "@chakra-ui/react";
 import { CopyIcon, ViewIcon } from "@chakra-ui/icons";
+import useCopy from "../../hooks/useCopy";
 
 interface DataTableProps {
   title: string
   dataCount: number
-  data: { [idx: string] : string }
+  data: any
 }
 
 const DataTable = ({title, dataCount, data}: DataTableProps) => {
 
   const [selectedCode, setSelectedCode] = useState<any>("")
+
+  const { copyData } = useCopy();
 
   const shortenMnemonic = (mnemonic: any) => {
     const wordArray = mnemonic.mnemonic.split(" ");
@@ -39,7 +42,8 @@ const DataTable = ({title, dataCount, data}: DataTableProps) => {
         .join(", ")}`;
   };
 
-  const viewData = (content: string) => {
+  const viewData = (content: string | object) => {
+    console.log("view data:", content);
     setSelectedCode(content);
   }
 
@@ -47,18 +51,10 @@ const DataTable = ({title, dataCount, data}: DataTableProps) => {
     setSelectedCode("");
   };
 
-  const renderParsedCode = (code: string) => {
-    try {
-      const parsedCode = JSON.parse(code)
-      return parsedCode
-    } catch(e) {
-      return selectedCode
-    }
-  }
-
-  const copyData = (data: string) => {
-    window.utilsApi.copyToClipBoard(data)
-  }
+  // const copyData = (data: string) => {
+  //   console.log("copyData:", data)
+  //   window.utilsApi.copyToClipBoard(data)
+  // }
 
   return (
     <Box h={"380px"} overflowY="auto" py="5">
@@ -85,7 +81,7 @@ const DataTable = ({title, dataCount, data}: DataTableProps) => {
                   </Td>
                   <Td>{content.password}</Td>
                   <Td w="90px" cursor={"pointer"} onClick={() => { viewData(title === "mnemonics" ? content.mnemonic: content.keystore); }} textAlign={"center"}><ViewIcon/></Td>
-                  <Td w="90px" cursor={"pointer"} onClick={() => { copyData( title === "mnemonics" ? content.mnemonic : content.keystore);}} textAlign={"center"}><CopyIcon/></Td>
+                  <Td w="90px" cursor={"pointer"} onClick={() => { copyData(title === "mnemonics" ? content.mnemonic : content.keystore);}} textAlign={"center"}><CopyIcon/></Td>
                 </Tr>
               </>)}
           </Tbody>
@@ -131,12 +127,12 @@ const DataTable = ({title, dataCount, data}: DataTableProps) => {
                 fontFamily="monospace"
                 overflowX="auto"
                 p={4}>
-                {JSON.stringify((selectedCode.keystore), null, 2)}
+                {JSON.stringify(JSON.parse(selectedCode || "{}"), null, 2)}
               </Code>
             }
           </ModalBody>
           <ModalFooter>
-            <Button onClick={() => copyData(selectedCode.keystore)}>Copy</Button>
+            <Button onClick={() => {copyData(selectedCode)}}>Copy</Button>
           </ModalFooter>
         </ModalContent>
       </Modal>

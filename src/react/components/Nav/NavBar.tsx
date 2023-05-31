@@ -121,7 +121,7 @@ const NavBar: React.FC<NavBarProps> = ({
                 {({ isOpen }) => (
                     <>
                     <MenuButton fontSize="18px" as={Button} width="10px" sx={tabButtonStyle} {...tabProps} rightIcon={isOpen ? <ChevronUpIcon /> : <ChevronDownIcon />} >
-                        Database Explorer!
+                        Admin
                     </MenuButton>
                     <MenuList sx={dropDownMenuStyle}>
                         <MenuItem sx={dropDownItemStyle} color={selectedDBOperation === 0 ? "white" : COLORS.textSecondary}

@@ -201,6 +201,12 @@ contextBridge.exposeInMainWorld("databaseApi", {
     },
     receiveHistoryByPage: function (func) {
         ipcRenderer.once("receive-history-page", (event, ...args) => func(event, ...args))
+    },
+    reqHistoryPageCount: function () {
+        ipcRenderer.send("req-history-page-count", []);
+    },
+    receiveHistoryPageCount: function (func) {
+        ipcRenderer.once("receive-history-page-count", (event, ...args) => func(event, ...args))
     }
 });
 

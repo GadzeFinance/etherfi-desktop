@@ -81,32 +81,19 @@ const schema = {
             },
         },
     },
-    historyPages: {
+    historyRecords: {
         type: "object",
         properties: {
-            page: {
-                type: "object",
-                properties: {
-                    recordCount: {
-                        type: "number",
-                        default: 0
-                    },
-                    records: {
-                        type: "object",
-                        properties: {
-                            timestamp: {
-                                type: "string",
-                                default: ""
-                            }
-                        } 
-                    }
-                }
+            timestamp: {
+                type: "string"
             }
         }
     },
-    historyPageCount: {
-        type: "number",
-        default: 1
+    historyRecordCount: {
+        type: "number"
+    },
+    historyRecordTimestampList: {
+        type: "array"
     }
 };
 

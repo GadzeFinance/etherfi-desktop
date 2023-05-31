@@ -18,10 +18,15 @@ interface StakerMap {
   [stakerAddress: string]: StakerInfo
 }
 
+interface ValidatorInfo {
+  keystore: object,
+  password: string
+}
+
 interface StakerInfo {
   mnemonicCount: number
   mnemonics: {[idx: string]: string}
-  validators: {[idx: string]: string}
+  validators: {[idx: string]: ValidatorInfo}
 }
 
 interface SavedDataWidgetProps {

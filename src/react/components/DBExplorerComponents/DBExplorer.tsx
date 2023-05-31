@@ -19,8 +19,6 @@ const DBExplorer = ({
   selectedOption
 }: DBExplorerProps) => {
 
-  console.log("DBExplorer:", tabIndex, selectedOption)
-
   return (<>
       { selectedOption === 0 && (
           <SavedDataWidget tabIndex={0} />

@@ -117,35 +117,69 @@ class Database {
         return this._store.get("validatorAddress");
     }
 
-    // if the history data gets large we might need pagination
-    getHistoryPageCount() {
-        if (!this._store.get("historyPageCount")) {
-            this._store.set("historyPageCount", 1)
+    getHistoryRecordsByTimestampList(timestamps) {
+        console.log("getHistoryRecordsByTimestampList:", timestamps)
+        console.log(this._store.store)
+        const records = {};
+        for (const timestamp of timestamps) {
+            const record = this._store.get(`historyRecords.${timestamp}`) || {};
+            records[timestamp] = record;
         }
-        return this._store.get("historyPageCount");
+        return records;
     }
 
-    getHistoryPage(pageId) {
-        return this._store.get(`historyPages.${pageId}`) || {};
+    getHistoryTimestampList() {
+        if (!this._store.get(`historyRecordTimestampList`)) {
+            this._store.set(`historyRecordTimestampList`, []);
+        }
+        return this._store.get(`historyRecordTimestampList`);
     }
+
+    getHistoryRecordCount() {
+        if (!this._store.get(`historyRecordCount`)) {
+            this._store.set(`historyRecordCount`, 0);
+        }
+        return this._store.get(`historyRecordCount`);
+    }
+
+    addHistoryRecord(timestamp, data) {
+        this._store.set(`historyRecords.${timestamp}`, data);
+        const recordCount = this.getHistoryRecordCount() || 0;
+        this._store.set(`historyRecordCount`, recordCount + 1);
+        const timestamps = this.getHistoryTimestampList() || [];
+        timestamps.push(timestamp);
+        this._store.set(`historyRecordTimestampList`, timestamps);
+    }
+
+    // if the history data gets large we might need pagination
+    // getHistoryPageCount() {
+    //     if (!this._store.get("historyPageCount")) {
+    //         this._store.set("historyPageCount", 1)
+    //     }
+    //     return this._store.get("historyPageCount");
+    // }
+
+    // getHistoryPage(pageId) {
+    //     return this._store.get(`historyPages.${pageId}`) || {};
+    // }
     
-    addHistoryPage() {
-        const pageId = (this._store.get(`historyPageCount`) || 0) + 1;
-        this._store.set(`historyPages.${pageId}`, {});
-        this._store.set(`historyPageCount`, pageId);
-        return pageId;
-    }
+    // addHistoryPage() {
+    //     const pageId = (this._store.get(`historyPageCount`) || 0) + 1;
+    //     this._store.set(`historyPages.${pageId}`, {});
+    //     this._store.set(`historyPageCount`, pageId);
+    //     return pageId;
+    // }
 
-    getHistoryRecordCount(pageId) {
-        return this._store.get(`historyPages.${pageId}.recordCount`) || 0;
-    }
+    // getHistoryRecordCount(pageId) {
+    //     return this._store.get(`historyPages.${pageId}.recordCount`) || 0;
+    // }
 
-    addHistoryRecord(pageId, timestamp, data) {
-        // It's not this api's duty to ensure the number of records don't exceed
-        const newRecordCount = (this._store.get(`historyPages.${pageId}.recordCount`) || 0) + 1;
-        this._store.set(`historyPages.${pageId}.records.${timestamp}`, data);
-        this._store.set(`historyPages.${pageId}.recordCount`, newRecordCount);
-    }
+    // addHistoryRecord(pageId, timestamp, data) {
+    //     // It's not this api's duty to ensure the number of records don't exceed
+    //     const newRecordCount = (this._store.get(`historyPages.${pageId}.recordCount`) || 0) + 1;
+    //     this._store.set(`historyPages.${pageId}.records.${timestamp}`, data);
+    //     this._store.set(`historyPages.${pageId}.recordCount`, newRecordCount);
+    // }
 
     addOperatorKey(address, publicKey, privateKey, password) {
         this._store.set(`validatorAddresses.${address}.${publicKey}`, this.encrypt(privateKey, password));

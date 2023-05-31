@@ -28,7 +28,9 @@ import {
 } from "@chakra-ui/react";
 import AddressSelect from "./AddressSelect";
 import DataTable from "./DataTable";
-import { ArrowBackIcon, ArrowForwardIcon, ViewIcon } from "@chakra-ui/icons";
+import { ArrowBackIcon, ArrowForwardIcon, CopyIcon, ViewIcon } from "@chakra-ui/icons";
+import useGetHistoryPageCount from "../../hooks/useGetHistoryPageCount";
+import useCopy from "../../hooks/useCopy";
 
 interface HistoryWidgetProps {
   tabIndex: number
@@ -52,8 +54,10 @@ interface Records {
 
 const HistoryWidget = (props: HistoryWidgetProps) => {
 
+  const {pageCount, error: pageCountError} = useGetHistoryPageCount();
+  const {copyData} = useCopy();
+
   const [page, setPage] = useState(1);
-  const [pageCount, setPageCount] = useState(1);
   const [historyRecords, setHistoryRecords] = useState<Records>({});
   const [modalData, setModalData] = useState<Record>();
   const [modalTimeStamp, setModalTimeStamp] = useState("");
@@ -89,9 +93,21 @@ const HistoryWidget = (props: HistoryWidgetProps) => {
     setModalTimeStamp("");
   };
 
+  const stepForward = () => {
+    if (page + 1 > pageCount) return;
+    setPage(page + 1);
+  }
+
+  const stepBack = () => {
+    if (page - 1 < 1) return;
+    setPage(page - 1);
+  }
+
   useEffect(() => {
 
     if (props.tabIndex !== 1) return
+
+    if (!pageCount) return
     
     // query history records by page
     window.databaseApi.receiveHistoryByPage(
@@ -102,19 +118,13 @@ const HistoryWidget = (props: HistoryWidgetProps) => {
         errorMessage: string
       ) => {
 
-        console.log("records:", result, records)
-
         if (result === 0) {
-          
           if (records) {
-
             for (const ts in records) {
               records[ts].stakeInfoFile.content = JSON.parse(records[ts].stakeInfoFile.content)
             }
-
             setHistoryRecords(records)
           }
-
         } else {
           console.error("Error getHistoryByPage");
           console.error(errorMessage);
@@ -123,7 +133,7 @@ const HistoryWidget = (props: HistoryWidgetProps) => {
     );
     window.databaseApi.reqHistoryByPage(page);
 
-  }, [props.tabIndex])
+  }, [props.tabIndex, page, pageCount])
 
   console.log("modal:", modalData?.stakeInfoFile)
 
@@ -141,39 +151,48 @@ const HistoryWidget = (props: HistoryWidgetProps) => {
           }}
           color="white"
         > 
-          <Center><Heading pt="20px" pb="40px" size="lg">History</Heading></Center>
-          <Box color="white"><Divider /></Box>
-          { Object.entries(historyRecords).map(([timestamp, record]) => {
-            return (
-              <Box id={timestamp}>
-              <Box 
-                px="10px"
-                py="20px"
-                color="#cdcdcd"
-                fontSize="14px"
-                cursor="pointer"
-                _hover={{background: "#343158"}}
-                onClick={() => showRecordModule(timestamp, record)}
-              >
-                <Box color="white" fontSize="18px" mb="12px">
-                  {new Date(Number(timestamp)).toDateString()}: you generated {record.validatorIds.length} validators
+        <Grid height="100%" templateRows="repeat(8, 1fr)" gap={4}>
+          <GridItem rowSpan={1}>
+            <Center ><Heading size="lg">History</Heading></Center>
+          </GridItem>
+          <GridItem overflowY="scroll" rowSpan={6}>
+          <Box overflowY="scroll">
+            <Box color="white"><Divider /></Box>
+            { Object.entries(historyRecords).map(([timestamp, record]) => {
+              return (
+                <Box id={timestamp}>
+                <Box 
+                  px="10px"
+                  py="20px"
+                  color="#cdcdcd"
+                  fontSize="14px"
+                  cursor="pointer"
+                  _hover={{background: "#343158"}}
+                  onClick={() => showRecordModule(timestamp, record)}
+                >
+                  <Box color="white" fontSize="18px" mb="12px">
+                    {`${new Date(Number(timestamp)).toDateString()}, ${new Date(Number(timestamp)).toLocaleTimeString()} =>`}  you generated {record.validatorIds.length} validators
+                  </Box>
+                  <Box py="2px">Address: {record.address}</Box>
+                  <Box py="2px">StakeInfo File: {record.stakeInfoFile.name}</Box>
+                  <Box py="2px">Mnemonic: {shortenMnemonic(record.mnemonic)}</Box>
                 </Box>
-                <Box py="2px">Address: {record.address}</Box>
-                <Box py="2px">StakeInfo File: {record.stakeInfoFile.name}</Box>
-                <Box py="2px">Mnemonic: {shortenMnemonic(record.mnemonic)}</Box>
-              </Box>
-              <Divider  />
-              </Box>
-            )
-          }) }
-          <Box color="white">
-            <Flex justify="center" mt={4}>
-              <Button {...pageButtonStyle}><ArrowBackIcon /></Button>
-              <Box><Text>{page} / {pageCount}</Text></Box>
-              <Button {...pageButtonStyle}><ArrowForwardIcon /></Button>
-            </Flex>
-            
+                <Divider  />
+                </Box>
+              )
+            }) }
           </Box>
+          </GridItem>
+          <GridItem rowSpan={1}>
+            <Box height="50px" color="white">
+              <Flex height="50px" justify="center">
+                <Button onClick={stepBack} height="50px" {...pageButtonStyle}><ArrowBackIcon /></Button>
+                <Box lineHeight="50px" marginX="15px"><Text>{page} / {pageCount}</Text></Box>
+                <Button onClick={stepForward} height="50px" {...pageButtonStyle}><ArrowForwardIcon /></Button>
+              </Flex>
+            </Box>
+          </GridItem>
+          </Grid>
         </Box>
         <Modal size={"3xl"} isOpen={modalTimeStamp !== ""} onClose={closeModal}>
         <ModalOverlay />
@@ -182,8 +201,8 @@ const HistoryWidget = (props: HistoryWidgetProps) => {
           <ModalCloseButton color={"white"} />
           <ModalBody>
             <Heading {...modalHeadingStyle}>Time</Heading>
-            <Text {...modalContentStyle}>{new Date(Number(modalTimeStamp)).toDateString()}</Text>
-            <Heading {...modalHeadingStyle}>Mnemonics</Heading>
+            <Text {...modalContentStyle}>{`${new Date(Number(modalTimeStamp)).toDateString()}, ${new Date(Number(modalTimeStamp)).toLocaleTimeString()}`}</Text>
+            <Heading {...modalHeadingStyle}>Mnemonics <CopyIcon onClick={() => {copyData(modalData?.mnemonic)}} ml="5px" cursor="pointer" /></Heading>
             <Grid
               {...modalContentStyle}
               templateColumns="repeat(4, 1fr)"
@@ -211,7 +230,7 @@ const HistoryWidget = (props: HistoryWidgetProps) => {
                 ))
               }
             </Grid >
-            <Heading {...modalHeadingStyle}>StakeInfo File</Heading>
+            <Heading {...modalHeadingStyle}>StakeInfo File <CopyIcon onClick={() => {copyData(JSON.stringify(modalData?.stakeInfoFile?.content))}} ml="5px" cursor="pointer" /></Heading>
             <Code
               style={modalContentStyle}
               colorScheme="purple.dark"
@@ -225,7 +244,7 @@ const HistoryWidget = (props: HistoryWidgetProps) => {
               {JSON.stringify(modalData?.stakeInfoFile?.content ?? "", null, 2)}
             </Code>
             <Heading {...modalHeadingStyle}>Validator Generated</Heading>
-            <Text {...modalContentStyle}>{modalData?.validatorIds}</Text>
+            <Text {...modalContentStyle}>Validator Ids: {modalData?.validatorIds.join(", ")}</Text>
           </ModalBody>
         </ModalContent>
       </Modal>

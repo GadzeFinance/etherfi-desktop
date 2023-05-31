@@ -19,12 +19,12 @@ declare global {
 
 
 const App: React.FC = () => {
-  // const [tabIndex, setTabIndex] = useState<number>(0)
-  const [tabIndex, setTabIndex] = useState<number>(2)
+  const [tabIndex, setTabIndex] = useState<number>(0)
+  // const [tabIndex, setTabIndex] = useState<number>(2)
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false)
   const [password, setPassword] = useState<string>("")
-  // const [selectedDBOperation, setSelectedDBOperation] = useState(0);
-  const [selectedDBOperation, setSelectedDBOperation] = useState(1);
+  const [selectedDBOperation, setSelectedDBOperation] = useState(0);
+  // const [selectedDBOperation, setSelectedDBOperation] = useState(1);
   const [selectedNodeOperatorOperation, setNodeOperatorOperation] = useState(0);
   const [stakerOperation, setStakerOperation] = useState(0);
   const methods = useForm({ shouldUseNativeValidation: true });
@@ -44,8 +44,8 @@ const App: React.FC = () => {
 
   return (
     <FormProvider {...methods} >
-      {/* { !isAuthenticated && <LoginPage setIsAuthenticated={setIsAuthenticated} setPassword={setPassword} password={password}/> } */}
-      { true && <Tabs
+      { !isAuthenticated && <LoginPage setIsAuthenticated={setIsAuthenticated} setPassword={setPassword} password={password}/> }
+      { isAuthenticated && <Tabs
         variant="soft-rounded"
         index={tabIndex}
         onChange={handleTabsChange}

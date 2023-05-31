@@ -3,27 +3,10 @@ const { storage } = require('./storage')
 const MAX_RECORD_PER_PAGE = 10;
 
 const addHistoryRecord = (data) => {
-  console.log("addHistoryRecord:", data)
-  // get the latest page id
-  const latestPageId = storage.getHistoryPageCount();
-  // check the number of records on that page
-  const count = storage.getHistoryRecordCount(latestPageId);  
-  // get the timestamp
   const timestamp = new Date().getTime();
-  console.log("count:", count)
-  if (count >= MAX_RECORD_PER_PAGE) {
-    const newPageId = storage.addHistoryPage()
-    storage.addHistoryRecord(newPageId, timestamp, data);
-  } else {
-    console.log("storage.addHistoryRecord", latestPageId, timestamp, data)
-    storage.addHistoryRecord(latestPageId, timestamp, data);
-  }
+  storage.addHistoryRecord(timestamp, data);
 }
 
-// address: string
-// stakeInfo file: {name: string, content: string}
-// mnemonic: string
-// validators: array of validator id => json string
 const encodeGenerateKeysData = (address, stakeFileName, stakeFileContent, mnemonic, validatorIds) => {
   const stakeInfoFile = {
     name: stakeFileName,
@@ -52,16 +35,31 @@ const decodeGenerateKeysData = (data) => {
   return decodedData;
 }
 
+// Example: 3 records per page
+// page 1: get record n-1, record n-2, record n-3
+// page 2: get record n-4, record n-5, record n-6
 const getHistoryRecordsByPage = async (pageId) => {
-  console.log("getHistoryRecordsByPage:", pageId)
-  console.log("storage:", storage._store.store);
-  const page = storage.getHistoryPage(pageId);
-  const records = page.records || {};
-  const decodedRecords = {};
-  for (const [timestamp, record] of Object.entries(records)) {
-    decodedRecords[timestamp] = decodeGenerateKeysData(record);
+  const allTimestampList = storage.getHistoryTimestampList() || [];
+  const totalCount = allTimestampList.length;
+  // count from back to front
+  const selectedList = []
+  for (let i = 1; i <= MAX_RECORD_PER_PAGE; i++) {
+    const index = totalCount - MAX_RECORD_PER_PAGE * (pageId - 1) - i;
+    if (index < 0) break;
+    const timestamp = allTimestampList[index];
+    selectedList.push(timestamp);
   }
-  return decodedRecords;
+  const records  = storage.getHistoryRecordsByTimestampList(selectedList) || {};
+  for (const [timestamp, record] of Object.entries(records)) {
+    records[timestamp] = decodeGenerateKeysData(record);
+  }
+  return records;
+}
+
+const getHistoryPageCount = async () => {
+  const totalRecords = storage.getHistoryRecordCount() || 0;
+  const totalPages = Math.ceil(totalRecords / MAX_RECORD_PER_PAGE);
+  return totalPages;
 }
 
 
@@ -70,5 +68,6 @@ module.exports = {
   addHistoryRecord,
   encodeGenerateKeysData,
   decodeGenerateKeysData,
-  getHistoryRecordsByPage
+  getHistoryRecordsByPage,
+  getHistoryPageCount
 }
