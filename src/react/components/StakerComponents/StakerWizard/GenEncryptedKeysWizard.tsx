@@ -108,6 +108,8 @@ const GenEncryptedKeysWizard: React.FC<WizardProps> = (props) => {
                             goNextStep={nextStep}
                             dropWalletAddress={dropWalletAddress}
                             typeWalletAddress={typeWalletAddress}
+                            confirmedAddress={confirmedAddress}
+                            setConfirmedAddress={setConfirmedAddress}
                         />
                     )}
                     {activeStep === 1 && (

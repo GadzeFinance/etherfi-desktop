@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { useFormContext, Controller } from "react-hook-form";
 import { Flex, Text, Center, Select } from "@chakra-ui/react";
 import WizardNavigator from "../../WizardNavigator";
@@ -10,18 +10,25 @@ interface StepSelectWalletAddressProps {
     goNextStep: () => void;
     goBackStep: () => void;
     dropWalletAddress: string;
-    typeWalletAddress: string
+    typeWalletAddress: string;
+    setConfirmedAddress: (address: string) => void;
+    confirmedAddress: string;
 }
 
 const StepSelectWalletAddress: React.FC<StepSelectWalletAddressProps> = (
     props
 ) => {
-    const {addressOptions, error} = useGetStakerAddresses();
+    const {addressOptions} = useGetStakerAddresses();
     const [isAddressValid, setIsAddressValid] = React.useState(false);
 
-    const { watch, setValue, control } = useFormContext()
+    const { control, resetField } = useFormContext()
 
-    const typedAddress = watch('address')
+    // If someone goes back, we should clear the fields
+    useEffect(() => {
+        resetField("dropdownAddress")
+        resetField("address")
+        props.setConfirmedAddress("")
+    }, [])
 
     const backDetails = {
         text: "back",
@@ -39,7 +46,7 @@ const StepSelectWalletAddress: React.FC<StepSelectWalletAddressProps> = (
     };
 
     const nextProps = {
-        isDisabled: !(isAddressValid || props.dropWalletAddress),
+        isDisabled: !(isAddressValid || props.dropWalletAddress) || !props.confirmedAddress,
         onClick: props.goNextStep,
         variant: "white-button",
     };

@@ -179,8 +179,8 @@ const GenerateSignedExitMessageWidget: React.FC<GenerateSignedExitMessageWidgetP
                       onChange={(index) => setSelectedTab(index)}
                     >
                       <TabList>
-                        <Tab color={"white"}>Select Validator</Tab>
                         <Tab color={"white"}>Import Validator</Tab>
+                        <Tab color={"white"}>Select Validator</Tab>
                       </TabList>
 
                       <TabPanels>
@@ -284,7 +284,7 @@ const GenerateSignedExitMessageWidget: React.FC<GenerateSignedExitMessageWidgetP
                           Current Epoch
                           </Text>
                           <Text fontSize="14px" color={COLORS.textSecondary}>
-                            25
+                            {epoch}
                           </Text>
                         </HStack>
                       )}
