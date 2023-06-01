@@ -7,13 +7,12 @@ import successBoxStyle from '../../../../../styleClasses/successBoxStyle'
 import { COLORS } from '../../../../../styleClasses/constants'
 import ChainSelectionDropdown from '../../../../ChainSelectionDropdown'
 import { useFormContext } from "react-hook-form";
+import { useLocalStorage } from '../../../../../hooks/useLocalStorage'
 
 
 interface StepCreateKeysProps {
   goNextStep: () => void,
   goBackStep: () => void,
-  savePath: string,
-  setSavePath: (path: string) => void,
   mnemonic: string,
   stakeInfoPath: Object,
   keysGenerated: boolean,
@@ -28,18 +27,16 @@ interface StepCreateKeysProps {
 const StepCreateKeys: React.FC<StepCreateKeysProps> = (props) => {
 
   const [generatingKeys, setGeneratingKeys] = useState(false)
-  const [chain, setChain] = useState("mainnet")
   const [keysGenerated, setKeysGenerated] = useState(0);
   const [keysTotal, setKeysTotal] = useState(0);
-  // const [lastTimestamp, setLastTimestamp] = useState(-1);
   const [recentUsedTime, setRecentUsedTime] = useState(-1);
-  const [storageChecked, setStorageChecked] = useState(false);
   const { watch, getValues, resetField } = useFormContext();
+  const { savePath, setSavePath, chain, setChain, setLocalStorage } = useLocalStorage("", "mainnet")
   const loginPassword = watch("loginPassword")
 
   const selectSavePath = () => {
     window.fileSystemApi.receiveSelectedFolderPath((event: Electron.IpcMainEvent, path: string) => {
-      props.setSavePath(path)
+      setSavePath(path)
     })
     window.fileSystemApi.reqSelectFolderPath();
   }
@@ -67,25 +64,8 @@ const StepCreateKeys: React.FC<StepCreateKeysProps> = (props) => {
         }
         setGeneratingKeys(false)
       })
-    window.encryptionApi.reqGenValidatorKeysAndEncrypt(props.mnemonic, loginPassword, props.savePath, props.stakeInfoPath, chain, getValues('confirmedAddress'), props.mnemonicOption, props.importMnemonicPassword);
+    window.encryptionApi.reqGenValidatorKeysAndEncrypt(props.mnemonic, loginPassword, savePath, props.stakeInfoPath, chain, getValues('confirmedAddress'), props.mnemonicOption, props.importMnemonicPassword);
     setGeneratingKeys(true)
-  }
-
-  const getLocalStorage = () => {
-    const storedPath = localStorage.getItem("storedPath");
-    if (storedPath) {
-      props.setSavePath(storedPath)
-    }
-    const storedChain = localStorage.getItem("storedChain");
-    if (storedChain) {
-      setChain(storedChain)
-    }
-    console.log("get local:", storedPath, storedChain)
-  }
-
-  const setLocalStorage = () => {
-    localStorage.setItem("storedPath", props.savePath)
-    localStorage.setItem("storedChain", chain)
   }
 
   useEffect(() => {
@@ -100,10 +80,6 @@ const StepCreateKeys: React.FC<StepCreateKeysProps> = (props) => {
         }
       })
       window.databaseApi.reqUpdateStaleKeys(props.stakeInfoPath)
-    }
-    if (!storageChecked) {
-      getLocalStorage()
-      setStorageChecked(true)
     }
   }, [props.keysGenerated]);
 
@@ -127,7 +103,7 @@ const StepCreateKeys: React.FC<StepCreateKeysProps> = (props) => {
   }
 
   const nextProps = {
-    isDisabled: !props.savePath || !chain,
+    isDisabled: !savePath || !chain,
     onClick: generateEncryptedKeys,
     variant: "white-button",
   }
@@ -156,11 +132,11 @@ const StepCreateKeys: React.FC<StepCreateKeysProps> = (props) => {
           </Text>
           <Center>
             <Button variant="browse-folder-button" onClick={selectSavePath}>
-              {!props.savePath ? "Browse Folders" : "Change Folder"}
+              {!savePath ? "Browse Folders" : "Change Folder"}
             </Button>
           </Center>
           <Text color="white" opacity={'0.7'} align="center">
-            Folder: {props.savePath}
+            Folder: {savePath}
           </Text>
           <Text color="white" align="center">
             Choose the chain you want to generate validator keys for

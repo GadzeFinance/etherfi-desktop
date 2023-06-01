@@ -100,28 +100,7 @@ class Database {
         return decrypedObject;
     }
 
-
-    addValidatorAddress(address) {
-        const path = `validatorAddress.${address}`;
-        if (!this._store.get(path)) {
-            this._store.set(path, {});
-        }
-    }
-
-    getValidatorAddress(address) {
-        const path = `validatorAddress.${address}`;
-        return this._store.get(path);
-    }
-
-    getAllValidatorAddress() {
-        return this._store.get("validatorAddress");
-    }
-
-    addOperatorKey(address, publicKey, privateKey, password) {
-        this._store.set(`validatorAddresses.${address}.${publicKey}`, this.encrypt(privateKey, password));
-    }
-
-    generatePassword () {
+    generatePassword() {
         const wishlist = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz~!@-#$'
         return Array.from(crypto.randomFillSync(new Uint32Array(20)))
         .map((x) => wishlist[x % wishlist.length])
@@ -164,7 +143,6 @@ class Database {
 
 const store = new Store({ schema });
 const storage = new Database(store)
-// store.clear();
 
 module.exports = {
     storage,

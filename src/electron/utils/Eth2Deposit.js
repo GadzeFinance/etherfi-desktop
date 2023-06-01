@@ -182,7 +182,6 @@ const createMnemonic = async (language) => {
  */
 const generateKeys = async (
     mnemonic, // string,
-    index, // number,
     count, // number,
     network, // string,
     password, // string, 
@@ -204,7 +203,7 @@ const generateKeys = async (
       args = args.concat(["--eth1_withdrawal_address", eth1_withdrawal_address]);
     }
     
-    args = args.concat([BUNDLED_DIST_WORD_LIST_PATH, mnemonic, index.toString(), count.toString(),
+    args = args.concat([BUNDLED_DIST_WORD_LIST_PATH, mnemonic, validatorID.toString(), count.toString(),
       folder, network.toLowerCase(), password]);
   } else if (await doesFileExist(SFE_PATH)) {
     executable = SFE_PATH;
@@ -213,7 +212,7 @@ const generateKeys = async (
       args = args.concat(["--eth1_withdrawal_address", eth1_withdrawal_address]);
     }
     
-    args = args.concat([DIST_WORD_LIST_PATH, mnemonic, index.toString(), count.toString(), folder,
+    args = args.concat([DIST_WORD_LIST_PATH, mnemonic, validatorID.toString(), count.toString(), folder,
       network.toLowerCase(), password]);
   } else {
     if(!await requireDepositPackages()) {
@@ -228,7 +227,7 @@ const generateKeys = async (
       args = args.concat(["--eth1_withdrawal_address", eth1_withdrawal_address]);
     }
 
-    args = args.concat([WORD_LIST_PATH, mnemonic, index.toString(), count.toString(), folder,
+    args = args.concat([WORD_LIST_PATH, mnemonic, validatorID.toString(), count.toString(), folder,
       network.toLowerCase(), password]);
   }
   
