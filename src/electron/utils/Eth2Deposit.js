@@ -366,6 +366,8 @@ const generateSignedExitMessage = async (
             keystorePath, keystorePassword, validatorIndex, epoch, saveFolder];
   }
 
+  console.log("eth2deposit:", args)
+
   const { stdout, stderr } = await execFileProm(executable, args, {env: env});
   const exitMessageGenerationResultString = stdout.toString();
   const resultJson = JSON.parse(exitMessageGenerationResultString);

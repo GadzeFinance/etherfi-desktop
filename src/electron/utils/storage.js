@@ -100,7 +100,41 @@ class Database {
         return decrypedObject;
     }
 
-    generatePassword() {
+    getHistoryRecordsByTimestampList(timestamps) {
+        console.log("getHistoryRecordsByTimestampList:", timestamps)
+        console.log(this._store.store)
+        const records = {};
+        for (const timestamp of timestamps) {
+            const record = this._store.get(`historyRecords.${timestamp}`) || {};
+            records[timestamp] = record;
+        }
+        return records;
+    }
+
+    getHistoryTimestampList() {
+        if (!this._store.get(`historyRecordTimestampList`)) {
+            this._store.set(`historyRecordTimestampList`, []);
+        }
+        return this._store.get(`historyRecordTimestampList`);
+    }
+
+    getHistoryRecordCount() {
+        if (!this._store.get(`historyRecordCount`)) {
+            this._store.set(`historyRecordCount`, 0);
+        }
+        return this._store.get(`historyRecordCount`);
+    }
+
+    addHistoryRecord(timestamp, data) {
+        this._store.set(`historyRecords.${timestamp}`, data);
+        const recordCount = this.getHistoryRecordCount() || 0;
+        this._store.set(`historyRecordCount`, recordCount + 1);
+        const timestamps = this.getHistoryTimestampList() || [];
+        timestamps.push(timestamp);
+        this._store.set(`historyRecordTimestampList`, timestamps);
+    }
+
+    generatePassword () {
         const wishlist = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz~!@-#$'
         return Array.from(crypto.randomFillSync(new Uint32Array(20)))
         .map((x) => wishlist[x % wishlist.length])
