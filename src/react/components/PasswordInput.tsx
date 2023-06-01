@@ -40,7 +40,6 @@ const PasswordInput: FC<PasswordInputProps> = (props) => {
 
   useEffect(() => {
 
-    if (props.withConfirm && confirmPassword) validateConfirmPassword(confirmPassword)
     const tests = [
       {
         passed: loginPassword?.length >= 8,
@@ -68,10 +67,11 @@ const PasswordInput: FC<PasswordInputProps> = (props) => {
       },
     ]
     if (loginPassword) {
+      if (props.withConfirm && confirmPassword) validateConfirmPassword(confirmPassword)
       props.setIsPasswordValid(tests.every((test) => test.passed))
       setPasswordResults(tests)
     }
-  }, [loginPassword])
+  }, [loginPassword, confirmPassword])
 
 
   function validateConfirmPassword(confirmPassword: string) {
@@ -83,6 +83,10 @@ const PasswordInput: FC<PasswordInputProps> = (props) => {
     ]
     setConfirmPasswordResults(tests)
   }
+
+  const handlePaste = (event: React.ClipboardEvent) => {
+    event.preventDefault();
+  };
 
   const invalidate = props.shouldDoValidation &&
   !props.isPasswordValid &&
@@ -143,22 +147,13 @@ const PasswordInput: FC<PasswordInputProps> = (props) => {
                 ? "green.main"
                 : "blue.secondary"
             }
+            onPaste={handlePaste}
             color="white"
             my="20px"
             placeholder="Confirm the password"
             type={showConfirmPassword ? "text" : "password"}
             {...register("confirmPassword")} 
           />
-
-          <InputRightElement width="4.5rem">
-            <IconEyeSlash
-              sx={clickableIconStyle}
-              boxSize={6}
-              onClick={() => {
-                setShowConfirmPassword(!showConfirmPassword)
-              }}
-            />
-          </InputRightElement>
         </InputGroup>}
       </>
       {props.shouldDoValidation && (

@@ -81,6 +81,20 @@ const schema = {
             },
         },
     },
+    historyRecords: {
+        type: "object",
+        properties: {
+            timestamp: {
+                type: "string"
+            }
+        }
+    },
+    historyRecordCount: {
+        type: "number"
+    },
+    historyRecordTimestampList: {
+        type: "array"
+    }
 };
 
 module.export = schema;

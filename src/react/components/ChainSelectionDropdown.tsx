@@ -1,11 +1,10 @@
 import React from 'react';
-import { Box, Select, Text } from '@chakra-ui/react';
+import { Select } from '@chakra-ui/react';
 
 interface ChainSelectionDropdownProps {
     chain: string;
     setChain: (chain: string) => void,
     [key: string]: any,
-
 }
 
 const supportedChains = ['mainnet', 'goerli']

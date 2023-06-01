@@ -5,6 +5,7 @@ const path = require('path')
 const { encrypt, decrypt, encryptPrivateKeys, decryptPrivateKeys } = require('./utils/encryptionUtils');
 const { createMnemonic, generateKeys, validateMnemonic } = require('./utils/Eth2Deposit.js')
 const { selectFolder, selectJsonFile } = require('./utils/saveFile.js')
+const { encodeGenerateKeysData, addHistoryRecord } = require('./utils/historyUtils');
 const { decryptResultCodes, desktopAppVersion } = require('./constants')
 const logger = require('./utils/logger')
 const {storage} = require('./utils/storage')
@@ -148,7 +149,7 @@ const genValidatorKeysAndEncrypt = async (event, mnemonic, databasePassword, fol
         const index = i
         try {
             const startTime = new Date().getTime();
-            await generateKeys(mnemonic, index, 1, chain, password, eth1_withdrawal_address, folder, stakeInfo[i].validatorID, databasePassword, address)
+            await generateKeys(mnemonic, 1, chain, password, eth1_withdrawal_address, folder, stakeInfo[i].validatorID, databasePassword, address)
             const endTime = new Date().getTime();
             const usedTime = (endTime - startTime) / 1000;
             event.sender.send("receive-generate-key", index, stakeInfoLength, usedTime)
@@ -160,10 +161,7 @@ const genValidatorKeysAndEncrypt = async (event, mnemonic, databasePassword, fol
 
     // now we need to encrypt the keys and generate "stakeRequest.json"
     try {
-        const enKeysStart = new Date().getTime();
         await _encryptValidatorKeys(folder, password, nodeOperatorPublicKeys, validatorIDs)
-        const enKeysEnd = new Date().getTime();
-        console.log(`generateKeys time: ${(enKeysEnd - enKeysStart) / 1000}s`)
     } catch(err) {
         logger.error("Error in 'genValidatorKeysAndEncrypt' when encrypting keys", err)
         throw new Error("Error encrypting validator keys")
@@ -175,6 +173,13 @@ const genValidatorKeysAndEncrypt = async (event, mnemonic, databasePassword, fol
     if (!Object.values(allAccounts).some(value => value.mnemonic.includes(mnemonic))) {
         await storage.addMnemonic(address, mnemonic, password, databasePassword)
     }
+
+    // Add to history
+    logger.info("start to add history...")
+    const fileName = path.basename(stakeInfoPath);
+    const fileContent = JSON.stringify(stakeInfo);
+    const historyData = encodeGenerateKeysData(address, fileName, fileContent, mnemonic, validatorIDs);
+    addHistoryRecord(historyData);
 
     // Send back the folder where everything is save
     logger.info("genEncryptedKeys: End")

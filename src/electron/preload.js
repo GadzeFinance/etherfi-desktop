@@ -189,6 +189,24 @@ contextBridge.exposeInMainWorld("databaseApi", {
     },
     receiveGetStakerAddressList: function (func) {
         ipcRenderer.once("receive-get-staker-address-list", (event, ...args) => func(event, ...args))
+    },
+    reqGetPassword: function(password) {
+        ipcRenderer.send("req-get-password", [password]);
+    },
+    recievePassword: function (func) {
+        ipcRenderer.once("receive-get-password", (event, ...args) => func(event, ...args))
+    },
+    reqHistoryByPage: function (page) {
+        ipcRenderer.send("req-history-page", [page]);
+    },
+    receiveHistoryByPage: function (func) {
+        ipcRenderer.once("receive-history-page", (event, ...args) => func(event, ...args))
+    },
+    reqHistoryPageCount: function () {
+        ipcRenderer.send("req-history-page-count", []);
+    },
+    receiveHistoryPageCount: function (func) {
+        ipcRenderer.once("receive-history-page-count", (event, ...args) => func(event, ...args))
     }
 });
 

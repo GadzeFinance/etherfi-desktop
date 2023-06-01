@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import {
   Box,
   Center,
@@ -27,20 +27,18 @@ import SelectFile from "../SelectFile";
 import SelectSavePathButton from "../SelectSavePathButton";
 import ChainSelectionDropdown from "../ChainSelectionDropdown";
 import AddressInput from "../AddressInput";
-
 import useGetStakerAddresses from "../../hooks/useGetStakerAddress";
 import useGetValidators from "../../hooks/useGetValidators";
 import PasswordInput from "../PasswordInput";
+import useEpoch from "../../hooks/useEpoch";
 
 interface GenerateSignedExitMessageWidgetProps {
   password: string;
 }
 
-
 const GenerateSignedExitMessageWidget: React.FC<GenerateSignedExitMessageWidgetProps> = (props) => {
 
   const [validatorKeyFilePath, setValidatorKeyFilePath] = useState<string>("");
-  const [validatorKeyPassword, setValidatorKeyPassword] = useState<string>("");
   const [savePath, setSavePath] = useState<string>("");
   const [exitMessageFilePath, setExitMessageFilePath] = useState<string>("");
   const [chain, setChain] = useState<string>("");
@@ -48,15 +46,15 @@ const GenerateSignedExitMessageWidget: React.FC<GenerateSignedExitMessageWidgetP
   const [selectedValidator, setSelectedValidator] = useState("");
   const [isAddressValid, setIsAddressValid] = React.useState(false);
 
-
   // UI State Variables
   const [messageGenerating, setMessageGenerating] = useState<boolean>(false);
   const [messageGenerated, setMessageGenerated] = useState<boolean>(false);
 
-  const { watch, handleSubmit, register, control, getValues } = useFormContext();
+  const { watch, register, control, getValues } = useFormContext();
   const { loginPassword, exitEpoch, validatorIndex, validatorKeysPassword } = watch();
 
   const { addressOptions } = useGetStakerAddresses();
+  const { data: epoch } = useEpoch(chain);
   // TODO: MAKE ERROR MESSAGES BETTER!! I.E See if password is wrong for keystore
   // Right now we just show that a general error occured if the message generation fails
   const [showErrorMessage, setShowErrorMessage] = useState<boolean>(false);
@@ -71,13 +69,10 @@ const GenerateSignedExitMessageWidget: React.FC<GenerateSignedExitMessageWidgetP
     }
   }
 
-
-
   const fetchedValidators = useGetValidators(getFinalAddress(), loginPassword)
 
   const clearState = () => {
     setValidatorKeyFilePath("");
-    setValidatorKeyPassword("");
     setSavePath("");
     setExitMessageFilePath("");
     setMessageGenerating(false);
@@ -126,10 +121,8 @@ const GenerateSignedExitMessageWidget: React.FC<GenerateSignedExitMessageWidgetP
     );
   };
 
-  const onSubmit = async (data: object) => { console.log(data); };
-
   return (
-    <form onSubmit={handleSubmit(onSubmit)}>
+    <>
       <Center>
         <Box sx={raisedWidgetStyle} bg="#2b2852">
           {/* Widget Data Input Screen */}
@@ -257,6 +250,12 @@ const GenerateSignedExitMessageWidget: React.FC<GenerateSignedExitMessageWidgetP
                       </TabPanels>
                     </Tabs>
                     <Box>
+                      <Text fontSize="14px" as="b" color="white">
+                        Chain
+                      </Text>
+                      <ChainSelectionDropdown chain={chain} setChain={setChain} />
+                    </Box>
+                    <Box>
                       <HStack>
                         <Text fontSize="14px" as="b" color="white">
                           {" "}
@@ -266,7 +265,6 @@ const GenerateSignedExitMessageWidget: React.FC<GenerateSignedExitMessageWidgetP
                           The epoch you want the Validator to exit in
                         </Text>
                       </HStack>
-
                       <InputGroup>
                         <NumberInput
                           width="100%"
@@ -279,12 +277,17 @@ const GenerateSignedExitMessageWidget: React.FC<GenerateSignedExitMessageWidgetP
                           />
                         </NumberInput>
                       </InputGroup>
-                    </Box>
-                    <Box>
-                      <Text fontSize="14px" as="b" color="white">
-                        Chain
-                      </Text>
-                      <ChainSelectionDropdown chain={chain} setChain={setChain} />
+                      { epoch && (
+                        <HStack my="5px">
+                          <Text fontSize="14px" as="b" color="white">
+                            {" "}
+                          Current Epoch
+                          </Text>
+                          <Text fontSize="14px" color={COLORS.textSecondary}>
+                            25
+                          </Text>
+                        </HStack>
+                      )}
                     </Box>
 
                     <Box>
@@ -378,7 +381,7 @@ const GenerateSignedExitMessageWidget: React.FC<GenerateSignedExitMessageWidgetP
           )}
         </Box>
       </Center>
-    </form>
+    </>
   );
 };
 

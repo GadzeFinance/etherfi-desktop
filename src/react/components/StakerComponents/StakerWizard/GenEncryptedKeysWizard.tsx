@@ -134,8 +134,6 @@ const GenEncryptedKeysWizard: React.FC<WizardProps> = (props) => {
                         <StepCreateKeys
                             goBackStep={prevStep}
                             goNextStep={nextStep}
-                            savePath={savePath}
-                            setSavePath={setSavePath}
                             keysGenerated={keysGenerated}
                             setKeysGenerated={setKeysGenerated}
                             filesCreatedPath={filesCreatedPath}
@@ -145,7 +143,6 @@ const GenEncryptedKeysWizard: React.FC<WizardProps> = (props) => {
                             address={confirmedAddress}
                             importMnemonicPassword={importMnemonicPassword}
                             mnemonicOption={mnemonicOption}
-
                         />
                     )}
                     {activeStep === 4 && <StepFinish goBackStep={prevStep} />}

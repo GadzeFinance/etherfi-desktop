@@ -14,8 +14,17 @@ function encrypt(text, ENCRYPTION_KEY) {
 
 function decrypt(text, ENCRYPTION_KEY) {
     const textParts = text.split(':');
+    const usingCBC = textParts.length === 2;
     const iv = Buffer.from(textParts.shift(), 'hex');
-	const encryptedText = Buffer.from(textParts.shift(), 'hex')
+	const encryptedText = Buffer.from(textParts.shift(), 'hex');
+    if (usingCBC) {
+        console.info("using CBC decryption...");
+        const decipher = crypto.createDecipheriv("aes-256-cbc", Buffer.from(ENCRYPTION_KEY), iv);
+        let decrypted = decipher.update(encryptedText);
+        decrypted = Buffer.concat([decrypted, decipher.final()]);
+        return decrypted.toString();
+    }
+    console.info("using GCM decryption...");
     const authTag = Buffer.from(textParts.join(':'), 'hex');
     const decipher = crypto.createDecipheriv('aes-256-gcm', Buffer.from(ENCRYPTION_KEY), iv);
 	decipher.setAuthTag(authTag);
@@ -46,12 +55,24 @@ const decryptPrivateKeys = (privateKeysJSON, privKeysPassword) => {
     const iv = Buffer.from(privateKeysJSON.iv, 'hex');
     const salt = Buffer.from(privateKeysJSON.salt, 'hex');
     const encryptedData = Buffer.from(privateKeysJSON.data, 'hex');
-    const authTag = Buffer.from(privateKeysJSON.authTag, 'hex');
     const key = crypto.pbkdf2Sync(privKeysPassword, salt, 100000, 32, 'sha256');
+    // Check authTag in the private keys file: if present, use GCM; if not, use CBC
+    if (!privateKeysJSON.authTag) {
+        console.info("using CBC decryption...")
+        const decipher = crypto.createDecipheriv("aes-256-cbc", key, iv)
+        const decryptedData = Buffer.concat([
+          decipher.update(encryptedData),
+          decipher.final(),
+        ])
+        const decryptedDataJSON = JSON.parse(decryptedData.toString("utf8"))
+        return decryptedDataJSON
+    }
+    console.info("using GCM decryption...")
+    const authTag = Buffer.from(privateKeysJSON.authTag, 'hex');
     const decipher = crypto.createDecipheriv('aes-256-gcm', key, iv);
     decipher.setAuthTag(authTag);
     const decryptedData = Buffer.concat([decipher.update(encryptedData), decipher.final()]);
-    decryptedDataJSON = JSON.parse(decryptedData.toString('utf8'));
+    const decryptedDataJSON = JSON.parse(decryptedData.toString('utf8'));
     return decryptedDataJSON;
 }
 

@@ -100,25 +100,38 @@ class Database {
         return decrypedObject;
     }
 
-
-    addValidatorAddress(address) {
-        const path = `validatorAddress.${address}`;
-        if (!this._store.get(path)) {
-            this._store.set(path, {});
+    getHistoryRecordsByTimestampList(timestamps) {
+        console.log("getHistoryRecordsByTimestampList:", timestamps)
+        console.log(this._store.store)
+        const records = {};
+        for (const timestamp of timestamps) {
+            const record = this._store.get(`historyRecords.${timestamp}`) || {};
+            records[timestamp] = record;
         }
+        return records;
     }
 
-    getValidatorAddress(address) {
-        const path = `validatorAddress.${address}`;
-        return this._store.get(path);
+    getHistoryTimestampList() {
+        if (!this._store.get(`historyRecordTimestampList`)) {
+            this._store.set(`historyRecordTimestampList`, []);
+        }
+        return this._store.get(`historyRecordTimestampList`);
     }
 
-    getAllValidatorAddress() {
-        return this._store.get("validatorAddress");
+    getHistoryRecordCount() {
+        if (!this._store.get(`historyRecordCount`)) {
+            this._store.set(`historyRecordCount`, 0);
+        }
+        return this._store.get(`historyRecordCount`);
     }
 
-    addOperatorKey(address, publicKey, privateKey, password) {
-        this._store.set(`validatorAddresses.${address}.${publicKey}`, this.encrypt(privateKey, password));
+    addHistoryRecord(timestamp, data) {
+        this._store.set(`historyRecords.${timestamp}`, data);
+        const recordCount = this.getHistoryRecordCount() || 0;
+        this._store.set(`historyRecordCount`, recordCount + 1);
+        const timestamps = this.getHistoryTimestampList() || [];
+        timestamps.push(timestamp);
+        this._store.set(`historyRecordTimestampList`, timestamps);
     }
 
     generatePassword () {
@@ -164,7 +177,6 @@ class Database {
 
 const store = new Store({ schema });
 const storage = new Database(store)
-// store.clear();
 
 module.exports = {
     storage,
