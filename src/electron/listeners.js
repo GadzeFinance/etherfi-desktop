@@ -105,11 +105,13 @@ const genMnemonic = async (language) => {
 
 /**
  * Generates validator keys and encrypts them using the bidderPublicKeys in given stakeInfo.json file and mnemonic
+ * 
+ * @typedef {Object.<string, string>} StakeInfo
  *
  * @param {string} mnemonic - The 24 word mnmonic seed phrase
  * @param {string} password - The password to encrypt the validator keystores with
  * @param {string} folder - The folder to save the files that are generated too
- * @param {string} stakeInfoPath - The path to the stakeinfo.json file
+ * @param {StakeInfo[]} stakeInfo - The stakeinfo array
  * @param {string} chain - The chain to generate the keys for
  * 
 
@@ -119,7 +121,7 @@ const genMnemonic = async (language) => {
  *          It also contains single stakeRequest.json file which contains the encrypted data.
  *           The stakeRequest.json file is what the user should upload to the DAPP.
  */
-const genValidatorKeysAndEncrypt = async (event, mnemonic, databasePassword, folder, stakeInfoPath, chain, address, mnemonicOption, importPassword) => {
+const genValidatorKeysAndEncrypt = async (event, mnemonic, databasePassword, folder, stakeInfo, chain, address, mnemonicOption, importPassword) => {
     logger.info("genEncryptedKeys: Start")
     const allWallets = await storage.getAllStakerAddresses();
     if (allWallets == undefined || !(address in allWallets)) {
@@ -134,8 +136,6 @@ const genValidatorKeysAndEncrypt = async (event, mnemonic, databasePassword, fol
         password = importPassword
     }
     
-    // get the data from stakeInfoPath
-    const stakeInfo = JSON.parse(fs.readFileSync(stakeInfoPath))
     const stakeInfoLength = stakeInfo.length
     const timeStamp = Date.now()
     folder = path.join(folder, `etherfi_keys-${timeStamp}`)
@@ -161,7 +161,8 @@ const genValidatorKeysAndEncrypt = async (event, mnemonic, databasePassword, fol
 
     // now we need to encrypt the keys and generate "stakeRequest.json"
     try {
-        await _encryptValidatorKeys(folder, password, nodeOperatorPublicKeys, validatorIDs)
+        const stakeRequestJson = await _encryptValidatorKeys(folder, password, nodeOperatorPublicKeys, validatorIDs)
+        event.sender.send('stake-request', stakeRequestJson)
     } catch(err) {
         logger.error("Error in 'genValidatorKeysAndEncrypt' when encrypting keys", err)
         throw new Error("Error encrypting validator keys")
@@ -176,9 +177,8 @@ const genValidatorKeysAndEncrypt = async (event, mnemonic, databasePassword, fol
 
     // Add to history
     logger.info("start to add history...")
-    const fileName = path.basename(stakeInfoPath);
     const fileContent = JSON.stringify(stakeInfo);
-    const historyData = encodeGenerateKeysData(address, fileName, fileContent, mnemonic, validatorIDs);
+    const historyData = encodeGenerateKeysData(address, 'stakeInfo', fileContent, mnemonic, validatorIDs);
     addHistoryRecord(historyData);
 
     // Send back the folder where everything is save
@@ -301,7 +301,8 @@ const _encryptValidatorKeys = async (folderPath, password, nodeOperatorPubKeys, 
           throw new Error("Could not write out stakeRequestJSON")
     }})
     logger.info("_encryptValidatorKeys: End")
-
+    
+    return stakeRequestJSON
 }
 
 /**

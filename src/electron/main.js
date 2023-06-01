@@ -126,9 +126,9 @@ ipcMain.on("req-new-mnemonic", async (event, args) => {
 
 // Return (result, path_to_saved_folder | '', errorMessage | '') to frontend
 ipcMain.on("req-gen-val-keys-and-encrypt",  async (event, args) => {
-    var [mnemonic, password, folder, stakeInfoPath, chain, address, mnemonicOption, importPassword] = args
+    var [mnemonic, password, folder, stakeInfo, chain, address, mnemonicOption, importPassword] = args
     try {
-        const savePath = await genValidatorKeysAndEncrypt(event, mnemonic, password, folder, stakeInfoPath, chain, address, mnemonicOption, importPassword)
+        const savePath = await genValidatorKeysAndEncrypt(event, mnemonic, password, folder, stakeInfo, chain, address, mnemonicOption, importPassword)
         event.sender.send("receive-key-gen-confirmation", standardResultCodes.SUCCESS, savePath , '')
     } catch (error) {
         logger.error("Error Generating Validator Keys and Encrypting:", error)
@@ -182,6 +182,16 @@ ipcMain.on('req-get-staker-address', async (event, args) => {
         event.sender.send("receive-get-staker-address",  standardResultCodes.ERROR, '', error.message)
     } 
 })
+
+ipcMain.on('stake-request', async (event, stakeRequestJson) => {
+    try {
+        event.sender.send("stake-request",  standardResultCodes.SUCCESS, stakeRequestJson, '')
+    } catch (error) {
+        logger.error("Error getting stake request: ", error);
+        event.sender.send("stake-request",  standardResultCodes.ERROR, '', error.message)
+    }
+})
+
 /* ------------------------------------------------------------- */
 /* ------------ Signed Exit Message Generation ----------------- */
 /* ------------------------------------------------------------- */

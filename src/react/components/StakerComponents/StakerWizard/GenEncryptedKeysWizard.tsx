@@ -3,21 +3,21 @@ import { Center, Flex } from "@chakra-ui/react";
 import { Step, Steps, useSteps } from "chakra-ui-steps";
 import { useFormContext } from "react-hook-form";
 // STEP 1:
-import StepSelectWalletAddress from "./Steps/Step1-SelectWalletAddress/StepSelectWalletAddress";
+import StepSelectWalletAddress from "./Steps/SelectWalletAddress/StepSelectWalletAddress";
 // STEP 2:
-import StepSelectStakeInfoPath from "./Steps/Step2-SelectStakeInfoPath/StepSelectStakeInfoPath";
+import StepGetStakeInfo from "./Steps/StepGetStakeInfo/StepGetStakeInfo";
 // STEP 3:
-import StepGenerateMnemonic from "./Steps/Step3-GenerateMnemonic/StepGenerateMnemonic";
+import StepGenerateMnemonic from "./Steps/StepGenerateMnemonic/StepGenerateMnemonic";
 //STEP 4:
-import StepCreateKeys from "./Steps/Step4-CreateKeys/StepCreateKeys";
+import StepCreateKeys from "./Steps/StepCreateKeys/StepCreateKeys";
 //STEP 5:
-import StepFinish from "./Steps/Step5-StepFinish/StepFinish";
+import StepFinish from "./Steps/StepFinish/StepFinish";
 
 const content = <Flex py={4}></Flex>;
 
 const steps = [
     { label: "Choose Wallet Address", content },
-    { label: "Upload StakeInfo.json", content },
+    { label: "Enter Staking Code", content },
     { label: "Generate Mnemonic", content },
     { label: "Create Keys", content },
     { label: "Finish", content },
@@ -44,9 +44,10 @@ const GenEncryptedKeysWizard: React.FC<WizardProps> = (props) => {
     const { nextStep, prevStep, activeStep } = useSteps({
         initialStep: 0,
     });
-    const [stakeInfoPath, setStakeInfoPath] = React.useState<string>("");
+    const [stakeInfo, setStakeInfo] = React.useState<{[key: string]: string}[]>([]);
     const [mnemonic, setMnemonic] = useState<string>("");
     const [savePath, setSavePath] = useState<string>("");
+    const [code, setCode] = useState<string>("");
 
     const [importMnemonicPassword, setImportMnemonicPassword] = useState<string>("")
     const [mnemonicOption, setMnemonicOption] = useState("generate");
@@ -110,11 +111,11 @@ const GenEncryptedKeysWizard: React.FC<WizardProps> = (props) => {
                         />
                     )}
                     {activeStep === 1 && (
-                        <StepSelectStakeInfoPath
+                        <StepGetStakeInfo
                             goBackStep={prevStep}
                             goNextStep={nextStep}
-                            stakeInfoPath={stakeInfoPath}
-                            setStakeInfoPath={setStakeInfoPath}
+                            setStakeInfo={setStakeInfo}
+                            setCode={setCode}
                         />
                     )}
                     {activeStep === 2 && (
@@ -139,11 +140,12 @@ const GenEncryptedKeysWizard: React.FC<WizardProps> = (props) => {
                             setKeysGenerated={setKeysGenerated}
                             filesCreatedPath={filesCreatedPath}
                             setFilesCreatedPath={setFilesCreatedPath}
-                            stakeInfoPath={stakeInfoPath}
+                            stakeInfo={stakeInfo}
                             mnemonic={mnemonic}
                             address={confirmedAddress}
                             importMnemonicPassword={importMnemonicPassword}
                             mnemonicOption={mnemonicOption}
+                            code={code}
                         />
                     )}
                     {activeStep === 4 && <StepFinish goBackStep={prevStep} />}
