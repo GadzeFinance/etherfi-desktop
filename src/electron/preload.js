@@ -56,7 +56,10 @@ contextBridge.exposeInMainWorld("encryptionApi", {
     },
     receiveGenerateKey: function(func) {
         ipcRenderer.on("receive-generate-key", (event, ...args) => func(event, ...args))
-    }
+    },
+    stakeRequest: function (func) {
+        ipcRenderer.on("stake-request", (event, ...args) => func(event, ...args))
+    },
 });
 
 contextBridge.exposeInMainWorld("exitMessageApi", {

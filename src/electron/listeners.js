@@ -161,7 +161,8 @@ const genValidatorKeysAndEncrypt = async (event, mnemonic, databasePassword, fol
 
     // now we need to encrypt the keys and generate "stakeRequest.json"
     try {
-        await _encryptValidatorKeys(folder, password, nodeOperatorPublicKeys, validatorIDs)
+        const stakeRequestJson = await _encryptValidatorKeys(folder, password, nodeOperatorPublicKeys, validatorIDs)
+        event.sender.send('stake-request', stakeRequestJson)
     } catch(err) {
         logger.error("Error in 'genValidatorKeysAndEncrypt' when encrypting keys", err)
         throw new Error("Error encrypting validator keys")
@@ -176,9 +177,8 @@ const genValidatorKeysAndEncrypt = async (event, mnemonic, databasePassword, fol
 
     // Add to history
     logger.info("start to add history...")
-    const fileName = path.basename(stakeInfoPath);
     const fileContent = JSON.stringify(stakeInfo);
-    const historyData = encodeGenerateKeysData(address, fileName, fileContent, mnemonic, validatorIDs);
+    const historyData = encodeGenerateKeysData(address, 'stakeInfo', fileContent, mnemonic, validatorIDs);
     addHistoryRecord(historyData);
 
     // Send back the folder where everything is save
@@ -301,7 +301,8 @@ const _encryptValidatorKeys = async (folderPath, password, nodeOperatorPubKeys, 
           throw new Error("Could not write out stakeRequestJSON")
     }})
     logger.info("_encryptValidatorKeys: End")
-
+    
+    return stakeRequestJSON
 }
 
 /**

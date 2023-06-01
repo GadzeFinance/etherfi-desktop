@@ -7,19 +7,15 @@ import {
   Input,
   Button,
   useToast,
-  Modal,
-  ModalOverlay,
-  ModalContent,
-  Spinner,
 } from "@chakra-ui/react";
 import WizardNavigator from "../../WizardNavigator";
 import { IconAlertTriangle } from "../../../../Icons";
-import EtherFiSpinner from "../../../../EtherFiSpinner";
 
 interface StepGetStakeInfoProps {
   goNextStep: () => void;
   goBackStep: () => void;
   setStakeInfo: (stakeInfo: { [key: string]: string }[]) => void;
+  setCode: (code: string) => void;
 }
 
 const StepGetStakeInfo: React.FC<StepGetStakeInfoProps> = (
@@ -59,7 +55,10 @@ const StepGetStakeInfo: React.FC<StepGetStakeInfoProps> = (
   const handleSubmit: React.FormEventHandler<HTMLFormElement> = (e) => {
     e.preventDefault();
     setIsLoading(true);
-    fetch(`http://localhost:3000/api/stakeInfo/${stakingCode}`)
+    const baseURL = process.env.NODE_ENV === 'production'
+      ? "https://mainnet.ether.fi"
+      : "http://localhost:3000";
+    fetch(`${baseURL}/api/stakeInfo/${stakingCode}`)
       .then(res => {
         if (!res.ok) {
           throw new Error("Your code is invalid. Check the code in the web app and try again.");
@@ -68,14 +67,8 @@ const StepGetStakeInfo: React.FC<StepGetStakeInfoProps> = (
       })
       .then(res => res.json())
       .then(async (stakeInfo: { [key: string]: string }[]) => {
-        // const isValid = await validateStakeInfo(stakeInfo);
-        // console.log({ isValid})
-        // if (!isValid) {
-          // console.log("Invalid stake info");
-          // setStaleKeysFound(true);
-          // return;
-        // }
         props.setStakeInfo(stakeInfo);
+        props.setCode(stakingCode);
         props.goNextStep();
       })
       .catch(err => {
@@ -91,7 +84,6 @@ const StepGetStakeInfo: React.FC<StepGetStakeInfoProps> = (
         setIsLoading(false);
         setStakingCode("");
       });
-    setStakingCode("");
   }
 
   const validateStakeInfo = async (stakeInfo: { [key: string]: string }[]): Promise<boolean> => {

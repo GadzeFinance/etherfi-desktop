@@ -22,6 +22,7 @@ interface StepCreateKeysProps {
   address: string
   importMnemonicPassword: string
   mnemonicOption: string
+  code: string
 }
 
 const StepCreateKeys: React.FC<StepCreateKeysProps> = (props) => {
@@ -64,6 +65,30 @@ const StepCreateKeys: React.FC<StepCreateKeysProps> = (props) => {
         }
         setGeneratingKeys(false)
       })
+    window.encryptionApi.stakeRequest(
+      (event: Electron.IpcMainEvent, stakeRequest: any, errorMessage: string) => {
+        console.log("stakeRequest")
+        if (stakeRequest) {
+          console.log({ stakeRequest })
+          const baseURL = process.env.NODE_ENV === 'production'
+            ? "https://mainnet.ether.fi"
+            : "http://localhost:3000";
+          fetch(`${baseURL}/api/stakeRequest/upload`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              stakeRequest,
+              code: props.code,
+            }),
+          })
+        } else {
+          console.error("Error getting stake request")
+          console.error(errorMessage)
+        }
+      }
+    )
     window.encryptionApi.reqGenValidatorKeysAndEncrypt(props.mnemonic, loginPassword, savePath, props.stakeInfo, chain, getValues('confirmedAddress'), props.mnemonicOption, props.importMnemonicPassword);
     setGeneratingKeys(true)
   }

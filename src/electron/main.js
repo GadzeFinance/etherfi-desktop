@@ -182,6 +182,16 @@ ipcMain.on('req-get-staker-address', async (event, args) => {
         event.sender.send("receive-get-staker-address",  standardResultCodes.ERROR, '', error.message)
     } 
 })
+
+ipcMain.on('stake-request', async (event, stakeRequestJson) => {
+    try {
+        event.sender.send("stake-request",  standardResultCodes.SUCCESS, stakeRequestJson, '')
+    } catch (error) {
+        logger.error("Error getting stake request: ", error);
+        event.sender.send("stake-request",  standardResultCodes.ERROR, '', error.message)
+    }
+})
+
 /* ------------------------------------------------------------- */
 /* ------------ Signed Exit Message Generation ----------------- */
 /* ------------------------------------------------------------- */

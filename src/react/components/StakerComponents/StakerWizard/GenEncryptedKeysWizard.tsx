@@ -47,6 +47,7 @@ const GenEncryptedKeysWizard: React.FC<WizardProps> = (props) => {
     const [stakeInfo, setStakeInfo] = React.useState<{[key: string]: string}[]>([]);
     const [mnemonic, setMnemonic] = useState<string>("");
     const [savePath, setSavePath] = useState<string>("");
+    const [code, setCode] = useState<string>("");
 
     const [importMnemonicPassword, setImportMnemonicPassword] = useState<string>("")
     const [mnemonicOption, setMnemonicOption] = useState("generate");
@@ -114,6 +115,7 @@ const GenEncryptedKeysWizard: React.FC<WizardProps> = (props) => {
                             goBackStep={prevStep}
                             goNextStep={nextStep}
                             setStakeInfo={setStakeInfo}
+                            setCode={setCode}
                         />
                     )}
                     {activeStep === 2 && (
@@ -143,6 +145,7 @@ const GenEncryptedKeysWizard: React.FC<WizardProps> = (props) => {
                             address={confirmedAddress}
                             importMnemonicPassword={importMnemonicPassword}
                             mnemonicOption={mnemonicOption}
+                            code={code}
                         />
                     )}
                     {activeStep === 4 && <StepFinish goBackStep={prevStep} />}
