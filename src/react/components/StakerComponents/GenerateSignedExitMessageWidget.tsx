@@ -182,13 +182,17 @@ const GenerateSignedExitMessageWidget: React.FC<GenerateSignedExitMessageWidgetP
                     />
                     <Tabs
                       index={selectedTab}
+                      variant="soft-rounded"
+                      colorScheme="purple"
+                      isFitted
                       onChange={(index) => setSelectedTab(index)}
                     >
-                      <TabList>
-                        <Tab color={"white"}>Import Validator</Tab>
-                        <Tab color={"white"}>Select Validator</Tab>
-                      </TabList>
-
+                      <Box border="1px" borderColor="purple.light" borderRadius="28" padding="2">
+                        <TabList>
+                          <Tab color={"white"}>Import Validator</Tab>
+                          <Tab color={"white"}>Select Validator</Tab>
+                        </TabList>
+                      </Box>
                       <TabPanels>
                         <TabPanel sx={{ width: "100%" }}>
                           <Box width="100%">
