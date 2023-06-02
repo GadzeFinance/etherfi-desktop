@@ -50,7 +50,7 @@ const GenerateSignedExitMessageWidget: React.FC<GenerateSignedExitMessageWidgetP
   const [messageGenerating, setMessageGenerating] = useState<boolean>(false);
   const [messageGenerated, setMessageGenerated] = useState<boolean>(false);
 
-  const { watch, register, control, getValues } = useFormContext();
+  const { watch, register, control, getValues, resetField } = useFormContext();
   const { loginPassword, exitEpoch, validatorIndex, validatorKeysPassword } = watch();
 
   const { addressOptions } = useGetStakerAddresses();
@@ -78,6 +78,12 @@ const GenerateSignedExitMessageWidget: React.FC<GenerateSignedExitMessageWidgetP
     setMessageGenerating(false);
     setMessageGenerated(false);
     setShowErrorMessage(false);
+    setSelectedValidator("");
+    setChain("")
+    resetField("dropdownAddress");
+    resetField("exitAddress");
+    resetField("exitEpoch");
+    resetField("validatorKeysPassword");
   };
 
   const requestSignedExitMessage = () => {
@@ -179,8 +185,8 @@ const GenerateSignedExitMessageWidget: React.FC<GenerateSignedExitMessageWidgetP
                       onChange={(index) => setSelectedTab(index)}
                     >
                       <TabList>
-                        <Tab color={"white"}>Select Validator</Tab>
                         <Tab color={"white"}>Import Validator</Tab>
+                        <Tab color={"white"}>Select Validator</Tab>
                       </TabList>
 
                       <TabPanels>
@@ -284,7 +290,7 @@ const GenerateSignedExitMessageWidget: React.FC<GenerateSignedExitMessageWidgetP
                           Current Epoch
                           </Text>
                           <Text fontSize="14px" color={COLORS.textSecondary}>
-                            25
+                            {epoch}
                           </Text>
                         </HStack>
                       )}

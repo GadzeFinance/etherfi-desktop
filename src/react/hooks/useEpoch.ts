@@ -15,7 +15,13 @@ async function fetchEpoch(chain: string) {
 }
 
 function useEpoch(chain: string) {
-  const { data, isLoading, isError, error, refetch } = useQuery(['epoch', chain], () => fetchEpoch(chain));
+
+  const config = {
+    staleTime: 60 * 1000,
+    refetchOnWindowFocus: false
+  }
+
+  const { data, isLoading, isError, error, refetch } = useQuery(['epoch', chain], () => fetchEpoch(chain), config);
 
   useEffect(() => {
     // Refetch the data whenever the `chain` variable changes
