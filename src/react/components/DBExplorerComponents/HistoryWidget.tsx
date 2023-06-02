@@ -1,21 +1,14 @@
 import { useState, useEffect } from "react";
-import { useFormContext } from "react-hook-form";
 import raisedWidgetStyle from "../../styleClasses/widgetBoxStyle";
 import {
   Center,
   Box,
   Text,
-  Tabs,
-  Tab,
-  TabList,
-  TabPanels,
-  TabPanel,
   Button,
   Divider,
   Grid,
   GridItem,
   Heading,
-  background,
   Modal,
   ModalOverlay,
   ModalContent,
@@ -23,12 +16,9 @@ import {
   ModalCloseButton,
   ModalBody,
   Code,
-  ModalFooter,
   Flex
 } from "@chakra-ui/react";
-import AddressSelect from "./AddressSelect";
-import DataTable from "./DataTable";
-import { ArrowBackIcon, ArrowForwardIcon, CopyIcon, ViewIcon } from "@chakra-ui/icons";
+import { ArrowBackIcon, ArrowForwardIcon, CopyIcon } from "@chakra-ui/icons";
 import useGetHistoryPageCount from "../../hooks/useGetHistoryPageCount";
 import useCopy from "../../hooks/useCopy";
 

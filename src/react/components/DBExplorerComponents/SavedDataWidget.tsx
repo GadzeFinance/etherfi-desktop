@@ -9,8 +9,12 @@ import {
   Tab,
   TabList,
   TabPanels,
-  TabPanel
+  TabPanel,
+  Flex,
+  Spacer,
+  Button,
 } from "@chakra-ui/react";
+import { DownloadIcon } from '@chakra-ui/icons'
 import AddressSelect from "./AddressSelect";
 import DataTable from "./DataTable";
 
@@ -41,6 +45,22 @@ const SavedDataWidget = (props: SavedDataWidgetProps) => {
 
   const {watch} = useFormContext()
   const dbPassword = watch("loginPassword")
+
+  const saveFile = async (blob: Blob) => {
+    const a = document.createElement('a');
+    a.download = 'database.json';
+    a.href = URL.createObjectURL(blob);
+    a.addEventListener('click', (e) => {
+      setTimeout(() => URL.revokeObjectURL(a.href), 30 * 1000);
+    });
+    a.click();
+  };
+
+  const handleDownload = () => {
+    const jsonData = JSON.stringify(allStakers, null, 2);
+    const blob = new Blob([jsonData], { type: "application/json" });
+    saveFile(blob);
+  };
 
   useEffect(() => {
 
@@ -95,7 +115,13 @@ const SavedDataWidget = (props: SavedDataWidgetProps) => {
           { addressList.length === 0 && <Box><Text color={"white"}>There is no saved data in the database</Text></Box>}
           { addressList.length > 0 && (
             <>
+              <Flex minWidth='max-content' alignItems='center' gap='2'>
               <AddressSelect currAddress={currAddress} setCurrAddress={setCurrAddress} addressList={addressList} />
+                <Spacer />
+                <Box p='2'>
+                  <Button colorScheme="gray" onClick={handleDownload}><DownloadIcon/></Button>
+                </Box>
+              </Flex>
               <Tabs
                 index={selectedTab}
                 onChange={(index) => setSelectedTab(index)}
