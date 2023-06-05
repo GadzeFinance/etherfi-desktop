@@ -5,19 +5,11 @@ import StepSelectStakeInfoPath from "../../../../../src/react/components/StakerC
 // Mock the window.validateFilesApi and window.databaseApi calls
 const mockValidateStakeInfoJson = jest.fn()
 const mockReceiveStakeInfoValidationResults = jest.fn()
-const mockReceiveStaleBidderPublicKeysReport = jest.fn()
-const mockReqCheckForStaleBidderPublicKeys = jest.fn()
 
 //@ts-ignore
 window.validateFilesApi = {
   validateStakeInfoJson: mockValidateStakeInfoJson,
   receiveStakeInfoValidationResults: mockReceiveStakeInfoValidationResults,
-}
-
-//@ts-ignore
-window.databaseApi = {
-  receiveStaleBidderPublicKeysReport: mockReceiveStaleBidderPublicKeysReport,
-  reqCheckForStaleBidderPublicKeys: mockReqCheckForStaleBidderPublicKeys,
 }
 
 const defaultProps = {

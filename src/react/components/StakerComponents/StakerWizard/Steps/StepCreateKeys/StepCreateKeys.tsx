@@ -11,8 +11,6 @@ interface StepCreateKeysProps {
   goBackStep: () => void,
   mnemonic: string,
   stakeInfo: { [key: string]: string }[],
-  keysGenerated: boolean,
-  setKeysGenerated: (generated: boolean) => void,
   address: string
   importMnemonicPassword: string
   mnemonicOption: string
@@ -38,7 +36,7 @@ const StepCreateKeys: React.FC<StepCreateKeysProps> = (props) => {
     window.encryptionApi.receiveKeyGenConfirmation(
       (event: Electron.IpcMainEvent, result: number, savePath: string, errorMessage: string) => {
         if (result === 0) {
-          props.setKeysGenerated(true)
+          props.goNextStep()
           resetField("confirmedAddress")
           resetField("dropdownAddress")
           resetField("address")
@@ -86,21 +84,6 @@ const StepCreateKeys: React.FC<StepCreateKeysProps> = (props) => {
     setGeneratingKeys(true)
   }
 
-  useEffect(() => {
-    // Check to see if there are any stale keys in the StakeInfo.json file the user selected.
-    // (i.e have the keys been used to encrypt Validator Keys by this dekstop app before )
-    if (props.keysGenerated) {
-      window.databaseApi.receiveUpdateStaleKeysResult((event: Electron.IpcMainEvent, result: boolean) => {
-        if (result) {
-          console.log("Update Stale Keys DB successfully")
-        } else {
-          console.warn("Could not update Stale Keys DB")
-        }
-      })
-      window.databaseApi.reqUpdateStaleKeys(props.stakeInfo)
-    }
-  }, [props.keysGenerated]);
-
 
   const backDetails = {
     text: "Back",
@@ -133,7 +116,7 @@ const StepCreateKeys: React.FC<StepCreateKeysProps> = (props) => {
       bgColor="purple.dark"
       borderRadius="lg"
     >
-      {!props.keysGenerated && !generatingKeys && (
+      {!generatingKeys && (
         <>
           <Center>
             <IconKey boxSize='12' />
@@ -146,25 +129,6 @@ const StepCreateKeys: React.FC<StepCreateKeysProps> = (props) => {
       )
       }
       {generatingKeys && <EtherFiSpinner loading={generatingKeys} text="Generating & Encrypting Keys..." showProgress={true} keysGenerated={keysGenerated} keysTotal={keysTotal} recentUsedTime={recentUsedTime} />}
-      {props.keysGenerated && (
-        <Box
-          padding={'24px'}
-          gap="16px"
-          bgColor="purple.dark"
-          height="full"
-          width={'full'}
-          borderRadius="lg"
-        >
-          <VStack spacing={3}>
-            <Text color={'white'} fontSize="large" fontWeight={'semibold'} align="center">
-              Congrats! Your keys have been successfully generated and encrypted!
-            </Text>
-            <Center>
-              <Button variant='white-button' onClick={props.goNextStep}>Continue</Button>
-            </Center>
-          </VStack>
-        </Box>
-      )}
     </Flex >
   )
 }

@@ -147,19 +147,6 @@ contextBridge.exposeInMainWorld("utilsApi", {
 
 
 contextBridge.exposeInMainWorld("databaseApi", {
-    // Function to request a check to see if the bidder public keys in the stake info file have already been used to encrypt validatorkeys
-    reqCheckForStaleBidderPublicKeys: function(stakeInfo){
-        ipcRenderer.send("req-check-for-stale-keys", [stakeInfo]);
-    },
-    receiveStaleBidderPublicKeysReport: function(func){
-        ipcRenderer.once("receive-stale-keys-report", (event, ...args) => func(event, ...args));       
-    },
-    reqUpdateStaleKeys: function(stakeInfo){
-        ipcRenderer.send("req-update-stale-keys", [stakeInfo]);
-    },
-    receiveUpdateStaleKeysResult: function(func){
-        ipcRenderer.once("receive-update-stale-keys-report", (event, ...args) => func(event, ...args));       
-    },
     reqSetPassword: function(password) {
         ipcRenderer.send("req-set-password", [password]);
     },

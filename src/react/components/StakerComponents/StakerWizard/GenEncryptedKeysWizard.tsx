@@ -52,7 +52,6 @@ const GenEncryptedKeysWizard: React.FC<WizardProps> = (props) => {
     const [mnemonicOption, setMnemonicOption] = useState("generate");
 
     const [confirmedAddress, setConfirmedAddress] = useState<string>("");
-    const [keysGenerated, setKeysGenerated] = useState<boolean>(false);
     const {watch, setValue} = useFormContext()
 
     const typeWalletAddress = watch("address")
@@ -136,8 +135,6 @@ const GenEncryptedKeysWizard: React.FC<WizardProps> = (props) => {
                         <StepCreateKeys
                             goBackStep={prevStep}
                             goNextStep={nextStep}
-                            keysGenerated={keysGenerated}
-                            setKeysGenerated={setKeysGenerated}
                             stakeInfo={stakeInfo}
                             mnemonic={mnemonic}
                             address={confirmedAddress}
