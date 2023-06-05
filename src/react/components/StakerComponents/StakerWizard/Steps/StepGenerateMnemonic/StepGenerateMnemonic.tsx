@@ -14,6 +14,7 @@ import WizardNavigator from "../../WizardNavigator";
 import EtherFiSpinner from "../../../../EtherFiSpinner";
 import { IconLockFile } from "../../../../Icons";
 import StoredMnemonicSelect from "./StoredMnemonicSelect";
+import isDev from "react-is-dev";
 
 interface StepGenerateMnemonicProps {
   goNextStep: () => void;
@@ -172,7 +173,7 @@ const StepGenerateMnemonic: React.FC<StepGenerateMnemonicProps> = (props) => {
           <Select color="white" borderColor="purple.light" onChange={(e) => props.setMnemonicOption(e.target.value)}>
             <option value="generate">Generate mnemonic</option>
             <option value="stored">Use stored mnemonic</option>
-            <option value="import">Import mnemonic</option>
+            {isDev(React) && <option value="import">Import mnemonic</option>}
           </Select>
         </>
       )}
