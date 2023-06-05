@@ -1,10 +1,8 @@
 import React, { useState, useEffect } from 'react'
-import { Button, Flex, Text, Center, VStack, Box, HStack } from '@chakra-ui/react'
+import { Button, Flex, Text, Center, VStack, Box } from '@chakra-ui/react'
 import WizardNavigator from '../../WizardNavigator'
-import { IconKey, IconCheckMark, IconSavedFile } from '../../../../Icons'
+import { IconKey } from '../../../../Icons'
 import EtherFiSpinner from '../../../../EtherFiSpinner'
-import successBoxStyle from '../../../../../styleClasses/successBoxStyle'
-import { COLORS } from '../../../../../styleClasses/constants'
 import ChainSelectionDropdown from '../../../../ChainSelectionDropdown'
 import { useFormContext } from "react-hook-form";
 import { useLocalStorage } from '../../../../../hooks/useLocalStorage'
@@ -17,8 +15,6 @@ interface StepCreateKeysProps {
   stakeInfo: { [key: string]: string }[],
   keysGenerated: boolean,
   setKeysGenerated: (generated: boolean) => void,
-  filesCreatedPath: string
-  setFilesCreatedPath: (path: string) => void,
   address: string
   importMnemonicPassword: string
   mnemonicOption: string
@@ -32,15 +28,8 @@ const StepCreateKeys: React.FC<StepCreateKeysProps> = (props) => {
   const [keysTotal, setKeysTotal] = useState(0);
   const [recentUsedTime, setRecentUsedTime] = useState(-1);
   const { watch, getValues, resetField } = useFormContext();
-  const { savePath, setSavePath, chain, setChain, setLocalStorage } = useLocalStorage("", "mainnet")
+  const { chain, setChain, setLocalStorage } = useLocalStorage("mainnet")
   const loginPassword = watch("loginPassword")
-
-  const selectSavePath = () => {
-    window.fileSystemApi.receiveSelectedFolderPath((event: Electron.IpcMainEvent, path: string) => {
-      setSavePath(path)
-    })
-    window.fileSystemApi.reqSelectFolderPath();
-  }
 
   const generateEncryptedKeys = () => {
     window.encryptionApi.receiveGenerateKey(
@@ -52,7 +41,6 @@ const StepCreateKeys: React.FC<StepCreateKeysProps> = (props) => {
     window.encryptionApi.receiveKeyGenConfirmation(
       (event: Electron.IpcMainEvent, result: number, savePath: string, errorMessage: string) => {
         if (result === 0) {
-          props.setFilesCreatedPath(savePath)
           props.setKeysGenerated(true)
           setLocalStorage();
           resetField("confirmedAddress")
@@ -89,7 +77,7 @@ const StepCreateKeys: React.FC<StepCreateKeysProps> = (props) => {
         }
       }
     )
-    window.encryptionApi.reqGenValidatorKeysAndEncrypt(props.mnemonic, loginPassword, savePath, props.stakeInfo, chain, getValues('confirmedAddress'), props.mnemonicOption, props.importMnemonicPassword);
+    window.encryptionApi.reqGenValidatorKeysAndEncrypt(props.mnemonic, loginPassword, props.stakeInfo, chain, getValues('confirmedAddress'), props.mnemonicOption, props.importMnemonicPassword);
     setGeneratingKeys(true)
   }
 
@@ -108,9 +96,6 @@ const StepCreateKeys: React.FC<StepCreateKeysProps> = (props) => {
     }
   }, [props.keysGenerated]);
 
-  const openFilesCreatedFolder = () => {
-    window.fileSystemApi.reqOpenFolder(props.filesCreatedPath);
-  }
 
   const backDetails = {
     text: "Back",
@@ -128,7 +113,7 @@ const StepCreateKeys: React.FC<StepCreateKeysProps> = (props) => {
   }
 
   const nextProps = {
-    isDisabled: !savePath || !chain,
+    isDisabled: !chain,
     onClick: generateEncryptedKeys,
     variant: "white-button",
   }
@@ -151,17 +136,6 @@ const StepCreateKeys: React.FC<StepCreateKeysProps> = (props) => {
           </Center>
           <Text color={'white'} fontSize="xl" fontWeight={'semibold'} align="center">
             Create Keys
-          </Text>
-          <Text color="white" align="center">
-            Choose a folder where we should save your generated validator keys
-          </Text>
-          <Center>
-            <Button variant="browse-folder-button" onClick={selectSavePath}>
-              {!savePath ? "Browse Folders" : "Change Folder"}
-            </Button>
-          </Center>
-          <Text color="white" opacity={'0.7'} align="center">
-            Folder: {savePath}
           </Text>
           <Text color="white" align="center">
             Choose the chain you want to generate validator keys for
@@ -187,18 +161,6 @@ const StepCreateKeys: React.FC<StepCreateKeysProps> = (props) => {
             <Text color={'white'} fontSize="large" fontWeight={'semibold'} align="center">
               Congrats! Your keys have been successfully generated and encrypted!
             </Text>
-            <Text fontSize="14px" color={COLORS.textSecondary}>
-              Your files have been created here:
-            </Text>
-            <Box sx={successBoxStyle}>
-              <HStack>
-                <IconSavedFile boxSize="8" />
-                <Text _hover={{ textDecoration: 'underline' }} fontSize='14px' flex="auto" color='white' onClick={openFilesCreatedFolder}>
-                  {props.filesCreatedPath}
-                </Text>
-                <IconCheckMark boxSize="5" />
-              </HStack>
-            </Box>
             <Center>
               <Button variant='white-button' onClick={props.goNextStep}>Continue</Button>
             </Center>

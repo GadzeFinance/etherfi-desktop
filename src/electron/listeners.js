@@ -2,6 +2,7 @@ const fs = require('fs');
 const EC = require('elliptic').ec
 const BN = require('bn.js');
 const path = require('path')
+const electron = require('electron')
 const { encrypt, decrypt, encryptPrivateKeys, decryptPrivateKeys } = require('./utils/encryptionUtils');
 const { createMnemonic, generateKeys, validateMnemonic } = require('./utils/Eth2Deposit.js')
 const { selectFolder, selectJsonFile } = require('./utils/saveFile.js')
@@ -121,7 +122,7 @@ const genMnemonic = async (language) => {
  *          It also contains single stakeRequest.json file which contains the encrypted data.
  *           The stakeRequest.json file is what the user should upload to the DAPP.
  */
-const genValidatorKeysAndEncrypt = async (event, mnemonic, databasePassword, folder, stakeInfo, chain, address, mnemonicOption, importPassword) => {
+const genValidatorKeysAndEncrypt = async (event, mnemonic, databasePassword, stakeInfo, chain, address, mnemonicOption, importPassword) => {
     logger.info("genEncryptedKeys: Start")
     const allWallets = await storage.getAllStakerAddresses();
     if (allWallets == undefined || !(address in allWallets)) {
@@ -138,7 +139,9 @@ const genValidatorKeysAndEncrypt = async (event, mnemonic, databasePassword, fol
     
     const stakeInfoLength = stakeInfo.length
     const timeStamp = Date.now()
-    folder = path.join(folder, `etherfi_keys-${timeStamp}`)
+    const userDataPath = (electron.app || electron.remote.app).getPath('userData');
+    const generatedFolder = `etherfi_keys-${timeStamp}`
+    const folder = path.join(userDataPath, generatedFolder)
     const nodeOperatorPublicKeys = []
     const validatorIDs = []
 
@@ -180,6 +183,14 @@ const genValidatorKeysAndEncrypt = async (event, mnemonic, databasePassword, fol
     const fileContent = JSON.stringify(stakeInfo);
     const historyData = encodeGenerateKeysData(address, 'stakeInfo', fileContent, mnemonic, validatorIDs);
     addHistoryRecord(historyData);
+
+    fs.rmdir(folder, { recursive: true }, (err) => {
+        if (err) {
+          console.error(`Error deleting folder: ${err}`);
+        } else {
+          console.log('Folder deleted successfully');
+        }
+    });
 
     // Send back the folder where everything is save
     logger.info("genEncryptedKeys: End")
