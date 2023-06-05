@@ -3,6 +3,7 @@ import { useQuery } from 'react-query';
 import axios from 'axios';
 
 const API_URL = "http://localhost:3000/api/beaconChain/getEpoch?chain="
+const EPOCH_OFFSET = 5;
 
 async function fetchEpoch(chain: string) {
     try {
@@ -23,12 +24,15 @@ function useEpoch(chain: string) {
 
   const { data, isLoading, isError, error, refetch } = useQuery(['epoch', chain], () => fetchEpoch(chain), config);
 
+
+  let shiftedEpoch = data + EPOCH_OFFSET
+
   useEffect(() => {
     // Refetch the data whenever the `chain` variable changes
     refetch();
   }, [chain, refetch]);
 
-  return { data, isLoading, isError, error };
+  return { shiftedEpoch, isLoading, isError, error };
 }
 
 export default useEpoch;
