@@ -1,4 +1,3 @@
-import { ScaleFade } from '@chakra-ui/react'
 import HistoryWidget from './HistoryWidget'
 import SavedDataWidget from './SavedDataWidget'
 
@@ -6,11 +5,6 @@ interface DBExplorerProps {
   password: string
   tabIndex: number
   selectedOption: number
-}
-
-const DBDropDownOptions = {
-  "Saved Mnemonics & Validator keys": 0,
-  "Staker History": 1
 }
 
 const DBExplorer = ({
