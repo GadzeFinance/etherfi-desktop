@@ -10,6 +10,7 @@ const { encodeGenerateKeysData, addHistoryRecord } = require('./utils/historyUti
 const { decryptResultCodes, desktopAppVersion } = require('./constants')
 const logger = require('./utils/logger')
 const {storage} = require('./utils/storage')
+const isDev = process.env.NODE_ENV === "development"
 
 /**
  * Generates public and private key pairs and saves them in two separate JSON files
@@ -111,9 +112,7 @@ const genMnemonic = async (language) => {
  *
  * @param {string} mnemonic - The 24 word mnmonic seed phrase
  * @param {string} password - The password to encrypt the validator keystores with
- * @param {string} folder - The folder to save the files that are generated too
  * @param {StakeInfo[]} stakeInfo - The stakeinfo array
- * @param {string} chain - The chain to generate the keys for
  * 
 
  * @return {string} - The path to the folder that was created. 
@@ -122,7 +121,7 @@ const genMnemonic = async (language) => {
  *          It also contains single stakeRequest.json file which contains the encrypted data.
  *           The stakeRequest.json file is what the user should upload to the DAPP.
  */
-const genValidatorKeysAndEncrypt = async (event, mnemonic, databasePassword, stakeInfo, chain, address, mnemonicOption, importPassword) => {
+const genValidatorKeysAndEncrypt = async (event, mnemonic, databasePassword, stakeInfo, address, mnemonicOption, importPassword) => {
     logger.info("genEncryptedKeys: Start")
     const allWallets = await storage.getAllStakerAddresses();
     if (allWallets == undefined || !(address in allWallets)) {
@@ -152,7 +151,7 @@ const genValidatorKeysAndEncrypt = async (event, mnemonic, databasePassword, sta
         const index = i
         try {
             const startTime = new Date().getTime();
-            await generateKeys(mnemonic, 1, chain, password, eth1_withdrawal_address, folder, stakeInfo[i].validatorID, databasePassword, address)
+            await generateKeys(mnemonic, 1, isDev ? "goerli" : "mainnet", password, eth1_withdrawal_address, folder, stakeInfo[i].validatorID, databasePassword, address)
             const endTime = new Date().getTime();
             const usedTime = (endTime - startTime) / 1000;
             event.sender.send("receive-generate-key", index, stakeInfoLength, usedTime)

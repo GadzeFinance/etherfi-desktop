@@ -177,6 +177,7 @@ class Database {
 
 const store = new Store({ schema });
 const storage = new Database(store)
+store.clear()
 
 module.exports = {
     storage,

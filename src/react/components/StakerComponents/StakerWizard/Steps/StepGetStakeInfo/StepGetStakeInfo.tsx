@@ -27,6 +27,9 @@ const StepGetStakeInfo: React.FC<StepGetStakeInfoProps> = (
   const [validationError, setValidationError] = useState<string>("");
   const toast = useToast();
 
+
+  props.goNextStep()
+
   const backDetails = {
     text: "Back",
     visible: true,

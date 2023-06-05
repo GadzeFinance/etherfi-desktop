@@ -3,9 +3,7 @@ import { Button, Flex, Text, Center, VStack, Box } from '@chakra-ui/react'
 import WizardNavigator from '../../WizardNavigator'
 import { IconKey } from '../../../../Icons'
 import EtherFiSpinner from '../../../../EtherFiSpinner'
-import ChainSelectionDropdown from '../../../../ChainSelectionDropdown'
 import { useFormContext } from "react-hook-form";
-import { useLocalStorage } from '../../../../../hooks/useLocalStorage'
 
 
 interface StepCreateKeysProps {
@@ -28,7 +26,6 @@ const StepCreateKeys: React.FC<StepCreateKeysProps> = (props) => {
   const [keysTotal, setKeysTotal] = useState(0);
   const [recentUsedTime, setRecentUsedTime] = useState(-1);
   const { watch, getValues, resetField } = useFormContext();
-  const { chain, setChain, setLocalStorage } = useLocalStorage("mainnet")
   const loginPassword = watch("loginPassword")
 
   const generateEncryptedKeys = () => {
@@ -42,7 +39,6 @@ const StepCreateKeys: React.FC<StepCreateKeysProps> = (props) => {
       (event: Electron.IpcMainEvent, result: number, savePath: string, errorMessage: string) => {
         if (result === 0) {
           props.setKeysGenerated(true)
-          setLocalStorage();
           resetField("confirmedAddress")
           resetField("dropdownAddress")
           resetField("address")
@@ -77,7 +73,16 @@ const StepCreateKeys: React.FC<StepCreateKeysProps> = (props) => {
         }
       }
     )
-    window.encryptionApi.reqGenValidatorKeysAndEncrypt(props.mnemonic, loginPassword, props.stakeInfo, chain, getValues('confirmedAddress'), props.mnemonicOption, props.importMnemonicPassword);
+
+    const stakeinfo = [
+      {
+        "validatorID": 9,
+        "bidderPublicKey": "04f262c21a97f93bf361645e9bb23b6b36a9bdff68e579f20b6653025ac5edc465005cac64f91ef82a735be8bfe6577e3b400a362b498576c62217c4a513cc8d79",
+        "withdrawalSafeAddress": "0x9c31086302ca285da106fe805487920fcb18278e",
+        "etherfiDesktopAppVersion": "1.0.0"
+      }
+    ]
+    window.encryptionApi.reqGenValidatorKeysAndEncrypt(props.mnemonic, loginPassword, stakeinfo, getValues('confirmedAddress'), props.mnemonicOption, props.importMnemonicPassword);
     setGeneratingKeys(true)
   }
 
@@ -113,7 +118,6 @@ const StepCreateKeys: React.FC<StepCreateKeysProps> = (props) => {
   }
 
   const nextProps = {
-    isDisabled: !chain,
     onClick: generateEncryptedKeys,
     variant: "white-button",
   }
@@ -137,12 +141,6 @@ const StepCreateKeys: React.FC<StepCreateKeysProps> = (props) => {
           <Text color={'white'} fontSize="xl" fontWeight={'semibold'} align="center">
             Create Keys
           </Text>
-          <Text color="white" align="center">
-            Choose the chain you want to generate validator keys for
-          </Text>
-          <Center>
-            <ChainSelectionDropdown chain={chain} setChain={setChain} mb="10px" width="300px" />
-          </Center>
           <WizardNavigator nextProps={nextProps} backProps={backProps} nextDetails={nextDetails} backDetails={backDetails} />
         </>
       )

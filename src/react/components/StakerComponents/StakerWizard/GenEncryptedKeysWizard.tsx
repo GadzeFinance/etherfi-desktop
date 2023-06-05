@@ -42,7 +42,7 @@ const getMenomicWordsToConfirmIndicies = () => {
 
 const GenEncryptedKeysWizard: React.FC<WizardProps> = (props) => {
     const { nextStep, prevStep, activeStep } = useSteps({
-        initialStep: 3,
+        initialStep: 0,
     });
     const [stakeInfo, setStakeInfo] = React.useState<{[key: string]: string}[]>([]);
     const [mnemonic, setMnemonic] = useState<string>("");

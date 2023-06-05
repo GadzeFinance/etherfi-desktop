@@ -36,8 +36,8 @@ contextBridge.exposeInMainWorld("encryptionApi", {
     receiveStoredValidators: function(func) {
         ipcRenderer.once("receive-stored-validators", (event, ...args) => func(event, ...args))
     },
-    reqGenValidatorKeysAndEncrypt: function(mnemonic, password, stakeInfo, chain, address, mnemonicOption, importPassword){
-        ipcRenderer.send("req-gen-val-keys-and-encrypt", [mnemonic, password, stakeInfo, chain, address, mnemonicOption, importPassword]);
+    reqGenValidatorKeysAndEncrypt: function(mnemonic, password, stakeInfo, address, mnemonicOption, importPassword){
+        ipcRenderer.send("req-gen-val-keys-and-encrypt", [mnemonic, password, stakeInfo, address, mnemonicOption, importPassword]);
     },
     receiveKeyGenConfirmation: function(func){
         ipcRenderer.once("receive-key-gen-confirmation", (event, ...args) => func(event, ...args));       
