@@ -34,6 +34,7 @@ import useCopy from "../../hooks/useCopy";
 
 interface HistoryWidgetProps {
   tabIndex: number
+  selectedOption: number
 }
 
 interface StakeInfoFile {
@@ -105,7 +106,7 @@ const HistoryWidget = (props: HistoryWidgetProps) => {
 
   useEffect(() => {
 
-    if (props.tabIndex !== 1) return
+    if (props.selectedOption !== 1 || props.tabIndex !== 2) return
 
     if (!pageCount) return
     
