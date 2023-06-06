@@ -148,32 +148,36 @@ const GenerateSignedExitMessageWidget: React.FC<GenerateSignedExitMessageWidgetP
                 </Box>
                 <Box sx={darkBoxWithBorderStyle} bg="#2b2852">
                   <VStack spacing={4} align="stretch">
-                  <Controller
-                    control={control}
-                    name="dropdownAddress"
-                    render={({
-                        field: { onChange, onBlur, value, name, ref },
-                        fieldState: { error }
-                      }) => (
-                      <Select
-                        color="white"
-                        borderColor="purple.light"
-                        placeholder="Select Wallet Address"
-                        onChange={(e) => {
-                            onChange(e)
-                        }}
-                    >
-                        {!error && addressOptions?.map((address: string) => (
-                            <option key={address}>{address}</option>
-                        ))}
-                    </Select>
+                    {addressOptions?.length && (
+                      <>
+                        <Controller
+                          control={control}
+                          name="dropdownAddress"
+                          render={({
+                              field: { onChange },
+                              fieldState: { error }
+                            }) => (
+                            <Select
+                              color="white"
+                              borderColor="purple.light"
+                              placeholder="Select Wallet Address"
+                              onChange={(e) => {
+                                  onChange(e)
+                              }}
+                            >
+                              {!error && addressOptions?.map((address: string) => (
+                                  <option key={address}>{address}</option>
+                              ))}
+                            </Select>
+                          )}
+                        />
+                        <Center>
+                          <Text color={"white"} fontSize="2xl" fontWeight={"semibold"}>
+                              or
+                          </Text>
+                        </Center>
+                      </>
                     )}
-                    />
-                    <Center>
-                      <Text color={"white"} fontSize="2xl" fontWeight={"semibold"}>
-                          or
-                      </Text>
-                    </Center>
                     <AddressInput
                       isAddressValid={isAddressValid}
                       setIsAddressValid={setIsAddressValid}
@@ -182,13 +186,17 @@ const GenerateSignedExitMessageWidget: React.FC<GenerateSignedExitMessageWidgetP
                     />
                     <Tabs
                       index={selectedTab}
+                      variant="soft-rounded"
+                      colorScheme="purple"
+                      isFitted
                       onChange={(index) => setSelectedTab(index)}
                     >
-                      <TabList>
-                        <Tab color={"white"}>Import Validator</Tab>
-                        <Tab color={"white"}>Select Validator</Tab>
-                      </TabList>
-
+                      <Box border="1px" borderColor="purple.light" borderRadius="28" padding="2">
+                        <TabList>
+                          <Tab color={"white"}>Import Validator</Tab>
+                          <Tab color={"white"}>Select Validator</Tab>
+                        </TabList>
+                      </Box>
                       <TabPanels>
                         <TabPanel sx={{ width: "100%" }}>
                           <Box width="100%">

@@ -143,7 +143,7 @@ const HistoryWidget = (props: HistoryWidgetProps) => {
         > 
         <Grid height="100%" templateRows="repeat(8, 1fr)" gap={4}>
           <GridItem rowSpan={1}>
-            <Center ><Heading size="lg">History</Heading></Center>
+            <Center ><Heading size="lg">Recent Activity</Heading></Center>
           </GridItem>
           <GridItem overflowY="scroll" rowSpan={6}>
           <Box overflowY="scroll">

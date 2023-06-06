@@ -124,12 +124,19 @@ const SavedDataWidget = (props: SavedDataWidgetProps) => {
               </Flex>
               <Tabs
                 index={selectedTab}
+                variant="soft-rounded"
+                colorScheme="purple"
+                isFitted
                 onChange={(index) => setSelectedTab(index)}
               >
-                <TabList>
-                  <Tab color={"white"}>Mnemonics</Tab>
-                  <Tab color={"white"}>Validators</Tab>
-                </TabList>
+                <Center>
+                  <Box width={500} border="1px" borderColor="purple.light" borderRadius="28" padding="2">
+                    <TabList>
+                      <Tab mx="1" color={"white"}>Mnemonics</Tab>
+                      <Tab mx="1" color={"white"}>Validators</Tab>
+                    </TabList>
+                  </Box>
+                </Center>
                 <TabPanels>
                   <TabPanel sx={{ width: "100%" }}>
                     <DataTable title="mnemonics" dataCount={mnemonicCount} data={mnemonics} /> 
