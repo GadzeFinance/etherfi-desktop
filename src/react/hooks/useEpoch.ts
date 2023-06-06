@@ -27,12 +27,15 @@ function useEpoch(chain: string) {
 
   const { data, isLoading, isError, error, refetch } = useQuery(['epoch', chain], () => fetchEpoch(chain), config);
 
+
+  let shiftedEpoch = data + EPOCH_OFFSET
+
   useEffect(() => {
     // Refetch the data whenever the `chain` variable changes
     refetch();
   }, [chain, refetch]);
 
-  return { data, isLoading, isError, error };
+  return { shiftedEpoch, isLoading, isError, error };
 }
 
 export default useEpoch;

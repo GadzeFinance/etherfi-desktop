@@ -45,7 +45,7 @@ const GenerateSignedExitMessageWidget = () => {
   const { loginPassword, exitEpoch, validatorIndex, validatorKeysPassword } = watch();
 
   const { addressOptions } = useGetStakerAddresses();
-  const { data: epoch } = useEpoch(chain);
+  const { shiftedEpoch: epoch } = useEpoch(chain);
   // TODO: MAKE ERROR MESSAGES BETTER!! I.E See if password is wrong for keystore
   // Right now we just show that a general error occured if the message generation fails
   const [showErrorMessage, setShowErrorMessage] = useState<boolean>(false);
