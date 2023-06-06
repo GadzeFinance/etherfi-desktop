@@ -35,6 +35,7 @@ interface StakerInfo {
 
 interface SavedDataWidgetProps {
   tabIndex: number
+  selectedOption: number
 }
 
 const SavedDataWidget = (props: SavedDataWidgetProps) => {
@@ -64,7 +65,7 @@ const SavedDataWidget = (props: SavedDataWidgetProps) => {
 
   useEffect(() => {
 
-    if (props.tabIndex !== 0) return
+    if (props.selectedOption !== 0 || props.tabIndex !== 2) return
     
     window.databaseApi.receiveAllStakerAddresses(
       (
@@ -91,7 +92,7 @@ const SavedDataWidget = (props: SavedDataWidgetProps) => {
     );
     window.databaseApi.reqAllStakerAddresses(dbPassword);
 
-  }, [props.tabIndex])
+  }, [props.tabIndex, props.selectedOption])
 
   const currStaker = allStakers[currAddress]
   const mnemonics = currStaker?.mnemonics ?? {}

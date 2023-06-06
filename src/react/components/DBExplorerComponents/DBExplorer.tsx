@@ -15,10 +15,10 @@ const DBExplorer = ({
 
   return (<>
       { selectedOption === 0 && (
-          <SavedDataWidget tabIndex={0} />
+          <SavedDataWidget tabIndex={tabIndex} selectedOption={selectedOption} />
       )}
       { selectedOption === 1 && (
-          <HistoryWidget tabIndex={1} />
+          <HistoryWidget tabIndex={tabIndex} selectedOption={selectedOption}/>
       )}
     </>
   );
