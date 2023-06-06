@@ -1,6 +1,6 @@
 import React, { ReactNode } from 'react';
 import { useFormContext } from "react-hook-form";
-import { TabList, Tabs, Tab, TabPanels, TabPanel, Box, Text, InputGroup, NumberInput, NumberInputField } from '@chakra-ui/react';
+import { TabList, Tabs, Tab, TabPanels, TabPanel, Box, Text, InputGroup, NumberInput, NumberInputField, Center } from '@chakra-ui/react';
 import { COLORS } from "../../styleClasses/constants";
 import PasswordInput from '../PasswordInput';
 import SelectFile from '../SelectFile';
@@ -29,14 +29,24 @@ const ImportValidatorTabs: React.FC<ImportValidatorTabsProps> = ({
     return (
         <Tabs
             index={selectedTab}
+            variant="soft-rounded"
+            colorScheme="purple"
+            isFitted
             onChange={(index) => setSelectedTab(index)}
         >
-            <TabList>
-            <Tab color={"white"}>Import Validator</Tab>
-            <Tab color={"white"}>Select Validator</Tab>
-            </TabList>
+            <Center>
+                  <Box width={500} border="1px" borderColor="purple.light" borderRadius="28" padding="2">
+                    <TabList>
+                      <Tab mx="1" color={"white"}>Select Validator</Tab>
+                      <Tab mx="1" color={"white"}>Import Validator</Tab>
+                    </TabList>
+                  </Box>
+                </Center>
 
             <TabPanels>
+            <TabPanel sx={{ width: "100%" }}>
+                    {children}
+                </TabPanel>
             <TabPanel sx={{ width: "100%" }}>
                 <Box width="100%">
                 <Text mb="5px" fontSize="14px" as="b" color="white">
@@ -83,9 +93,7 @@ const ImportValidatorTabs: React.FC<ImportValidatorTabsProps> = ({
                 </Box>
                 </Box>
             </TabPanel>
-                <TabPanel sx={{ width: "100%" }}>
-                    {children}
-                </TabPanel>
+
             </TabPanels>
         </Tabs>
   );

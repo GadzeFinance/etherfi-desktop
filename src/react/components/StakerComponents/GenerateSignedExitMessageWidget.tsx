@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Box,
   Center,
@@ -11,7 +11,7 @@ import {
   InputGroup,
   Select,
 } from "@chakra-ui/react";
-import { useFormContext, Controller } from "react-hook-form";
+import { useFormContext, Controller, useForm } from "react-hook-form";
 import raisedWidgetStyle from "../../styleClasses/widgetBoxStyle";
 import successBoxStyle from "../../styleClasses/successBoxStyle";
 import darkBoxWithBorderStyle from "../../styleClasses/darkBoxWithBorderStyle";
@@ -32,7 +32,7 @@ const GenerateSignedExitMessageWidget = () => {
   const [validatorKeyFilePath, setValidatorKeyFilePath] = useState<string>("");
   const [savePath, setSavePath] = useState<string>("");
   const [exitMessageFilePath, setExitMessageFilePath] = useState<string>("");
-  const [chain, setChain] = useState<string>("");
+  const [chain, setChain] = useState<string>("mainnet");
   const [selectedTab, setSelectedTab] = useState<number>(0);
   const [selectedValidator, setSelectedValidator] = useState("");
   const [isAddressValid, setIsAddressValid] = React.useState(false);
@@ -41,11 +41,11 @@ const GenerateSignedExitMessageWidget = () => {
   const [messageGenerating, setMessageGenerating] = useState<boolean>(false);
   const [messageGenerated, setMessageGenerated] = useState<boolean>(false);
 
-  const { watch, register, control, getValues, resetField } = useFormContext();
+  const { watch, register, control, getValues, resetField, setValue } = useForm();
   const { loginPassword, exitEpoch, validatorIndex, validatorKeysPassword } = watch();
 
   const { addressOptions } = useGetStakerAddresses();
-  const { shiftedEpoch: epoch } = useEpoch(chain);
+  const { shiftedEpoch: epoch, isLoading } = useEpoch(chain);
   // TODO: MAKE ERROR MESSAGES BETTER!! I.E See if password is wrong for keystore
   // Right now we just show that a general error occured if the message generation fails
   const [showErrorMessage, setShowErrorMessage] = useState<boolean>(false);
@@ -117,6 +117,11 @@ const GenerateSignedExitMessageWidget = () => {
         getFinalAddress()
     );
   };
+
+  useEffect(() => {
+    console.log("useEffect: epoch:", epoch, isLoading)
+    if (epoch) setValue("exitEpoch", 123)
+  }, [])
 
   return (
     <>
@@ -221,8 +226,10 @@ const GenerateSignedExitMessageWidget = () => {
                           color="white"
                         >
                           <NumberInputField
-                            {...register('exitEpoch', {valueAsNumber: true})}
-                            placeholder="Enter Epoch"
+                            {...register('exitEpoch', {
+                              valueAsNumber: true
+                            })}
+                            placeholder="Please input exit epoch"
                           />
                         </NumberInput>
                       </InputGroup>

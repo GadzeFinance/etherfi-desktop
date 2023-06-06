@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { useQuery } from 'react-query';
 import axios from 'axios';
+import { FieldValues, UseFormSetValue } from 'react-hook-form';
 
 const API_URL = process.env.NODE_ENV === 'production'
 ? "https://mainnet.ether.fi/api/beaconChain/getEpoch?chain="
@@ -9,13 +10,13 @@ const API_URL = process.env.NODE_ENV === 'production'
 const EPOCH_OFFSET = 5;
 
 async function fetchEpoch(chain: string) {
-    try {
-        if (chain !== "goerli" && chain !== "mainnet") return null;
-        const response = await axios.get(API_URL + chain)
-        return response.data;
-    } catch (error) {
-        throw new Error('An error occurred while fetching epoch');
-    }
+  try {
+    if (chain !== "goerli" && chain !== "mainnet") return null;
+    const response = await axios.get(API_URL + chain)
+    return response.data;
+  } catch (error) {
+    throw new Error('An error occurred while fetching epoch');
+  }
 }
 
 function useEpoch(chain: string) {
@@ -27,8 +28,9 @@ function useEpoch(chain: string) {
 
   const { data, isLoading, isError, error, refetch } = useQuery(['epoch', chain], () => fetchEpoch(chain), config);
 
+  console.log("useEpoch: data:", data, isLoading, isError, error);
 
-  let shiftedEpoch = data + EPOCH_OFFSET
+  const shiftedEpoch = data + EPOCH_OFFSET;
 
   useEffect(() => {
     // Refetch the data whenever the `chain` variable changes
