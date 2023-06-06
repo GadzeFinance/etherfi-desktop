@@ -9,11 +9,6 @@ import {
   NumberInput,
   NumberInputField,
   InputGroup,
-  Tabs,
-  TabList,
-  Tab,
-  TabPanels,
-  TabPanel,
   Select,
 } from "@chakra-ui/react";
 import { useFormContext, Controller } from "react-hook-form";
@@ -23,20 +18,16 @@ import darkBoxWithBorderStyle from "../../styleClasses/darkBoxWithBorderStyle";
 import { COLORS } from "../../styleClasses/constants";
 import SavedFileBox from "../SavedFileBox";
 import EtherFiSpinner from "../EtherFiSpinner";
-import SelectFile from "../SelectFile";
 import SelectSavePathButton from "../SelectSavePathButton";
 import ChainSelectionDropdown from "../ChainSelectionDropdown";
 import AddressInput from "../AddressInput";
 import useGetStakerAddresses from "../../hooks/useGetStakerAddress";
 import useGetValidators from "../../hooks/useGetValidators";
-import PasswordInput from "../PasswordInput";
 import useEpoch from "../../hooks/useEpoch";
+import ImportValidatorTabs from "./ImportValidatorTabs";
 
-interface GenerateSignedExitMessageWidgetProps {
-  password: string;
-}
 
-const GenerateSignedExitMessageWidget: React.FC<GenerateSignedExitMessageWidgetProps> = (props) => {
+const GenerateSignedExitMessageWidget = () => {
 
   const [validatorKeyFilePath, setValidatorKeyFilePath] = useState<string>("");
   const [savePath, setSavePath] = useState<string>("");
@@ -184,85 +175,28 @@ const GenerateSignedExitMessageWidget: React.FC<GenerateSignedExitMessageWidgetP
                       shouldDoValidation
                       registerText="exitAddress"
                     />
-                    <Tabs
-                      index={selectedTab}
-                      variant="soft-rounded"
-                      colorScheme="purple"
-                      isFitted
-                      onChange={(index) => setSelectedTab(index)}
-                    >
-                      <Box border="1px" borderColor="purple.light" borderRadius="28" padding="2">
-                        <TabList>
-                          <Tab color={"white"}>Import Validator</Tab>
-                          <Tab color={"white"}>Select Validator</Tab>
-                        </TabList>
-                      </Box>
-                      <TabPanels>
-                        <TabPanel sx={{ width: "100%" }}>
-                          <Box width="100%">
-                            <Text mb="5px" fontSize="14px" as="b" color="white">
-                              Validator Key
-                            </Text>
-                            <SelectFile
-                              fileName="EncryptedValidatorKeys"
-                              reqFileValidaton={
-                                window.validateFilesApi.validateKeystoreJson
-                              }
-                              receiveValidatonResults={
-                                window.validateFilesApi
-                                  .receiveKeystoreValidationResults
-                              }
-                              setFilePath={setValidatorKeyFilePath}
-                              filePath={validatorKeyFilePath}
-                            />
-                          </Box>
-                          <Box>
-                            <Text fontSize="14px" as="b" color="white">
-                              {" "}
-                              Validator Index
-                            </Text>
-                            <InputGroup>
-                              <NumberInput
-                                width="100%"
-                                borderColor={COLORS.lightPurple}
-                                color="white"
-                              >
-                                <NumberInputField
-                                  {...register('validatorIndex', {valueAsNumber: true})}
-                                  placeholder="Enter Validator Index"
-                                />
-                              </NumberInput>
-                            </InputGroup>
-                            <Box my="20px">
-                            <Text fontSize="14px" as="b" color="white">
-                              {" "}
-                              Keystore File Password
-                            </Text>
-                            <InputGroup>
-                              <PasswordInput isPasswordValid={true} setIsPasswordValid={() => true} shouldDoValidation={false} noText registerText="validatorKeysPassword" />
-                            </InputGroup>
-                          </Box>
-                          </Box>
-                        </TabPanel>
-                        <TabPanel sx={{ width: "100%" }}>
-                          <Box width="100%">
-                            <Select
-                              color="white"
-                              borderColor="purple.light"
-                              placeholder="Validator ID"
-                              value={selectedValidator}
-                              onChange={(e) => {
-                                setSelectedValidator((e.target.value))
-                              }}
-                            >
-                              {fetchedValidators && Object.entries(fetchedValidators).map(([key, value]: [any, any], i) => (
-                                  <option value={JSON.stringify(value)} key={key}>{value.validatorID}</option>
-                              ))}
-                            </Select>
-                          </Box>
-                        </TabPanel>
-                      </TabPanels>
-                    </Tabs>
+                      <ImportValidatorTabs
+                        selectedTab={selectedTab}
+                        setSelectedTab={setSelectedTab}
+                        setValidatorKeyFilePath={setValidatorKeyFilePath}
+                        validatorKeyFilePath={validatorKeyFilePath}
+                      >
+                        <Box width="100%">
+                          <Select
+                            color="white"
+                            borderColor="purple.light"
+                            placeholder="Validator ID"
+                            value={selectedValidator}
+                            onChange={(e) => {
+                              setSelectedValidator((e.target.value))
+                            }}
+                          >
+                            {fetchedValidators && Object.entries(fetchedValidators).map(([key, value]: [any, any], i) => (
+                              <option value={JSON.stringify(value)} key={key}>{value.validatorID}</option>
+                            ))}
+                          </Select>
+                        </Box>
+                      </ImportValidatorTabs>
                     <Box>
                       <Text fontSize="14px" as="b" color="white">
                         Chain
