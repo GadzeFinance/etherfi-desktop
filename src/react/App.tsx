@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useForm, FormProvider, useFormContext } from "react-hook-form";
+import { useForm, FormProvider } from "react-hook-form";
 import { Tabs, Center, TabPanel, TabPanels } from '@chakra-ui/react'
 import NavBar from "./components/Nav/NavBar";
 import StakerTab from "./components/StakerComponents/StakerTab";
