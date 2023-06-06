@@ -1,21 +1,14 @@
 import { useState, useEffect } from "react";
-import { useFormContext } from "react-hook-form";
 import raisedWidgetStyle from "../../styleClasses/widgetBoxStyle";
 import {
   Center,
   Box,
   Text,
-  Tabs,
-  Tab,
-  TabList,
-  TabPanels,
-  TabPanel,
   Button,
   Divider,
   Grid,
   GridItem,
   Heading,
-  background,
   Modal,
   ModalOverlay,
   ModalContent,
@@ -23,17 +16,15 @@ import {
   ModalCloseButton,
   ModalBody,
   Code,
-  ModalFooter,
   Flex
 } from "@chakra-ui/react";
-import AddressSelect from "./AddressSelect";
-import DataTable from "./DataTable";
-import { ArrowBackIcon, ArrowForwardIcon, CopyIcon, ViewIcon } from "@chakra-ui/icons";
+import { ArrowBackIcon, ArrowForwardIcon, CopyIcon } from "@chakra-ui/icons";
 import useGetHistoryPageCount from "../../hooks/useGetHistoryPageCount";
 import useCopy from "../../hooks/useCopy";
 
 interface HistoryWidgetProps {
   tabIndex: number
+  selectedOption: number
 }
 
 interface StakeInfoFile {
@@ -105,7 +96,7 @@ const HistoryWidget = (props: HistoryWidgetProps) => {
 
   useEffect(() => {
 
-    if (props.tabIndex !== 1) return
+    if (props.selectedOption !== 1 || props.tabIndex !== 2) return
 
     if (!pageCount) return
     
@@ -153,7 +144,7 @@ const HistoryWidget = (props: HistoryWidgetProps) => {
         > 
         <Grid height="100%" templateRows="repeat(8, 1fr)" gap={4}>
           <GridItem rowSpan={1}>
-            <Center ><Heading size="lg">History</Heading></Center>
+            <Center ><Heading size="lg">Recent Activity</Heading></Center>
           </GridItem>
           <GridItem overflowY="scroll" rowSpan={6}>
           <Box overflowY="scroll">
