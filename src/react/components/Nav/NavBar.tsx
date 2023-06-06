@@ -34,7 +34,7 @@ const StakerDropDownOptions = {
 
 const DBDropDownOptions = {
     "Saved Mnemonics & Validator keys": 0,
-    "Staker History": 1
+    "Recent Activity": 1
 }
 
 const NavBar: React.FC<NavBarProps> = ({ 
@@ -129,8 +129,8 @@ const NavBar: React.FC<NavBarProps> = ({
                             Saved Mnemonics & Validator keys
                         </MenuItem>
                         <MenuItem sx={dropDownItemStyle} color={selectedDBOperation === 1 ? "white" : COLORS.textSecondary}
-                            onClick={() => handleDBOptionSelect(DBDropDownOptions["Staker History"])}>
-                            Staker History
+                            onClick={() => handleDBOptionSelect(DBDropDownOptions["Recent Activity"])}>
+                            Recent Activity
                         </MenuItem>
                     </MenuList>
                     </>
