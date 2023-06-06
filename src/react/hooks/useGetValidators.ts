@@ -3,6 +3,7 @@ import { useToast } from '@chakra-ui/react';
 
 export default function useGetValidators(confirmedAddress: string, password: string) {
   const [fetchedValidators, setFetchedValidators] = useState(null);
+  const [loading, setLoading] = useState(false)
   const toast = useToast();
 
   useEffect(() => {
@@ -19,6 +20,7 @@ export default function useGetValidators(confirmedAddress: string, password: str
               errorMessage: string
             ) => {
               if (result === 0) {
+                setLoading(false)
                 resolve(Object.entries(JSON.parse(validators)).map(([key, value]: [string, any]) => ({
                     validatorID: key,
                     fileData: JSON.stringify(JSON.parse(value.keystore)),
@@ -29,6 +31,7 @@ export default function useGetValidators(confirmedAddress: string, password: str
               }
             }
           );
+          setLoading(true)
           window.encryptionApi.reqStoredValidators(confirmedAddress, password);
         });
 
@@ -50,5 +53,5 @@ export default function useGetValidators(confirmedAddress: string, password: str
     fetchValidators();
   }, [confirmedAddress, password, toast]);
 
-  return fetchedValidators;
+  return {fetchedValidators, loading};
 }

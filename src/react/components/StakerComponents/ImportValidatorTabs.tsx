@@ -24,7 +24,7 @@ const ImportValidatorTabs: React.FC<ImportValidatorTabsProps> = ({
 
     const { register } = useFormContext();
 
-    if (isDev(React)) return <>{children}</>
+    if (!isDev(React)) return <>{children}</>
 
     return (
         <Tabs

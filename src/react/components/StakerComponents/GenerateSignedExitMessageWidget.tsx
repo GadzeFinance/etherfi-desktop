@@ -60,7 +60,7 @@ const GenerateSignedExitMessageWidget = () => {
     }
   }
 
-  const fetchedValidators = useGetValidators(getFinalAddress(), loginPassword)
+  const {fetchedValidators, loading} = useGetValidators(getFinalAddress(), loginPassword)
 
   const clearState = () => {
     setValidatorKeyFilePath("");
@@ -185,8 +185,9 @@ const GenerateSignedExitMessageWidget = () => {
                           <Select
                             color="white"
                             borderColor="purple.light"
-                            placeholder="Validator ID"
+                            placeholder={loading ? "Fetching Validator IDs" : "Validator ID"}
                             value={selectedValidator}
+                            disabled={loading}
                             onChange={(e) => {
                               setSelectedValidator((e.target.value))
                             }}
