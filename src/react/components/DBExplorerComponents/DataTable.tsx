@@ -127,7 +127,7 @@ const DataTable = ({title, dataCount, data}: DataTableProps) => {
               </>)}
           </Tbody>
         </Table>)}
-      <Modal size={ title === "mnemonics" ? "lg" : "full" } isOpen={selectedCode !== ""} onClose={closeModal}>
+      <Modal size={!authenticated || title === "mnemonics" ? "lg" : "full"} isOpen={selectedCode !== ""} onClose={closeModal}>
         <ModalOverlay />
         <ModalContent bgColor="purple.dark">
           <ModalHeader color={"white"}>{title === "mnemonics" ? "menmonic" : "validator"}</ModalHeader>
