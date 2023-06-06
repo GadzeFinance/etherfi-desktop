@@ -126,9 +126,9 @@ ipcMain.on("req-new-mnemonic", async (event, args) => {
 
 // Return (result, path_to_saved_folder | '', errorMessage | '') to frontend
 ipcMain.on("req-gen-val-keys-and-encrypt",  async (event, args) => {
-    var [mnemonic, password, folder, stakeInfo, chain, address, mnemonicOption, importPassword] = args
+    var [mnemonic, password, stakeInfo, address, mnemonicOption, importPassword] = args
     try {
-        const savePath = await genValidatorKeysAndEncrypt(event, mnemonic, password, folder, stakeInfo, chain, address, mnemonicOption, importPassword)
+        const savePath = await genValidatorKeysAndEncrypt(event, mnemonic, password, stakeInfo, address, mnemonicOption, importPassword)
         event.sender.send("receive-key-gen-confirmation", standardResultCodes.SUCCESS, savePath , '')
     } catch (error) {
         logger.error("Error Generating Validator Keys and Encrypting:", error)
@@ -247,32 +247,6 @@ ipcMain.on("staker-finish", (event, arg) => {
     clipboard.clear();
     app.quit();
 })
-
-/* ------------------------------------------------------------- */
-/* --------------- Checking For Stale Keys --------------------- */
-/* ------------------------------------------------------------- */
-// This is removed for now due to issues compiling sqlite3 package binaries.
-// This is where the code was created https://github.com/GadzeFinance/etherfi-desktop/pull/44
-ipcMain.on("req-check-for-stale-keys", async (event, args) => {
-    // const stakeInfoPath = args[0]
-    // const staleKeys = await checkIfKeysAreStale(stakeInfoPath)
-    // checkout 
-    // Stubbing this for now.
-    const staleKeys = []
-    event.sender.send("receive-stale-keys-report", staleKeys)
-})
-
-ipcMain.on("req-update-stale-keys", async (event, args) => {
-    // const stakeInfoPath = args[0]
-    // const result = await updateStaleKeys(stakeInfoPath)
-    // Stubbing this for now.
-    const result = true;
-    event.sender.send("receive-update-stale-keys-report", result)
-})
-
-
-
-
 
 /* -------------------- DATABASE API ---------------------- */
 

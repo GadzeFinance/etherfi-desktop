@@ -36,8 +36,8 @@ contextBridge.exposeInMainWorld("encryptionApi", {
     receiveStoredValidators: function(func) {
         ipcRenderer.once("receive-stored-validators", (event, ...args) => func(event, ...args))
     },
-    reqGenValidatorKeysAndEncrypt: function(mnemonic, password, folder, stakeInfo, chain, address, mnemonicOption, importPassword){
-        ipcRenderer.send("req-gen-val-keys-and-encrypt", [mnemonic, password, folder, stakeInfo, chain, address, mnemonicOption, importPassword]);
+    reqGenValidatorKeysAndEncrypt: function(mnemonic, password, stakeInfo, address, mnemonicOption, importPassword){
+        ipcRenderer.send("req-gen-val-keys-and-encrypt", [mnemonic, password, stakeInfo, address, mnemonicOption, importPassword]);
     },
     receiveKeyGenConfirmation: function(func){
         ipcRenderer.once("receive-key-gen-confirmation", (event, ...args) => func(event, ...args));       
@@ -147,19 +147,6 @@ contextBridge.exposeInMainWorld("utilsApi", {
 
 
 contextBridge.exposeInMainWorld("databaseApi", {
-    // Function to request a check to see if the bidder public keys in the stake info file have already been used to encrypt validatorkeys
-    reqCheckForStaleBidderPublicKeys: function(stakeInfo){
-        ipcRenderer.send("req-check-for-stale-keys", [stakeInfo]);
-    },
-    receiveStaleBidderPublicKeysReport: function(func){
-        ipcRenderer.once("receive-stale-keys-report", (event, ...args) => func(event, ...args));       
-    },
-    reqUpdateStaleKeys: function(stakeInfo){
-        ipcRenderer.send("req-update-stale-keys", [stakeInfo]);
-    },
-    receiveUpdateStaleKeysResult: function(func){
-        ipcRenderer.once("receive-update-stale-keys-report", (event, ...args) => func(event, ...args));       
-    },
     reqSetPassword: function(password) {
         ipcRenderer.send("req-set-password", [password]);
     },

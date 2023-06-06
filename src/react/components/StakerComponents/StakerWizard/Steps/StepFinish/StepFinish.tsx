@@ -1,6 +1,5 @@
 import React from 'react'
-import { Flex, Text, Center, VStack } from '@chakra-ui/react'
-import WizardNavigator from '../../WizardNavigator'
+import { Flex, Text, Center, VStack, Button } from '@chakra-ui/react'
 import { IconCheckMark } from '../../../../Icons'
 import { COLORS } from '../../../../../styleClasses/constants';
 
@@ -11,20 +10,6 @@ interface StepFinishProps {
 
 const StepFinish: React.FC<StepFinishProps> = (props) => {
 
-    const backDetails = {
-        text: "Back",
-        visible: true,
-    }
-
-    const backProps = {
-        onClick: props.goBackStep,
-        variant: "back-button",
-    }
-
-    const nextDetails = {
-        text: "Close",
-        visible: true,
-    }
 
     const nextProps = {
         isDisabled: false,
@@ -52,10 +37,11 @@ const StepFinish: React.FC<StepFinishProps> = (props) => {
                         <Text fontSize="14px" color={COLORS.textSecondary} align="center">
                             Go back to the {<Text color='white' as='b'>web dApp</Text>} and continue the staking process.
                         </Text>
+
                     </Center>
-
-                    <WizardNavigator nextProps={nextProps} backProps={backProps} nextDetails={nextDetails} backDetails={backDetails} />
-
+                    <Button {...nextProps}>
+                        Close
+                    </Button>
                     <Text fontSize="14px" color={COLORS.textSecondary} align="center">
                         {<Text as='b' color='white'>Note:</Text>} Pressing 'Close' will clear your clipboard and quit the app.
                     </Text>
