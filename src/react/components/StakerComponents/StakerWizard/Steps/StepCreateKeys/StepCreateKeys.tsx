@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { Button, Flex, Text, Center, VStack, Box } from '@chakra-ui/react'
+import { Flex, Text, Center } from '@chakra-ui/react'
 import WizardNavigator from '../../WizardNavigator'
 import { IconKey } from '../../../../Icons'
 import EtherFiSpinner from '../../../../EtherFiSpinner'
@@ -20,6 +20,7 @@ interface StepCreateKeysProps {
 const StepCreateKeys: React.FC<StepCreateKeysProps> = (props) => {
 
   const [generatingKeys, setGeneratingKeys] = useState(false)
+  const [generated, setGenerated] = useState(false)
   const [keysGenerated, setKeysGenerated] = useState(0);
   const [keysTotal, setKeysTotal] = useState(0);
   const [recentUsedTime, setRecentUsedTime] = useState(-1);
@@ -40,6 +41,7 @@ const StepCreateKeys: React.FC<StepCreateKeysProps> = (props) => {
           resetField("confirmedAddress")
           resetField("dropdownAddress")
           resetField("address")
+          setGenerated(true)
         } else {
           console.error("Error generating validator keys")
           console.error(errorMessage)
@@ -51,7 +53,6 @@ const StepCreateKeys: React.FC<StepCreateKeysProps> = (props) => {
       (event: Electron.IpcMainEvent, stakeRequest: any, errorMessage: string) => {
         console.log("stakeRequest")
         if (stakeRequest) {
-          console.log({ stakeRequest })
           const baseURL = process.env.NODE_ENV === 'production'
             ? "https://mainnet.ether.fi"
             : "http://localhost:3000";
@@ -72,17 +73,14 @@ const StepCreateKeys: React.FC<StepCreateKeysProps> = (props) => {
       }
     )
 
-    const stakeinfo = [
-      {
-        "validatorID": 9,
-        "bidderPublicKey": "04f262c21a97f93bf361645e9bb23b6b36a9bdff68e579f20b6653025ac5edc465005cac64f91ef82a735be8bfe6577e3b400a362b498576c62217c4a513cc8d79",
-        "withdrawalSafeAddress": "0x9c31086302ca285da106fe805487920fcb18278e",
-        "etherfiDesktopAppVersion": "1.0.0"
-      }
-    ]
-    window.encryptionApi.reqGenValidatorKeysAndEncrypt(props.mnemonic, loginPassword, stakeinfo, getValues('confirmedAddress'), props.mnemonicOption, props.importMnemonicPassword);
+
+    window.encryptionApi.reqGenValidatorKeysAndEncrypt(props.mnemonic, loginPassword, props.stakeInfo, getValues('confirmedAddress'), props.mnemonicOption, props.importMnemonicPassword);
     setGeneratingKeys(true)
   }
+
+  useEffect(() => {
+    if (!generated) generateEncryptedKeys()
+  }, [])
 
 
   const backDetails = {
@@ -96,7 +94,7 @@ const StepCreateKeys: React.FC<StepCreateKeysProps> = (props) => {
   }
 
   const nextDetails = {
-    text: "Create Keys",
+    text: "Creating Keys",
     visible: true,
   }
 
@@ -122,7 +120,7 @@ const StepCreateKeys: React.FC<StepCreateKeysProps> = (props) => {
             <IconKey boxSize='12' />
           </Center>
           <Text color={'white'} fontSize="xl" fontWeight={'semibold'} align="center">
-            Create Keys
+            Creating Keys
           </Text>
           <WizardNavigator nextProps={nextProps} backProps={backProps} nextDetails={nextDetails} backDetails={backDetails} />
         </>

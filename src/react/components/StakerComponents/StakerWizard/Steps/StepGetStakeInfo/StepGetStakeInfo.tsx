@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import {
   Box,
   Flex,
@@ -25,9 +25,6 @@ const StepGetStakeInfo: React.FC<StepGetStakeInfoProps> = (
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [validationError, setValidationError] = useState<string>("");
   const toast = useToast();
-
-
-  props.goNextStep()
 
   const backDetails = {
     text: "Back",
