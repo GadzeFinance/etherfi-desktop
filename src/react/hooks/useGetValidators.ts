@@ -10,7 +10,7 @@ export default function useGetValidators(confirmedAddress: string, password: str
 
     const fetchValidators = async () => {
       try {
-       const fetchedValidatorsQuery = await new Promise((resolve, reject) => {
+       let fetchedValidatorsQuery = await new Promise((resolve, reject) => {
           window.encryptionApi.receiveStoredValidators(
             (
               event: Electron.IpcMainEvent,
@@ -21,7 +21,8 @@ export default function useGetValidators(confirmedAddress: string, password: str
               if (result === 0) {
                 resolve(Object.entries(JSON.parse(validators)).map(([key, value]: [string, any]) => ({
                     validatorID: key,
-                    fileData: JSON.stringify(JSON.parse(value.keystore))
+                    fileData: JSON.stringify(JSON.parse(value.keystore)),
+                    beaconID: value.beaconID
                 })))
               } else {
                 reject(errorMessage);
@@ -30,6 +31,7 @@ export default function useGetValidators(confirmedAddress: string, password: str
           );
           window.encryptionApi.reqStoredValidators(confirmedAddress, password);
         });
+
         setFetchedValidators(fetchedValidatorsQuery)
 
       } catch (error) {

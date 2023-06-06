@@ -192,7 +192,7 @@ const GenerateSignedExitMessageWidget = () => {
                             }}
                           >
                             {fetchedValidators && Object.entries(fetchedValidators).map(([key, value]: [any, any], i) => (
-                              <option value={JSON.stringify(value)} key={key}>{value.validatorID}</option>
+                              <option value={JSON.stringify(value)} key={key}>{value.beaconID}</option>
                             ))}
                           </Select>
                         </Box>

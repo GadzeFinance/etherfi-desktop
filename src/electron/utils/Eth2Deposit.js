@@ -301,8 +301,9 @@ const generateSignedExitMessage = async (
 
     const hexID = `0x${validatorID.toString(16)}`
     
-    const graphqlEndpoint = 'https://api.studio.thegraph.com/query/41778/etherfi-goerli/0.0.1';
-    
+    const graphqlEndpoint = process.env.NODE_ENV === 'production'
+    ? "https://api.studio.thegraph.com/query/41778/etherfi-mainnet/0.0.3"
+    : 'https://api.studio.thegraph.com/query/41778/etherfi-goerli/0.0.1';    
     const data = {
         query: `{
             validators(where: {id: "${hexID}"}) {

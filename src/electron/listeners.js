@@ -2,6 +2,7 @@ const fs = require('fs');
 const EC = require('elliptic').ec
 const BN = require('bn.js');
 const path = require('path')
+const axios = require('axios')
 const electron = require('electron')
 const { encrypt, decrypt, encryptPrivateKeys, decryptPrivateKeys } = require('./utils/encryptionUtils');
 const { createMnemonic, generateKeys, validateMnemonic } = require('./utils/Eth2Deposit.js')
@@ -11,6 +12,15 @@ const { decryptResultCodes, desktopAppVersion } = require('./constants')
 const logger = require('./utils/logger')
 const {storage} = require('./utils/storage')
 const isDev = process.env.NODE_ENV === "development"
+
+const graphqlEndpoint = process.env.NODE_ENV === 'production'
+? "https://api.studio.thegraph.com/query/41778/etherfi-mainnet/0.0.3"
+: 'https://api.studio.thegraph.com/query/41778/etherfi-goerli/0.0.1';
+
+const queryEndpoint = process.env.NODE_ENV === 'production'
+? "https://etherfi.vercel.app/api/beaconChain/findOneCollated?pubkey="
+: "https://goerli.etherfi.vercel.app/api/beaconChain/findOneCollated?pubkey="
+
 
 /**
  * Generates public and private key pairs and saves them in two separate JSON files
@@ -407,8 +417,44 @@ const fetchStoredMnemonics = async (address, password) => {
     return mnemonics
 }
 
+const getBeaconIndex = async (validatorID) => {
+
+    const hexID = `0x${validatorID.toString(16)}`
+    const data = {
+      query: `{
+          validators(where: {id: "${hexID}"}) {
+            id
+            validatorPubKey
+          }
+        }`,
+    };
+  
+    try {
+      const response = await axios.post(graphqlEndpoint, data);
+  
+      if (response.status === 200) {
+          let pub = response.data.data.validators[0].validatorPubKey;
+          const queryURL = queryEndpoint + pub;
+          const newResp = await axios.post(queryURL);
+          return newResp.data.db.validatorIndex;
+      } else {
+          throw new Error(
+              "GraphQL request failed with status: " + response.status
+          );
+      }
+    } catch (error) {
+        throw new Error("GraphQL request failed: " + error.message);
+    }
+  }
+
+
 const fetchStoredValidators = async (address, password) => {
-    const validators = await storage.getValidators(address, password);
+    let validators = await storage.getValidators(address, password);
+
+    await Promise.all(Object.entries(validators).map(async ([key, value], index) => {
+        validators[key] = {...value, beaconID: await getBeaconIndex(key)}
+    }));
+
     return validators;
 }
 
