@@ -12,7 +12,6 @@ import {
     Tooltip
 } from "@chakra-ui/react";
 import { AddIcon } from "@chakra-ui/icons";
-import { useFormContext } from "react-hook-form";
 
 interface StoredMnemonicSelectProps {
     setStoredMnemonic: (mnemonic: object) => void;
@@ -23,35 +22,6 @@ interface StoredMnemonicSelectProps {
 }
 
 const StoredMnemonicSelect: React.FC<StoredMnemonicSelectProps> = (props: StoredMnemonicSelectProps) => {
-
-    const { watch } = useFormContext();
-    const loginPassword = watch("loginPassword")
-
-    useEffect(() => {
-
-        window.encryptionApi.recieveStoredMnemonic(
-          (
-            event: Electron.IpcMainEvent,
-            result: number,
-            mnemonic: any,
-            errorMessage: string
-          ) => {
-            if (result === 0) {
-                const outputArr = Object.entries(JSON.parse(mnemonic)).map(
-                    ([id, value]: [any, any], index) => ({
-                        id: parseInt(id),
-                        mnemonic: value.mnemonic,
-                    })
-                );
-                props.setStoredMnemonic(outputArr);
-            } else {
-                console.error("Error fetching mnemonic");
-                console.error(errorMessage);
-            }
-          }
-        );
-        window.encryptionApi.reqStoredMnemonic(props.walletAddress, loginPassword);
-      }, []);
 
     const selectMnemonic = (mnemonic: string) => {
         props.setMnemonic(mnemonic);

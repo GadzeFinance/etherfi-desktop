@@ -2,7 +2,10 @@ import { useEffect } from 'react';
 import { useQuery } from 'react-query';
 import axios from 'axios';
 
-const API_URL = "http://localhost:3000/api/beaconChain/getEpoch?chain="
+const API_URL = process.env.NODE_ENV === 'production'
+? "https://mainnet.ether.fi/api/beaconChain/getEpoch?chain="
+: "http://localhost:3000/api/beaconChain/getEpoch?chain=";
+
 const EPOCH_OFFSET = 5;
 
 async function fetchEpoch(chain: string) {

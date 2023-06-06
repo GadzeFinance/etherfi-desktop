@@ -67,32 +67,37 @@ const StepSelectWalletAddress: React.FC<StepSelectWalletAddressProps> = (
             <Text color="white" opacity={"0.7"}>
                 Pick the wallet address where you want to save your keys.
             </Text>
-            <Controller
-                control={control}
-                name="dropdownAddress"
-                render={({
-                    field: { onChange, onBlur, value, name, ref },
-                    fieldState: { error }
-                  }) => (
-                  <Select
-                    color="white"
-                    borderColor="purple.light"
-                    placeholder="Select Wallet Address"
-                    onChange={(e) => {
-                        onChange(e)
-                    }}
-                >
-                    {!error && addressOptions?.map((address: string) => (
-                        <option key={address}>{address}</option>
-                    ))}
-                </Select>
-                )}
-            />
-            <Center>
-                <Text color={"white"} fontSize="2xl" fontWeight={"semibold"}>
-                    or
-                </Text>
-            </Center>
+            {addressOptions?.length && (
+                <>
+                    <Controller
+                        control={control}
+                        name="dropdownAddress"
+                        render={({
+                            field: { onChange },
+                            fieldState: { error }
+                        }) => (
+                        <Select
+                            color="white"
+                            borderColor="purple.light"
+                            placeholder="Select Wallet Address"
+                            onChange={(e) => {
+                                onChange(e)
+                            }}
+                            disabled={!addressOptions?.length}
+                        >
+                            {!error && addressOptions?.map((address: string) => (
+                                <option key={address}>{address}</option>
+                            ))}
+                        </Select>
+                        )}
+                    />
+                    <Center>
+                        <Text color={"white"} fontSize="2xl" fontWeight={"semibold"}>
+                            or
+                        </Text>
+                    </Center>
+                </>
+            )}
             <AddressInput
                 isAddressValid={isAddressValid}
                 setIsAddressValid={setIsAddressValid}

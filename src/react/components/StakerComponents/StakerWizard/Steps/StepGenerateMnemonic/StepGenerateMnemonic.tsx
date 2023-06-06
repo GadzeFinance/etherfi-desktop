@@ -7,13 +7,14 @@ import {
   Input,
   InputGroup
 } from "@chakra-ui/react";
-
+import { useFormContext } from "react-hook-form";
 import DisplayMnemonic from "./DisplayMnemonic";
 import ConfirmMnemonic from "./ConfimMnemonic";
 import WizardNavigator from "../../WizardNavigator";
 import EtherFiSpinner from "../../../../EtherFiSpinner";
 import { IconLockFile } from "../../../../Icons";
 import StoredMnemonicSelect from "./StoredMnemonicSelect";
+import isDev from "react-is-dev";
 
 interface StepGenerateMnemonicProps {
   goNextStep: () => void;
@@ -36,6 +37,36 @@ const StepGenerateMnemonic: React.FC<StepGenerateMnemonicProps> = (props) => {
   const [storedMnemonics, setStoredMnemonic] = useState(undefined);
   const [importMnemonic, setImportMnemonic] = useState("")
   const [nextText, setNextText] = useState("")
+
+  const { watch } = useFormContext();
+  const loginPassword = watch("loginPassword")
+
+  useEffect(() => {
+
+    window.encryptionApi.recieveStoredMnemonic(
+      (
+        event: Electron.IpcMainEvent,
+        result: number,
+        mnemonic: any,
+        errorMessage: string
+      ) => {
+        if (result === 0) {
+            const outputArr = Object.entries(JSON.parse(mnemonic)).map(
+                ([id, value]: [any, any], index) => ({
+                    id: parseInt(id),
+                    mnemonic: value.mnemonic,
+                })
+            );
+            setStoredMnemonic(outputArr);
+        } else {
+            console.error("Error fetching mnemonic");
+            console.error(errorMessage);
+        }
+      }
+    );
+    window.encryptionApi.reqStoredMnemonic(props.walletAddress, loginPassword);
+  }, []);
+
 
   const generateMnemonic = () => {
     window.encryptionApi.receiveNewMnemonic(
@@ -171,8 +202,8 @@ const StepGenerateMnemonic: React.FC<StepGenerateMnemonicProps> = (props) => {
         <>
           <Select color="white" borderColor="purple.light" onChange={(e) => props.setMnemonicOption(e.target.value)}>
             <option value="generate">Generate mnemonic</option>
-            <option value="stored">Use stored mnemonic</option>
-            <option value="import">Import mnemonic</option>
+            {isDev(React) && <option value="import">Import mnemonic</option>}
+            {storedMnemonics?.length && <option value="stored">Use stored mnemonic</option>}
           </Select>
         </>
       )}
