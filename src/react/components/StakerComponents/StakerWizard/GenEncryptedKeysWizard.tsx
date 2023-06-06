@@ -19,7 +19,7 @@ const steps = [
     { label: "Choose Wallet Address", content },
     { label: "Enter Staking Code", content },
     { label: "Generate Mnemonic", content },
-    { label: "Create Keys", content },
+    { label: "Creating Keys", content },
     { label: "Finish", content },
 ];
 

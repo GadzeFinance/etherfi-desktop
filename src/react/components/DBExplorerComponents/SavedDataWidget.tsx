@@ -116,9 +116,8 @@ const SavedDataWidget = (props: SavedDataWidgetProps) => {
           { addressList.length === 0 && <Box><Text color={"white"}>There is no saved data in the database</Text></Box>}
           { addressList.length > 0 && (
             <>
-              <Flex minWidth='max-content' alignItems='center' gap='2'>
+              <Flex minWidth='max-content' alignItems='center' justifyContent='center' gap='2'>
               <AddressSelect currAddress={currAddress} setCurrAddress={setCurrAddress} addressList={addressList} />
-                <Spacer />
                 <Box p='2'>
                   <Button colorScheme="gray" onClick={handleDownload}><DownloadIcon/></Button>
                 </Box>
