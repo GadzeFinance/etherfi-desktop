@@ -54,7 +54,7 @@ const StepCreateKeys: React.FC<StepCreateKeysProps> = (props) => {
         console.log("stakeRequest")
         if (stakeRequest) {
           const baseURL = process.env.NODE_ENV === 'production'
-            ? "https://mainnet.ether.fi"
+            ? "https://goerli.etherfi.vercel.app"
             : "http://localhost:3000";
           fetch(`${baseURL}/api/stakeRequest/upload`, {
             method: 'POST',

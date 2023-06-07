@@ -3,8 +3,8 @@ import { useQuery } from 'react-query';
 import axios from 'axios';
 
 const API_URL = process.env.NODE_ENV === 'production'
-? "https://mainnet.ether.fi/api/beaconChain/getEpoch?chain="
-: "http://localhost:3000/api/beaconChain/getEpoch?chain=";
+  ? "https://goerli.etherfi.vercel.app/api/beaconChain/getEpoch?chain="
+  : "http://localhost:3000/api/beaconChain/getEpoch?chain=";
 
 const EPOCH_OFFSET = 5;
 
