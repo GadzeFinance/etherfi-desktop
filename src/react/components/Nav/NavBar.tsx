@@ -151,7 +151,7 @@ const NavBar: React.FC<NavBarProps> = ({
                     <TabList color='white' gap={4} justifyContent="flex-end" mr="30px">
                         <StakerTabDropDown />
                         <NodeOperatorTabDropDown />
-                        {isDev(React) && <DBExplorerDropdown/>}
+                        <DBExplorerDropdown/>
                     </TabList>
                 </GridItem>
             </Grid>

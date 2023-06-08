@@ -25,7 +25,7 @@ export default function useGetValidators(confirmedAddress: string, password: str
                     validatorID: key,
                     fileData: JSON.stringify(JSON.parse(value.keystore)),
                     beaconID: value.beaconID
-                })))
+                })).filter((validators: any) => validators.beaconID != 0))
               } else {
                 reject(errorMessage);
               }

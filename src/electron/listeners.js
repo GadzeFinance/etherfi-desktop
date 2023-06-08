@@ -431,8 +431,8 @@ const getBeaconIndex = async (validatorID) => {
   
     try {
       const response = await axios.post(graphqlEndpoint, data);
-  
       if (response.status === 200) {
+          if (!response.data.data.validators.length) return 0
           let pub = response.data.data.validators[0].validatorPubKey;
           const queryURL = queryEndpoint + pub;
           const newResp = await axios.post(queryURL);
