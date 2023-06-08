@@ -16,11 +16,14 @@ import {
   ModalCloseButton,
   ModalBody,
   Code,
-  Flex
+  Flex,
+  useToast
 } from "@chakra-ui/react";
 import { ArrowBackIcon, ArrowForwardIcon, CopyIcon } from "@chakra-ui/icons";
 import useGetHistoryPageCount from "../../hooks/useGetHistoryPageCount";
 import useCopy from "../../hooks/useCopy";
+import PasswordInput from "../PasswordInput";
+import { useFormContext } from "react-hook-form";
 
 interface HistoryWidgetProps {
   tabIndex: number
@@ -47,18 +50,16 @@ const HistoryWidget = (props: HistoryWidgetProps) => {
 
   const {pageCount, error: pageCountError} = useGetHistoryPageCount();
   const {copyData} = useCopy();
-
+  const toast = useToast()
+  const { watch, setValue } = useFormContext();
+  const password = watch("password")
+  
+  const [authenticated, setAuthenticated] = useState(false)
+  const [isPasswordValid, setIsPasswordValid] = useState<boolean>(false)
   const [page, setPage] = useState(1);
   const [historyRecords, setHistoryRecords] = useState<Records>({});
   const [modalData, setModalData] = useState<Record>();
   const [modalTimeStamp, setModalTimeStamp] = useState("");
-
-  const shortenMnemonic = (mnemonic: string) => {
-    const wordArray = mnemonic.split(" ");
-    return `${wordArray.slice(0, 8).join(", ")} ... ${wordArray
-        .slice(-5)
-        .join(", ")}`;
-  };
 
   const modalHeadingStyle = {
     fontSize: "18px"
@@ -82,6 +83,8 @@ const HistoryWidget = (props: HistoryWidgetProps) => {
 
   const closeModal = () => {
     setModalTimeStamp("");
+    setAuthenticated(false);
+    setValue("password", "")
   };
 
   const stepForward = () => {
@@ -92,6 +95,45 @@ const HistoryWidget = (props: HistoryWidgetProps) => {
   const stepBack = () => {
     if (page - 1 < 1) return;
     setPage(page - 1);
+  }
+
+  const showToast = (
+    title: string, 
+    description: string, 
+    status: "warning" | "info" | "success" | "error" | "loading"
+  ) => {
+    toast({
+      title,
+      description,
+      status,
+      position: "top-right",
+      duration: 9000,
+      isClosable: true,
+    })
+  }
+
+  const reqAuthenticate = () => {
+    window.databaseApi.receiveValidatePasswordResult(
+      (
+        event: Electron.IpcMainEvent,
+        result: number,
+        valid: boolean,
+        errorMessage: string
+      ) => {
+        if (result === 0) {
+          if (!valid) {
+            showToast('Authentication Failed', 'Incorrect Password', 'warning')
+          } else {
+            setAuthenticated(true)
+          }
+        } else {
+          showToast('Authentication Failed', 'Incorrect Password', 'warning')
+          console.error("Error validating password");
+          console.error(errorMessage);
+        }
+      }
+    );
+    window.databaseApi.reqValidatePassword(password)
   }
 
   useEffect(() => {
@@ -166,7 +208,6 @@ const HistoryWidget = (props: HistoryWidgetProps) => {
                   </Box>
                   <Box py="2px">Address: {record.address}</Box>
                   <Box py="2px">StakeInfo File: {record.stakeInfoFile.name}</Box>
-                  <Box py="2px">Mnemonic: {shortenMnemonic(record.mnemonic)}</Box>
                 </Box>
                 <Divider  />
                 </Box>
@@ -194,7 +235,19 @@ const HistoryWidget = (props: HistoryWidgetProps) => {
             <Heading {...modalHeadingStyle}>Time</Heading>
             <Text {...modalContentStyle}>{`${new Date(Number(modalTimeStamp)).toDateString()}, ${new Date(Number(modalTimeStamp)).toLocaleTimeString()}`}</Text>
             <Heading {...modalHeadingStyle}>Mnemonics <CopyIcon onClick={() => {copyData(modalData?.mnemonic)}} ml="5px" cursor="pointer" /></Heading>
-            <Grid
+            {!authenticated && (
+              <Box my="10px">
+                <PasswordInput
+                  isPasswordValid={isPasswordValid} 
+                  setIsPasswordValid={setIsPasswordValid} 
+                  shouldDoValidation={false} 
+                  registerText="password"
+                  noText
+                />
+                <Button onClick={reqAuthenticate} my="10px" background="white" color="black">Verify</Button>
+              </Box>
+            )}
+            { authenticated && <Grid
               {...modalContentStyle}
               templateColumns="repeat(4, 1fr)"
               templateRows="repeat(6, 1fr)"
@@ -220,7 +273,7 @@ const HistoryWidget = (props: HistoryWidgetProps) => {
                   </GridItem>
                 ))
               }
-            </Grid >
+            </Grid > }
             <Heading {...modalHeadingStyle}>StakeInfo File <CopyIcon onClick={() => {copyData(JSON.stringify(modalData?.stakeInfoFile?.content))}} ml="5px" cursor="pointer" /></Heading>
             <Code
               style={modalContentStyle}
