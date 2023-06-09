@@ -62,10 +62,13 @@ const StepSelectWalletAddress: React.FC<StepSelectWalletAddressProps> = (
             borderRadius="lg"
         >
             <Text color={"white"} fontSize="2xl" fontWeight={"semibold"}>
-                Select Wallet Address
+                {addressOptions?.length ? "Select" : "Enter"} Wallet Address
             </Text>
             <Text color="white" opacity={"0.7"}>
-                Pick the wallet address where you want to save your keys.
+                {addressOptions?.length ? 
+                    "Pick the wallet address where you want to save your keys." :
+                    "Enter the Wallet Address you want associated with your stakes. You can find this address in your connected software or hardware wallet."
+                }
             </Text>
             {addressOptions?.length && (
                 <>
