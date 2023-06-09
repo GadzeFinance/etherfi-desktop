@@ -41,7 +41,7 @@ const getMenomicWordsToConfirmIndicies = () => {
 };
 
 const GenEncryptedKeysWizard: React.FC<WizardProps> = (props) => {
-    const { nextStep, prevStep, activeStep } = useSteps({
+    const { nextStep, prevStep, activeStep, setStep } = useSteps({
         initialStep: 0,
     });
     const [stakeInfo, setStakeInfo] = React.useState<{[key: string]: string}[]>([]);
@@ -56,6 +56,19 @@ const GenEncryptedKeysWizard: React.FC<WizardProps> = (props) => {
 
     const typeWalletAddress = watch("address")
     const dropWalletAddress = watch("dropdownAddress")
+
+    const resetAllStates = () => {
+        setStakeInfo([]);
+        setMnemonic("");
+        setCode("");
+        setImportMnemonicPassword("");
+        setMnemonicOption("generate");
+        setConfirmedAddress("");
+        setValue("address", "");
+        setValue("dropdownAddress", "");
+
+        setStep(0);
+    }
 
     useEffect(() => {
         if (!typeWalletAddress) {
@@ -143,7 +156,7 @@ const GenEncryptedKeysWizard: React.FC<WizardProps> = (props) => {
                             code={code}
                         />
                     )}
-                    {activeStep === 4 && <StepFinish goBackStep={prevStep} />}
+                    {activeStep === 4 && <StepFinish goBackStep={prevStep} resetAllStates={resetAllStates} />}
                 </Flex>
             </Flex>
         </Center>
