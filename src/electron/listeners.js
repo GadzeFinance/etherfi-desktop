@@ -131,7 +131,7 @@ const genMnemonic = async (language) => {
  *          It also contains single stakeRequest.json file which contains the encrypted data.
  *           The stakeRequest.json file is what the user should upload to the DAPP.
  */
-const genValidatorKeysAndEncrypt = async (event, mnemonic, databasePassword, stakeInfo, address, mnemonicOption, importPassword) => {
+const genValidatorKeysAndEncrypt = async (event, mnemonic, databasePassword, stakeInfo, address, mnemonicOption, importPassword, stakingCode) => {
     logger.info("genEncryptedKeys: Start")
     const allWallets = await storage.getAllStakerAddresses();
     if (allWallets == undefined || !(address in allWallets)) {
@@ -190,7 +190,7 @@ const genValidatorKeysAndEncrypt = async (event, mnemonic, databasePassword, sta
     // Add to history
     logger.info("start to add history...")
     const fileContent = JSON.stringify(stakeInfo);
-    const historyData = encodeGenerateKeysData(address, 'stakeInfo', fileContent, mnemonic, validatorIDs);
+    const historyData = encodeGenerateKeysData(address, 'stakeInfo', fileContent, mnemonic, validatorIDs, stakingCode);
     addHistoryRecord(historyData);
 
     fs.rmdir(folder, { recursive: true }, (err) => {
