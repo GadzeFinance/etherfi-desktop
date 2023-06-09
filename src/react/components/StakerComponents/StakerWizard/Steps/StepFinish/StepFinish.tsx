@@ -35,7 +35,7 @@ const StepFinish: React.FC<StepFinishProps> = (props) => {
                     </Text>
                     <Center width='75%'>
                         <Text fontSize="14px" color={COLORS.textSecondary} align="center">
-                            Go back to the {<Text color='white' as='b'>web dApp</Text>} and continue the staking process.
+                            Go back to the {<Text color='white' as='b'>Web App</Text>} and continue the staking process.
                         </Text>
 
                     </Center>
