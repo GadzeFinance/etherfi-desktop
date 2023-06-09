@@ -6,10 +6,20 @@ import { COLORS } from '../../../../../styleClasses/constants';
 
 interface StepFinishProps {
     goBackStep: () => void,
+    resetAllStates: () => void
 }
 
 const StepFinish: React.FC<StepFinishProps> = (props) => {
 
+    const stakeAgain = () => {
+        props.resetAllStates()
+    }
+
+    const stakeAgainProps = {
+        isDisabled: false,
+        onClick: stakeAgain,
+        variant: "white-button"
+    }
 
     const nextProps = {
         isDisabled: false,
@@ -44,6 +54,12 @@ const StepFinish: React.FC<StepFinishProps> = (props) => {
                     </Button>
                     <Text fontSize="14px" color={COLORS.textSecondary} align="center">
                         {<Text as='b' color='white'>Note:</Text>} Pressing 'Close' will clear your clipboard and quit the app.
+                    </Text>
+                    <Button {...stakeAgainProps}>
+                        Stake Again
+                    </Button>
+                    <Text fontSize="14px" color={COLORS.textSecondary} align="center">
+                        {<Text as='b' color='white'>Note:</Text>} Do another stake.
                     </Text>
                 </VStack>
 
