@@ -7,7 +7,7 @@ const addHistoryRecord = (data) => {
   storage.addHistoryRecord(timestamp, data);
 }
 
-const encodeGenerateKeysData = (address, stakeFileName, stakeFileContent, mnemonic, validatorIds) => {
+const encodeGenerateKeysData = (address, stakeFileName, stakeFileContent, mnemonic, validatorIds, stakingCode) => {
   const stakeInfoFile = {
     name: stakeFileName,
     content: stakeFileContent
@@ -18,7 +18,8 @@ const encodeGenerateKeysData = (address, stakeFileName, stakeFileContent, mnemon
     address,
     mnemonic,
     stakeInfoFile: stakeFileString,
-    validatorIds: validatorIdsString
+    validatorIds: validatorIdsString,
+    stakingCode
   };
   return encodedData;
 }
@@ -30,7 +31,8 @@ const decodeGenerateKeysData = (data) => {
     address: data.address,
     mnemonic: data.mnemonic,
     stakeInfoFile,
-    validatorIds
+    validatorIds,
+    stakingCode: data.stakingCode
   };
   return decodedData;
 }

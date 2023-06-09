@@ -40,6 +40,7 @@ interface Record {
   mnemonic: string
   stakeInfoFile: StakeInfoFile
   validatorIds: string[]
+  stakingCode: string
 }
 
 interface Records {
@@ -234,6 +235,8 @@ const HistoryWidget = (props: HistoryWidgetProps) => {
           <ModalBody>
             <Heading {...modalHeadingStyle}>Time</Heading>
             <Text {...modalContentStyle}>{`${new Date(Number(modalTimeStamp)).toDateString()}, ${new Date(Number(modalTimeStamp)).toLocaleTimeString()}`}</Text>
+            <Heading {...modalHeadingStyle}>Address</Heading>
+            <Text {...modalContentStyle}>{modalData?.address}</Text>
             <Heading {...modalHeadingStyle}>Mnemonics <CopyIcon onClick={() => {copyData(modalData?.mnemonic)}} ml="5px" cursor="pointer" /></Heading>
             {!authenticated && (
               <Box my="10px">
@@ -287,6 +290,8 @@ const HistoryWidget = (props: HistoryWidgetProps) => {
               p={4}>
               {JSON.stringify(modalData?.stakeInfoFile?.content ?? "", null, 2)}
             </Code>
+            <Heading {...modalHeadingStyle}>Staking Code Used:</Heading>
+            <Text {...modalContentStyle}>{modalData?.stakingCode}</Text>
             <Heading {...modalHeadingStyle}>Validator Generated</Heading>
             <Text {...modalContentStyle}>Validator Ids: {modalData?.validatorIds.join(", ")}</Text>
           </ModalBody>
