@@ -8,22 +8,23 @@ import GenerateSignedExitMessageWidget from './GenerateSignedExitMessageWidget';
 interface StakerTabProps {
   tabIndex: number;
   selectedOption: number,
+  password: string
 }
 
-const StakerTab: React.FC<StakerTabProps> = ({ tabIndex, selectedOption }: StakerTabProps) => {
+const StakerTab: React.FC<StakerTabProps> = ({ tabIndex, selectedOption, password }: StakerTabProps) => {
 
   return (
     <ScaleFade initialScale={0.5} in={tabIndex === 0}>
       {selectedOption === 0 && (
         <ScaleFade initialScale={0.5} in={selectedOption === 0}>
           <Center sx={widgetBoxStyle}>
-            <GenEncryptedKeysWizard navigateTo={(x) => console.log(x)} />
+            <GenEncryptedKeysWizard navigateTo={(x) => console.log(x)} password={password}/>
           </Center>
         </ScaleFade>
       )}
       {selectedOption === 1 && (
         <ScaleFade initialScale={0.5} in={selectedOption === 1}>
-          <GenerateSignedExitMessageWidget />
+          <GenerateSignedExitMessageWidget/>
         </ScaleFade>
       )}
     </ScaleFade>

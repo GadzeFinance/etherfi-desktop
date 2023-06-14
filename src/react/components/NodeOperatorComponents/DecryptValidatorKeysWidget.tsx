@@ -7,6 +7,7 @@ import PasswordInput from '../PasswordInput';
 import { IconSavedFile, IconCheckMark } from '../Icons';
 import { COLORS } from '../../styleClasses/constants'
 import successBoxStyle from '../../styleClasses/successBoxStyle';
+import { useFormContext } from 'react-hook-form';
 
 
 const DecryptValidatorKeysWidget: React.FC = () => {
@@ -20,6 +21,10 @@ const DecryptValidatorKeysWidget: React.FC = () => {
     const [keysDecrypted, setKeysDecrypted] = useState<boolean>(false)
     const [incorrectPassword, setIncorrectPassword] = useState<boolean>(false)
     const [incorrectPrivKeys, setIncorrectPrivKeys] = useState<boolean>(false)
+
+    const { watch } = useFormContext()
+    const { decryptKeysPassword } = watch()
+
     // Select path to save the decrypted keys too.
     const selectSavePath = () => {
         window.fileSystemApi.receiveSelectedFolderPath((event: Electron.IpcMainEvent, path: string) => {
@@ -70,7 +75,7 @@ const DecryptValidatorKeysWidget: React.FC = () => {
                     }
                 }
             })
-        window.encryptionApi.reqDecryptValidatorKeys(encryptedValKeysFilePath, privKeysFilePath, privKeysPassword, savePath);
+        window.encryptionApi.reqDecryptValidatorKeys(encryptedValKeysFilePath, privKeysFilePath, decryptKeysPassword, savePath);
     }
 
     const clearState = () => {
@@ -86,7 +91,6 @@ const DecryptValidatorKeysWidget: React.FC = () => {
     }
 
     const openFilesCreatedFolder = () => {
-        console.log(filesCreatedPath)
         window.fileSystemApi.reqOpenFolder(filesCreatedPath);
     }
 
@@ -131,7 +135,7 @@ const DecryptValidatorKeysWidget: React.FC = () => {
 
                                     </Box>
                                     <Box>
-                                        <PasswordInput password={privKeysPassword} setPassword={setPrivKeysPassword} isPasswordValid={isPrivKeysPasswordValid} setIsPasswordValid={setIsPrivKeysPasswordValid} shouldDoValidation={true} />
+                                        <PasswordInput isPasswordValid={isPrivKeysPasswordValid} setIsPasswordValid={setIsPrivKeysPasswordValid} shouldDoValidation={true} registerText='decryptKeysPassword'/>
                                         {incorrectPassword && (<Text color='red.warning' fontSize="12px">Incorrect Password: Please enter the password you entered when you generated the privateEtherfiKeystore file.</Text>)}
                                     </Box>
                                     <Box>

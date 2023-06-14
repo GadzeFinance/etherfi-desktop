@@ -11,7 +11,7 @@ import { COLORS } from '../../styleClasses/constants';
 import SavedFileBox from '../SavedFileBox'
 import PasswordInput from '../PasswordInput'
 import EtherFiSpinner from '../EtherFiSpinner';
-
+import { useFormContext } from 'react-hook-form';
 
 const MAX_KEYS = 7000
 
@@ -22,10 +22,10 @@ const GenerateKeysWidget: React.FC = () => {
     const [keysGenerating, setKeysGenerating] = useState<boolean>(false)
     const [pubKeysFilePath, setPubKeysFilePath] = useState<string>("")
     const [privKeysFilePath, setPrivKeysFilePath] = useState<string>("")
-    const [privKeysPassword, setPrivKeysPassword] = useState<string>("")
     const [isPrivKeysPasswordValid, setIsPrivKeysPasswordValid] = useState<boolean>(false)
 
-
+    const { watch } = useFormContext()
+    const { privKeyPassword } = watch();
 
     const generateKeys = () => {
         window.encryptionApi.receiveNOKeysConfirmation(
@@ -41,7 +41,7 @@ const GenerateKeysWidget: React.FC = () => {
                 }
             })
         // Send request to backend to make the public and private key files
-        window.encryptionApi.reqGenNodeOperatorKeys(numKeys, savePath, privKeysPassword);
+        window.encryptionApi.reqGenNodeOperatorKeys(numKeys, savePath, privKeyPassword);
         setKeysGenerating(true)
     }
 
@@ -59,7 +59,6 @@ const GenerateKeysWidget: React.FC = () => {
         setKeysGenerating(false)
         setPubKeysFilePath("")
         setPrivKeysFilePath("")
-        setPrivKeysPassword("")
         setIsPrivKeysPasswordValid(false)
     }
 
@@ -93,7 +92,7 @@ const GenerateKeysWidget: React.FC = () => {
                                     <InputRightElement children={<Box height="32px" width="50px" mr="44px" onClick={() => setNumKeys(`${MAX_KEYS}`)}><Button bg={COLORS.primaryBlue}>Max</Button></Box>} />
                                 </NumberInput>
                             </InputGroup>
-                            <PasswordInput password={privKeysPassword} setPassword={setPrivKeysPassword} isPasswordValid={isPrivKeysPasswordValid} setIsPasswordValid={setIsPrivKeysPasswordValid} shouldDoValidation={true} />
+                            <PasswordInput isPasswordValid={isPrivKeysPasswordValid} setIsPasswordValid={setIsPrivKeysPasswordValid} shouldDoValidation={true} registerText="privKeyPassword"/>
                             {savePath &&
                                 <VStack
                                     mt="10px"
@@ -118,7 +117,6 @@ const GenerateKeysWidget: React.FC = () => {
                         </Box>
                     </VStack>
                 </Box >
-
             )}
             {
                 keysGenerating && (

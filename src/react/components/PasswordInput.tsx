@@ -1,4 +1,4 @@
-import { FC, useState } from "react"
+import { FC, useEffect, useState } from "react"
 import {
   Text,
   InputGroup,
@@ -10,69 +10,99 @@ import {
 import { COLORS } from "../styleClasses/constants"
 import IconEyeSlash from "./Icons/IconEyeSlash"
 import clickableIconStyle from "../styleClasses/clickableIconStyle"
+import { useFormContext } from "react-hook-form";
+import { useToast } from '@chakra-ui/react'
 
 interface PasswordInputProps {
-  password: string
-  setPassword: (password: string) => void
   isPasswordValid: boolean
   setIsPasswordValid: (valid: boolean) => void
   shouldDoValidation: boolean
+  withConfirm?: boolean
+  noText?: boolean
+  registerText: string
 }
 
 const PasswordInput: FC<PasswordInputProps> = (props) => {
   const [showPassword, setShowPassword] = useState(false)
   const [passwordResults, setPasswordResults] = useState([])
+  const [showConfirmPassword, setShowConfirmPassword] = useState<boolean>(false)
+  const [confirmPasswordResults, setConfirmPasswordResults] = useState([])
 
-  const updatePassword = (newPassword: string) => {
-    validatePassword(newPassword)
-    props.setPassword(newPassword)
+  const toast = useToast()
+  const { register, watch } = useFormContext();
+  const loginPassword = watch(props.registerText)
+  const confirmPassword = watch("confirmPassword")
+
+  const match = () => {
+    return loginPassword === confirmPassword && (loginPassword)
   }
 
-  function validatePassword(password: string) {
+
+  useEffect(() => {
+
     const tests = [
       {
-        passed: password.length >= 8,
+        passed: loginPassword?.length >= 8,
         message: "password should be at least 8 characters long",
       },
       {
-        passed: /[A-Z]/.test(password),
+        passed: /[A-Z]/.test(loginPassword),
         message: "password should contain at least one uppercase letter",
       },
       {
-        passed: /[a-z]/.test(password),
+        passed: /[a-z]/.test(loginPassword),
         message: "password should contain at least one lowercase letter",
       },
       {
-        passed: /[\W_]/.test(password),
+        passed: /[\W_]/.test(loginPassword),
         message: "password should contain at least one special character",
       },
       {
-        passed: /\d/.test(password),
+        passed: /\d/.test(loginPassword),
         message: "password should contain at least one number",
       },
       {
-        passed: !/\s/.test(password),
+        passed: !/\s/.test(loginPassword),
         message: "password should not contain any spaces",
       },
     ]
-    setPasswordResults(tests)
-    props.setIsPasswordValid(tests.every((test) => test.passed))
+    if (loginPassword) {
+      if (props.withConfirm && confirmPassword) validateConfirmPassword(confirmPassword)
+      props.setIsPasswordValid(tests.every((test) => test.passed))
+      setPasswordResults(tests)
+    }
+  }, [loginPassword, confirmPassword])
+
+
+  function validateConfirmPassword(confirmPassword: string) {
+    const tests = [
+      {
+        passed: loginPassword?.length > 0 && loginPassword === confirmPassword,
+        message: "The two passwords not match",
+      },
+    ]
+    setConfirmPasswordResults(tests)
   }
+
+  const handlePaste = (event: React.ClipboardEvent) => {
+    event.preventDefault();
+  };
+
+  const invalidate = props.shouldDoValidation &&
+  !props.isPasswordValid &&
+  loginPassword?.length > 1
+
 
   return (
     <>
       <>
-        <Text mt="10px" color="white" opacity={"0.7"} fontSize="11px">
+        { !props.noText && <Text mt="10px" color="white" opacity={"0.7"} fontSize="11px">
           Password*
-        </Text>
+        </Text> }
         <InputGroup>
           <Input
             isRequired={true}
-            isInvalid={
-              props.shouldDoValidation &&
-              !props.isPasswordValid &&
-              props.password.length > 1
-            }
+            isInvalid={invalidate}
             borderColor={
               props.shouldDoValidation && props.isPasswordValid
                 ? "green.main"
@@ -87,10 +117,8 @@ const PasswordInput: FC<PasswordInputProps> = (props) => {
             color="white"
             placeholder="Enter password"
             type={showPassword ? "text" : "password"}
-            value={props.password}
-            onChange={(e) => {
-              updatePassword(e.target.value)
-            }}
+            value={loginPassword}
+            {...register(props.registerText)} 
           />
 
           <InputRightElement width="4.5rem">
@@ -103,6 +131,30 @@ const PasswordInput: FC<PasswordInputProps> = (props) => {
             />
           </InputRightElement>
         </InputGroup>
+        { props.withConfirm && !props.noText && <Text mt="10px" color="white" opacity={"0.7"} fontSize="11px">
+          Confirm Password*
+        </Text> }
+        { props.withConfirm && <InputGroup>
+          <Input
+            isRequired={true}
+            borderColor={
+              match()
+              ? "green.main"
+              : COLORS.lightPurple
+            }
+            focusBorderColor={
+              match()
+                ? "green.main"
+                : "blue.secondary"
+            }
+            onPaste={handlePaste}
+            color="white"
+            my="20px"
+            placeholder="Confirm the password"
+            type={showConfirmPassword ? "text" : "password"}
+            {...register("confirmPassword")} 
+          />
+        </InputGroup>}
       </>
       {props.shouldDoValidation && (
         <UnorderedList>
@@ -116,6 +168,17 @@ const PasswordInput: FC<PasswordInputProps> = (props) => {
           )}
         </UnorderedList>
       )}
+      { props.withConfirm && <UnorderedList>
+        {confirmPasswordResults.map(
+          (confirmPasswordRequirement, index) =>
+            !confirmPasswordRequirement.passed && (
+              <ListItem key={index} fontSize="12px" color="red.warning">
+                {confirmPasswordRequirement.message}
+              </ListItem>
+            )
+        )}
+      </UnorderedList>
+      }
     </>
   )
 }

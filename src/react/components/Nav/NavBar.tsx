@@ -1,4 +1,5 @@
 import React from 'react'
+import isDev from 'react-is-dev'
 import {
     Tab, TabList, Image, Center, Grid, GridItem,
     Menu, MenuButton, MenuList, MenuItem, Button, useTab
@@ -16,6 +17,8 @@ interface NavBarProps {
     selectedNodeOperatorOperation: number
     setStakerOperation: (operation: number) => void,
     selectedStakerOperation: number
+    setSelectedDBOperation: (operation: number) => void,
+    selectedDBOperation: number
 }
 
 
@@ -29,7 +32,19 @@ const StakerDropDownOptions = {
     "Generate Exit Request": 1
 }
 
-const NavBar: React.FC<NavBarProps> = ({ setNodeOperatorOperation, selectedNodeOperatorOperation, setStakerOperation, selectedStakerOperation }: NavBarProps) => {
+const DBDropDownOptions = {
+    "Saved Mnemonics & Validator keys": 0,
+    "Recent Activity": 1
+}
+
+const NavBar: React.FC<NavBarProps> = ({ 
+    setNodeOperatorOperation, 
+    selectedNodeOperatorOperation, 
+    setStakerOperation, 
+    selectedStakerOperation,
+    setSelectedDBOperation,
+    selectedDBOperation
+}: NavBarProps) => {
 
     // TODO: MAKE THIS INTO A NICE COMPONENT!!! 
     const NodeOperatorTabDropDown = React.forwardRef((props, ref: any) => {
@@ -94,6 +109,36 @@ const NavBar: React.FC<NavBarProps> = ({ setNodeOperatorOperation, selectedNodeO
         )
     })
 
+    const DBExplorerDropdown = React.forwardRef((props, ref: any) => {
+        const tabProps = useTab({ ...props, ref })
+
+        const handleDBOptionSelect = (option: number) => {
+            setSelectedDBOperation(option);
+        };
+
+        return (
+            <Menu>
+                {({ isOpen }) => (
+                    <>
+                    <MenuButton fontSize="18px" as={Button} width="10px" sx={tabButtonStyle} {...tabProps} rightIcon={isOpen ? <ChevronUpIcon /> : <ChevronDownIcon />} >
+                        Admin
+                    </MenuButton>
+                    <MenuList sx={dropDownMenuStyle}>
+                        <MenuItem sx={dropDownItemStyle} color={selectedDBOperation === 0 ? "white" : COLORS.textSecondary}
+                            onClick={() => handleDBOptionSelect(DBDropDownOptions["Saved Mnemonics & Validator keys"])}>
+                            Saved Mnemonics & Validator keys
+                        </MenuItem>
+                        <MenuItem sx={dropDownItemStyle} color={selectedDBOperation === 1 ? "white" : COLORS.textSecondary}
+                            onClick={() => handleDBOptionSelect(DBDropDownOptions["Recent Activity"])}>
+                            Recent Activity
+                        </MenuItem>
+                    </MenuList>
+                    </>
+                )}
+            </Menu>
+        )
+    })
+
     return (
         <nav>
             <Grid templateColumns="1fr 1fr" gap={6} alignItems="center" justifyContent="center" mt="10px">
@@ -106,6 +151,7 @@ const NavBar: React.FC<NavBarProps> = ({ setNodeOperatorOperation, selectedNodeO
                     <TabList color='white' gap={4} justifyContent="flex-end" mr="30px">
                         <StakerTabDropDown />
                         <NodeOperatorTabDropDown />
+                        <DBExplorerDropdown/>
                     </TabList>
                 </GridItem>
             </Grid>

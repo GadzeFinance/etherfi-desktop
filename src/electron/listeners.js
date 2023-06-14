@@ -2,11 +2,25 @@ const fs = require('fs');
 const EC = require('elliptic').ec
 const BN = require('bn.js');
 const path = require('path')
+const axios = require('axios')
+const electron = require('electron')
 const { encrypt, decrypt, encryptPrivateKeys, decryptPrivateKeys } = require('./utils/encryptionUtils');
-const { createMnemonic, generateKeys } = require('./utils/Eth2Deposit.js')
+const { createMnemonic, generateKeys, validateMnemonic } = require('./utils/Eth2Deposit.js')
 const { selectFolder, selectJsonFile } = require('./utils/saveFile.js')
+const { encodeGenerateKeysData, addHistoryRecord } = require('./utils/historyUtils');
 const { decryptResultCodes, desktopAppVersion } = require('./constants')
 const logger = require('./utils/logger')
+const {storage} = require('./utils/storage')
+const isDev = process.env.NODE_ENV === "development"
+
+const graphqlEndpoint = process.env.NODE_ENV === 'production'
+? "https://api.studio.thegraph.com/query/41778/etherfi-mainnet/0.0.3"
+: 'https://api.studio.thegraph.com/query/41778/etherfi-goerli/0.0.1';
+
+const queryEndpoint = process.env.NODE_ENV === 'production'
+? "https://etherfi.vercel.app/api/beaconChain/findOneCollated?pubkey="
+: "https://goerli.etherfi.vercel.app/api/beaconChain/findOneCollated?pubkey="
+
 
 /**
  * Generates public and private key pairs and saves them in two separate JSON files
@@ -17,8 +31,14 @@ const logger = require('./utils/logger')
  * 
  * @returns {Array<String>} - 2 element list containing the file paths to the public and private key files
  */
-const genNodeOperatorKeystores = async (numKeys, saveFolder, privKeysPassword) => {
+const genNodeOperatorKeystores = async (numKeys, saveFolder, privKeysPassword, address) => {
     logger.info("genNodeOperatorKeystores: Start")
+
+    const allWallets = await storage.getAllStakerAddresses();
+    if (allWallets == undefined || !(address in allWallets)) {
+        await storage.addStakerAddress(address)
+    }
+
     const curve = new EC('secp256k1')
 
     const publicFileJSON = {}
@@ -68,6 +88,16 @@ const genNodeOperatorKeystores = async (numKeys, saveFolder, privKeysPassword) =
           throw new Error("Error writing private keys file")
     }})
 
+    // for (const publicKey of pubKeyArray) {
+    //     storage.addOperatorKey(address, publicKey, )
+    // }
+
+    // 1 Hash the private key file using sha256
+    // 2 upon adding a new operator key, if the private key hashed is already in the storage, we relate pulic key to the hash
+    // else, we will hash the private key, store a mapping from hash to the actual file (this will only happen once, ever)
+    // 3 store public key to private key hash in map
+
+
     logger.info("genNodeOperatorKeystores: End")
     return [pubKeysFilePath, privKeysFilePath]
 }
@@ -87,12 +117,12 @@ const genMnemonic = async (language) => {
 
 /**
  * Generates validator keys and encrypts them using the bidderPublicKeys in given stakeInfo.json file and mnemonic
+ * 
+ * @typedef {Object.<string, string>} StakeInfo
  *
  * @param {string} mnemonic - The 24 word mnmonic seed phrase
  * @param {string} password - The password to encrypt the validator keystores with
- * @param {string} folder - The folder to save the files that are generated too
- * @param {string} stakeInfoPath - The path to the stakeinfo.json file
- * @param {string} chain - The chain to generate the keys for
+ * @param {StakeInfo[]} stakeInfo - The stakeinfo array
  * 
 
  * @return {string} - The path to the folder that was created. 
@@ -101,14 +131,26 @@ const genMnemonic = async (language) => {
  *          It also contains single stakeRequest.json file which contains the encrypted data.
  *           The stakeRequest.json file is what the user should upload to the DAPP.
  */
-const genValidatorKeysAndEncrypt = async (mnemonic, password, folder, stakeInfoPath, chain) => {
+const genValidatorKeysAndEncrypt = async (event, mnemonic, databasePassword, stakeInfo, address, mnemonicOption, importPassword, stakingCode) => {
     logger.info("genEncryptedKeys: Start")
+    const allWallets = await storage.getAllStakerAddresses();
+    if (allWallets == undefined || !(address in allWallets)) {
+        await storage.addStakerAddress(address)
+    }
 
-    // get the data from stakeInfoPath
-    const stakeInfo = JSON.parse(fs.readFileSync(stakeInfoPath))
+
+    let password = await storage.generatePassword()
+    if (mnemonicOption == "import") {
+        const response = await validateMnemonic(mnemonic);
+        if (response.stderr != '') throw new Error(response.stderr)
+        password = importPassword
+    }
+    
     const stakeInfoLength = stakeInfo.length
     const timeStamp = Date.now()
-    folder = path.join(folder, `etherfi_keys-${timeStamp}`)
+    const userDataPath = (electron.app || electron.remote.app).getPath('userData');
+    const generatedFolder = `etherfi_keys-${timeStamp}`
+    const folder = path.join(userDataPath, generatedFolder)
     const nodeOperatorPublicKeys = []
     const validatorIDs = []
 
@@ -118,19 +160,47 @@ const genValidatorKeysAndEncrypt = async (mnemonic, password, folder, stakeInfoP
         validatorIDs.push(stakeInfo[i].validatorID)
         const index = i
         try {
-            await generateKeys(mnemonic, index, 1, chain, password, eth1_withdrawal_address, folder)
+            const startTime = new Date().getTime();
+            await generateKeys(mnemonic, 1, isDev ? "goerli" : "mainnet", password, eth1_withdrawal_address, folder, stakeInfo[i].validatorID, databasePassword, address)
+            const endTime = new Date().getTime();
+            const usedTime = (endTime - startTime) / 1000;
+            event.sender.send("receive-generate-key", index, stakeInfoLength, usedTime)
         } catch (err) {
             logger.error("Error in 'genValidatorKeysAndEncrypt' when generating keys", err)
             throw new Error("Couldn't generate validator keys")
         }
     }
+
     // now we need to encrypt the keys and generate "stakeRequest.json"
     try {
-        await _encryptValidatorKeys(folder, password, nodeOperatorPublicKeys, validatorIDs)
+        const stakeRequestJson = await _encryptValidatorKeys(folder, password, nodeOperatorPublicKeys, validatorIDs)
+        event.sender.send('stake-request', stakeRequestJson)
     } catch(err) {
         logger.error("Error in 'genValidatorKeysAndEncrypt' when encrypting keys", err)
         throw new Error("Error encrypting validator keys")
     }
+
+    // Only add to the db if we dont have mnemonic added already
+    const allAccounts = await storage.getMnemonics(address, databasePassword);
+
+    if (!Object.values(allAccounts).some(value => value.mnemonic.includes(mnemonic))) {
+        await storage.addMnemonic(address, mnemonic, password, databasePassword)
+    }
+
+    // Add to history
+    logger.info("start to add history...")
+    const fileContent = JSON.stringify(stakeInfo);
+    const historyData = encodeGenerateKeysData(address, 'stakeInfo', fileContent, mnemonic, validatorIDs, stakingCode);
+    addHistoryRecord(historyData);
+
+    fs.rmdir(folder, { recursive: true }, (err) => {
+        if (err) {
+          console.error(`Error deleting folder: ${err}`);
+        } else {
+          console.log('Folder deleted successfully');
+        }
+    });
+
     // Send back the folder where everything is save
     logger.info("genEncryptedKeys: End")
     return folder
@@ -251,7 +321,8 @@ const _encryptValidatorKeys = async (folderPath, password, nodeOperatorPubKeys, 
           throw new Error("Could not write out stakeRequestJSON")
     }})
     logger.info("_encryptValidatorKeys: End")
-
+    
+    return stakeRequestJSON
 }
 
 /**
@@ -341,6 +412,92 @@ const decryptValidatorKeys = async (event, arg) => {
     return saveFolder
 }
 
+const fetchStoredMnemonics = async (address, password) => {
+    const mnemonics = await storage.getMnemonics(address, password);
+    return mnemonics
+}
+
+const getBeaconIndex = async (validatorID) => {
+
+    const hexID = `0x${validatorID.toString(16)}`
+    const data = {
+      query: `{
+          validators(where: {id: "${hexID}"}) {
+            id
+            validatorPubKey
+          }
+        }`,
+    };
+  
+    try {
+      const response = await axios.post(graphqlEndpoint, data);
+      if (response.status === 200) {
+          if (!response.data.data.validators.length) return 0
+          let pub = response.data.data.validators[0].validatorPubKey;
+          const queryURL = queryEndpoint + pub;
+          const newResp = await axios.post(queryURL);
+          return newResp.data.db.validatorIndex;
+      } else {
+          throw new Error(
+              "GraphQL request failed with status: " + response.status
+          );
+      }
+    } catch (error) {
+        throw new Error("GraphQL request failed: " + error.message);
+    }
+  }
+
+
+const fetchStoredValidators = async (address, password) => {
+    let validators = await storage.getValidators(address, password);
+
+    await Promise.all(Object.entries(validators).map(async ([key, value], index) => {
+        validators[key] = {...value, beaconID: await getBeaconIndex(key)}
+    }));
+
+    return validators;
+}
+
+const setPassword = async (password) => {
+    return await storage.setPassword(password)
+}
+
+const getStakerAddress = async (password) => {
+    const allStakers = await storage.getAllStakerAddresses();
+    if (!allStakers || !password) {
+        return {};
+    }
+    // Decrypt here if efficiency allows
+    for (const [addr, stakerInfo] of Object.entries(allStakers)) {
+        const { validators, mnemonics } = stakerInfo;
+        for (const [id, validator] of Object.entries(validators ? validators : {})) {
+            validators[id] = {
+                keystore: await storage.decrypt(validator.keystore, password),
+                password: await storage.decrypt(validator.password, password)
+            };
+        }
+        for (const [id, mnemonic] of Object.entries(mnemonics ? mnemonics : {})) {
+            mnemonics[id] = {
+                mnemonic: await storage.decrypt(mnemonic.mnemonic, password),
+                password: await storage.decrypt(mnemonic.password, password)
+            };
+        }
+    }
+    return allStakers;
+}
+
+const isPasswordSet = async () => {
+    return await storage.isPasswordSet();
+}
+
+const validatePassword = async (password) => {
+    return await storage.validatePassword(password);
+}
+
+const getStakerAddressList = async () => {
+    return await storage.getAllStakerAddresses();
+}
+
 
 /**
  * Opens dialog that allows user to select a folder path.
@@ -378,6 +535,7 @@ const listenSelectJsonFile = async (event, arg) => {
 
 
 // Test Function too see the whole encryption and decryption flow.
+// TODO: outdated. we use aes-gcm now. need to update
 const testWholeEncryptDecryptFlow = (event, arg) => {
     const curve = new EC('secp256k1')
     // Step 1: BIDDER -> Node Operator Key Gen Tab
@@ -395,6 +553,7 @@ const testWholeEncryptDecryptFlow = (event, arg) => {
 
     const recievedNodeOpPubKeyPoint = curve.keyFromPublic(nodeOperatorPubKeyHex, 'hex').getPublic()
     const stakerSharedSecret = recievedNodeOpPubKeyPoint.mul(stakerPrivKey).getX()
+  
     const valKey = {"crypto": {"kdf": {"function": "scrypt", "params": {"dklen": 32, "n": 262144, "r": 8, "p": 1, "salt": "0463d22d68366006c3e61d551255d49cc16339d5445bdaa1a59f5dae30dac3e7"}, "message": ""}, "checksum": {"function": "sha256", "params": {}, "message": "cd87b4b75a340239782919e7d81bf253dd9c7fd7d8956e83436b0e48ea8301dc"}, "cipher": {"function": "aes-128-ctr", "params": {"iv": "9ad66f5a200048b7c1933dc0a39adcc9"}, "message": "c469bf7d17899947ec78c4fe31676f3814a7bf696a85384aff4f0f7b4fbc9945"}}, "description": "", "pubkey": "96cadf6d4ff420ffd36c6f3d389564ad8f64a42c3c8e6b9ad7ef119b245248cef57ae4191f4c91163c23d79f4e77c275", "path": "m/12381/3600/1/0/0", "uuid": "61504df3-f306-4b65-ab7b-726ffa73bcbe", "version": 4}
     const validatorKey = JSON.stringify(valKey);
     const encryptedMsg = encrypt(validatorKey, stakerSharedSecret.toArrayLike(Buffer, 'be', 32))
@@ -425,5 +584,12 @@ module.exports = {
     decryptValidatorKeys,
     listenSelectFolder,
     listenSelectJsonFile,
-    testWholeEncryptDecryptFlow
+    testWholeEncryptDecryptFlow,
+    fetchStoredMnemonics,
+    fetchStoredValidators,
+    getStakerAddress,
+    getStakerAddressList,
+    isPasswordSet,
+    setPassword,
+    validatePassword
 }

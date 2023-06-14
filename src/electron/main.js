@@ -16,13 +16,19 @@ const {
     listenSelectJsonFile,
     genValidatorKeysAndEncrypt,
     decryptValidatorKeys,
-    testWholeEncryptDecryptFlow
+    fetchStoredValidators,
+    getStakerAddress,
+    getStakerAddressList,
+    isPasswordSet,
+    setPassword,
+    validatePassword,
+    fetchStoredMnemonics
 } = require('./listeners');
 
 const {validateJsonFile} = require('./utils/validateFile')
 const { standardResultCodes, decryptResultCodes } = require('./constants')
 const { generateSignedExitMessage } = require('./utils/Eth2Deposit')
-
+const { getHistoryRecordsByPage, getHistoryPageCount } = require("./utils/historyUtils")
 
 function createWindow() {
     // Create a new window
@@ -96,9 +102,9 @@ app.on("window-all-closed", function () {
 /* ------------------------------------------------------------- */
 // Returns (result, pubkeyFilePath| '', privKeyFilePath | '', errorMessag e| '') to frontend
 ipcMain.on("req-gen-node-operator-keys", async (event, args) => {
-    const [numKeys, saveFolder, privKeysPassword] = args
+    const [numKeys, saveFolder, privKeysPassword, address] = args
     try {
-        const [pubKeysFilePath, privKeysFilePath] = await genNodeOperatorKeystores(numKeys, saveFolder, privKeysPassword)
+        const [pubKeysFilePath, privKeysFilePath] = await genNodeOperatorKeystores(numKeys, saveFolder, privKeysPassword, address)
         event.sender.send("receive-NO-keys-generated-result", standardResultCodes.SUCCESS, pubKeysFilePath, privKeysFilePath, '')
     } catch (error) {
         logger.error("Error Generating Encryption Keys:", error)
@@ -120,9 +126,9 @@ ipcMain.on("req-new-mnemonic", async (event, args) => {
 
 // Return (result, path_to_saved_folder | '', errorMessage | '') to frontend
 ipcMain.on("req-gen-val-keys-and-encrypt",  async (event, args) => {
-    var [mnemonic, password, folder, stakeInfoPath, chain] = args
+    var [mnemonic, password, stakeInfo, address, mnemonicOption, importPassword, stakingCode] = args
     try {
-        const savePath = await genValidatorKeysAndEncrypt(mnemonic, password, folder, stakeInfoPath, chain)
+        const savePath = await genValidatorKeysAndEncrypt(event, mnemonic, password, stakeInfo, address, mnemonicOption, importPassword, stakingCode)
         event.sender.send("receive-key-gen-confirmation", standardResultCodes.SUCCESS, savePath , '')
     } catch (error) {
         logger.error("Error Generating Validator Keys and Encrypting:", error)
@@ -142,16 +148,60 @@ ipcMain.on("req-decrypt-val-keys",  async (event, args) => {
 });
 
 
+ipcMain.on("req-stored-mnemonics", async (event, args) => {
+    const [address, password] = args
+    try {
+        let mnemonics = await fetchStoredMnemonics(address, password)
+        mnemonics = mnemonics ?? {};
+        event.sender.send("receive-req-stored-mnemonics-confirmation",  standardResultCodes.SUCCESS, JSON.stringify(mnemonics), '')
+    } catch (error) {
+        logger.error("Error fetching stored mnemonic: ", error);
+        event.sender.send("receive-req-stored-mnemonics-confirmation",  standardResultCodes.ERROR, '', error.message)
+
+    }
+})
+
+ipcMain.on("req-stored-validators", async (event, args) => {
+    const [address, password] = args
+    try {
+        const validators = await fetchStoredValidators(address, password);
+        event.sender.send("receive-stored-validators", standardResultCodes.SUCCESS, JSON.stringify(validators), '')
+    } catch (error) {
+        logger.error("Error fetching stored mnemonic: ", error);
+        event.sender.send("receive-stored-validators",  standardResultCodes.ERROR, '', error.message)
+    }
+})
+
+
+ipcMain.on('req-get-staker-address', async (event, args) => {
+    try {
+        const stakers = await getStakerAddress()
+        event.sender.send("receive-get-staker-address",  standardResultCodes.SUCCESS, JSON.stringify(stakers), '')
+    } catch (error) {
+        logger.error("Error getting staker addresses: ", error);
+        event.sender.send("receive-get-staker-address",  standardResultCodes.ERROR, '', error.message)
+    } 
+})
+
+ipcMain.on('stake-request', async (event, stakeRequestJson) => {
+    try {
+        event.sender.send("stake-request",  standardResultCodes.SUCCESS, stakeRequestJson, '')
+    } catch (error) {
+        logger.error("Error getting stake request: ", error);
+        event.sender.send("stake-request",  standardResultCodes.ERROR, '', error.message)
+    }
+})
+
 /* ------------------------------------------------------------- */
 /* ------------ Signed Exit Message Generation ----------------- */
 /* ------------------------------------------------------------- */
 // Return (result, exitMessageFilePath | '', errorMessage| '') to frontend
 ipcMain.on("req-signed-exit-message", async (event, args) => {
     // Get Arguments
-    const [keystorePath, keystorePassword, validatorIndex, epoch, saveFolder, chain] = args
+    const [usingStoredKeys, selectedValidator, keystorePath, keystorePassword, validatorIndex, epoch, saveFolder, chain, databasePassword, address] = args
+    
     try {
-        const exitMessageFilePath = await generateSignedExitMessage(chain, keystorePath, keystorePassword, validatorIndex, epoch, saveFolder)
-        console.log(exitMessageFilePath)
+        const exitMessageFilePath = await generateSignedExitMessage(usingStoredKeys, selectedValidator, chain, keystorePath, keystorePassword, validatorIndex, epoch, saveFolder, databasePassword, address)
         event.sender.send("receive-signed-exit-message-confirmation", standardResultCodes.SUCCESS, exitMessageFilePath , '')
     } catch (error) {
         logger.error("Error Generating Signed Exit Message:", error)
@@ -198,25 +248,101 @@ ipcMain.on("staker-finish", (event, arg) => {
     app.quit();
 })
 
+/* -------------------- DATABASE API ---------------------- */
 
-/* ------------------------------------------------------------- */
-/* --------------- Checking For Stale Keys --------------------- */
-/* ------------------------------------------------------------- */
-// This is removed for now due to issues compiling sqlite3 package binaries.
-// This is where the code was created https://github.com/GadzeFinance/etherfi-desktop/pull/44
-ipcMain.on("req-check-for-stale-keys", async (event, args) => {
-    // const stakeInfoPath = args[0]
-    // const staleKeys = await checkIfKeysAreStale(stakeInfoPath)
-    // checkout 
-    // Stubbing this for now.
-    const staleKeys = []
-    event.sender.send("receive-stale-keys-report", staleKeys)
+ipcMain.on("req-set-password", async (event, args) => {
+    const [password] = args
+    try {
+        await setPassword(password)
+        event.sender.send("receive-set-password-result", standardResultCodes.SUCCESS, '')
+    } catch (error) {
+        logger.error("Error setting password:", error)
+        event.sender.send("receive-set-password-result", standardResultCodes.ERROR, error.message)
+    }
 })
 
-ipcMain.on("req-update-stale-keys", async (event, args) => {
-    // const stakeInfoPath = args[0]
-    // const result = await updateStaleKeys(stakeInfoPath)
-    // Stubbing this for now.
-    const result = true;
-    event.sender.send("receive-update-stale-keys-report", result)
+
+ipcMain.on("req-validate-password", async (event, args) => {
+    const [password] = args
+    try {
+        const valid = await validatePassword(password)
+        event.sender.send("receive-validate-password-result", standardResultCodes.SUCCESS, valid, '')
+    } catch (error) {
+        logger.error("Error validating password:", error)
+        event.sender.send("receive-validate-password-result", standardResultCodes.ERROR, false, error.message)
+    }
+})
+
+ipcMain.on("req-is-password-set", async (event, args) => {
+    try {
+        const passwordSet = await isPasswordSet()
+        event.sender.send("receive-is-password-set", standardResultCodes.SUCCESS, passwordSet, '')
+    } catch (error) {
+        logger.error("Error validating password:", error)
+        event.sender.send("receive-is-password-set", standardResultCodes.ERROR, false, error.message)
+    }
+})
+
+ipcMain.on("req-all-staker-addresses", async (event, args) => {
+    const [password] = args
+    try {
+        const stakerAddresses = await getStakerAddress(password)
+        event.sender.send("receive-all-staker-addresses", standardResultCodes.SUCCESS, stakerAddresses, '')
+    } catch (error) {
+        logger.error("Error getAllStakerAddresses:", error)
+        event.sender.send("receive-all-staker-addresses", standardResultCodes.ERROR, {}, error.message)
+    }
+})
+
+ipcMain.on("req-get-staker-address-list", async (event, args) => {
+    try {
+        const stakerAddressList = await getStakerAddressList()
+        event.sender.send("receive-get-staker-address-list", standardResultCodes.SUCCESS, stakerAddressList, '')
+    } catch (error) {
+        logger.error("Error getAllStakerAddresses:", error)
+        event.sender.send("receive-get-staker-address-list", standardResultCodes.ERROR, {}, error.message)
+    }
+})
+
+ipcMain.on("req-is-password-set", async (event, args) => {
+    try {
+        const passwordSet = await isPasswordSet();
+        event.sender.send("receive-is-password-set", standardResultCodes.SUCCESS, passwordSet , '')
+    } catch (error) {
+        logger.error("Error checking password status", error)
+        event.sender.send("receive-is-password-set", standardResultCodes.ERROR, '' , error.message)
+    }
+})
+
+ipcMain.on("req-get-password", async (event, args) => {
+    const [password] = args
+    try {
+        const passwordSet = await getValidatorPassword(password);
+        event.sender.send("receive-get-password", standardResultCodes.SUCCESS, passwordSet , '')
+    } catch (error) {
+        logger.error("Error getting password", error)
+        event.sender.send("receive-get-password", standardResultCodes.ERROR, '' , error.message)
+    }
+})
+
+ipcMain.on("req-history-page", async (event, args) => {
+    const [page] = args
+    console.log("req-history-page:", args)
+    try {
+        const historyRecords = await getHistoryRecordsByPage(page);
+        event.sender.send("receive-history-page", standardResultCodes.SUCCESS, historyRecords, '')
+    } catch (error) {
+        logger.error("Error getting password", error)
+        event.sender.send("receive-history-page", standardResultCodes.ERROR, '', error.message)
+    }
+})
+
+ipcMain.on("req-history-page-count", async (event, args) => {
+    try {
+        const historyPageCount = await getHistoryPageCount();
+        event.sender.send("receive-history-page-count", standardResultCodes.SUCCESS, historyPageCount, '')
+    } catch (error) {
+        logger.error("Error getting password", error)
+        event.sender.send("receive-history-page-count", standardResultCodes.ERROR, '', error.message)
+    }
 })

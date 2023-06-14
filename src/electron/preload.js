@@ -24,8 +24,20 @@ contextBridge.exposeInMainWorld("encryptionApi", {
     receiveNewMnemonic: function(func){
         ipcRenderer.once("receive-new-mnemonic", (event, ...args) => func(event, ...args));       
     },
-    reqGenValidatorKeysAndEncrypt: function(mnemonic, password, folder, stakeInfoPath, chain){
-        ipcRenderer.send("req-gen-val-keys-and-encrypt", [mnemonic, password, folder, stakeInfoPath, chain]);
+    reqStoredMnemonic: function(address, password) {
+        ipcRenderer.send("req-stored-mnemonics", [address, password]);
+    },
+    recieveStoredMnemonic: function (func) {
+        ipcRenderer.once("receive-req-stored-mnemonics-confirmation", (event, ...args) => func(event, ...args));       
+    },
+    reqStoredValidators: function(address, password) {
+        ipcRenderer.send("req-stored-validators", [address, password]);
+    },
+    receiveStoredValidators: function(func) {
+        ipcRenderer.once("receive-stored-validators", (event, ...args) => func(event, ...args))
+    },
+    reqGenValidatorKeysAndEncrypt: function(mnemonic, password, stakeInfo, address, mnemonicOption, importPassword, stakingCode){
+        ipcRenderer.send("req-gen-val-keys-and-encrypt", [mnemonic, password, stakeInfo, address, mnemonicOption, importPassword, stakingCode]);
     },
     receiveKeyGenConfirmation: function(func){
         ipcRenderer.once("receive-key-gen-confirmation", (event, ...args) => func(event, ...args));       
@@ -36,17 +48,29 @@ contextBridge.exposeInMainWorld("encryptionApi", {
     receiveDecryptReport: function(func){
         ipcRenderer.once("receive-decrypt-val-keys-report", (event, ...args) => func(event, ...args));       
     },
+    reqGetStakerAddresses: function () {
+        ipcRenderer.send('req-get-staker-address', [])
+    },
+    receieveGetStakerAddresses: function(func) {
+        ipcRenderer.once("receive-get-staker-address", (event, ...args) => func(event, ...args));
+    },
+    receiveGenerateKey: function(func) {
+        ipcRenderer.on("receive-generate-key", (event, ...args) => func(event, ...args))
+    },
+    stakeRequest: function (func) {
+        ipcRenderer.on("stake-request", (event, ...args) => func(event, ...args))
+    },
 });
 
 contextBridge.exposeInMainWorld("exitMessageApi", {
     // Function used in Node Operator Tab to generate public keys that will be registerd and private keys for decrypting
-    reqGenSignedExitMessage: function(keystorePath, keystorePassword, validatorIndex, epoch, saveFolder, chain){
-        ipcRenderer.send("req-signed-exit-message", [keystorePath, keystorePassword, validatorIndex, epoch, saveFolder, chain]);
+    reqGenSignedExitMessage: function(useStoredKeys, selectedValidator, keystorePath, keystorePassword, validatorIndex, epoch, saveFolder, chain, password, address){
+        ipcRenderer.send("req-signed-exit-message", [useStoredKeys, selectedValidator, keystorePath, keystorePassword, validatorIndex, epoch, saveFolder, chain, password, address]);
     },
     receiveSignedExitMessageConfirmation: function(func){
         ipcRenderer.once("receive-signed-exit-message-confirmation", (event, ...args) => func(event, ...args));
     },
-});
+}); 
 
 contextBridge.exposeInMainWorld("fileSystemApi", {
     // Function to select a Folder path 
@@ -123,18 +147,56 @@ contextBridge.exposeInMainWorld("utilsApi", {
 
 
 contextBridge.exposeInMainWorld("databaseApi", {
-    // Function to request a check to see if the bidder public keys in the stake info file have already been used to encrypt validatorkeys
-    reqCheckForStaleBidderPublicKeys: function(stakeInfoPath){
-        ipcRenderer.send("req-check-for-stale-keys", [stakeInfoPath]);
+    reqSetPassword: function(password) {
+        ipcRenderer.send("req-set-password", [password]);
     },
-    receiveStaleBidderPublicKeysReport: function(func){
-        ipcRenderer.once("receive-stale-keys-report", (event, ...args) => func(event, ...args));       
+    receiveSetPasswordResult: function(func) {
+        ipcRenderer.once("receive-set-password-result", (event, ...args) => func(event, ...args));
     },
-    reqUpdateStaleKeys: function(stakeInfoPath){
-        ipcRenderer.send("req-update-stale-keys", [stakeInfoPath]);
+    reqValidatePassword: function(password) {
+        ipcRenderer.send("req-validate-password", [password]);
     },
-    receiveUpdateStaleKeysResult: function(func){
-        ipcRenderer.once("receive-update-stale-keys-report", (event, ...args) => func(event, ...args));       
+    receiveValidatePasswordResult: function(func) {
+        ipcRenderer.once("receive-validate-password-result", (event, ...args) => func(event, ...args));
     },
+    reqIsPasswordSet: function() {
+        ipcRenderer.send("req-is-password-set", []);
+    },
+    receiveIsPasswordSet: function(func) {
+        ipcRenderer.once("receive-is-password-set", (event, ...args) => func(event, ...args))
+    },
+    reqAllStakerAddresses: function(password) {
+        ipcRenderer.send("req-all-staker-addresses", [password]);
+    },
+    receiveAllStakerAddresses: function(func) {
+        ipcRenderer.once("receive-all-staker-addresses", (event, ...args) => func(event, ...args))
+    },
+    receiveIsPasswordSet: function (func) {
+        ipcRenderer.once("receive-is-password-set", (event, ...args) => func(event, ...args))
+    },
+    reqGetStakerAddressList: function() {
+        ipcRenderer.send("req-get-staker-address-list", []);
+    },
+    receiveGetStakerAddressList: function (func) {
+        ipcRenderer.once("receive-get-staker-address-list", (event, ...args) => func(event, ...args))
+    },
+    reqGetPassword: function(password) {
+        ipcRenderer.send("req-get-password", [password]);
+    },
+    recievePassword: function (func) {
+        ipcRenderer.once("receive-get-password", (event, ...args) => func(event, ...args))
+    },
+    reqHistoryByPage: function (page) {
+        ipcRenderer.send("req-history-page", [page]);
+    },
+    receiveHistoryByPage: function (func) {
+        ipcRenderer.once("receive-history-page", (event, ...args) => func(event, ...args))
+    },
+    reqHistoryPageCount: function () {
+        ipcRenderer.send("req-history-page-count", []);
+    },
+    receiveHistoryPageCount: function (func) {
+        ipcRenderer.once("receive-history-page-count", (event, ...args) => func(event, ...args))
+    }
 });
 

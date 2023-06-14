@@ -1,29 +1,24 @@
 import React from 'react'
-import { Flex, Text, Center, VStack } from '@chakra-ui/react'
-import WizardNavigator from '../../WizardNavigator'
+import { Flex, Text, Center, VStack, Button } from '@chakra-ui/react'
 import { IconCheckMark } from '../../../../Icons'
 import { COLORS } from '../../../../../styleClasses/constants';
 
 
 interface StepFinishProps {
     goBackStep: () => void,
+    resetAllStates: () => void
 }
 
 const StepFinish: React.FC<StepFinishProps> = (props) => {
 
-    const backDetails = {
-        text: "Back",
-        visible: true,
+    const stakeAgain = () => {
+        props.resetAllStates()
     }
 
-    const backProps = {
-        onClick: props.goBackStep,
-        variant: "back-button",
-    }
-
-    const nextDetails = {
-        text: "Close",
-        visible: true,
+    const stakeAgainProps = {
+        isDisabled: false,
+        onClick: stakeAgain,
+        variant: "white-button"
     }
 
     const nextProps = {
@@ -50,16 +45,19 @@ const StepFinish: React.FC<StepFinishProps> = (props) => {
                     </Text>
                     <Center width='75%'>
                         <Text fontSize="14px" color={COLORS.textSecondary} align="center">
-                            Go back to the {<Text color='white' as='b'>web dApp</Text>} to submit your
-                            stake request (stakeRequest-XXXX-XXXX.json)
+                            Go back to the {<Text color='white' as='b'>Web App</Text>} and continue the staking process.
                         </Text>
+
                     </Center>
-
-                    <WizardNavigator nextProps={nextProps} backProps={backProps} nextDetails={nextDetails} backDetails={backDetails} />
-
+                    <Button {...nextProps}>
+                        Close
+                    </Button>
                     <Text fontSize="14px" color={COLORS.textSecondary} align="center">
                         {<Text as='b' color='white'>Note:</Text>} Pressing 'Close' will clear your clipboard and quit the app.
                     </Text>
+                    <Button {...stakeAgainProps}>
+                        Stake Again
+                    </Button>
                 </VStack>
 
             </Flex>

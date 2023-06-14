@@ -1,6 +1,7 @@
 import React from "react"
-import { render, fireEvent, screen } from "@testing-library/react"
+import { render, fireEvent, screen, waitFor } from "@testing-library/react"
 import DecryptValidatorKeysWidget from "../../../../src/react/components/NodeOperatorComponents/DecryptValidatorKeysWidget"
+import { useForm, FormProvider } from "react-hook-form";
 
 // Mock the Electron APIs
 jest.mock("electron", () => ({
@@ -46,16 +47,37 @@ describe("DecryptValidatorKeysWidget", () => {
     }
   })
 
-  it("renders the component", () => {
-    render(<DecryptValidatorKeysWidget />)
+  it("renders the component", async () => {
+    const Component = () => {
+      const methods = useForm({ shouldUseNativeValidation: true });
+
+      return (
+        <FormProvider {...methods} >
+          <DecryptValidatorKeysWidget />
+        </FormProvider>
+      );
+    };
+
+    render(<Component />);
 
     const titleLabel = screen.getAllByText("Decrypt Validator Keys")
-    expect(titleLabel).not.toBeNull()
+    await waitFor(() => expect(titleLabel).not.toBeNull())
   })
 
   it("selects save path when button is clicked", async () => {
-    render(<DecryptValidatorKeysWidget />)
-    const selectSavePathButton = screen.getByText("Select Save Path")
-    fireEvent.click(selectSavePathButton)
+    const Component = () => {
+      const methods = useForm({ shouldUseNativeValidation: true });
+
+      return (
+        <FormProvider {...methods} >
+          <DecryptValidatorKeysWidget />
+        </FormProvider>
+      );
+    };
+
+    render(<Component />);
+
+    const selectSavePathButton = screen.getByText("Select Save Path");
+    await waitFor(() => fireEvent.click(selectSavePathButton));
   })
 })
