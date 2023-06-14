@@ -58,9 +58,6 @@ const StepFinish: React.FC<StepFinishProps> = (props) => {
                     <Button {...stakeAgainProps}>
                         Stake Again
                     </Button>
-                    <Text fontSize="14px" color={COLORS.textSecondary} align="center">
-                        {<Text as='b' color='white'>Note:</Text>} Do another stake.
-                    </Text>
                 </VStack>
 
             </Flex>
