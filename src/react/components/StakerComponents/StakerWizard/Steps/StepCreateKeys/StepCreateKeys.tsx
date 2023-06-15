@@ -51,7 +51,6 @@ const StepCreateKeys: React.FC<StepCreateKeysProps> = (props) => {
       })
     window.encryptionApi.stakeRequest(
       (event: Electron.IpcMainEvent, stakeRequest: any, errorMessage: string) => {
-        console.log("stakeRequest")
         if (stakeRequest) {
           const baseURL = process.env.NODE_ENV === 'production'
             ? "https://goerli.etherfi.vercel.app"

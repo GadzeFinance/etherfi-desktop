@@ -161,7 +161,7 @@ const genValidatorKeysAndEncrypt = async (event, mnemonic, databasePassword, sta
         const index = i
         try {
             const startTime = new Date().getTime();
-            await generateKeys(mnemonic, 1, isDev ? "goerli" : "mainnet", password, eth1_withdrawal_address, folder, stakeInfo[i].validatorID, databasePassword, address)
+            await generateKeys(mnemonic, 1, stakeInfo[i].networkName, password, eth1_withdrawal_address, folder, stakeInfo[i].validatorID, databasePassword, address)
             const endTime = new Date().getTime();
             const usedTime = (endTime - startTime) / 1000;
             event.sender.send("receive-generate-key", index, stakeInfoLength, usedTime)
