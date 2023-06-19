@@ -33,7 +33,7 @@ const StepGenerateMnemonic: React.FC<StepGenerateMnemonicProps> = (props) => {
   const [generating, setGenerating] = useState(false);
   // This is a hacky way to determine if we should show ConfirmMnemonic or DisplayMnemonic compoennts when this renders.
   const [confirmMnemonic, setConfirmMnemonic] = useState(props.mnemonicOption != "generate");
-  const [mnemonicConfirmed, setMnemonicConfirmed] = useState(false);
+  const [mnemonicConfirmed, setMnemonicConfirmed] = useState(true);
   const [storedMnemonics, setStoredMnemonic] = useState(undefined);
   const [importMnemonic, setImportMnemonic] = useState("")
   const [nextText, setNextText] = useState("")
@@ -98,20 +98,21 @@ const StepGenerateMnemonic: React.FC<StepGenerateMnemonicProps> = (props) => {
         props.goNextStep()
       } else if (props.mnemonicOption == "generate") {
         generateMnemonic()
+        props.goNextStep()
       } else if (props.mnemonicOption == "stored") {
         props.goNextStep()
       }
     };
     // Mneomoic Generated and viewing the whole mnemonic screen
-    if (props.mnemonic && !confirmMnemonic) {
-      setConfirmMnemonic(true)
-      return
-    }
+    // if (props.mnemonic && !confirmMnemonic) {
+    //   setConfirmMnemonic(true)
+    //   return
+    // }
     // Mneomoic Generated and viewing the Confirm Mnemonic screen
-    if (props.mnemonic && confirmMnemonic) {
-      setConfirmMnemonic(false)
-      props.goNextStep();
-    }
+    // if (props.mnemonic && confirmMnemonic) {
+    //   setConfirmMnemonic(false)
+    //   props.goNextStep();
+    // }
   };
 
   const backAction = () => {
@@ -188,16 +189,16 @@ const StepGenerateMnemonic: React.FC<StepGenerateMnemonicProps> = (props) => {
           </Text>
         </>
       )}
-      {props.mnemonic && !confirmMnemonic && (
+      {/* {props.mnemonic && !confirmMnemonic && (
         <DisplayMnemonic mnemonic={props.mnemonic} />
-      )}
-      {props.mnemonic && confirmMnemonic && (
+      )} */}
+      {/* {props.mnemonic && confirmMnemonic && (
         <ConfirmMnemonic
           mnemonic={props.mnemonic}
           wordsToConfirmIndicies={props.wordsToConfirmIndicies}
           setMnemonicConfirmed={setMnemonicConfirmed}
         />
-      )}
+      )} */}
       {!props.mnemonic && !generating && (
         <>
           <Select color="white" borderColor="purple.light" onChange={(e) => props.setMnemonicOption(e.target.value)}>

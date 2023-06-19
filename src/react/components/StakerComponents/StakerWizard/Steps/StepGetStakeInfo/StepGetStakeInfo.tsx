@@ -54,35 +54,45 @@ const StepGetStakeInfo: React.FC<StepGetStakeInfoProps> = (
   const handleSubmit: React.FormEventHandler<HTMLFormElement> = (e) => {
     e.preventDefault();
     setIsLoading(true);
-    const baseURL = process.env.NODE_ENV === 'production'
-      ? "https://goerli.etherfi.vercel.app"
-      : "http://localhost:3000";
-    fetch(`${baseURL}/api/stakeInfo/${stakingCode}`)
-      .then(res => {
-        if (!res.ok) {
-          throw new Error("Your code is invalid. Check the code in the web app and try again.");
-        }
-        return res
-      })
-      .then(res => res.json())
-      .then(async (stakeInfo: { [key: string]: string }[]) => {
-        props.setStakeInfo(stakeInfo);
+        props.setStakeInfo([
+          {
+            "validatorID": "9",
+            "bidderPublicKey": "04f262c21a97f93bf361645e9bb23b6b36a9bdff68e579f20b6653025ac5edc465005cac64f91ef82a735be8bfe6577e3b400a362b498576c62217c4a513cc8d79",
+            "withdrawalSafeAddress": "0x9c31086302ca285da106fe805487920fcb18278e",
+            "etherfiDesktopAppVersion": "1.0.0"
+          }
+        ]);
         props.setCode(stakingCode);
         props.goNextStep();
-      })
-      .catch(err => {
-        toast({
-          title: "Error fetching stake info",
-          description: err.message,
-          status: "error",
-          duration: 5000,
-          isClosable: true,
-        });
-      })
-      .finally(() => {
-        setIsLoading(false);
-        setStakingCode("");
-      });
+    // const baseURL = process.env.NODE_ENV === 'production'
+    //   ? "https://goerli.etherfi.vercel.app"
+    //   : "http://localhost:3000";
+    // fetch(`${baseURL}/api/stakeInfo/${stakingCode}`)
+    //   .then(res => {
+    //     if (!res.ok) {
+    //       throw new Error("Your code is invalid. Check the code in the web app and try again.");
+    //     }
+    //     return res
+    //   })
+    //   .then(res => res.json())
+    //   .then(async (stakeInfo: { [key: string]: string }[]) => {
+    //     props.setStakeInfo(stakeInfo);
+    //     props.setCode(stakingCode);
+    //     props.goNextStep();
+    //   })
+    //   .catch(err => {
+    //     toast({
+    //       title: "Error fetching stake info",
+    //       description: err.message,
+    //       status: "error",
+    //       duration: 5000,
+    //       isClosable: true,
+    //     });
+    //   })
+    //   .finally(() => {
+    //     setIsLoading(false);
+    //     setStakingCode("");
+    //   });
   }
 
   return (
