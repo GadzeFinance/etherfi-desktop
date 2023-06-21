@@ -73,7 +73,7 @@ const StepGetStakeInfo: React.FC<StepGetStakeInfoProps> = (
       .catch(err => {
         toast({
           title: "Error fetching stake info",
-          description: err.message,
+          description: 'Unable to fetch stake info. Your country may be blocked.',
           status: "error",
           duration: 5000,
           isClosable: true,
