@@ -78,6 +78,7 @@ const StepGenerateMnemonic: React.FC<StepGenerateMnemonicProps> = (props) => {
       ) => {
         if (result === 0) {
           props.setMnemonic(newMnemonic);
+          props.goNextStep();
         } else {
           console.error("Error generating mnemonic");
           console.error(errorMessage);
@@ -90,7 +91,7 @@ const StepGenerateMnemonic: React.FC<StepGenerateMnemonicProps> = (props) => {
     setGenerating(true);
   };
 
-  const nextAction = () => {
+  const nextAction = async () => {
     // No Mneomoic Generated
     if (!props.mnemonic) {
       if (props.mnemonicOption == "import") {
@@ -98,7 +99,6 @@ const StepGenerateMnemonic: React.FC<StepGenerateMnemonicProps> = (props) => {
         props.goNextStep()
       } else if (props.mnemonicOption == "generate") {
         generateMnemonic()
-        props.goNextStep()
       } else if (props.mnemonicOption == "stored") {
         props.goNextStep()
       }

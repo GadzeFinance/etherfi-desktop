@@ -72,7 +72,7 @@ const StepCreateKeys: React.FC<StepCreateKeysProps> = (props) => {
       }
     )
 
-
+    
     window.encryptionApi.reqGenValidatorKeysAndEncrypt(props.mnemonic, loginPassword, props.stakeInfo, getValues('confirmedAddress'), props.mnemonicOption, props.importMnemonicPassword, props.code);
     setGeneratingKeys(true)
   }
