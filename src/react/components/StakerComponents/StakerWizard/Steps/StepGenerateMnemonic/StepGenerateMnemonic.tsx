@@ -91,7 +91,7 @@ const StepGenerateMnemonic: React.FC<StepGenerateMnemonicProps> = (props) => {
     setGenerating(true);
   };
 
-  const nextAction = async () => {
+  const nextAction = () => {
     // No Mneomoic Generated
     if (!props.mnemonic) {
       if (props.mnemonicOption == "import") {
