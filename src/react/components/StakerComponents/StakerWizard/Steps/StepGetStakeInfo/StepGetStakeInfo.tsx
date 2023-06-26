@@ -55,8 +55,8 @@ const StepGetStakeInfo: React.FC<StepGetStakeInfoProps> = (
     e.preventDefault();
     setIsLoading(true);
     const baseURL = process.env.NODE_ENV === 'production'
-      ? "https://goerli.etherfi.vercel.app"
-      : "http://localhost:3000";
+      ? "https://mainnet.ether.fi"
+      : "https://goerli.etherfi.vercel.app"
     fetch(`${baseURL}/api/stakeInfo/${stakingCode}`)
       .then(res => {
         if (!res.ok) {

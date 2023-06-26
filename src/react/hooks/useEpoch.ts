@@ -3,15 +3,15 @@ import { useQuery } from 'react-query';
 import axios from 'axios';
 
 const API_URL = process.env.NODE_ENV === 'production'
-  ? "https://goerli.etherfi.vercel.app/api/beaconChain/getEpoch?chain="
-  : "http://localhost:3000/api/beaconChain/getEpoch?chain=";
+  ? "https://mainnet.ether.fi"
+  : "https://goerli.etherfi.vercel.app"
 
 const EPOCH_OFFSET = 5;
 
 async function fetchEpoch(chain: string) {
     try {
         if (chain !== "goerli" && chain !== "mainnet") return null;
-        const response = await axios.get(API_URL + chain)
+        const response = await axios.get(API_URL + "/api/beaconChain/getEpoch?chain=" + chain)
         return response.data;
     } catch (error) {
         throw new Error('An error occurred while fetching epoch');

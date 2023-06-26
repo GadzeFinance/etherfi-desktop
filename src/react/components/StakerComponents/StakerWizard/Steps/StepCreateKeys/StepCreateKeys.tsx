@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react'
-import { Flex, Text, Center } from '@chakra-ui/react'
+import { Flex, Text, Center, Spinner, Progress } from '@chakra-ui/react'
 import WizardNavigator from '../../WizardNavigator'
 import { IconKey } from '../../../../Icons'
 import EtherFiSpinner from '../../../../EtherFiSpinner'
 import { useFormContext } from "react-hook-form";
+import { InfoPanels } from '../../../../InfoPanels'
 
 
 interface StepCreateKeysProps {
@@ -53,8 +54,8 @@ const StepCreateKeys: React.FC<StepCreateKeysProps> = (props) => {
       (event: Electron.IpcMainEvent, stakeRequest: any, errorMessage: string) => {
         if (stakeRequest) {
           const baseURL = process.env.NODE_ENV === 'production'
-            ? "https://goerli.etherfi.vercel.app"
-            : "http://localhost:3000";
+            ? "https://mainnet.ether.fi"
+            : "https://goerli.etherfi.vercel.app"
           fetch(`${baseURL}/api/stakeRequest/upload`, {
             method: 'POST',
             headers: {
@@ -125,7 +126,14 @@ const StepCreateKeys: React.FC<StepCreateKeysProps> = (props) => {
         </>
       )
       }
-      {generatingKeys && <EtherFiSpinner loading={generatingKeys} text="Generating & Encrypting Keys..." showProgress={true} keysGenerated={keysGenerated} keysTotal={keysTotal} recentUsedTime={recentUsedTime} />}
+      {/* {generatingKeys && <EtherFiSpinner loading={generatingKeys} text="Generating & Encrypting Keys..." showProgress={true} keysGenerated={keysGenerated} keysTotal={keysTotal} recentUsedTime={recentUsedTime} />} */}
+      {generatingKeys && (
+        <>
+          <Text textAlign="center" fontSize="xs" color="white">Generating Keys</Text>
+          <Progress mb={1} colorScheme="purple" size="xs" value={(keysGenerated / keysTotal) * 100} hasStripe />
+          <InfoPanels />
+        </>
+      )}
     </Flex >
   )
 }
