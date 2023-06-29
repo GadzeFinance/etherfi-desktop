@@ -10,6 +10,7 @@ import {
 } from "@chakra-ui/react";
 import WizardNavigator from "../../WizardNavigator";
 import { IconAlertTriangle } from "../../../../Icons";
+import { dappUrl } from "../../../../../../electron/utils/getDappUrl";
 
 interface StepGetStakeInfoProps {
   goNextStep: () => void;
@@ -54,10 +55,7 @@ const StepGetStakeInfo: React.FC<StepGetStakeInfoProps> = (
   const handleSubmit: React.FormEventHandler<HTMLFormElement> = (e) => {
     e.preventDefault();
     setIsLoading(true);
-    const baseURL = process.env.NODE_ENV === 'production'
-      ? "https://mainnet.ether.fi"
-      : "https://goerli.etherfi.vercel.app"
-    fetch(`${baseURL}/api/stakeInfo/${stakingCode}`)
+    fetch(`${dappUrl}/api/stakeInfo/${stakingCode}`)
       .then(res => {
         if (!res.ok) {
           throw new Error("Your code is invalid. Check the code in the web app and try again.");

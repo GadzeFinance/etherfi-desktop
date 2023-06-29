@@ -1,51 +1,53 @@
 import { SlideFade, SlideFadeProps } from "@chakra-ui/react"
-import { useEffect, useState } from "react"
+import { useCallback, useEffect, useState } from "react"
 import { set } from "zod"
 import { InfoPanel } from "./InfoPanel"
+import { dappUrl } from "../../../electron/utils/getDappUrl"
 
-const INFO_PANELS = [
-  {
-    title: 'EtherFan NFTs',
-    icon: 'icon',
-    text: 'Did you know that you can buy and sell NFTs on EtherFan? Check out the NFT Marketplace to see what is available.',
-  },
-  {
-    title: 'Solo Staking',
-    icon: 'icon',
-    text: 'EtherFi is proud to sponsor a solo staking pool. You can stake your Ether and earn rewards without having to join a pool.',
-  },
-  {
-    title: 'Free Biscuits',
-    icon: 'icon',
-    text: 'Not many people know this, but you can get free biscuits on EtherFi. Just click the button below to claim your free biscuits.',
-  },
-]
+type Panel = {
+  title: string
+  text: string
+  imageUrl?: string
+}
 
 export const InfoPanels = () => {
   const [panelIndex, setPanelIndex] = useState(0)
   const [showPanel, setShowPanel] = useState(true)
+  const [panels, setPanels] = useState<Panel[]>([])
+  const url = dappUrl
 
-  const rotatePanel = () => {
-    setPanelIndex(currentIdx => (currentIdx + 1) % INFO_PANELS.length)
-  }
+  useEffect(() => {
+    const fetchPanels = async () => {
+      const response = await fetch(`${url}/api/info-panels`)
+      const panels = await response.json()
+      setPanels(panels)
+    }
+    fetchPanels()
+  }, [])
+  
+  const rotatePanel = useCallback(() => {
+    setPanelIndex(currentIdx => (currentIdx + 1) % panels.length)
+  }, [setPanelIndex, panels.length])
     
   useEffect(() => {
+    if (!panels.length) return
     const interval = setInterval(() => {
-      console.log('new frame')
       setShowPanel(false)
       setTimeout(() => {
         rotatePanel()
         setShowPanel(true)
       }, 200)
-    }, 3000)
+    }, 10000)
     return () => clearInterval(interval)
-  }, [])
+  }, [rotatePanel])
 
-  const panel = INFO_PANELS[panelIndex]
+  const panel = panels[panelIndex]
+
+  if (!panel) return null
 
   return (
     <SlideFade in={showPanel} offsetY={0} offsetX={16} style={{ height: '100%', transitionTimingFunction: 'ease-out'}}>
-      <InfoPanel title={panel.title} icon={panel.icon} text={panel.text} />
+      <InfoPanel title={panel.title} imageUrl={panel.imageUrl} text={panel.text} />
     </SlideFade>
   )
 }

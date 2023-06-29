@@ -12,14 +12,14 @@ import StepGenerateMnemonic from "./Steps/StepGenerateMnemonic/StepGenerateMnemo
 import StepCreateKeys from "./Steps/StepCreateKeys/StepCreateKeys";
 //STEP 5:
 import StepFinish from "./Steps/StepFinish/StepFinish";
+import StepGenerateMnemonicAndKeys from "./Steps/StepGenerateMnemonicAndKeys/StepGenerateMnemonicAndKeys";
 
 const content = <Flex py={4}></Flex>;
 
 const steps = [
     { label: "Choose Wallet Address", content },
     { label: "Enter Staking Code", content },
-    { label: "Generate Mnemonic", content },
-    { label: "Creating Keys", content },
+    { label: "Generate Mnemonic and Keys", content },
     { label: "Finish", content },
 ];
 
@@ -103,6 +103,11 @@ const GenEncryptedKeysWizard: React.FC<WizardProps> = (props) => {
                         colorScheme="black-alpha"
                         orientation="vertical"
                         activeStep={activeStep}
+                        sx={{
+                            '& .cui-steps__vertical-step': {
+                              flex: 1,
+                            },
+                        }}
                     >
                         {steps.map(({ label, content }) => (
                             <Step label={label} key={label} color="white">
@@ -131,32 +136,19 @@ const GenEncryptedKeysWizard: React.FC<WizardProps> = (props) => {
                         />
                     )}
                     {activeStep === 2 && (
-                        <StepGenerateMnemonic
-                            goBackStep={prevStep}
-                            goNextStep={nextStep}
-                            mnemonic={mnemonic}
-                            setMnemonic={setMnemonic}
-                            wordsToConfirmIndicies={wordsToConfirmIndicies}
-                            walletAddress={confirmedAddress}
-                            setImportMnemonicPassword={setImportMnemonicPassword}
-                            importMnemonicPassword={importMnemonicPassword}
-                            mnemonicOption={mnemonicOption}
-                            setMnemonicOption={setMnemonicOption}
-                        />
-                    )}
-                    {activeStep === 3 && (
-                        <StepCreateKeys
+                        <StepGenerateMnemonicAndKeys
                             goBackStep={prevStep}
                             goNextStep={nextStep}
                             stakeInfo={stakeInfo}
                             mnemonic={mnemonic}
+                            setMnemonic={setMnemonic}
                             address={confirmedAddress}
                             importMnemonicPassword={importMnemonicPassword}
                             mnemonicOption={mnemonicOption}
                             code={code}
                         />
                     )}
-                    {activeStep === 4 && <StepFinish goBackStep={prevStep} resetAllStates={resetAllStates} />}
+                    {activeStep === 3 && <StepFinish goBackStep={prevStep} resetAllStates={resetAllStates} />}
                 </Flex>
             </Flex>
         </Center>

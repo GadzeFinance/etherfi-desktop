@@ -1,31 +1,32 @@
-import { Card, Text, CardHeader, Heading, CardBody } from "@chakra-ui/react"
+import { Card, Text, CardHeader, Heading, CardBody, Image } from "@chakra-ui/react"
 import { FC } from "react"
-import { IconKey } from "../Icons"
 
 type Props = {
   title: string
   text: string
-  icon: string
+  imageUrl?: string
 }
 
-export const InfoPanel: FC<Props> = ({ text, title, icon }) => {
+export const InfoPanel: FC<Props> = ({ text, title, imageUrl }) => {
   return (
     <Card
-      h='full'
       w='full'
+      h='full'
       bg='purple.darkBackground'
       border='1px solid rgba(255,255,255,0.3)'
       color='white'
       position='relative'
     >
-      <IconKey position={'absolute'} bottom={'10px'} right={'10px'} boxSize='48' stroke='rgba(255,255,255,0.1)' />
-      <CardHeader>
+      <CardHeader pb={0}>
         <Heading>
           {title}
         </Heading>
       </CardHeader>
-      <CardBody>
-        <Text>{text}</Text>
+      <CardBody h='inherit'>
+        <Text fontSize='sm'>{text}</Text>
+        {imageUrl && (
+          <Image boxShadow='xl' src={imageUrl} alt={title} borderRadius="sm" position="absolute" right='20px' bottom='20px' maxH={180} />
+        )}
       </CardBody>
     </Card>
   )
