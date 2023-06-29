@@ -1,4 +1,4 @@
-import { Card, Text, CardHeader, Heading, CardBody, Image } from "@chakra-ui/react"
+import { Box, Card, Text, CardHeader, Heading, CardBody, Image } from "@chakra-ui/react"
 import { FC } from "react"
 
 type Props = {
@@ -25,7 +25,9 @@ export const InfoPanel: FC<Props> = ({ text, title, imageUrl }) => {
       <CardBody h='inherit'>
         <Text fontSize='sm'>{text}</Text>
         {imageUrl && (
-          <Image boxShadow='xl' src={imageUrl} alt={title} borderRadius="sm" position="absolute" right='20px' bottom='20px' maxH={180} />
+          <Box h="180px" maxW="400px" position="absolute" right='20px' bottom='20px'>
+            <Image boxShadow='xl' src={imageUrl} alt={title} borderRadius="sm" maxW='full' maxH='full' />
+          </Box>
         )}
       </CardBody>
     </Card>
