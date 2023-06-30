@@ -8,8 +8,6 @@ import {
   InputGroup
 } from "@chakra-ui/react";
 import { useFormContext } from "react-hook-form";
-import DisplayMnemonic from "./DisplayMnemonic";
-import ConfirmMnemonic from "./ConfimMnemonic";
 import WizardNavigator from "../../WizardNavigator";
 import EtherFiSpinner from "../../../../EtherFiSpinner";
 import { IconLockFile } from "../../../../Icons";
@@ -55,6 +53,7 @@ const StepGenerateMnemonic: React.FC<StepGenerateMnemonicProps> = (props) => {
                 ([id, value]: [any, any], index) => ({
                     id: parseInt(id),
                     mnemonic: value.mnemonic,
+                    display: `${value.mnemonic.split(" ")[0]}... stored on ${value.dateCreated}`
                 })
             );
             setStoredMnemonic(outputArr);

@@ -1,4 +1,3 @@
-import { useEffect } from "react";
 import {
     Text,
     Box,
@@ -7,7 +6,6 @@ import {
     MenuButton,
     MenuList,
     MenuItem,
-    IconButton,
     Center,
     Tooltip
 } from "@chakra-ui/react";
@@ -46,8 +44,8 @@ const StoredMnemonicSelect: React.FC<StoredMnemonicSelectProps> = (props: Stored
                 {props.storedMnemonics?.length > 0 && props.storedMnemonics?.map((entry: any) => (
                     <MenuItem key={entry.id} onClick={() => selectMnemonic(entry.mnemonic)}>
                         <Box w="100%">
-                            <Tooltip label={entry.mnemonic}>
-                            <Text isTruncated>{entry.mnemonic}</Text>
+                            <Tooltip label={entry.display}>
+                                <Text isTruncated>{entry.display}</Text>
                             </Tooltip>
                         </Box>           
                     </MenuItem>
