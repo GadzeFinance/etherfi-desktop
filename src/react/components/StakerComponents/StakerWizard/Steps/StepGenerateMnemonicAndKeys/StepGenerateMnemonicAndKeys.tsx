@@ -11,6 +11,7 @@ interface StepCreateKeysProps {
   goNextStep: () => void,
   goBackStep: () => void,
   mnemonic: string,
+  setMnemonic: (mnemonic: string) => void,
   stakeInfo: { [key: string]: string }[],
   address: string
   importMnemonicPassword: string
@@ -18,16 +19,15 @@ interface StepCreateKeysProps {
   code: string
 }
 
-const StepCreateKeys: React.FC<StepCreateKeysProps> = (props) => {
-
-  const [generatingKeys, setGeneratingKeys] = useState(true)
+const StepGenerateMnemonicAndKeys: React.FC<StepCreateKeysProps> = (props) => {
+  const [generating, setGenerating] = useState(true)
   const [generated, setGenerated] = useState(false)
   const [keysGenerated, setKeysGenerated] = useState(0);
   const [keysTotal, setKeysTotal] = useState(0);
   const { watch, getValues, resetField } = useFormContext();
   const loginPassword = watch("loginPassword")
 
-  const generateEncryptedKeys = () => {
+  const generateEncryptedKeys = (mnemonic: string) => {
     window.encryptionApi.receiveGenerateKey(
       (event: Electron.IpcMainEvent, index: number, total: number, usedTime: number) => {
         setKeysGenerated(index + 1)
@@ -46,7 +46,7 @@ const StepCreateKeys: React.FC<StepCreateKeysProps> = (props) => {
           console.error(errorMessage)
           // TODO: Show error screen on failure.
         }
-        setGeneratingKeys(false)
+        setGenerating(false)
       })
     window.encryptionApi.stakeRequest(
       (event: Electron.IpcMainEvent, stakeRequest: any, errorMessage: string) => {
@@ -69,12 +69,33 @@ const StepCreateKeys: React.FC<StepCreateKeysProps> = (props) => {
     )
 
     
-    window.encryptionApi.reqGenValidatorKeysAndEncrypt(props.mnemonic, loginPassword, props.stakeInfo, getValues('confirmedAddress'), props.mnemonicOption, props.importMnemonicPassword, props.code);
-    setGeneratingKeys(true)
+    window.encryptionApi.reqGenValidatorKeysAndEncrypt(mnemonic, loginPassword, props.stakeInfo, getValues('confirmedAddress'), props.mnemonicOption, props.importMnemonicPassword, props.code);
   }
 
+  const generateMnemonic = () => {
+    window.encryptionApi.receiveNewMnemonic(
+      (
+        event: Electron.IpcMainEvent,
+        result: number,
+        newMnemonic: string,
+        errorMessage: string
+      ) => {
+        if (result === 0) {
+          props.setMnemonic(newMnemonic);
+          generateEncryptedKeys(newMnemonic)
+        } else {
+          console.error("Error generating mnemonic");
+          console.error(errorMessage);
+          // TODO: Show error screen on failure.
+        }
+      }
+    );
+    window.encryptionApi.reqNewMnemonic("english");
+    setGenerating(true);
+  };
+
   useEffect(() => {
-    if (!generated) generateEncryptedKeys()
+    if (!generated) generateMnemonic()
   }, [])
 
 
@@ -109,7 +130,7 @@ const StepCreateKeys: React.FC<StepCreateKeysProps> = (props) => {
       bgColor="purple.dark"
       borderRadius="lg"
     >
-      {!generatingKeys && (
+      {!generating && (
         <>
           <Center>
             <IconKey boxSize='12' />
@@ -121,10 +142,10 @@ const StepCreateKeys: React.FC<StepCreateKeysProps> = (props) => {
         </>
       )
       }
-      {generatingKeys && (
+      {generating && (
         <>
-          <Text textAlign="center" fontSize="xs" color="white">Generating Keys</Text>
-          <Progress mb={1} colorScheme="purple" size="xs" value={(keysGenerated / keysTotal) * 100} hasStripe />
+          <Text textAlign="center" fontSize="xs" color="white">Generating Mnemonic and Keys</Text>
+          <Progress mb={1} colorScheme="purple" size="xs" isIndeterminate />
           <InfoPanels />
         </>
       )}
@@ -132,4 +153,4 @@ const StepCreateKeys: React.FC<StepCreateKeysProps> = (props) => {
   )
 }
 
-export default StepCreateKeys
+export default StepGenerateMnemonicAndKeys
