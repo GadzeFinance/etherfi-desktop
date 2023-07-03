@@ -62,7 +62,8 @@ class Database {
     addMnemonic(address, mnemonic, validatorPassword, password) {
         this._store.set(`stakerAddress.${address}.mnemonics.${mnemonic}`, {
             password: this.encrypt(validatorPassword, password),
-            mnemonic: this.encrypt(mnemonic, password)
+            mnemonic: this.encrypt(mnemonic, password),
+            dateCreated: new Date().toLocaleDateString()
         });
     }
 
@@ -74,7 +75,8 @@ class Database {
         Object.keys(decrypedObject).forEach((key, index) => {
             decrypedObject[key] = {
                 password: this.decrypt(decrypedObject[key].password, password),
-                mnemonic: this.decrypt(decrypedObject[key].mnemonic, password)
+                mnemonic: this.decrypt(decrypedObject[key].mnemonic, password),
+                dateCreated: decrypedObject[key].dateCreated
             };
         });
         return decrypedObject;
@@ -101,8 +103,6 @@ class Database {
     }
 
     getHistoryRecordsByTimestampList(timestamps) {
-        console.log("getHistoryRecordsByTimestampList:", timestamps)
-        console.log(this._store.store)
         const records = {};
         for (const timestamp of timestamps) {
             const record = this._store.get(`historyRecords.${timestamp}`) || {};

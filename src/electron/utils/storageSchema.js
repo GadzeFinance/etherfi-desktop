@@ -38,6 +38,10 @@ const schema = {
                                     password: {
                                         type: "string",
                                         default: ""
+                                    },
+                                    dateCreated: {
+                                        type: "string",
+                                        default: new Date().toLocaleDateString()
                                     }
                                 }
                             },
