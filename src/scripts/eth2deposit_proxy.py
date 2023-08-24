@@ -112,6 +112,7 @@ def generate_keys(args):
     )
 
     keystore_filefolders = credentials.export_keystores(password=args.password, folder=folder)
+    # TODO: determine if in the BNFT flow when exporting deposit data
     deposits_file = credentials.export_deposit_data_json(folder=folder)
     if not credentials.verify_keystores(keystore_filefolders=keystore_filefolders, password=args.password):
         raise ValidationError("Failed to verify the keystores.")

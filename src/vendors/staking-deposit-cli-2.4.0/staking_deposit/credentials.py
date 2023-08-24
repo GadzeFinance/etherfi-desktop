@@ -128,6 +128,20 @@ class Credential:
         )
         return signed_deposit
 
+    def sign_deposit_amount(self, amount) -> DepositData:
+        domain = compute_deposit_domain(fork_version=self.chain_setting.GENESIS_FORK_VERSION)
+        deposit_msg = DepositMessage(
+            pubkey=self.signing_pk,
+            withdrawal_credentials=self.withdrawal_credentials,
+            amount=amount,
+        )
+        signing_root = compute_signing_root(deposit_msg, domain)
+        signed_deposit = DepositData(
+            **deposit_msg.as_dict(),
+            signature=bls.Sign(self.signing_sk, signing_root)
+        )
+        return signed_deposit
+
     @property
     def deposit_datum_dict(self) -> Dict[str, bytes]:
         """
@@ -138,6 +152,38 @@ class Credential:
         datum_dict = signed_deposit_datum.as_dict()
         datum_dict.update({'deposit_message_root': self.deposit_message.hash_tree_root})
         datum_dict.update({'deposit_data_root': signed_deposit_datum.hash_tree_root})
+        datum_dict.update({'fork_version': self.chain_setting.GENESIS_FORK_VERSION})
+        datum_dict.update({'network_name': self.chain_setting.NETWORK_NAME})
+        datum_dict.update({'deposit_cli_version': DEPOSIT_CLI_VERSION})
+        return datum_dict
+
+    @property
+    def bnft_deposit_datum_dict(self) -> Dict[str, bytes]:
+        """
+        Return a single deposit datum for 1 validator including all
+        the information needed to verify and process the deposit.
+        """
+
+        register_amount = 1000000000
+        signed_deposit_datum = self.signed_deposit
+        datum_dict = signed_deposit_datum.as_dict()
+        register = self.sign_deposit_amount(register_amount)
+        register_validator_dict = {
+            'amount': register_amount,
+            'signature': register.signature,
+            'deposit_data_root': register.hash_tree_root,
+        }
+
+        approve_amount = 31000000000
+        approve = self.sign_deposit_amount(approve_amount)
+        approve_validator_dict = {
+            'amount': approve_amount,
+            'signature': approve.signature,
+            'deposit_data_root': approve.hash_tree_root,
+        }
+
+        datum_dict.update({'registerValidator': register_validator_dict})
+        datum_dict.update({'approveValidator': approve_validator_dict})
         datum_dict.update({'fork_version': self.chain_setting.GENESIS_FORK_VERSION})
         datum_dict.update({'network_name': self.chain_setting.NETWORK_NAME})
         datum_dict.update({'deposit_cli_version': DEPOSIT_CLI_VERSION})
@@ -197,6 +243,17 @@ class CredentialList:
         with click.progressbar(self.credentials, label=load_text(['msg_depositdata_creation']),
                                show_percent=False, show_pos=True) as credentials:
             deposit_data = [cred.deposit_datum_dict for cred in credentials]
+        filefolder = os.path.join(folder, 'deposit_data-%i.json' % time.time())
+        with open(filefolder, 'w') as f:
+            json.dump(deposit_data, f, default=lambda x: x.hex())
+        if os.name == 'posix':
+            os.chmod(filefolder, int('440', 8))  # Read for owner & group
+        return filefolder
+
+    def export_bnft_deposit_data_json(self, folder: str) -> str:
+        with click.progressbar(self.credentials, label=load_text(['msg_depositdata_creation']),
+                               show_percent=False, show_pos=True) as credentials:
+            deposit_data = [cred.bnft_deposit_datum_dict for cred in credentials]
         filefolder = os.path.join(folder, 'deposit_data-%i.json' % time.time())
         with open(filefolder, 'w') as f:
             json.dump(deposit_data, f, default=lambda x: x.hex())
