@@ -150,6 +150,7 @@ const GenEncryptedKeysWizard: React.FC<WizardProps> = (props) => {
                             importMnemonicPassword={importMnemonicPassword}
                             mnemonicOption={mnemonicOption}
                             code={code}
+                            setStakingMode={setStakingMode}
                             stakingMode={stakingMode}
                         />
                     )}
