@@ -83,6 +83,7 @@ def generate_keys(args):
             - password: password that will protect the resulting keystore(s)
             - eth1_withdrawal_address: (Optional) eth1 address that will be used to create the
                                        withdrawal credentials
+            - staking_mode: (Optional) staking mode to generate keys for, possible values are 'solo' or 'bnft'
     """
     
     eth1_withdrawal_address = None
@@ -113,7 +114,7 @@ def generate_keys(args):
 
     keystore_filefolders = credentials.export_keystores(password=args.password, folder=folder)
     # TODO: determine if in the BNFT flow when exporting deposit data
-    deposits_file = credentials.export_deposit_data_json(folder=folder)
+    deposits_file = credentials.export_deposit_data_json(folder=folder, staking_mode=args.staking_mode)
     if not credentials.verify_keystores(keystore_filefolders=keystore_filefolders, password=args.password):
         raise ValidationError("Failed to verify the keystores.")
     if not verify_deposit_data_json(deposits_file, credentials.credentials):
@@ -223,6 +224,7 @@ def main():
     generate_parser.add_argument("network", help="For which network to create these keys for", type=str)
     generate_parser.add_argument("password", help="Password for the keystore files", type=str)
     generate_parser.add_argument("--eth1_withdrawal_address", help="Optional eth1 withdrawal address", type=str)
+    generate_parser.add_argument("--staking_mode", help="Optional staking mode", type=str)
     generate_parser.set_defaults(func=parse_generate_keys)
 
     validate_parser = subparsers.add_parser("validate_mnemonic")

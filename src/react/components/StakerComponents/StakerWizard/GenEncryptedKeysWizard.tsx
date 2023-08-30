@@ -1,91 +1,93 @@
-import React, { useState, useMemo, useEffect } from "react";
-import { Center, Flex } from "@chakra-ui/react";
-import { Step, Steps, useSteps } from "chakra-ui-steps";
-import { useFormContext } from "react-hook-form";
+import React, { useState, useMemo, useEffect } from "react"
+import { Center, Flex } from "@chakra-ui/react"
+import { Step, Steps, useSteps } from "chakra-ui-steps"
+import { useFormContext } from "react-hook-form"
 // STEP 1:
-import StepSelectWalletAddress from "./Steps/SelectWalletAddress/StepSelectWalletAddress";
+import StepSelectWalletAddress from "./Steps/SelectWalletAddress/StepSelectWalletAddress"
 // STEP 2:
-import StepGetStakeInfo from "./Steps/StepGetStakeInfo/StepGetStakeInfo";
+import StepGetStakeInfo from "./Steps/StepGetStakeInfo/StepGetStakeInfo"
 // STEP 3:
-import StepGenerateMnemonic from "./Steps/StepGenerateMnemonic/StepGenerateMnemonic";
+import StepGenerateMnemonic from "./Steps/StepGenerateMnemonic/StepGenerateMnemonic"
 //STEP 4:
-import StepCreateKeys from "./Steps/StepCreateKeys/StepCreateKeys";
+import StepCreateKeys from "./Steps/StepCreateKeys/StepCreateKeys"
 //STEP 5:
-import StepFinish from "./Steps/StepFinish/StepFinish";
-import StepGenerateMnemonicAndKeys from "./Steps/StepGenerateMnemonicAndKeys/StepGenerateMnemonicAndKeys";
+import StepFinish from "./Steps/StepFinish/StepFinish"
+import StepGenerateMnemonicAndKeys from "./Steps/StepGenerateMnemonicAndKeys/StepGenerateMnemonicAndKeys"
 
-const content = <Flex py={4}></Flex>;
+const content = <Flex py={4}></Flex>
 
 const steps = [
     { label: "Choose Wallet Address", content },
     { label: "Enter Staking Code", content },
     { label: "Generate Mnemonic and Keys", content },
     { label: "Finish", content },
-];
+]
 
 interface WizardProps {
-    navigateTo: (tabIndex: number) => void;
-    password: string;
+    navigateTo: (tabIndex: number) => void
+    password: string
 }
 
 const getMenomicWordsToConfirmIndicies = () => {
-    const indexList = Array<number>();
+    const indexList = Array<number>()
 
     while (indexList.length < 4) {
-        const index = Math.floor(Math.random() * 24);
+        const index = Math.floor(Math.random() * 24)
         if (!indexList.includes(index)) {
-            indexList.push(index);
+            indexList.push(index)
         }
     }
-    return indexList.sort((a, b) => a - b);
-};
+    return indexList.sort((a, b) => a - b)
+}
 
 const GenEncryptedKeysWizard: React.FC<WizardProps> = (props) => {
     const { nextStep, prevStep, activeStep, setStep } = useSteps({
         initialStep: 0,
-    });
-    const [stakeInfo, setStakeInfo] = React.useState<{[key: string]: string}[]>([]);
-    const [mnemonic, setMnemonic] = useState<string>("");
-    const [code, setCode] = useState<string>("");
+    })
+    const [stakeInfo, setStakeInfo] = React.useState<
+        { [key: string]: string }[]
+    >([])
+    const [mnemonic, setMnemonic] = useState<string>("")
+    const [code, setCode] = useState<string>("")
+    const [stakingMode, setStakingMode] = useState<"solo" | "bnft">("solo")
 
-    const [importMnemonicPassword, setImportMnemonicPassword] = useState<string>("")
-    const [mnemonicOption, setMnemonicOption] = useState("generate");
+    const [importMnemonicPassword, setImportMnemonicPassword] =
+        useState<string>("")
+    const [mnemonicOption, setMnemonicOption] = useState("generate")
 
-    const [confirmedAddress, setConfirmedAddress] = useState<string>("");
-    const {watch, setValue} = useFormContext()
+    const [confirmedAddress, setConfirmedAddress] = useState<string>("")
+    const { watch, setValue } = useFormContext()
 
     const typeWalletAddress = watch("address")
     const dropWalletAddress = watch("dropdownAddress")
 
     const resetAllStates = () => {
-        setStakeInfo([]);
-        setMnemonic("");
-        setCode("");
-        setImportMnemonicPassword("");
-        setMnemonicOption("generate");
-        setConfirmedAddress("");
-        setValue("address", "");
-        setValue("dropdownAddress", "");
+        setStakeInfo([])
+        setMnemonic("")
+        setCode("")
+        setImportMnemonicPassword("")
+        setMnemonicOption("generate")
+        setConfirmedAddress("")
+        setValue("address", "")
+        setValue("dropdownAddress", "")
 
-        setStep(0);
+        setStep(0)
     }
 
     useEffect(() => {
         if (!typeWalletAddress) {
-            setValue('confirmedAddress', dropWalletAddress)
+            setValue("confirmedAddress", dropWalletAddress)
             setConfirmedAddress(() => dropWalletAddress)
         } else if (!dropWalletAddress) {
-            setValue('confirmedAddress', typeWalletAddress)
+            setValue("confirmedAddress", typeWalletAddress)
             setConfirmedAddress(() => typeWalletAddress)
         }
-
     }, [typeWalletAddress, dropWalletAddress])
-
 
     const wordsToConfirmIndicies = useMemo(
         () => getMenomicWordsToConfirmIndicies(),
         [mnemonic]
-    );
+    )
     return (
         <Center>
             <Flex
@@ -104,8 +106,8 @@ const GenEncryptedKeysWizard: React.FC<WizardProps> = (props) => {
                         orientation="vertical"
                         activeStep={activeStep}
                         sx={{
-                            '& .cui-steps__vertical-step': {
-                              flex: 1,
+                            "& .cui-steps__vertical-step": {
+                                flex: 1,
                             },
                         }}
                     >
@@ -125,6 +127,8 @@ const GenEncryptedKeysWizard: React.FC<WizardProps> = (props) => {
                             typeWalletAddress={typeWalletAddress}
                             confirmedAddress={confirmedAddress}
                             setConfirmedAddress={setConfirmedAddress}
+                            setStakingMode={setStakingMode}
+                            stakingMode={stakingMode}
                         />
                     )}
                     {activeStep === 1 && (
@@ -146,13 +150,19 @@ const GenEncryptedKeysWizard: React.FC<WizardProps> = (props) => {
                             importMnemonicPassword={importMnemonicPassword}
                             mnemonicOption={mnemonicOption}
                             code={code}
+                            stakingMode={stakingMode}
                         />
                     )}
-                    {activeStep === 3 && <StepFinish goBackStep={prevStep} resetAllStates={resetAllStates} />}
+                    {activeStep === 3 && (
+                        <StepFinish
+                            goBackStep={prevStep}
+                            resetAllStates={resetAllStates}
+                        />
+                    )}
                 </Flex>
             </Flex>
         </Center>
-    );
-};
+    )
+}
 
-export default GenEncryptedKeysWizard;
+export default GenEncryptedKeysWizard

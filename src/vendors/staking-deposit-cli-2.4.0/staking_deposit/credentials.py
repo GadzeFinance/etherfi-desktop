@@ -128,6 +128,16 @@ class Credential:
         )
         return signed_deposit
 
+    @property
+    def bnft_deposit_info(self) -> DepositData:
+        domain = compute_deposit_domain(fork_version=self.chain_setting.GENESIS_FORK_VERSION)
+        signing_root = compute_signing_root(self.deposit_message, domain)
+        signed_deposit = DepositData(
+            **self.deposit_message.as_dict(),
+            signature=bls.Sign(self.signing_sk, signing_root)
+        )
+        return signed_deposit
+
     def sign_deposit_amount(self, amount) -> DepositData:
         domain = compute_deposit_domain(fork_version=self.chain_setting.GENESIS_FORK_VERSION)
         deposit_msg = DepositMessage(
@@ -165,8 +175,10 @@ class Credential:
         """
 
         register_amount = 1000000000
-        signed_deposit_datum = self.signed_deposit
-        datum_dict = signed_deposit_datum.as_dict()
+        datum_dict = {
+            'pubkey': self.signing_pk,
+            'withdrawal_credentials': self.withdrawal_credentials,
+        }
         register = self.sign_deposit_amount(register_amount)
         register_validator_dict = {
             'amount': register_amount,
@@ -239,21 +251,10 @@ class CredentialList:
                                show_percent=False, show_pos=True) as credentials:
             return [credential.save_signing_keystore(password=password, folder=folder) for credential in credentials]
 
-    def export_deposit_data_json(self, folder: str) -> str:
+    def export_deposit_data_json(self, folder: str, staking_mode: str) -> str:
         with click.progressbar(self.credentials, label=load_text(['msg_depositdata_creation']),
                                show_percent=False, show_pos=True) as credentials:
-            deposit_data = [cred.deposit_datum_dict for cred in credentials]
-        filefolder = os.path.join(folder, 'deposit_data-%i.json' % time.time())
-        with open(filefolder, 'w') as f:
-            json.dump(deposit_data, f, default=lambda x: x.hex())
-        if os.name == 'posix':
-            os.chmod(filefolder, int('440', 8))  # Read for owner & group
-        return filefolder
-
-    def export_bnft_deposit_data_json(self, folder: str) -> str:
-        with click.progressbar(self.credentials, label=load_text(['msg_depositdata_creation']),
-                               show_percent=False, show_pos=True) as credentials:
-            deposit_data = [cred.bnft_deposit_datum_dict for cred in credentials]
+            deposit_data = [cred.bnft_deposit_datum_dict for cred in credentials] if staking_mode == 'bnft' else [cred.deposit_datum_dict for cred in credentials] 
         filefolder = os.path.join(folder, 'deposit_data-%i.json' % time.time())
         with open(filefolder, 'w') as f:
             json.dump(deposit_data, f, default=lambda x: x.hex())

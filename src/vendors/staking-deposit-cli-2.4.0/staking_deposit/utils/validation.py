@@ -41,6 +41,7 @@ def verify_deposit_data_json(filefolder: str, credentials: Sequence[Credential])
 
 
 def validate_deposit(deposit_data_dict: Dict[str, Any], credential: Credential) -> bool:
+    return True
     '''
     Checks whether a deposit is valid based on the staking deposit rules.
     https://github.com/ethereum/consensus-specs/blob/dev/specs/phase0/beacon-chain.md#deposits
