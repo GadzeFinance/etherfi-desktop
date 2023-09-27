@@ -1,13 +1,13 @@
 import { useEffect, useState } from 'react';
 import { useToast } from '@chakra-ui/react';
 
-export default function useGetValidators(confirmedAddress: string, password: string) {
+export default function useGetValidators(confirmedAddress?: string, password?: string) {
   const [fetchedValidators, setFetchedValidators] = useState(null);
   const [loading, setLoading] = useState(false)
   const toast = useToast();
 
   useEffect(() => {
-    if (!confirmedAddress) return;
+    // if (!confirmedAddress) return;
 
     const fetchValidators = async () => {
       try {
@@ -24,8 +24,7 @@ export default function useGetValidators(confirmedAddress: string, password: str
                 resolve(Object.entries(JSON.parse(validators)).map(([key, value]: [string, any]) => ({
                     validatorID: key,
                     fileData: JSON.stringify(JSON.parse(value.keystore)),
-                    beaconID: value.beaconID
-                })).filter((validators: any) => validators.beaconID != 0))
+                })))
               } else {
                 reject(errorMessage);
               }

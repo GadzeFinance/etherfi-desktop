@@ -167,7 +167,7 @@ ipcMain.on("req-stored-validators", async (event, args) => {
         const validators = await fetchStoredValidators(address, password);
         event.sender.send("receive-stored-validators", standardResultCodes.SUCCESS, JSON.stringify(validators), '')
     } catch (error) {
-        logger.error("Error fetching stored mnemonic: ", error);
+        logger.error("Error fetching stored validators: ", error);
         event.sender.send("receive-stored-validators",  standardResultCodes.ERROR, '', error.message)
     }
 })

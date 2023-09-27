@@ -298,40 +298,8 @@ const generateSignedExitMessage = async (
     validatorID = parseInt(JSON.parse(selectedValidator).validatorID);
     const parsedValidator = JSON.parse(selectedValidator).fileData;
     keystorePath = tempKeystoreLocation;
-
-    const hexID = `0x${validatorID.toString(16)}`
-    
-    const graphqlEndpoint = process.env.NODE_ENV === 'production'
-    ? "https://api.studio.thegraph.com/query/41778/etherfi-mainnet/0.0.3"
-    : 'https://api.studio.thegraph.com/query/41778/etherfi-goerli/0.0.1';    
-    const data = {
-        query: `{
-            validators(where: {id: "${hexID}"}) {
-              id
-              validatorPubKey
-            }
-          }`,
-      };
-    
-    try {
-        const response = await axios.post(graphqlEndpoint, data);
-
-        if (response.status === 200) {
-            let pub = response.data.data.validators[0].validatorPubKey;
-            const queryURL = `https://goerli.etherfi.vercel.app/api/beaconChain/findOneCollated?pubkey=${pub}`;
-            const newResp = await axios.post(queryURL);
-            validatorIndex = newResp.data.db.validatorIndex;
-        } else {
-            throw new Error(
-                "GraphQL request failed with status: " + response.status
-            );
-        }
-    } catch (error) {
-        throw new Error("GraphQL request failed: " + error.message);
-    }
-
-
     keystorePassword = await storage.getValidatorPassword(address, validatorID, databasePassword)
+
     writeFile(tempKeystoreLocation, parsedValidator, (err) => {
       if (err) {
         console.error('Error writing JSON file:', err);
