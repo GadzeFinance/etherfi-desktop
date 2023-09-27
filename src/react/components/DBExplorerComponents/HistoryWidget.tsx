@@ -169,8 +169,6 @@ const HistoryWidget = (props: HistoryWidgetProps) => {
 
   }, [props.tabIndex, page, pageCount])
 
-  console.log("modal:", modalData?.stakeInfoFile)
-
   return (<>
     <Center>
       <Box sx={raisedWidgetStyle} bg="#2b2852">

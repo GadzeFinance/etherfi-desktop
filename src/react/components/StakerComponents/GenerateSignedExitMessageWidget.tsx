@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from "react"
 import {
+    Flex,
     Box,
     Center,
     Button,
@@ -45,8 +46,6 @@ const GenerateSignedExitMessageWidget = () => {
     const { loginPassword, exitEpoch, validatorIndex, validatorKeysPassword } =
         watch()
 
-    console.log({ validatorIndex})
-
     const { shiftedEpoch: epoch } = useEpoch(chain)
     // TODO: MAKE ERROR MESSAGES BETTER!! I.E See if password is wrong for keystore
     // Right now we just show that a general error occured if the message generation fails
@@ -90,12 +89,7 @@ const GenerateSignedExitMessageWidget = () => {
                 path: string,
                 errorMessage: string
             ) => {
-                console.log(`signedExitMessageGeneration Result: ${result}`)
                 if (result === 0) {
-                    console.log(
-                        "Signed Exit Message Gen Complete. Files saved too: " +
-                            path
-                    )
                     setExitMessageFilePath(path)
                     setMessageGenerated(true)
                     setShowErrorMessage(false)
@@ -108,8 +102,6 @@ const GenerateSignedExitMessageWidget = () => {
             }
         )
         setMessageGenerating(true)
-
-        console.log({ })
 
         window.exitMessageApi.reqGenSignedExitMessage(
             useStoredValidators,
@@ -178,44 +170,6 @@ const GenerateSignedExitMessageWidget = () => {
                                                 Use Saved Keystore
                                             </Text>
                                         </HStack>
-                                        {/* {addressOptions?.length && (
-                                            <>
-                                                <Controller
-                                                    control={control}
-                                                    name="dropdownAddress"
-                                                    render={({
-                                                        field: { onChange },
-                                                        fieldState: { error },
-                                                    }) => (
-                                                        <Select
-                                                            color="white"
-                                                            borderColor="purple.light"
-                                                            placeholder="Select Wallet Address"
-                                                            onChange={(e) => {
-                                                                onChange(e)
-                                                            }}
-                                                        >
-                                                            {!error &&
-                                                                addressOptions?.map(
-                                                                    (
-                                                                        address: string
-                                                                    ) => (
-                                                                        <option
-                                                                            key={
-                                                                                address
-                                                                            }
-                                                                        >
-                                                                            {
-                                                                                address
-                                                                            }
-                                                                        </option>
-                                                                    )
-                                                                )}
-                                                        </Select>
-                                                    )}
-                                                />
-                                            </>
-                                        )} */}
                                         {useStoredValidators ? (
                                             <Box width="100%">
                                                 <Select
@@ -302,9 +256,17 @@ const GenerateSignedExitMessageWidget = () => {
                                             />
                                         </Box>
                                         {beaconChainUrl && (
-                                          <Link isExternal href={beaconChainUrl}>
-                                          <Button>View on Beaconchain</Button>
-                                          </Link>
+                                            <Flex justify="center">
+
+                                            <Link
+                                                isExternal
+                                                href={beaconChainUrl}
+                                            >
+                                                <Button>
+                                                    View on Beaconchain
+                                                </Button>
+                                            </Link>
+                                            </Flex>
                                         )}
                                         <Box>
                                             <Text

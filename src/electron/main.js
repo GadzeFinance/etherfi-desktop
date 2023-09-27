@@ -327,7 +327,6 @@ ipcMain.on("req-get-password", async (event, args) => {
 
 ipcMain.on("req-history-page", async (event, args) => {
     const [page] = args
-    console.log("req-history-page:", args)
     try {
         const historyRecords = await getHistoryRecordsByPage(page);
         event.sender.send("receive-history-page", standardResultCodes.SUCCESS, historyRecords, '')
