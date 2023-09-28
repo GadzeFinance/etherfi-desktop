@@ -167,7 +167,7 @@ ipcMain.on("req-stored-validators", async (event, args) => {
         const validators = await fetchStoredValidators(address, password);
         event.sender.send("receive-stored-validators", standardResultCodes.SUCCESS, JSON.stringify(validators), '')
     } catch (error) {
-        logger.error("Error fetching stored mnemonic: ", error);
+        logger.error("Error fetching stored validators: ", error);
         event.sender.send("receive-stored-validators",  standardResultCodes.ERROR, '', error.message)
     }
 })
@@ -327,7 +327,6 @@ ipcMain.on("req-get-password", async (event, args) => {
 
 ipcMain.on("req-history-page", async (event, args) => {
     const [page] = args
-    console.log("req-history-page:", args)
     try {
         const historyRecords = await getHistoryRecordsByPage(page);
         event.sender.send("receive-history-page", standardResultCodes.SUCCESS, historyRecords, '')

@@ -417,43 +417,8 @@ const fetchStoredMnemonics = async (address, password) => {
     return mnemonics
 }
 
-const getBeaconIndex = async (validatorID) => {
-
-    const hexID = `0x${validatorID.toString(16)}`
-    const data = {
-      query: `{
-          validators(where: {id: "${hexID}"}) {
-            id
-            validatorPubKey
-          }
-        }`,
-    };
-  
-    try {
-      const response = await axios.post(graphqlEndpoint, data);
-      if (response.status === 200) {
-          if (!response.data.data.validators.length) return 0
-          let pub = response.data.data.validators[0].validatorPubKey;
-          const queryURL = queryEndpoint + pub;
-          const newResp = await axios.post(queryURL);
-          return newResp.data.db.validatorIndex;
-      } else {
-          throw new Error(
-              "GraphQL request failed with status: " + response.status
-          );
-      }
-    } catch (error) {
-        throw new Error("GraphQL request failed: " + error.message);
-    }
-  }
-
-
 const fetchStoredValidators = async (address, password) => {
     let validators = await storage.getValidators(address, password);
-
-    await Promise.all(Object.entries(validators).map(async ([key, value], index) => {
-        validators[key] = {...value, beaconID: await getBeaconIndex(key)}
-    }));
 
     return validators;
 }

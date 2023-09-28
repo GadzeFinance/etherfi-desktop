@@ -46,7 +46,6 @@ const DataTable = ({title, dataCount, data}: DataTableProps) => {
   const { copyData } = useCopy();
 
   const viewData = (content: string | object) => {
-    console.log("view data:", content);
     setSelectedCode(content);
   }
 

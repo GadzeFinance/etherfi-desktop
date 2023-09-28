@@ -1,6 +1,7 @@
 const Store = require("electron-store");
 const crypto = require("crypto");
-const schema = require('./storageSchema')
+const schema = require('./storageSchema');
+const { add } = require("winston");
 
 class Database {
     _store;
@@ -38,8 +39,24 @@ class Database {
         );
     }
 
+    getValidatorByIndex(validatorIndex) {
+        const obj = this._store.get('stakerAddress')
+        if (!obj) return {}
+        const addresses = Object.keys(obj)
+        let validator = {}
+        for (const address of addresses) {
+            const validators = obj[address].validators
+            if (!validators) continue
+            const validator = validators[validatorIndex]
+            if (!validator) continue
+            return validator
+        }
+        return validator
+    }
+
     getValidatorPassword(address, validatorIndex, password) {
-        const encryptedPassword = this._store.get(`stakerAddress.${address}.validators.${validatorIndex}.password`)
+        const validator = this.getValidatorByIndex(validatorIndex)
+        const encryptedPassword = validator.password
         return this.decrypt(encryptedPassword, password)
     }
 
@@ -90,6 +107,27 @@ class Database {
     }
 
     getValidators(address, password) {
+        if (!address) {
+            const obj = this._store.get('stakerAddress')
+            if (!obj) return {}
+            const addresses = Object.keys(obj)
+
+            const decryptedValidators = addresses.reduce((acc, address) => {
+                if (!address) return acc
+                const validators = obj[address].validators
+                if (!validators) return acc
+                Object.keys(validators).forEach((key) => {
+                    if (!key) return acc
+                    acc[key] = {
+                        password: this.decrypt(validators[key].password, password),
+                        keystore: this.decrypt(validators[key].keystore, password)
+                    }
+                })
+                return acc
+            }, {})
+
+            return decryptedValidators
+        }
         let decrypedObject = this._store.get(`stakerAddress.${address}.validators`);
         if (!decrypedObject) return {}
 
