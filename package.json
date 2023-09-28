@@ -1,6 +1,6 @@
 {
   "name": "etherfi-desktop",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "description": "etherfi-desktop application",
   "main": "./build/electron/main.js",
   "private": true,
