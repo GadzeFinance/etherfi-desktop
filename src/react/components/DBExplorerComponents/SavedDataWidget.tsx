@@ -74,16 +74,10 @@ const SavedDataWidget = (props: SavedDataWidgetProps) => {
         data: StakerMap,
         errorMessage: string
       ) => {
-        
-        console.log("receiveAllStakerAddresses", result, data, errorMessage)
-        console.log("dbPassword:", dbPassword)
-
         if (result === 0) {
-          
           setAllStakers(data);
           setAddressList(Object.keys(data));
           setCurrAddress(Object.keys(data).length > 0 ? Object.keys(data)[0] : "")
-
         } else {
           console.error("Error AllStakerAddresses");
           console.error(errorMessage);
