@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useFormContext } from "react-hook-form";
 import raisedWidgetStyle from "../../styleClasses/widgetBoxStyle";
 import {
@@ -63,10 +63,7 @@ const SavedDataWidget = (props: SavedDataWidgetProps) => {
     saveFile(blob);
   };
 
-  useEffect(() => {
-
-    if (props.selectedOption !== 0 || props.tabIndex !== 2) return
-    
+  const fetchAllStakers = useCallback(() => {
     window.databaseApi.receiveAllStakerAddresses(
       (
         event: Electron.IpcMainEvent,
@@ -85,7 +82,11 @@ const SavedDataWidget = (props: SavedDataWidgetProps) => {
       }
     );
     window.databaseApi.reqAllStakerAddresses(dbPassword);
+  }, [dbPassword])
 
+  useEffect(() => {
+    if (props.selectedOption !== 0 || props.tabIndex !== 2) return
+    fetchAllStakers()
   }, [props.tabIndex, props.selectedOption])
 
   const currStaker = allStakers[currAddress]
@@ -93,6 +94,48 @@ const SavedDataWidget = (props: SavedDataWidgetProps) => {
   const validators = currStaker?.validators ?? {}
   const mnemonicCount = Object.keys(mnemonics).length;
   const validatorCount = Object.keys(validators).length;
+
+  const handleRemoveMnemonic = useCallback(
+    (idx: string) => {
+      window.databaseApi.receiveRemoveMnemonic(
+        (
+          event: Electron.IpcMainEvent,
+          result: number,
+          errorMessage: string
+        ) => {
+          if (result === 0) {
+            fetchAllStakers();
+          } else {
+            console.error("Error RemoveMnemonic");
+            console.error(errorMessage);
+          }
+        }
+      );
+      window.databaseApi.reqRemoveMnemonic(currAddress, idx);
+    },
+    [currAddress]
+  );
+
+  const handleRemoveValidator = useCallback(
+    (idx: string) => {
+      window.databaseApi.receiveRemoveValidator(
+        (
+          event: Electron.IpcMainEvent,
+          result: number,
+          errorMessage: string
+        ) => {
+          if (result === 0) {
+            fetchAllStakers();
+          } else {
+            console.error("Error RemoveValidator");
+            console.error(errorMessage);
+          }
+        }
+      );
+      window.databaseApi.reqRemoveValidator(currAddress, idx);
+    },
+    [currAddress]
+  );
 
   return (<>
     <Center>
@@ -133,10 +176,10 @@ const SavedDataWidget = (props: SavedDataWidgetProps) => {
                 </Center>
                 <TabPanels>
                   <TabPanel sx={{ width: "100%" }}>
-                    <DataTable title="mnemonics" dataCount={mnemonicCount} data={mnemonics} /> 
+                    <DataTable title="mnemonics" dataCount={mnemonicCount} data={mnemonics} deleteData={handleRemoveMnemonic} /> 
                   </TabPanel>
                   <TabPanel sx={{ width: "100%" }}>
-                    <DataTable title="validators" dataCount={validatorCount} data={validators} />   
+                    <DataTable title="validators" dataCount={validatorCount} data={validators} deleteData={handleRemoveValidator} />   
                   </TabPanel>
                 </TabPanels>
               </Tabs>        

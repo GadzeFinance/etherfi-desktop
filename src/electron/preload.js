@@ -171,6 +171,22 @@ contextBridge.exposeInMainWorld("databaseApi", {
     receiveAllStakerAddresses: function(func) {
         ipcRenderer.once("receive-all-staker-addresses", (event, ...args) => func(event, ...args))
     },
+    reqRemoveMnemonic: function (address, mnemonic) {
+        ipcRenderer.send("req-remove-mnemonic", [address, mnemonic]);
+      },
+    receiveRemoveMnemonic: function (func) {
+        ipcRenderer.once("receive-remove-mnemonic", (event, ...args) =>
+            func(event, ...args)
+        );
+    },
+    reqRemoveValidator: function (address, validator) {
+        ipcRenderer.send("req-remove-validator", [address, validator]);
+    },
+    receiveRemoveValidator: function (func) {
+        ipcRenderer.once("receive-remove-validator", (event, ...args) =>
+            func(event, ...args)
+        );
+    },
     receiveIsPasswordSet: function (func) {
         ipcRenderer.once("receive-is-password-set", (event, ...args) => func(event, ...args))
     },

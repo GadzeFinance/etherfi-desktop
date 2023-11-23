@@ -99,6 +99,10 @@ class Database {
         return decrypedObject;
     }
 
+    removeMnemonic(address, mnemonic) {
+      this._store.delete(`stakerAddress.${address}.mnemonics.${mnemonic}`);
+    }
+
     addValidators(address, validatorID, keystoreFile, mnemonicPassword, password) {
         this._store.set(`stakerAddress.${address}.validators.${validatorID}`, {
             password: this.encrypt(mnemonicPassword, password),
@@ -138,6 +142,10 @@ class Database {
             };
         });
         return decrypedObject;
+    }
+
+    removeValidator(address, validatorID) {
+        this._store.delete(`stakerAddress.${address}.validators.${validatorID}`);
     }
 
     getHistoryRecordsByTimestampList(timestamps) {

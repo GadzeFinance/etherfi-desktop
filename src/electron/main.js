@@ -17,6 +17,8 @@ const {
     genValidatorKeysAndEncrypt,
     decryptValidatorKeys,
     fetchStoredValidators,
+    removeMnemonic,
+    removeValidator,
     getStakerAddress,
     getStakerAddressList,
     isPasswordSet,
@@ -303,6 +305,48 @@ ipcMain.on("req-get-staker-address-list", async (event, args) => {
         event.sender.send("receive-get-staker-address-list", standardResultCodes.ERROR, {}, error.message)
     }
 })
+
+ipcMain.on("req-remove-mnemonic", async (event, args) => {
+  const [address, mnemonic] = args;
+  try {
+    const stakerAddresses = await removeMnemonic(address, mnemonic);
+    event.sender.send(
+      "receive-remove-mnemonic",
+      standardResultCodes.SUCCESS,
+      stakerAddresses,
+      ""
+    );
+  } catch (error) {
+    logger.error("Error removeMnemonic:", error);
+    event.sender.send(
+      "receive-remove-mnemonic",
+      standardResultCodes.ERROR,
+      {},
+      error.message
+    );
+  }
+});
+
+ipcMain.on("req-remove-validator", async (event, args) => {
+  const [address, validator] = args;
+  try {
+    const stakerAddresses = await removeValidator(address, validator);
+    event.sender.send(
+      "receive-remove-validator",
+      standardResultCodes.SUCCESS,
+      stakerAddresses,
+      ""
+    );
+  } catch (error) {
+    logger.error("Error removeValidator:", error);
+    event.sender.send(
+      "receive-remove-validator",
+      standardResultCodes.ERROR,
+      {},
+      error.message
+    );
+  }
+});
 
 ipcMain.on("req-is-password-set", async (event, args) => {
     try {

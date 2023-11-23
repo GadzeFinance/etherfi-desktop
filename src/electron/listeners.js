@@ -412,6 +412,14 @@ const decryptValidatorKeys = async (event, arg) => {
     return saveFolder
 }
 
+const removeMnemonic = async (address, mnemonic) => {
+  return await storage.removeMnemonic(address, mnemonic);
+};
+
+const removeValidator = async (address, validatorID) => {
+  return await storage.removeValidator(address, validatorID);
+};
+
 const fetchStoredMnemonics = async (address, password) => {
     const mnemonics = await storage.getMnemonics(address, password);
     return mnemonics
@@ -552,6 +560,8 @@ module.exports = {
     testWholeEncryptDecryptFlow,
     fetchStoredMnemonics,
     fetchStoredValidators,
+    removeMnemonic,
+    removeValidator,
     getStakerAddress,
     getStakerAddressList,
     isPasswordSet,
