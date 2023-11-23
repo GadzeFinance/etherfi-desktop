@@ -35,7 +35,13 @@ npm install -g yarn
 python3 --version
 # NOTE: Python 3.11+ does not work. Please use Python version 3.9
 pip3 --version
-# If they are not found. Install them by running:
+
+#---------------- Step 4.5: PYTHON via macOS installer ----------------
+# If pip3 --version comes from /Applications/Xcode/ it probably won't allow you to install pyinstaller, you will need to download and install this version:
+# Use universal2 installer on Apple Silicon
+https://www.python.org/downloads/release/python-3913/
+
+#---------------- Step 4.5: PYTHON via Homebrew ----------------
 brew install python3
 
 #---------------- Step 5: PYINSTALLER -----------
