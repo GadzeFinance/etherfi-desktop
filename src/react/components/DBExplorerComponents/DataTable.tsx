@@ -19,22 +19,24 @@ import {
   ModalFooter,
   Button,
   Center,
-  useToast
+  useToast,
 } from "@chakra-ui/react";
-import { CopyIcon, ViewIcon } from "@chakra-ui/icons";
+import { CopyIcon, DeleteIcon, ViewIcon } from "@chakra-ui/icons";
 import useCopy from "../../hooks/useCopy";
 import { useFormContext } from "react-hook-form";
 import PasswordInput from "../PasswordInput";
 import PasswordCell from "./PasswordCell";
+import { AlertDialog } from "../AlertDialog";
 
 interface DataTableProps {
   title: string
   dataCount: number
   data: any
+  deleteData: (id: string) => void
 }
 
-const DataTable = ({title, dataCount, data}: DataTableProps) => {
-
+const DataTable = ({title, dataCount, data, deleteData}: DataTableProps) => {
+  const [dataIdToRemove, setDataIdToRemove] = useState<string>("");
   const [selectedCode, setSelectedCode] = useState<any>("")
   const [authenticated, setAuthenticated] = useState(false)
   const [isPasswordValid, setIsPasswordValid] = useState<boolean>(false)
@@ -106,6 +108,7 @@ const DataTable = ({title, dataCount, data}: DataTableProps) => {
               <Td>Password</Td>
               <Td w="90px">View</Td>
               <Td w="90px">Copy</Td>
+              <Td w="90px">Delete</Td>
             </Tr>
           </Thead>
           <Tbody>
@@ -122,10 +125,22 @@ const DataTable = ({title, dataCount, data}: DataTableProps) => {
                   <PasswordCell password={content.password}/>
                   <Td w="90px" cursor={"pointer"} onClick={() => { viewData(title === "mnemonics" ? content.mnemonic: content.keystore); }} textAlign={"center"}><ViewIcon/></Td>
                   <Td w="90px" cursor={"pointer"} onClick={() => { copyData(title === "mnemonics" ? content.mnemonic : content.keystore);}} textAlign={"center"}><CopyIcon/></Td>
+                  <Td w="90px" cursor={"pointer"} onClick={() => { setDataIdToRemove(idx); }} textAlign={"center"}><DeleteIcon /></Td>
                 </Tr>
               </>)}
           </Tbody>
         </Table>)}
+        <AlertDialog
+          header={`Remove ${title === "mnemonics" ? "Mnemonic" : "Validator"}`}
+          isOpen={dataIdToRemove !== ""}
+          onCancel={() => {
+            setDataIdToRemove("");
+          }}
+          onConfirm={() => {
+            deleteData(dataIdToRemove);
+            setDataIdToRemove("");
+          }}
+        />
       <Modal size={!authenticated || title === "mnemonics" ? "lg" : "full"} isOpen={selectedCode !== ""} onClose={closeModal}>
         <ModalOverlay />
         <ModalContent bgColor="purple.dark">
