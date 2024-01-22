@@ -241,7 +241,8 @@ const generateKeys = async (
     validatorID, // number
     databasePassword, // string
     address, // string
-    stakingMode // "solo" | "bnft"
+    stakingMode, // "solo" | "bnft",
+    onDone,
 ) => {
     let executable = ""
     let args = []
@@ -333,6 +334,7 @@ const generateKeys = async (
         password,
         databasePassword
     )
+    onDone()
 }
 
 /**
