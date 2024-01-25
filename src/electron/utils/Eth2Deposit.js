@@ -35,6 +35,7 @@ const axios = require("axios")
 const { doesFileExist } = require("./BashUtils.js")
 const { storage } = require("./storage.js")
 const { v4: uuidv4 } = require("uuid")
+const logger = require("../utils/logger.js")
 /**
  * A promise version of the execFile function from fs for CLI calls.
  */
@@ -241,13 +242,16 @@ const generateKeys = async (
     validatorID, // number
     databasePassword, // string
     address, // string
-    stakingMode // "solo" | "bnft"
+    stakingMode, // "solo" | "bnft",
+    onDone,
 ) => {
     let executable = ""
     let args = []
     let env = process.env
 
+    logger.info('generateKeys - 1')
     if (await doesFileExist(BUNDLED_SFE_PATH)) {
+        logger.info('generateKeys - 2')
         executable = BUNDLED_SFE_PATH
         args = [GENERATE_KEYS_SUBCOMMAND]
         if (eth1_withdrawal_address != "") {
@@ -269,6 +273,7 @@ const generateKeys = async (
             stakingMode,
         ])
     } else if (await doesFileExist(SFE_PATH)) {
+        logger.info('generateKeys - 3')
         executable = SFE_PATH
         args = [GENERATE_KEYS_SUBCOMMAND]
         if (eth1_withdrawal_address != "") {
@@ -290,7 +295,9 @@ const generateKeys = async (
             stakingMode,
         ])
     } else {
+        logger.info('generateKeys - 4')
         if (!(await requireDepositPackages())) {
+            logger.info('generateKeys - 5')
             loggers.error(
                 "'ETH2Deposit: generateKeys' Failed to generate mnemonic, don't have the required packages."
             )
@@ -298,17 +305,20 @@ const generateKeys = async (
                 "Failed to generate mnemonic, don't have the required packages."
             )
         }
+        logger.info('generateKeys - 6')
         env.PYTHONPATH = await getPythonPath()
 
         executable = PYTHON_EXE
         args = [ETH2DEPOSIT_PROXY_PATH, GENERATE_KEYS_SUBCOMMAND]
         if (eth1_withdrawal_address != "") {
+            logger.info('generateKeys - 7')
             args = args.concat([
                 "--eth1_withdrawal_address",
                 eth1_withdrawal_address,
             ])
         }
 
+        logger.info('generateKeys - 8')
         args = args.concat([
             WORD_LIST_PATH,
             mnemonic,
@@ -322,10 +332,13 @@ const generateKeys = async (
         ])
     }
 
+    logger.info('generateKeys - 9')
     await execFileProm(executable, args, { env: env })
+    logger.info('generateKeys - 10')
     const { file } = getMostRecentFile(folder)
     const filePathToKeystore = `${folder}/${file}`
     const keystore = readFileSync(filePathToKeystore, "utf8")
+    logger.info('generateKeys - 11')
     storage.addValidators(
         address,
         validatorID,
@@ -333,6 +346,7 @@ const generateKeys = async (
         password,
         databasePassword
     )
+    onDone()
 }
 
 /**

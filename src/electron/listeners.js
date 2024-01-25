@@ -203,40 +203,41 @@ const genValidatorKeysAndEncrypt = async (
     const nodeOperatorPublicKeys = []
     const validatorIDs = []
 
+    let proms = []
+
     for (var i = 0; i < stakeInfoLength; i++) {
         const eth1_withdrawal_address = stakeInfo[i].withdrawalSafeAddress
         nodeOperatorPublicKeys.push(stakeInfo[i].bidderPublicKey)
         validatorIDs.push(stakeInfo[i].validatorID)
-        const index = i
-        try {
-            const startTime = new Date().getTime()
-            await generateKeys(
-                mnemonic,
-                1,
-                stakeInfo[i].networkName,
-                password,
-                eth1_withdrawal_address,
-                folder,
-                stakeInfo[i].validatorID,
-                databasePassword,
-                address,
-                stakingMode
-            )
-            const endTime = new Date().getTime()
-            const usedTime = (endTime - startTime) / 1000
-            event.sender.send(
-                "receive-generate-key",
-                index,
-                stakeInfoLength,
-                usedTime
-            )
-        } catch (err) {
-            logger.error(
-                "Error in 'genValidatorKeysAndEncrypt' when generating keys",
-                err
-            )
-            throw new Error("Couldn't generate validator keys")
-        }
+        proms = [...proms, generateKeys(
+            mnemonic,
+            1,
+            stakeInfo[i].networkName,
+            password,
+            eth1_withdrawal_address,
+            folder,
+            stakeInfo[i].validatorID,
+            databasePassword,
+            address,
+            stakingMode,
+            () => {
+                event.sender.send(
+                    "receive-generate-key",
+                    i,
+                    stakeInfoLength,
+                    0
+                )
+            }
+        )]
+    }
+    try {
+        await Promise.all(proms)
+    } catch (error) {
+        logger.error(
+            "Error in 'genValidatorKeysAndEncrypt' when generating keys",
+            err
+        )
+        throw new Error("Couldn't generate validator keys")
     }
 
     // now we need to encrypt the keys and generate "stakeRequest.json"
