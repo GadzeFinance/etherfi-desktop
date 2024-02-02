@@ -120,6 +120,33 @@ def generate_keys(args):
     if not verify_deposit_data_json(deposits_file, credentials.credentials):
         raise ValidationError("Failed to verify the deposit data JSON files.")
 
+
+def generate_keys_per_eth1_address(args):
+    """Generate validator keys.
+
+    Keyword arguments:
+    args -- contains the CLI arguments pass to the application, it should have those properties:
+            - wordlist: path to the word lists directory
+            - mnemonic: mnemonic to be used as the seed for generating the keys
+            - index: index of the first validator's keys you wish to generate
+            - count: number of signing keys you want to generate
+            - folder: folder path for the resulting keystore(s) and deposit(s) files
+            - network: network setting for the signing domain, possible values are 'mainnet',
+                       'prater', 'kintsugi' or 'kiln'
+            - password: password that will protect the resulting keystore(s)
+            - eth1_withdrawal_address: eth1 addresses (in csv) that will be used to create the
+                                       withdrawal credentials
+            - staking_mode: (Optional) staking mode to generate keys for, possible values are 'solo' or 'bnft'
+    """
+    index = args.index
+    eth1_addresses = args.eth1_withdrawal_address.split(',')
+    for i, address in enumerate(eth1_addresses):
+        args.index = index + i
+        args.count = 1
+        args.eth1_withdrawal_address = address
+        generate_keys(args)
+
+
 def parse_create_mnemonic(args):
     """Parse CLI arguments to call the create_mnemonic function.
     """

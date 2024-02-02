@@ -30,11 +30,14 @@ mkdir -p $TARGETPACKAGESPATH
 python3 -m pip install -r $ETH2REQUIREMENTSPATH --target $TARGETPACKAGESPATH
 
 # Bundling Python eth2deposit_proxy
+    #--onefile \
+    #--onedir \
+    #--target-architecture x86_64 \
 PYTHONPATH=$PYTHONPATH pyinstaller \
-    --onefile \
+    --onedir \
     --distpath $DISTBINPATH \
     --add-data "$SRCINTLPATH:staking_deposit/intl" \
-    --target-architecture x86_64 \
+    --target-architecture arm64 \
     -p $PYTHONPATH \
     --hidden-import=os \
     $SCRIPTPATH/eth2deposit_proxy.py

@@ -2,7 +2,7 @@ import os
 import click
 from typing import (
     Any,
-    Callable,
+    Callable, List,
 )
 
 from eth_typing import HexAddress
@@ -155,3 +155,12 @@ def generate_keys(ctx: click.Context, validator_start_index: int,
         raise ValidationError(load_text(['err_verify_deposit']))
     click.echo(load_text(['msg_creation_success']) + folder)
     click.pause(load_text(['msg_pause']))
+
+@click.command()
+@click.pass_context
+def generate_keys_with_individual_eth1_address(ctx: click.Context, validator_start_index: int,
+                  num_validators: int, folder: str, chain: str, keystore_password: str,
+                  eth1_withdrawal_addresses: List[HexAddress], **kwargs: Any) -> None:
+    assert len(num_validators) == len(eth1_withdrawal_addresses), "Number of validators and eth1 withdrawal addresses should be same"
+    for i, eth1_address in enumerate(eth1_withdrawal_addresses):
+        generate_keys(ctx, validator_start_index + i, 1, folder, chain, keystore_password, eth1_address, **kwargs)

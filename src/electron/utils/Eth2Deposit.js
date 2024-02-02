@@ -67,6 +67,7 @@ const ETH2DEPOSIT_PROXY_PATH = path.join(SCRIPTS_PATH, "eth2deposit_proxy.py")
 const SFE_PATH = path.join(
     "build",
     "bin",
+    "eth2deposit_proxy",
     "eth2deposit_proxy" + (process.platform == "win32" ? ".exe" : "")
 )
 const DIST_WORD_LIST_PATH = path.join(cwd(), "build", "word_lists")
@@ -79,6 +80,7 @@ const BUNDLED_SFE_PATH = path.join(
     "..",
     "build",
     "bin",
+    "eth2deposit_proxy",
     "eth2deposit_proxy" + (process.platform == "win32" ? ".exe" : "")
 )
 const BUNDLED_DIST_WORD_LIST_PATH = path.join(
@@ -346,7 +348,7 @@ const generateKeys = async (
         password,
         databasePassword
     )
-    onDone()
+    // onDone()
 }
 
 /**
