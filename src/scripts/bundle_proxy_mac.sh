@@ -37,7 +37,7 @@ PYTHONPATH=$PYTHONPATH pyinstaller \
     --onedir \
     --distpath $DISTBINPATH \
     --add-data "$SRCINTLPATH:staking_deposit/intl" \
-    --target-architecture arm64 \
+    --target-architecture x86_64 \
     -p $PYTHONPATH \
     --hidden-import=os \
     $SCRIPTPATH/eth2deposit_proxy.py
