@@ -35,6 +35,7 @@ const axios = require("axios")
 const { doesFileExist } = require("./BashUtils.js")
 const { storage } = require("./storage.js")
 const { v4: uuidv4 } = require("uuid")
+const logger = require("../utils/logger.js")
 /**
  * A promise version of the execFile function from fs for CLI calls.
  */
@@ -66,6 +67,7 @@ const ETH2DEPOSIT_PROXY_PATH = path.join(SCRIPTS_PATH, "eth2deposit_proxy.py")
 const SFE_PATH = path.join(
     "build",
     "bin",
+    "eth2deposit_proxy",
     "eth2deposit_proxy" + (process.platform == "win32" ? ".exe" : "")
 )
 const DIST_WORD_LIST_PATH = path.join(cwd(), "build", "word_lists")
@@ -78,6 +80,7 @@ const BUNDLED_SFE_PATH = path.join(
     "..",
     "build",
     "bin",
+    "eth2deposit_proxy",
     "eth2deposit_proxy" + (process.platform == "win32" ? ".exe" : "")
 )
 const BUNDLED_DIST_WORD_LIST_PATH = path.join(
@@ -116,6 +119,8 @@ const orderReccentFiles = (dir) => {
  *          are present or have been installed correctly.
  */
 const requireDepositPackages = async () => {
+    logger.info("requireDepositPackages ")
+
     try {
         await access(REQUIREMENT_PACKAGES_PATH, constants.F_OK)
     } catch {
@@ -165,6 +170,8 @@ const getPythonPath = async () => {
  * @returns Returns a Promise<string> that includes the mnemonic.
  */
 const createMnemonic = async (language) => {
+    logger.info("createMnemonic ")
+
     let executable = ""
     let args = []
     let env = process.env
@@ -243,6 +250,8 @@ const generateKeys = async (
     address, // string
     stakingMode // "solo" | "bnft"
 ) => {
+    logger.info("generateKeys ")
+
     let executable = ""
     let args = []
     let env = process.env

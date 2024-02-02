@@ -31,7 +31,7 @@ python3 -m pip install -r $ETH2REQUIREMENTSPATH --target $TARGETPACKAGESPATH
 
 # Bundling Python eth2deposit_proxy
 PYTHONPATH=$PYTHONPATH pyinstaller \
-    --onefile \
+    --onedir \
     --distpath $DISTBINPATH \
     --add-data "$SRCINTLPATH:staking_deposit/intl" \
     -p $PYTHONPATH \
