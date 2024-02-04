@@ -38,7 +38,7 @@ jobs:
       - name: Bundle Electron App
         run: yarn buildNode
       - name: Build ETH Python Cli
-        run: yarn buildcli
+        run: yarn buildclimac
       - name: Build With Electron Builder
         run: yarn dist
       - name: List Dist folder
