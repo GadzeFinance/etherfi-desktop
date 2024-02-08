@@ -42,9 +42,9 @@ jobs:
       - name: Bundle Electron App
         run: yarn buildNode
       - name: Build ETH Python Cli
-        run: yarn buildcli
+        run: yarn buildclimac
       - name: Build With Electron Builder
-        run: yarn dist
+        run: yarn dist --arm64
       - name: List Dist folder
         run: ls dist
       - name: Extract version
