@@ -23,6 +23,8 @@ interface StepSelectWalletAddressProps {
     confirmedAddress: string
     setStakingMode: (mode: "solo" | "bnft") => void
     stakingMode: "solo" | "bnft"
+    operationType: "new" | "import"
+    setOperationType: (type: "new" | "import") => void
 }
 
 const StepSelectWalletAddress: React.FC<StepSelectWalletAddressProps> = (
@@ -72,6 +74,7 @@ const StepSelectWalletAddress: React.FC<StepSelectWalletAddressProps> = (
             height="full"
             width={"full"}
             borderRadius="lg"
+            overflowY={"scroll"}
         >
             <Text color={"white"} fontSize="2xl" fontWeight={"semibold"}>
                 {addressOptions?.length ? "Select" : "Enter"} Wallet Address
@@ -137,6 +140,23 @@ const StepSelectWalletAddress: React.FC<StepSelectWalletAddressProps> = (
                     </Radio>
                     <Radio value="bnft" colorScheme="purple">
                         BNFT
+                    </Radio>
+                </Stack>
+            </RadioGroup>
+            <Text color={"white"} fontSize="2xl" fontWeight={"semibold"}>
+                Select Operation
+            </Text>
+            <RadioGroup
+                color="white"
+                onChange={props.setOperationType}
+                value={props.operationType}
+            >
+                <Stack direction={"row"} spacing={2}>
+                    <Radio value="new" colorScheme="purple">
+                        new key generation
+                    </Radio>
+                    <Radio value="import" colorScheme="purple">
+                    import external keys
                     </Radio>
                 </Stack>
             </RadioGroup>

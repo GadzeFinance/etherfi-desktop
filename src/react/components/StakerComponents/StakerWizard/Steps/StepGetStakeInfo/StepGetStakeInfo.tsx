@@ -54,33 +54,34 @@ const StepGetStakeInfo: React.FC<StepGetStakeInfoProps> = (
 
   const handleSubmit: React.FormEventHandler<HTMLFormElement> = (e) => {
     e.preventDefault();
-    setIsLoading(true);
-    fetch(`${dappUrl}/api/stakeInfo/${stakingCode}`)
-      .then(res => {
-        if (!res.ok) {
-          throw new Error("Your code is invalid. Check the code in the web app and try again.");
-        }
-        return res
-      })
-      .then(res => res.json())
-      .then(async (stakeInfo: { [key: string]: string }[]) => {
-        props.setStakeInfo(stakeInfo);
-        props.setCode(stakingCode);
-        props.goNextStep();
-      })
-      .catch(err => {
-        toast({
-          title: "Error fetching stake info",
-          description: 'Unable to fetch stake info. Your country may be blocked.',
-          status: "error",
-          duration: 5000,
-          isClosable: true,
-        });
-      })
-      .finally(() => {
-        setIsLoading(false);
-        setStakingCode("");
-      });
+    setStakingCode("");
+    // setIsLoading(true);
+    // fetch(`${dappUrl}/api/stakeInfo/${stakingCode}`)
+    //   .then(res => {
+    //     if (!res.ok) {
+    //       throw new Error("Your code is invalid. Check the code in the web app and try again.");
+    //     }
+    //     return res
+    //   })
+    //   .then(res => res.json())
+    //   .then(async (stakeInfo: { [key: string]: string }[]) => {
+    //     props.setStakeInfo(stakeInfo);
+    //     props.setCode(stakingCode);
+    //     props.goNextStep();
+    //   })
+    //   .catch(err => {
+    //     toast({
+    //       title: "Error fetching stake info",
+    //       description: 'Unable to fetch stake info. Your country may be blocked.',
+    //       status: "error",
+    //       duration: 5000,
+    //       isClosable: true,
+    //     });
+    //   })
+    //   .finally(() => {
+    //     setIsLoading(false);
+    //     setStakingCode("");
+    //   });
   }
 
   return (

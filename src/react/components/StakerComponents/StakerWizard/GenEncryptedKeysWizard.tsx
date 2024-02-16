@@ -13,19 +13,31 @@ import StepCreateKeys from "./Steps/StepCreateKeys/StepCreateKeys"
 //STEP 5:
 import StepFinish from "./Steps/StepFinish/StepFinish"
 import StepGenerateMnemonicAndKeys from "./Steps/StepGenerateMnemonicAndKeys/StepGenerateMnemonicAndKeys"
+import StepImportKeyStoreFiles from "./Steps/StepImportKeyStoreFiles/StepImportKeyStoreFiles"
 
 const content = <Flex py={4}></Flex>
 
-const steps = [
+const newKeySteps = [
     { label: "Choose Wallet Address", content },
     { label: "Enter Staking Code", content },
     { label: "Generate Mnemonic and Keys", content },
     { label: "Finish", content },
 ]
 
+const importKeySteps = [
+    { label: "Choose Wallet Address", content },
+    { label: "Import Keystore Files", content },
+    { label: "Preview", content },
+    { label: "Finish", content },
+]
+
 interface WizardProps {
     navigateTo: (tabIndex: number) => void
     password: string
+}
+
+export interface FileMap {
+    [key: string]: string
 }
 
 const getMenomicWordsToConfirmIndicies = () => {
@@ -44,12 +56,18 @@ const GenEncryptedKeysWizard: React.FC<WizardProps> = (props) => {
     const { nextStep, prevStep, activeStep, setStep } = useSteps({
         initialStep: 0,
     })
+    const { nextStep: nextStepImport, prevStep: prevStepImport, activeStep: activeStepImport, setStep: setStepImport } = useSteps({
+        initialStep: 0,
+    })
     const [stakeInfo, setStakeInfo] = React.useState<
         { [key: string]: string }[]
     >([])
     const [mnemonic, setMnemonic] = useState<string>("")
     const [code, setCode] = useState<string>("")
-    const [stakingMode, setStakingMode] = useState<"solo" | "bnft">("solo")
+    const [stakingMode, setStakingMode] = useState<"solo" | "bnft">("bnft")
+    const [operationType, setOperationType] = useState<"new" | "import">("import")
+    const [files, setFiles] = useState<FileMap>({})
+    const [password, setPassword] = useState<string>("")
 
     const [importMnemonicPassword, setImportMnemonicPassword] =
         useState<string>("")
@@ -100,7 +118,7 @@ const GenEncryptedKeysWizard: React.FC<WizardProps> = (props) => {
                     borderRadius: "16px",
                 }}
             >
-                <Flex flexDir="column" width="600px" height="450px">
+                { operationType === "new" && <Flex flexDir="column" width="600px" height="450px">
                     <Steps
                         colorScheme="black-alpha"
                         orientation="vertical"
@@ -111,13 +129,31 @@ const GenEncryptedKeysWizard: React.FC<WizardProps> = (props) => {
                             },
                         }}
                     >
-                        {steps.map(({ label, content }) => (
+                        {newKeySteps.map(({ label, content }) => (
                             <Step label={label} key={label} color="white">
                                 {content}
                             </Step>
                         ))}
                     </Steps>
-                </Flex>
+                </Flex> }
+                { operationType === "import" && <Flex flexDir="column" width="600px" height="450px">
+                    <Steps
+                        colorScheme="black-alpha"
+                        orientation="vertical"
+                        activeStep={activeStep}
+                        sx={{
+                            "& .cui-steps__vertical-step": {
+                                flex: 1,
+                            },
+                        }}
+                    >
+                        {importKeySteps.map(({ label, content }) => (
+                            <Step label={label} key={label} color="white">
+                                {content}
+                            </Step>
+                        ))}
+                    </Steps>
+                </Flex> }                
                 <Flex flexDir="column" width="100%">
                     {activeStep === 0 && (
                         <StepSelectWalletAddress
@@ -129,37 +165,67 @@ const GenEncryptedKeysWizard: React.FC<WizardProps> = (props) => {
                             setConfirmedAddress={setConfirmedAddress}
                             setStakingMode={setStakingMode}
                             stakingMode={stakingMode}
+                            operationType={operationType}
+                            setOperationType={setOperationType}
                         />
                     )}
-                    {activeStep === 1 && (
-                        <StepGetStakeInfo
-                            goBackStep={prevStep}
-                            goNextStep={nextStep}
-                            setStakeInfo={setStakeInfo}
-                            setCode={setCode}
-                        />
-                    )}
-                    {activeStep === 2 && (
-                        <StepGenerateMnemonicAndKeys
-                            goBackStep={prevStep}
-                            goNextStep={nextStep}
-                            stakeInfo={stakeInfo}
-                            mnemonic={mnemonic}
-                            setMnemonic={setMnemonic}
-                            address={confirmedAddress}
-                            importMnemonicPassword={importMnemonicPassword}
-                            mnemonicOption={mnemonicOption}
-                            code={code}
-                            setStakingMode={setStakingMode}
-                            stakingMode={stakingMode}
-                        />
-                    )}
-                    {activeStep === 3 && (
-                        <StepFinish
-                            goBackStep={prevStep}
-                            resetAllStates={resetAllStates}
-                        />
-                    )}
+                    {
+                        operationType === "new" &&
+                        <>
+                        {activeStep === 1 && (
+                            <StepGetStakeInfo
+                                goBackStep={prevStep}
+                                goNextStep={nextStep}
+                                setStakeInfo={setStakeInfo}
+                                setCode={setCode}
+                            />
+                        )}
+                        {activeStep === 2 && (
+                            <StepGenerateMnemonicAndKeys
+                                goBackStep={prevStep}
+                                goNextStep={nextStep}
+                                stakeInfo={stakeInfo}
+                                mnemonic={mnemonic}
+                                setMnemonic={setMnemonic}
+                                address={confirmedAddress}
+                                importMnemonicPassword={importMnemonicPassword}
+                                mnemonicOption={mnemonicOption}
+                                code={code}
+                                setStakingMode={setStakingMode}
+                                stakingMode={stakingMode}
+                            />
+                        )}
+                        {activeStep === 3 && (
+                            <StepFinish
+                                goBackStep={prevStep}
+                                resetAllStates={resetAllStates}
+                            />
+                        )}
+                        </>
+                    }
+                    {
+                        operationType === "import" &&
+                        <>
+                        {activeStep === 1 && (
+                            <StepImportKeyStoreFiles
+                                goBackStep={prevStep}
+                                goNextStep={nextStep}
+                                setFiles={setFiles}
+                                password={password}
+                                setPassword={setPassword}
+                            />
+                        )}
+                        {/* {activeStep === 2 && (
+                            <Preview
+                                goBackStep={prevStep}
+                                goNextStep={nextStep}
+                                setFiles={setFiles}
+                                password={password}
+                                setPassword={setPassword}
+                            />
+                        )} */}
+                        </>
+                    }
                 </Flex>
             </Flex>
         </Center>

@@ -14,6 +14,7 @@ declare global {
     fileSystemApi: any;
     utilsApi: any
     exitMessageApi: any
+    showDirectoryPicker?: any;
   }
 }
 
@@ -44,8 +45,8 @@ const App: React.FC = () => {
 
   return (
     <FormProvider {...methods} >
-      { !isAuthenticated && <LoginPage setIsAuthenticated={setIsAuthenticated} setPassword={setPassword} password={password}/> }
-      { isAuthenticated && <Tabs
+      {/* { !isAuthenticated && <LoginPage setIsAuthenticated={setIsAuthenticated} setPassword={setPassword} password={password}/> } */}
+      { true && <Tabs
         variant="soft-rounded"
         index={tabIndex}
         onChange={handleTabsChange}
