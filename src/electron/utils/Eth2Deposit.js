@@ -95,7 +95,7 @@ const GENERATE_KEYS_SUBCOMMAND = "generate_keys"
 const VALIDATE_MNEMONIC_SUBCOMMAND = "validate_mnemonic"
 const GENERATE_SIGNED_EXIT_TRANSACTION = "generate_exit_transaction"
 
-const PYTHON_EXE = process.platform == "win32" ? "python" : "python3"
+const PYTHON_EXE = process.platform == "win32" ? "python" : "python3.9"
 const PATH_DELIM = process.platform == "win32" ? ";" : ":"
 
 const getMostRecentFile = (dir) => {

@@ -291,6 +291,14 @@ contextBridge.exposeInMainWorld("databaseApi", {
             func(event, ...args)
         )
     },
+    reqGetValidatorIndices: function (password) {
+        ipcRenderer.send("req-get-validator-indices", [password])
+    },
+    recieveGetValidatorIndices: function (func) {
+        ipcRenderer.once("receive-get-validator-indices", (event, ...args) =>
+            func(event, ...args)
+        )
+    },
     reqHistoryByPage: function (page) {
         ipcRenderer.send("req-history-page", [page])
     },

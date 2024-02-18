@@ -61,6 +61,20 @@ class Credential:
         self.amount = amount
         self.chain_setting = chain_setting
         self.hex_eth1_withdrawal_address = hex_eth1_withdrawal_address
+    
+    def __init__(self, *, index: int, amount: int, chain_setting: BaseChainSetting, 
+                 signing_sk: int, hex_eth1_withdrawal_address: Optional[HexAddress]):
+        purpose = '12381'
+        coin_type = '3600'
+        account = str(index)
+        withdrawal_key_path = f'm/{purpose}/{coin_type}/{account}/0'
+        self.signing_key_path = f'{withdrawal_key_path}/0'
+
+        self.withdrawal_sk = None
+        self.signing_sk = signing_sk
+        self.amount = amount
+        self.chain_setting = chain_setting
+        self.hex_eth1_withdrawal_address = hex_eth1_withdrawal_address
 
     @property
     def signing_pk(self) -> bytes:
@@ -245,6 +259,16 @@ class CredentialList:
                                    index=index, amount=amounts[index - start_index], chain_setting=chain_setting,
                                    hex_eth1_withdrawal_address=hex_eth1_withdrawal_address)
                         for index in indices])
+
+    @classmethod
+    def from_validator_key(cls,
+                      *,
+                      validator_key: int,
+                      amount: int,
+                      index: int,
+                      chain_setting: BaseChainSetting,
+                      hex_eth1_withdrawal_address: Optional[HexAddress]) -> 'CredentialList':
+        return cls([Credential(index=index, amount=amount, chain_setting=chain_setting, signing_sk=validator_key, hex_eth1_withdrawal_address=hex_eth1_withdrawal_address)])
 
     def export_keystores(self, password: str, folder: str) -> List[str]:
         with click.progressbar(self.credentials, label=load_text(['msg_keystore_creation']),

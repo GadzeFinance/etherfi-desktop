@@ -25,6 +25,18 @@ const StepImportKeyStoreFiles: React.FC<StepImportKeyStoreFilesProps> = ({
     readFilesAsJson(directoryHandle).then((files: FileMap) => {
       console.log(files);
 
+    //   window.encryptionApi.receiveGenerateKey(
+    //     (
+    //         event: Electron.IpcMainEvent,
+    //         index: number,
+    //         total: number,
+    //         usedTime: number
+    //     ) => {
+    //         setKeysGenerated(index + 1)
+    //         setKeysTotal(total)
+    //     }
+    // )
+
       setFiles(files);
 
       goNextStep();

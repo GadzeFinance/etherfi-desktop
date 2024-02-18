@@ -140,6 +140,13 @@ class Database {
         return decrypedObject;
     }
 
+    getAllValidatorIndices(address) {
+        const obj = this._store.get(`stakerAddress.${address}.validators`);
+        if (!obj) return []
+        return Object.keys(obj)
+    }
+
+
     getHistoryRecordsByTimestampList(timestamps) {
         const records = {};
         for (const timestamp of timestamps) {

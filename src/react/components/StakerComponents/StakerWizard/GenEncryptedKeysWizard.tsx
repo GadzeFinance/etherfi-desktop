@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect } from "react"
-import { Center, Flex } from "@chakra-ui/react"
+import { Box, Center, Flex } from "@chakra-ui/react"
 import { Step, Steps, useSteps } from "chakra-ui-steps"
 import { useFormContext } from "react-hook-form"
 // STEP 1:
@@ -14,6 +14,7 @@ import StepCreateKeys from "./Steps/StepCreateKeys/StepCreateKeys"
 import StepFinish from "./Steps/StepFinish/StepFinish"
 import StepGenerateMnemonicAndKeys from "./Steps/StepGenerateMnemonicAndKeys/StepGenerateMnemonicAndKeys"
 import StepImportKeyStoreFiles from "./Steps/StepImportKeyStoreFiles/StepImportKeyStoreFiles"
+import PreviewList from "./Steps/PreviewList/PreviewList"
 
 const content = <Flex py={4}></Flex>
 
@@ -106,6 +107,16 @@ const GenEncryptedKeysWizard: React.FC<WizardProps> = (props) => {
         () => getMenomicWordsToConfirmIndicies(),
         [mnemonic]
     )
+
+    const makePreviewList = (files: FileMap) => {
+        return Object.keys(files).map((key) => {
+            return {
+                validatorID: JSON.parse(files[key]).validatorID,
+                keyFileName: key,
+            }
+        })
+    }
+
     return (
         <Center>
             <Flex
@@ -215,15 +226,19 @@ const GenEncryptedKeysWizard: React.FC<WizardProps> = (props) => {
                                 setPassword={setPassword}
                             />
                         )}
-                        {/* {activeStep === 2 && (
-                            <Preview
+                        {activeStep === 2 && (
+                            <PreviewList
                                 goBackStep={prevStep}
                                 goNextStep={nextStep}
-                                setFiles={setFiles}
-                                password={password}
-                                setPassword={setPassword}
+                                list={makePreviewList(files)}
                             />
-                        )} */}
+                        )}
+                        {activeStep === 3 && (
+                            <StepFinish
+                                goBackStep={prevStep}
+                                resetAllStates={resetAllStates}
+                            />
+                        )}
                         </>
                     }
                 </Flex>

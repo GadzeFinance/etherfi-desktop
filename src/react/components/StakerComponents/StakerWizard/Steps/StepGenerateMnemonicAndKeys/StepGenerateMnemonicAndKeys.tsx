@@ -68,16 +68,17 @@ const StepGenerateMnemonicAndKeys: React.FC<StepCreateKeysProps> = (props) => {
                 errorMessage: string
             ) => {
                 if (stakeRequest) {
-                    fetch(`${dappUrl}/api/stakeRequest/upload`, {
-                        method: "POST",
-                        headers: {
-                            "Content-Type": "application/json",
-                        },
-                        body: JSON.stringify({
-                            stakeRequest,
-                            code: props.code,
-                        }),
-                    })
+                    console.log("stakeRequest", stakeRequest)
+                    // fetch(`${dappUrl}/api/stakeRequest/upload`, {
+                    //     method: "POST",
+                    //     headers: {
+                    //         "Content-Type": "application/json",
+                    //     },
+                    //     body: JSON.stringify({
+                    //         stakeRequest,
+                    //         code: props.code,
+                    //     }),
+                    // })
                 } else {
                     console.error("Error getting stake request")
                     console.error(errorMessage)

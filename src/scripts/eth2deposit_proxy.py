@@ -203,6 +203,44 @@ def generate_exit_message(args):
         'filefolder': filefolder
     }))
 
+def generate_deposit_data(args):
+    eth1_withdrawal_address = "0x392B611423edBbe3BC76fca433c623c487fC7462"
+    if eth1_withdrawal_address:
+        if not is_hex_address(eth1_withdrawal_address):
+            raise ValueError("The given Eth1 address is not in hexadecimal encoded form.")
+
+        eth1_withdrawal_address = to_normalized_address(eth1_withdrawal_address)
+
+    amount = MAX_DEPOSIT_AMOUNT
+    folder = "deposit_data"
+    network = "mainnet"
+    validatorID = "12669"
+    staking_mode = "bnft"
+    keystore_path = "sandbox/keys/validator-12669-keystore.json"
+    chain_setting = get_chain_setting(network)
+    keystore_password = "6Wc6PKz5CL0Ak7BEaC9-"
+    if not os.path.exists(folder):
+        os.mkdir(folder)
+    
+    saved_keystore = Keystore.from_file(keystore_path)
+        
+    try:
+        secret_bytes = saved_keystore.decrypt(keystore_password)
+    except Exception:
+        raise ValueError("The given password is incorrect.")
+        
+    signing_key = int.from_bytes(secret_bytes, 'big')
+
+    credentials = CredentialList.from_validator_key(
+        validator_key=signing_key,
+        amount=amount,
+        index=int(validatorID),
+        chain_setting=chain_setting,
+        hex_eth1_withdrawal_address=eth1_withdrawal_address,
+    )
+
+    deposits_file = credentials.export_deposit_data_json(folder=folder, staking_mode=staking_mode)
+
 def main():
     """The application starting point.
     """

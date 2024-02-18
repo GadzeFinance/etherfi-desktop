@@ -45,8 +45,8 @@ const App: React.FC = () => {
 
   return (
     <FormProvider {...methods} >
-      {/* { !isAuthenticated && <LoginPage setIsAuthenticated={setIsAuthenticated} setPassword={setPassword} password={password}/> } */}
-      { true && <Tabs
+      { !isAuthenticated && <LoginPage setIsAuthenticated={setIsAuthenticated} setPassword={setPassword} password={password}/> }
+      { isAuthenticated && <Tabs
         variant="soft-rounded"
         index={tabIndex}
         onChange={handleTabsChange}

@@ -25,6 +25,9 @@ const logger = require("./utils/logger")
 const { storage } = require("./utils/storage")
 const isDev = process.env.NODE_ENV === "development"
 
+const ETH1_ADDRESS_WITHDRAWAL_PREFIX = Buffer.from('01', 'hex');
+const FORKS = { 'mainnet': Buffer.from('00000000','hex'), 'goerli': Buffer.from('00001020', 'hex')};
+
 const graphqlEndpoint =
     process.env.NODE_ENV === "production"
         ? "https://api.studio.thegraph.com/query/41778/etherfi-mainnet/version/latest"
@@ -318,6 +321,7 @@ const _getDepositDataAndKeystoresJSON = async (folderPath) => {
     })
     // depositDataList will be sorted in chronological order
     const depositDataList = depositDataFilePaths.map((filePath) => {
+        console.log(JSON.parse(fs.readFileSync(filePath)))
         return JSON.parse(fs.readFileSync(filePath))[0]
     })
     const validatorKeystoreList = validatorKeyFilePaths.map((filePath) => {
@@ -338,27 +342,86 @@ const _getDepositDataAndKeystoresJSON = async (folderPath) => {
     return { depositDataList, validatorKeystoreList }
 }
 
+const _make_withdrawal_credentials = async (eth1_withdrawal_address) => {
+    return Buffer.concat([
+        ETH1_ADDRESS_WITHDRAWAL_PREFIX,
+        Buffer.alloc(11, 0), // Creates a buffer filled with 11 zeros.
+        Buffer.from(eth1_withdrawal_address, 'hex') // Assuming eth1_withdrawal_address is a hex string.
+    ]);
+}
+
+const _get_signing_root = async (depositData, forkChoice) => {
+    const domainWrappedObject = {
+        objectRoot: mainnet.types.DepositMessage.hashTreeRoot(depositData),
+        domain: getDomain(forkVersion),
+    };
+
+
+
+    const domain = Buffer.concat([forkChoice, Buffer.alloc(28, 0)]);
+    const data = Buffer.concat([
+        Buffer.from('00', 'hex'), // deposit_data_root
+        depositData.pubkey,
+        depositData.withdrawal_credentials,
+        depositData.amount,
+        depositData.signature
+    ]);
+    return Buffer.from(await web3.utils.keccak256(Buffer.concat([domain, data])));
+}
+
+const _new_flow = async (
+    stakeInfoArray
+) => {
+    const validatorIDs = []
+    const depositDataList = []
+
+    for (const stakeInfo of stakeInfoArray) {
+        validatorIDs.push(stakeInfo.validatorID)
+        const depositData = {
+            pubkey: stakeInfo.pubkey,
+            withdrawal_credentials: _make_withdrawal_credentials(stakeInfo.withdrawalSafeAddress),
+            amount: 32000000000,
+            signature: Buffer.alloc(96)
+        }
+        
+        const forkChoice = FORKS[stakeInfo.network]
+        if (!forkChoice) {
+            throw new Error(`Unknown network: ${stakeInfo.network}`)
+        }
+        let signingRoot = _get_signing_root(depositData, forkChoice)
+
+    }
+
+
+    const stakeRequestJSON = await _from_deposit_data_and_keystore_to_stake_request_list(
+        depositDataList,
+        validatorKeystoreList,
+        validatorIDs,
+        password
+    )
+
+
+}
+
+
 /**
- * Encrypts validator keys and password for each deposit data element in the given folder path.
- *
- * @param {string} folderPath - The path to the folder containing deposit data and validator keystore files.
- * @param {string} password - The password for the validator keystore.
- * @param {Array} nodeOperatorPubKeys - An array of node operator public keys.
+ * 
+ * Note that we are using the order in stakeInfo array to match depositData and validatorIDs, depositData and keystore file are matched by pubkey
+ * 
+ * @param {Array} depositDataList - An array of deposit data objects.
+ * @param {Array} validatorKeystoreList - An array of keystore objects.
  * @param {Array} validatorIDs - The IDs of the validators. (These are etherfi IDs (set in etherfi smart contracts), NOT VALIDATOR INDEX).
+ * @param {string} password - The password for the validator keystore.
  *
  * @returns {undefined} - Returns nothing, saves the encrypted data to a stake request file in the given folder path.
  */
-const _encryptValidatorKeys = async (
-    folderPath,
+const _from_deposit_data_and_keystore_to_stake_request_list = async (
+    depositDataList,
+    validatorKeystoreList,
+    validatorIDs,
     password,
-    nodeOperatorPubKeys,
-    validatorIDs
+    nodeOperatorPubKeys
 ) => {
-    logger.info("_encryptValidatorKeys: Start")
-    // need to convert the folder path to a list of keystore paths and a deposit data file path
-    const { depositDataList, validatorKeystoreList } =
-        await _getDepositDataAndKeystoresJSON(folderPath)
-
     const curve = new EC("secp256k1")
     const stakeRequestJSON = []
 
@@ -419,6 +482,42 @@ const _encryptValidatorKeys = async (
 
         stakeRequestJSON.push(stakeRequestItem)
     }
+
+    return stakeRequestJSON
+}
+
+
+
+/**
+ * Encrypts validator keys and password for each deposit data element in the given folder path.
+ *
+ * @param {string} folderPath - The path to the folder containing deposit data and validator keystore files.
+ * @param {string} password - The password for the validator keystore.
+ * @param {Array} nodeOperatorPubKeys - An array of node operator public keys.
+ * @param {Array} validatorIDs - The IDs of the validators. (These are etherfi IDs (set in etherfi smart contracts), NOT VALIDATOR INDEX).
+ *
+ * @returns {undefined} - Returns nothing, saves the encrypted data to a stake request file in the given folder path.
+ */
+const _encryptValidatorKeys = async (
+    folderPath,
+    password,
+    nodeOperatorPubKeys,
+    validatorIDs
+) => {
+    logger.info("_encryptValidatorKeys: Start")
+    // need to convert the folder path to a list of keystore paths and a deposit data file path
+    const { depositDataList, validatorKeystoreList } =
+        await _getDepositDataAndKeystoresJSON(folderPath)
+
+    console.log(depositDataList)
+
+    const stakeRequestJSON = await _from_deposit_data_and_keystore_to_stake_request_list(
+        depositDataList,
+        validatorKeystoreList,
+        validatorIDs,
+        password,
+        nodeOperatorPubKeys
+    )
 
     // dont need to save a private file for the staker right now
     // const stakePrivateJSON = {}
@@ -649,6 +748,10 @@ const getStakerAddress = async (password) => {
     return allStakers
 }
 
+const getValidatorIndices = async (password) => {
+    return await storage.getValidatorIndices(password)
+}
+
 const isPasswordSet = async () => {
     return await storage.isPasswordSet()
 }
@@ -807,4 +910,5 @@ module.exports = {
     isPasswordSet,
     setPassword,
     validatePassword,
+    getValidatorIndices
 }
