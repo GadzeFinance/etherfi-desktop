@@ -438,6 +438,11 @@ const _from_deposit_data_and_keystore_to_stake_request_list = (
     password,
     nodeOperatorPubKeys
 ) => {
+    console.log("key func:", depositDataList,
+    validatorKeystoreList,
+    validatorIDs,
+    password,
+    nodeOperatorPubKeys)
     const curve = new EC("secp256k1")
     const stakeRequestJSON = []
 
