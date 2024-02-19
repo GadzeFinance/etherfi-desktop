@@ -343,15 +343,6 @@ const _getDepositDataAndKeystoresJSON = async (folderPath) => {
     return { depositDataList, validatorKeystoreList }
 }
 
-const _make_withdrawal_credentials = async (eth1_withdrawal_address) => {
-    return Buffer.concat([
-        ETH1_ADDRESS_WITHDRAWAL_PREFIX,
-        Buffer.alloc(11, 0), // Creates a buffer filled with 11 zeros.
-        Buffer.from(eth1_withdrawal_address, 'hex') // Assuming eth1_withdrawal_address is a hex string.
-    ]);
-}
-
-
 const generateStakeRequestOnImportKeys = async (
     keystores,
     stakeInfo,
@@ -428,42 +419,6 @@ const generateStakeRequestOnImportKeys = async (
 
 }
 
-
-const _new_flow = async (
-    stakeInfoArray
-) => {
-    const validatorIDs = []
-    const depositDataList = []
-
-    for (const stakeInfo of stakeInfoArray) {
-        validatorIDs.push(stakeInfo.validatorID)
-        const depositData = {
-            pubkey: stakeInfo.pubkey,
-            withdrawal_credentials: _make_withdrawal_credentials(stakeInfo.withdrawalSafeAddress),
-            amount: 32000000000,
-            signature: Buffer.alloc(96)
-        }
-        
-        const forkChoice = FORKS[stakeInfo.network]
-        if (!forkChoice) {
-            throw new Error(`Unknown network: ${stakeInfo.network}`)
-        }
-        let signingRoot = _get_signing_root(depositData, forkChoice)
-
-    }
-
-
-    const stakeRequestJSON =  _from_deposit_data_and_keystore_to_stake_request_list(
-        depositDataList,
-        validatorKeystoreList,
-        validatorIDs,
-        password
-    )
-
-
-}
-
-
 /**
  * 
  * Note that we are using the order in stakeInfo array to match depositData and validatorIDs, depositData and keystore file are matched by pubkey
@@ -472,8 +427,9 @@ const _new_flow = async (
  * @param {Array} validatorKeystoreList - An array of keystore objects.
  * @param {Array} validatorIDs - The IDs of the validators. (These are etherfi IDs (set in etherfi smart contracts), NOT VALIDATOR INDEX).
  * @param {string} password - The password for the validator keystore.
+ * @param {Array} nodeOperatorPubKeys - An array of node operator public keys.
  *
- * @returns {undefined} - Returns nothing, saves the encrypted data to a stake request file in the given folder path.
+ * @returns {Array} - Returns an array of stake request objects.
  */
 const _from_deposit_data_and_keystore_to_stake_request_list = (
     depositDataList,

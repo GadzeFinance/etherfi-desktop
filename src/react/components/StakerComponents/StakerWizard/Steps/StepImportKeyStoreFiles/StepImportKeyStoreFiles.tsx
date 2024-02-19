@@ -11,6 +11,7 @@ interface StepImportKeyStoreFilesProps {
   setPassword: (password: string) => void;
   files: FileMap;
   setFiles: (files: FileMap) => void;
+  stakingCode: string;
 }
 
 const StepImportKeyStoreFiles: React.FC<StepImportKeyStoreFilesProps> = ({ 
@@ -20,6 +21,7 @@ const StepImportKeyStoreFiles: React.FC<StepImportKeyStoreFilesProps> = ({
   password,
   setPassword,
   setFiles,
+  stakingCode,
   files
 }) => {
   const [directoryHandle, setDirectoryHandle] = useState<any>(null);
@@ -104,7 +106,7 @@ const StepImportKeyStoreFiles: React.FC<StepImportKeyStoreFilesProps> = ({
         <Button onClick={importFiles}>Import</Button>
       </Box> }
       {
-        showPreview && <PreviewList pairList={makePairList()} password={password} goNextStep={goNextStep} goBackStep={goBackStep} />
+        showPreview && <PreviewList pairList={makePairList()} password={password} goNextStep={goNextStep} stakingCode={stakingCode} />
       }
     </Box>
   );

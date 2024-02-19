@@ -2,17 +2,19 @@ import React from 'react';
 import { Box, Button, Table, Thead, Tbody, Tr, Th, Td } from '@chakra-ui/react';
 import { StakeInfo } from '../../../../../../electron/listeners';
 import { FileMap } from '../../GenEncryptedKeysWizard';
+import { dappUrl } from "../../../../../../electron/utils/getDappUrl"
 
 interface PreviewListProps {
-  goBackStep: () => void;
   goNextStep: () => void;
   pairList: { stakeInfo: StakeInfo; keystoreFile: string; keystoreFileName: string; }[];
   password: string;
+  stakingCode: string;
 }
 
 const PreviewList: React.FC<PreviewListProps> = ({ 
   pairList,
   password,
+  stakingCode,
   goNextStep 
 }) => {
 
@@ -26,7 +28,25 @@ const PreviewList: React.FC<PreviewListProps> = ({
           errorMessage: string
       ) => {
           if (result === 0) {
-              console.log("stakereq", stakeRequestJSON)
+            console.log("importing flow")
+            console.log({
+              stakeRequest: JSON.parse(stakeRequestJSON),
+                  code: stakingCode,
+              })
+
+            fetch(`${dappUrl}/api/stakeRequest/upload`, {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                        },
+                        body: JSON.stringify({
+                            stakeRequest: JSON.parse(stakeRequestJSON),
+                            code: stakingCode,
+                        }),
+                    })
+
+            goNextStep();
+
           } else {
               console.error("Error generating validator keys")
               console.error(errorMessage)
@@ -42,25 +62,30 @@ const PreviewList: React.FC<PreviewListProps> = ({
     const keystoreNames = pairList.map(pair => pair.keystoreFileName)
 
     window.encryptionApi.reqGetStakeRequestOnImportKeys(keystores, stakeInfo, keystoreNames, password)
-
-    goNextStep();
   }
 
   return (
-    <Box maxH="400px" overflowY="scroll">
+    <Box maxH="400px" overflowY="scroll" overflowX={"scroll"}>
       <Table size="sm">
         <Thead>
           <Tr>
             <Th>Validator ID</Th>
             <Th>Key File Name</Th>
+            <Th>Withdrawal Safe</Th>
           </Tr>
         </Thead>
         <Tbody>
-          {/* {list.map((item, index) => ( */}
-            {/* <Tr key={index}> */}
-              {/* <Td>{item.keyFileName}</Td> */}
-            {/* </Tr> */}
-          {/* ))} */}
+          {
+            pairList.map((pair, index) => {
+              return (
+                <Tr key={index}>
+                  <Td>{pair.stakeInfo.validatorID}</Td>
+                  <Td>{pair.keystoreFileName}</Td>
+                  <Td>{pair.stakeInfo.withdrawalSafeAddress}</Td>
+                </Tr>
+              )
+            })
+          }
         </Tbody>
       </Table>
       <Button onClick={confirm} colorScheme="blue" mt={4}>
