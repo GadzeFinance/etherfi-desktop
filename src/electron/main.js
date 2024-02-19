@@ -193,9 +193,9 @@ ipcMain.on("req-gen-val-keys-and-encrypt", async (event, args) => {
 })
 
 ipcMain.on("req-get-stake-request-on-import-keys", async (event, args) => {
-    var [keystore_paths, stakeInfo, password] = args
+    var [keystores, stakeInfo, password] = args
     try {
-        const stakeReqJSON = await generateStakeRequestOnImportKeys(keystore_paths, stakeInfo, password)
+        const stakeReqJSON = await generateStakeRequestOnImportKeys(keystores, stakeInfo, password)
         event.sender.send(
             "stake-request-on-import-keys",
             standardResultCodes.SUCCESS,

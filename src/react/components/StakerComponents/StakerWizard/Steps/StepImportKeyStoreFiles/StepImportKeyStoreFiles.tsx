@@ -1,24 +1,29 @@
 import React, { useState, useCallback } from 'react';
 import { Box, Button, Input, Text } from '@chakra-ui/react';
-import { FileMap } from '../../GenEncryptedKeysWizard';
-import { fileURLToPath } from 'url';
+import { FileMap, StakeInfo } from '../../GenEncryptedKeysWizard';
+import PreviewList from '../PreviewList/PreviewList';
 
 interface StepImportKeyStoreFilesProps {
   goBackStep: () => void;
   goNextStep: () => void;
+  stakeInfoList: StakeInfo[];
   password: string;
   setPassword: (password: string) => void;
+  files: FileMap;
   setFiles: (files: FileMap) => void;
 }
 
 const StepImportKeyStoreFiles: React.FC<StepImportKeyStoreFilesProps> = ({ 
   goBackStep, 
   goNextStep,
+  stakeInfoList,
   password,
   setPassword,
-  setFiles
+  setFiles,
+  files
 }) => {
   const [directoryHandle, setDirectoryHandle] = useState<any>(null);
+  const [showPreview, setShowPreview] = useState(false);
 
   const importFiles = () => {
     if (!directoryHandle) return;
@@ -28,11 +33,29 @@ const StepImportKeyStoreFiles: React.FC<StepImportKeyStoreFilesProps> = ({
 
       setFiles(files);
 
-      goNextStep();
+      setShowPreview(true)
     });
 
 
   };
+
+  const makePairList = () => {
+    const pairList = stakeInfoList.map(stakeInfo => {
+      const fileName = `validator-${stakeInfo.validatorID}-keystore.json`;
+      const keystoreFile = files[fileName];
+    
+      if (!keystoreFile) {
+        throw new Error(`No file found for etherfiID ${stakeInfo.validatorID}`);
+      }
+    
+      return {
+        stakeInfo,
+        keystoreFile,
+      };
+    });
+    console.log("makeing pairlist:", pairList, stakeInfoList, files)
+    return pairList;
+  }
 
   async function readFilesAsJson(directoryHandle: any): Promise<FileMap> {
     const jsonData: FileMap = {};
@@ -49,8 +72,7 @@ const StepImportKeyStoreFiles: React.FC<StepImportKeyStoreFilesProps> = ({
       });
   
       const fileText = await fileData;
-      const filePath = fileURLToPath(fileHandle.url);
-      jsonData[filePath] = fileText;
+      jsonData[file.name] = fileText;
     }
   
     return jsonData;
@@ -74,10 +96,15 @@ const StepImportKeyStoreFiles: React.FC<StepImportKeyStoreFilesProps> = ({
 
   return (
     <Box>
-      <Text>Select the folder</Text>
-      <Button onClick={handleFolderSelect}>Select Folder</Button>
-      <Input type="password" placeholder="Enter password" value={password} onChange={(e) => setPassword(e.target.value)} />
-      <Button onClick={importFiles}>Import</Button>
+      { !showPreview && <Box>
+        <Text>Select the folder</Text>
+        <Button onClick={handleFolderSelect}>Select Folder</Button>
+        <Input type="password" placeholder="Enter password" value={password} onChange={(e) => setPassword(e.target.value)} />
+        <Button onClick={importFiles}>Import</Button>
+      </Box> }
+      {
+        showPreview && <PreviewList pairList={makePairList()} password={password} goNextStep={goNextStep} goBackStep={goBackStep} />
+      }
     </Box>
   );
 };

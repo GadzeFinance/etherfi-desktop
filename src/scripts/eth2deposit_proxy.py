@@ -216,15 +216,15 @@ def generate_deposit_data(args):
     validator_ids = args.validator_ids
     amounts = [MAX_DEPOSIT_AMOUNT for _ in range(len(validator_ids))]
     staking_mode = args.staking_mode
-    keystore_paths = args.keystore_paths
+    keystores = args.keystores
     chain_setting = get_chain_setting(network)
     keystore_password = args.keystore_password
     if not os.path.exists(folder):
         os.mkdir(folder)
     
     validator_keys = []
-    for keystore_path in keystore_paths:
-        saved_keystore = Keystore.from_file(keystore_path)
+    for keystore in keystores:
+        saved_keystore = Keystore.from_file(json.loads(keystore))
         
         try:
             secret_bytes = saved_keystore.decrypt(keystore_password)
@@ -295,7 +295,7 @@ def main():
     import_key_parser.add_argument("network", help="Network setting for the signing domain", type=str)
     import_key_parser.add_argument("validator_ids", help="Validator Ether.fi ID", type=List[str])
     import_key_parser.add_argument("staking_mode", help="bnft or normal", type=List[str])
-    import_key_parser.add_argument("keystore_paths", help="Path to the keystore file", type=List[str])
+    import_key_parser.add_argument("keystores", help="Keystore files", type=List[str])
     import_key_parser.add_argument("keystore_password", help="Password for the keystore file", type=List[str])
     import_key_parser.set_defaults(func=generate_deposit_data)
 

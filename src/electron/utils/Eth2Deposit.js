@@ -506,7 +506,7 @@ const generateDepositData = async (
     network,
     validator_ids,
     staking_mode,
-    keystore_paths,
+    keystores,
     keystore_password
 ) => {
     logger.info("generate deposit data")
@@ -525,7 +525,7 @@ const generateDepositData = async (
             network,
             validator_ids,
             staking_mode,
-            keystore_paths,
+            keystores,
             keystore_password
         ])
     } else if (await doesFileExist(SFE_PATH)) {
@@ -538,7 +538,7 @@ const generateDepositData = async (
             network,
             validator_ids,
             staking_mode,
-            keystore_paths,
+            keystores,
             keystore_password
         ])
     } else {
@@ -560,7 +560,7 @@ const generateDepositData = async (
             network,
             validator_ids,
             staking_mode,
-            keystore_paths,
+            keystores,
             keystore_password
         ])
     }

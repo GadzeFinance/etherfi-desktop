@@ -1,18 +1,17 @@
 import React from 'react';
 import { Box, Button, Table, Thead, Tbody, Tr, Th, Td } from '@chakra-ui/react';
 import { StakeInfo } from '../../../../../../electron/listeners';
+import { FileMap } from '../../GenEncryptedKeysWizard';
 
 interface PreviewListProps {
   goBackStep: () => void;
   goNextStep: () => void;
-  keystore_paths: string[];
-  stakeInfo: StakeInfo[];
+  pairList: { stakeInfo: StakeInfo; keystoreFile: string; }[];
   password: string;
 }
 
 const PreviewList: React.FC<PreviewListProps> = ({ 
-  keystore_paths,
-  stakeInfo,
+  pairList,
   password,
   goNextStep 
 }) => {
@@ -36,7 +35,12 @@ const PreviewList: React.FC<PreviewListProps> = ({
       }
     )
 
-    window.databaseApi.reqGetStakeRequestOnImportKeys(keystore_paths, stakeInfo, password)
+    console.log("when confirm:", pairList, password)
+    // now we ensure the order is correct
+    const keystores = pairList.map(pair => pair.keystoreFile)
+    const stakeInfo = pairList.map(pair => pair.stakeInfo)
+
+    window.encryptionApi.reqGetStakeRequestOnImportKeys(keystores, stakeInfo, password)
 
     goNextStep();
   }

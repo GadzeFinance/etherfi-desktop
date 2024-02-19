@@ -353,7 +353,7 @@ const _make_withdrawal_credentials = async (eth1_withdrawal_address) => {
 
 
 const generateStakeRequestOnImportKeys = async (
-    keystore_paths,
+    keystores,
     stakeInfo,
     password
 ) => {
@@ -377,7 +377,7 @@ const generateStakeRequestOnImportKeys = async (
         network,
         validator_ids,
         staking_mode,
-        keystore_paths,
+        keystores,
         keystore_password
     )
 
