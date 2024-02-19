@@ -43,7 +43,17 @@ class Credential:
     A Credential object contains all of the information for a single validator and the corresponding functionality.
     Once created, it is the only object that should be required to perform any processing for a validator.
     """
-    def __init__(self, *, mnemonic: str, mnemonic_password: str,
+    def __init__(self, *, signing_key_path: str, withdrawal_sk: Optional[int], signing_sk: int, 
+                 amount: int, chain_setting: BaseChainSetting, hex_eth1_withdrawal_address: Optional[HexAddress]):
+        self.signing_key_path = signing_key_path
+        self.withdrawal_sk = withdrawal_sk
+        self.signing_sk = signing_sk
+        self.amount = amount
+        self.chain_setting = chain_setting
+        self.hex_eth1_withdrawal_address = hex_eth1_withdrawal_address
+    
+    @classmethod
+    def from_mnemonic(cls, *, mnemonic: str, mnemonic_password: str,
                  index: int, amount: int, chain_setting: BaseChainSetting,
                  hex_eth1_withdrawal_address: Optional[HexAddress]):
         # Set path as EIP-2334 format
@@ -52,29 +62,26 @@ class Credential:
         coin_type = '3600'
         account = str(index)
         withdrawal_key_path = f'm/{purpose}/{coin_type}/{account}/0'
-        self.signing_key_path = f'{withdrawal_key_path}/0'
-
-        self.withdrawal_sk = mnemonic_and_path_to_key(
+        signing_key_path = f'{withdrawal_key_path}/0'
+        withdrawal_sk = mnemonic_and_path_to_key(
             mnemonic=mnemonic, path=withdrawal_key_path, password=mnemonic_password)
-        self.signing_sk = mnemonic_and_path_to_key(
-            mnemonic=mnemonic, path=self.signing_key_path, password=mnemonic_password)
-        self.amount = amount
-        self.chain_setting = chain_setting
-        self.hex_eth1_withdrawal_address = hex_eth1_withdrawal_address
-    
-    def __init__(self, *, index: int, amount: int, chain_setting: BaseChainSetting, 
+        signing_sk = mnemonic_and_path_to_key(
+            mnemonic=mnemonic, path=signing_key_path, password=mnemonic_password)
+        return cls(signing_key_path=signing_key_path, withdrawal_sk=withdrawal_sk, signing_sk=signing_sk,
+                     amount=amount, chain_setting=chain_setting, hex_eth1_withdrawal_address=hex_eth1_withdrawal_address)
+
+    @classmethod
+    def from_signing_key(cls, *, index: int, amount: int, chain_setting: BaseChainSetting, 
                  signing_sk: int, hex_eth1_withdrawal_address: Optional[HexAddress]):
         purpose = '12381'
         coin_type = '3600'
         account = str(index)
         withdrawal_key_path = f'm/{purpose}/{coin_type}/{account}/0'
-        self.signing_key_path = f'{withdrawal_key_path}/0'
+        signing_key_path = f'{withdrawal_key_path}/0'
 
-        self.withdrawal_sk = None
-        self.signing_sk = signing_sk
-        self.amount = amount
-        self.chain_setting = chain_setting
-        self.hex_eth1_withdrawal_address = hex_eth1_withdrawal_address
+        withdrawal_sk = None
+        return cls(signing_key_path=signing_key_path, withdrawal_sk=withdrawal_sk, signing_sk=signing_sk,
+                     amount=amount, chain_setting=chain_setting, hex_eth1_withdrawal_address=hex_eth1_withdrawal_address)
 
     @property
     def signing_pk(self) -> bytes:
@@ -255,7 +262,7 @@ class CredentialList:
         key_indices = range(start_index, start_index + num_keys)
         with click.progressbar(key_indices, label=load_text(['msg_key_creation']),
                                show_percent=False, show_pos=True) as indices:
-            return cls([Credential(mnemonic=mnemonic, mnemonic_password=mnemonic_password,
+            return cls([Credential.from_mnemonic(mnemonic=mnemonic, mnemonic_password=mnemonic_password,
                                    index=index, amount=amounts[index - start_index], chain_setting=chain_setting,
                                    hex_eth1_withdrawal_address=hex_eth1_withdrawal_address)
                         for index in indices])
@@ -274,7 +281,7 @@ class CredentialList:
                 f"indices={len(indices)}, hex_eth1_withdrawal_addresses={len(hex_eth1_withdrawal_addresses)}."
             )
         return cls([
-            Credential(
+            Credential.from_signing_key(
                 index=indices[i], 
                 amount=amounts[i], 
                 chain_setting=chain_setting, 
