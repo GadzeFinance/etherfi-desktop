@@ -14,6 +14,7 @@ const {
     createMnemonic,
     generateKeys,
     validateMnemonic,
+    generateDepositData,
 } = require("./utils/Eth2Deposit.js")
 const { selectFolder, selectJsonFile } = require("./utils/saveFile.js")
 const {
@@ -350,24 +351,70 @@ const _make_withdrawal_credentials = async (eth1_withdrawal_address) => {
     ]);
 }
 
-const _get_signing_root = async (depositData, forkChoice) => {
-    const domainWrappedObject = {
-        objectRoot: mainnet.types.DepositMessage.hashTreeRoot(depositData),
-        domain: getDomain(forkVersion),
-    };
 
+const generateStakeRequestOnImportKeys = async (
+    keystore_paths,
+    stakeInfo,
+    password
+) => {
 
+    const timeStamp = Date.now()
+    const userDataPath = (electron.app || electron.remote.app).getPath(
+        "userData"
+    )
+    const generatedFolder = `etherfi_deposit_data-${timeStamp}`
+    const folder = path.join(userDataPath, generatedFolder)
 
-    const domain = Buffer.concat([forkChoice, Buffer.alloc(28, 0)]);
-    const data = Buffer.concat([
-        Buffer.from('00', 'hex'), // deposit_data_root
-        depositData.pubkey,
-        depositData.withdrawal_credentials,
-        depositData.amount,
-        depositData.signature
-    ]);
-    return Buffer.from(await web3.utils.keccak256(Buffer.concat([domain, data])));
+    const withdraw_addresses = stakeInfo.map((info) => info.withdrawalSafeAddress)
+    const network = stakeInfo[0].networkName // TODO: assume having all the same networks
+    const validator_ids = stakeInfo.map((info) => info.validatorID)
+    const staking_mode = "bnft"
+    const keystore_password = password
+
+    await generateDepositData(
+        withdraw_addresses,
+        folder,
+        network,
+        validator_ids,
+        staking_mode,
+        keystore_paths,
+        keystore_password
+    )
+
+    fs.readdir(folder, (err, files) => {
+        if (err) {
+          console.error(`Error reading directory: ${err}`);
+          return;
+        }
+      
+        files.forEach(file => {
+          const filePath = path.join(folder, file);
+          fs.readFile(filePath, 'utf8', (err, contents) => {
+            if (err) {
+              console.error(`Error reading file: ${err}`);
+              return;
+            }
+      
+            console.log(`File Name: ${file}`);
+            console.log(`Contents: ${contents}`);
+          });
+        });
+      });
+
+    fs.rmdir(folder, { recursive: true }, (err) => {
+        if (err) {
+            console.error(`Error deleting folder: ${err}`)
+        } else {
+            console.log("Folder deleted successfully")
+        }
+    })
+
+    // TODO: make stakeRequest here
+
+    return ""
+
 }
+
 
 const _new_flow = async (
     stakeInfoArray
@@ -910,5 +957,6 @@ module.exports = {
     isPasswordSet,
     setPassword,
     validatePassword,
-    getValidatorIndices
+    getValidatorIndices,
+    generateStakeRequestOnImportKeys 
 }

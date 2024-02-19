@@ -261,14 +261,27 @@ class CredentialList:
                         for index in indices])
 
     @classmethod
-    def from_validator_key(cls,
+    def from_validator_keys(cls,
                       *,
-                      validator_key: int,
-                      amount: int,
-                      index: int,
+                      validator_keys: List[int],
+                      amounts: List[int],
+                      indices: List[int],
                       chain_setting: BaseChainSetting,
-                      hex_eth1_withdrawal_address: Optional[HexAddress]) -> 'CredentialList':
-        return cls([Credential(index=index, amount=amount, chain_setting=chain_setting, signing_sk=validator_key, hex_eth1_withdrawal_address=hex_eth1_withdrawal_address)])
+                      hex_eth1_withdrawal_addresses: List[HexAddress]) -> 'CredentialList':
+        if not (len(validator_keys) == len(amounts) == len(indices) == len(hex_eth1_withdrawal_addresses)):
+            raise ValueError(
+                f"The lengths are not equal: validator_keys={len(validator_keys)}, amounts={len(amounts)}, "
+                f"indices={len(indices)}, hex_eth1_withdrawal_addresses={len(hex_eth1_withdrawal_addresses)}."
+            )
+        return cls([
+            Credential(
+                index=indices[i], 
+                amount=amounts[i], 
+                chain_setting=chain_setting, 
+                signing_sk=validator_keys[i], 
+                hex_eth1_withdrawal_address=hex_eth1_withdrawal_addresses[i])
+            for i in range(len(validator_keys))
+            ])
 
     def export_keystores(self, password: str, folder: str) -> List[str]:
         with click.progressbar(self.credentials, label=load_text(['msg_keystore_creation']),

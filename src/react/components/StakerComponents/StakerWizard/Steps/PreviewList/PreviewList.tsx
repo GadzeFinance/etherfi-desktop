@@ -1,17 +1,42 @@
 import React from 'react';
 import { Box, Button, Table, Thead, Tbody, Tr, Th, Td } from '@chakra-ui/react';
+import { StakeInfo } from '../../../../../../electron/listeners';
 
 interface PreviewListProps {
   goBackStep: () => void;
   goNextStep: () => void;
-  list: Array<{ validatorID: string; keyFileName: string }>;
+  keystore_paths: string[];
+  stakeInfo: StakeInfo[];
+  password: string;
 }
 
-const PreviewList: React.FC<PreviewListProps> = ({ list, goNextStep }) => {
+const PreviewList: React.FC<PreviewListProps> = ({ 
+  keystore_paths,
+  stakeInfo,
+  password,
+  goNextStep 
+}) => {
 
   const confirm = () => {
-    
-    // TODO: generate stakeInfo and request
+
+    window.encryptionApi.stakeRequestOnImportKeys(
+      (
+          event: Electron.IpcMainEvent,
+          result: number,
+          stakeRequestJSON: string,
+          errorMessage: string
+      ) => {
+          if (result === 0) {
+              console.log("stakereq", stakeRequestJSON)
+          } else {
+              console.error("Error generating validator keys")
+              console.error(errorMessage)
+              // TODO: Show error screen on failure.
+          }
+      }
+    )
+
+    window.databaseApi.reqGetStakeRequestOnImportKeys(keystore_paths, stakeInfo, password)
 
     goNextStep();
   }
@@ -26,12 +51,11 @@ const PreviewList: React.FC<PreviewListProps> = ({ list, goNextStep }) => {
           </Tr>
         </Thead>
         <Tbody>
-          {list.map((item, index) => (
-            <Tr key={index}>
-              <Td>{item.validatorID}</Td>
-              <Td>{item.keyFileName}</Td>
-            </Tr>
-          ))}
+          {/* {list.map((item, index) => ( */}
+            {/* <Tr key={index}> */}
+              {/* <Td>{item.keyFileName}</Td> */}
+            {/* </Tr> */}
+          {/* ))} */}
         </Tbody>
       </Table>
       <Button onClick={confirm} colorScheme="blue" mt={4}>

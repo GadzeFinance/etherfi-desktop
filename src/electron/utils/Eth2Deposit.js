@@ -93,6 +93,7 @@ const BUNDLED_DIST_WORD_LIST_PATH = path.join(
 const CREATE_MNEMONIC_SUBCOMMAND = "create_mnemonic"
 const GENERATE_KEYS_SUBCOMMAND = "generate_keys"
 const VALIDATE_MNEMONIC_SUBCOMMAND = "validate_mnemonic"
+const GENERATE_DEPOSIT_DATA_SUBCOMMAND = "generate_deposit_data"
 const GENERATE_SIGNED_EXIT_TRANSACTION = "generate_exit_transaction"
 
 const PYTHON_EXE = process.platform == "win32" ? "python" : "python3.9"
@@ -499,9 +500,83 @@ const generateSignedExitMessage = async (
     return resultJson.filefolder
 }
 
+const generateDepositData = async (
+    eth1_withdrawal_addresses,
+    folder,
+    network,
+    validator_ids,
+    staking_mode,
+    keystore_paths,
+    keystore_password
+) => {
+    logger.info("generate deposit data")
+
+    let executable = ""
+    let args = []
+    let env = process.env
+
+    if (await doesFileExist(BUNDLED_SFE_PATH)) {
+        executable = BUNDLED_SFE_PATH
+        args = [GENERATE_DEPOSIT_DATA_SUBCOMMAND]
+
+        args = args.concat([
+            eth1_withdrawal_addresses,
+            folder,
+            network,
+            validator_ids,
+            staking_mode,
+            keystore_paths,
+            keystore_password
+        ])
+    } else if (await doesFileExist(SFE_PATH)) {
+        executable = SFE_PATH
+        args = [GENERATE_DEPOSIT_DATA_SUBCOMMAND]
+
+        args = args.concat([
+            eth1_withdrawal_addresses,
+            folder,
+            network,
+            validator_ids,
+            staking_mode,
+            keystore_paths,
+            keystore_password
+        ])
+    } else {
+        if (!(await requireDepositPackages())) {
+            loggers.error(
+                "'ETH2Deposit: generate deposit data' Failed to generate deposit data, don't have the required packages."
+            )
+            throw new Error(
+                "Failed to generate deposit data, don't have the required packages."
+            )
+        }
+        env.PYTHONPATH = await getPythonPath()
+
+        executable = PYTHON_EXE
+        args = [ETH2DEPOSIT_PROXY_PATH, GENERATE_DEPOSIT_DATA_SUBCOMMAND]
+        args = args.concat([
+            eth1_withdrawal_addresses,
+            folder,
+            network,
+            validator_ids,
+            staking_mode,
+            keystore_paths,
+            keystore_password
+        ])
+    }
+
+    const { stdout, stderr } = await execFileProm(executable, args, { env: env })
+    // const depositDataResultString = stdout.toString()
+    // const resultJson = JSON.parse(depositDataResultString)
+    // console.log("parsed deposit data:", resultJson)
+    // return resultJson
+}
+
+
 module.exports = {
     createMnemonic,
     generateKeys,
     validateMnemonic,
     generateSignedExitMessage,
+    generateDepositData
 }

@@ -41,6 +41,10 @@ export interface FileMap {
     [key: string]: string
 }
 
+export interface StakeInfo {
+    [key: string]: string
+}
+
 const getMenomicWordsToConfirmIndicies = () => {
     const indexList = Array<number>()
 
@@ -60,9 +64,7 @@ const GenEncryptedKeysWizard: React.FC<WizardProps> = (props) => {
     const { nextStep: nextStepImport, prevStep: prevStepImport, activeStep: activeStepImport, setStep: setStepImport } = useSteps({
         initialStep: 0,
     })
-    const [stakeInfo, setStakeInfo] = React.useState<
-        { [key: string]: string }[]
-    >([])
+    const [stakeInfo, setStakeInfo] = React.useState<StakeInfo[]>([])
     const [mnemonic, setMnemonic] = useState<string>("")
     const [code, setCode] = useState<string>("")
     const [stakingMode, setStakingMode] = useState<"solo" | "bnft">("bnft")
@@ -108,14 +110,19 @@ const GenEncryptedKeysWizard: React.FC<WizardProps> = (props) => {
         [mnemonic]
     )
 
-    const makePreviewList = (files: FileMap) => {
-        return Object.keys(files).map((key) => {
-            return {
-                validatorID: JSON.parse(files[key]).validatorID,
-                keyFileName: key,
-            }
-        })
+    const get_keystore_paths = () => {
+        return Object.keys(files)
     }
+
+    // const makePreviewList = (files: FileMap, stakeInfo: StakeInfo[]) => {
+    //     return Object.keys(files).map((key, i) => {
+    //         return {
+    //             validatorKey: JSON.parse(files[key]),
+    //             keyFileName: key,
+    //             stakeInfo: stakeInfo[i]
+    //         }
+    //     })
+    // }
 
     return (
         <Center>
@@ -230,7 +237,9 @@ const GenEncryptedKeysWizard: React.FC<WizardProps> = (props) => {
                             <PreviewList
                                 goBackStep={prevStep}
                                 goNextStep={nextStep}
-                                list={makePreviewList(files)}
+                                keystore_paths={get_keystore_paths()}
+                                password={password}
+                                stakeInfo={stakeInfo}
                             />
                         )}
                         {activeStep === 3 && (

@@ -5,6 +5,7 @@ internals. It exposes some eth2-deposit-cli functions as easy to use commands th
 on the CLI.
 """
 
+from ast import List
 import os
 import argparse
 import json
@@ -204,42 +205,51 @@ def generate_exit_message(args):
     }))
 
 def generate_deposit_data(args):
-    eth1_withdrawal_address = "0x392B611423edBbe3BC76fca433c623c487fC7462"
-    if eth1_withdrawal_address:
+    eth1_withdrawal_addresses = args.eth1_withdrawal_addresses
+    for i, eth1_withdrawal_address in enumerate(eth1_withdrawal_addresses):
         if not is_hex_address(eth1_withdrawal_address):
             raise ValueError("The given Eth1 address is not in hexadecimal encoded form.")
+        eth1_withdrawal_addresses[i] = to_normalized_address(eth1_withdrawal_address)
 
-        eth1_withdrawal_address = to_normalized_address(eth1_withdrawal_address)
-
-    amount = MAX_DEPOSIT_AMOUNT
-    folder = "deposit_data"
-    network = "mainnet"
-    validatorID = "12669"
-    staking_mode = "bnft"
-    keystore_path = "sandbox/keys/validator-12669-keystore.json"
+    folder = args.folder
+    network = args.network
+    validator_ids = args.validator_ids
+    amounts = [MAX_DEPOSIT_AMOUNT for _ in range(len(validator_ids))]
+    staking_mode = args.staking_mode
+    keystore_paths = args.keystore_paths
     chain_setting = get_chain_setting(network)
-    keystore_password = "6Wc6PKz5CL0Ak7BEaC9-"
+    keystore_password = args.keystore_password
     if not os.path.exists(folder):
         os.mkdir(folder)
     
-    saved_keystore = Keystore.from_file(keystore_path)
+    validator_keys = []
+    for keystore_path in keystore_paths:
+        saved_keystore = Keystore.from_file(keystore_path)
         
-    try:
-        secret_bytes = saved_keystore.decrypt(keystore_password)
-    except Exception:
-        raise ValueError("The given password is incorrect.")
+        try:
+            secret_bytes = saved_keystore.decrypt(keystore_password)
+        except Exception:
+            raise ValueError(f"The given password is incorrect for keystore file {keystore_path}.")
         
-    signing_key = int.from_bytes(secret_bytes, 'big')
+        signing_key = int.from_bytes(secret_bytes, 'big')
+        validator_keys.append(signing_key)
 
-    credentials = CredentialList.from_validator_key(
-        validator_key=signing_key,
-        amount=amount,
-        index=int(validatorID),
+    credentials = CredentialList.from_validator_keys(
+        validator_keys=validator_keys,
+        amounts=amounts,
+        indices=[int(index) for index in validator_ids],
         chain_setting=chain_setting,
-        hex_eth1_withdrawal_address=eth1_withdrawal_address,
+        hex_eth1_withdrawal_addresses=eth1_withdrawal_addresses,
     )
 
     deposits_file = credentials.export_deposit_data_json(folder=folder, staking_mode=staking_mode)
+
+    if not verify_deposit_data_json(deposits_file, credentials.credentials):
+        raise ValidationError("Failed to verify the deposit data JSON files.")
+
+    print("deposits_file: ", deposits_file)
+
+
 
 def main():
     """The application starting point.
@@ -278,6 +288,16 @@ def main():
     generate_exit_message_parser.add_argument("epoch", help="Epoch to Exit at", type=int)
     generate_exit_message_parser.add_argument("save_folder", help="Path to save exit message to", type=str)
     generate_exit_message_parser.set_defaults(func=generate_exit_message)
+
+    import_key_parser = subparsers.add_parser("generate_deposit_data")
+    import_key_parser.add_argument("eth1_withdrawal_addresses", help="Eth1 withdrawal address", type=List[str])
+    import_key_parser.add_argument("folder", help="Folder path for the resulting deposit_data files", type=str)
+    import_key_parser.add_argument("network", help="Network setting for the signing domain", type=str)
+    import_key_parser.add_argument("validator_ids", help="Validator Ether.fi ID", type=List[str])
+    import_key_parser.add_argument("staking_mode", help="bnft or normal", type=List[str])
+    import_key_parser.add_argument("keystore_paths", help="Path to the keystore file", type=List[str])
+    import_key_parser.add_argument("keystore_password", help="Password for the keystore file", type=List[str])
+    import_key_parser.set_defaults(func=generate_deposit_data)
 
     args = main_parser.parse_args()
     if not args or 'func' not in args:

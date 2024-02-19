@@ -17,6 +17,7 @@ const {
     setPassword,
     validatePassword,
     fetchStoredMnemonics,
+    generateStakeRequestOnImportKeys,
 } = require("./listeners")
 
 const { validateJsonFile } = require("./utils/validateFile")
@@ -184,6 +185,27 @@ ipcMain.on("req-gen-val-keys-and-encrypt", async (event, args) => {
         logger.error("Error Generating Validator Keys and Encrypting:", error)
         event.sender.send(
             "receive-key-gen-confirmation",
+            standardResultCodes.ERROR,
+            "",
+            error.message
+        )
+    }
+})
+
+ipcMain.on("req-get-stake-request-on-import-keys", async (event, args) => {
+    var [keystore_paths, stakeInfo, password] = args
+    try {
+        const stakeReqJSON = await generateStakeRequestOnImportKeys(keystore_paths, stakeInfo, password)
+        event.sender.send(
+            "stake-request-on-import-keys",
+            standardResultCodes.SUCCESS,
+            stakeReqJSON,
+            ""
+        )
+    } catch (error) {
+        logger.error("Error generating stake requests:", error)
+        event.sender.send(
+            "stake-request-on-import-keys",
             standardResultCodes.ERROR,
             "",
             error.message

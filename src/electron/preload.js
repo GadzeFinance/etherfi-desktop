@@ -107,6 +107,18 @@ contextBridge.exposeInMainWorld("encryptionApi", {
             func(event, ...args)
         )
     },
+    reqGetStakeRequestOnImportKeys: function (
+        keystore_paths,
+        stakeInfo,
+        password
+    ) {
+        ipcRenderer.send("req-get-stake-request-on-import-keys", [keystore_paths, stakeInfo, password])
+    },
+    stakeRequestOnImportKeys: function (func) {
+        ipcRenderer.on("stake-request-on-import-keys", (event, ...args) =>
+            func(event, ...args)
+        )
+    }
 })
 
 contextBridge.exposeInMainWorld("exitMessageApi", {

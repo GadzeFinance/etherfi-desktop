@@ -1,6 +1,7 @@
 import React, { useState, useCallback } from 'react';
 import { Box, Button, Input, Text } from '@chakra-ui/react';
 import { FileMap } from '../../GenEncryptedKeysWizard';
+import { fileURLToPath } from 'url';
 
 interface StepImportKeyStoreFilesProps {
   goBackStep: () => void;
@@ -25,18 +26,6 @@ const StepImportKeyStoreFiles: React.FC<StepImportKeyStoreFilesProps> = ({
     readFilesAsJson(directoryHandle).then((files: FileMap) => {
       console.log(files);
 
-    //   window.encryptionApi.receiveGenerateKey(
-    //     (
-    //         event: Electron.IpcMainEvent,
-    //         index: number,
-    //         total: number,
-    //         usedTime: number
-    //     ) => {
-    //         setKeysGenerated(index + 1)
-    //         setKeysTotal(total)
-    //     }
-    // )
-
       setFiles(files);
 
       goNextStep();
@@ -60,7 +49,8 @@ const StepImportKeyStoreFiles: React.FC<StepImportKeyStoreFilesProps> = ({
       });
   
       const fileText = await fileData;
-      jsonData[file.name] = fileText;
+      const filePath = fileURLToPath(fileHandle.url);
+      jsonData[filePath] = fileText;
     }
   
     return jsonData;
