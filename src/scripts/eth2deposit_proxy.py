@@ -205,7 +205,7 @@ def generate_exit_message(args):
     }))
 
 def generate_deposit_data(args):
-    eth1_withdrawal_addresses = args.eth1_withdrawal_addresses
+    eth1_withdrawal_addresses = json.loads(args.eth1_withdrawal_addresses)
     for i, eth1_withdrawal_address in enumerate(eth1_withdrawal_addresses):
         if not is_hex_address(eth1_withdrawal_address):
             raise ValueError("The given Eth1 address is not in hexadecimal encoded form.")
@@ -213,10 +213,10 @@ def generate_deposit_data(args):
 
     folder = args.folder
     network = args.network
-    validator_ids = args.validator_ids
+    validator_ids = json.loads(args.validator_ids)
     amounts = [MAX_DEPOSIT_AMOUNT for _ in range(len(validator_ids))]
     staking_mode = args.staking_mode
-    keystores = args.keystores
+    keystores = json.loads(args.keystores)
     chain_setting = get_chain_setting(network)
     keystore_password = args.keystore_password
     if not os.path.exists(folder):
@@ -224,12 +224,12 @@ def generate_deposit_data(args):
     
     validator_keys = []
     for keystore in keystores:
-        saved_keystore = Keystore.from_file(json.loads(keystore))
+        saved_keystore = Keystore.from_json(json.loads(keystore))
         
         try:
             secret_bytes = saved_keystore.decrypt(keystore_password)
         except Exception:
-            raise ValueError(f"The given password is incorrect for keystore file {keystore_path}.")
+            raise ValueError(f"The given password is incorrect for keystore file {keystore}.")
         
         signing_key = int.from_bytes(secret_bytes, 'big')
         validator_keys.append(signing_key)
@@ -290,13 +290,13 @@ def main():
     generate_exit_message_parser.set_defaults(func=generate_exit_message)
 
     import_key_parser = subparsers.add_parser("generate_deposit_data")
-    import_key_parser.add_argument("eth1_withdrawal_addresses", help="Eth1 withdrawal address", type=List[str])
+    import_key_parser.add_argument("eth1_withdrawal_addresses", help="Eth1 withdrawal address", type=str)
     import_key_parser.add_argument("folder", help="Folder path for the resulting deposit_data files", type=str)
     import_key_parser.add_argument("network", help="Network setting for the signing domain", type=str)
-    import_key_parser.add_argument("validator_ids", help="Validator Ether.fi ID", type=List[str])
-    import_key_parser.add_argument("staking_mode", help="bnft or normal", type=List[str])
-    import_key_parser.add_argument("keystores", help="Keystore files", type=List[str])
-    import_key_parser.add_argument("keystore_password", help="Password for the keystore file", type=List[str])
+    import_key_parser.add_argument("validator_ids", help="Validator Ether.fi ID", type=str)
+    import_key_parser.add_argument("staking_mode", help="bnft or normal", type=str)
+    import_key_parser.add_argument("keystores", help="Keystore files", type=str)
+    import_key_parser.add_argument("keystore_password", help="Password for the keystore file", type=str)
     import_key_parser.set_defaults(func=generate_deposit_data)
 
     args = main_parser.parse_args()

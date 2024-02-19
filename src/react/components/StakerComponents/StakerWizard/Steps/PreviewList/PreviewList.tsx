@@ -6,7 +6,7 @@ import { FileMap } from '../../GenEncryptedKeysWizard';
 interface PreviewListProps {
   goBackStep: () => void;
   goNextStep: () => void;
-  pairList: { stakeInfo: StakeInfo; keystoreFile: string; }[];
+  pairList: { stakeInfo: StakeInfo; keystoreFile: string; keystoreFileName: string; }[];
   password: string;
 }
 
@@ -39,8 +39,9 @@ const PreviewList: React.FC<PreviewListProps> = ({
     // now we ensure the order is correct
     const keystores = pairList.map(pair => pair.keystoreFile)
     const stakeInfo = pairList.map(pair => pair.stakeInfo)
+    const keystoreNames = pairList.map(pair => pair.keystoreFileName)
 
-    window.encryptionApi.reqGetStakeRequestOnImportKeys(keystores, stakeInfo, password)
+    window.encryptionApi.reqGetStakeRequestOnImportKeys(keystores, stakeInfo, keystoreNames, password)
 
     goNextStep();
   }

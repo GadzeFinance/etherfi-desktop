@@ -355,6 +355,7 @@ const _make_withdrawal_credentials = async (eth1_withdrawal_address) => {
 const generateStakeRequestOnImportKeys = async (
     keystores,
     stakeInfo,
+    keystoreNames,
     password
 ) => {
 
@@ -372,46 +373,58 @@ const generateStakeRequestOnImportKeys = async (
     const keystore_password = password
 
     await generateDepositData(
-        withdraw_addresses,
+        JSON.stringify(withdraw_addresses),
         folder,
         network,
-        validator_ids,
+        JSON.stringify(validator_ids),
         staking_mode,
-        keystores,
+        JSON.stringify(keystores),
         keystore_password
     )
 
-    fs.readdir(folder, (err, files) => {
-        if (err) {
-          console.error(`Error reading directory: ${err}`);
-          return;
-        }
-      
-        files.forEach(file => {
-          const filePath = path.join(folder, file);
-          fs.readFile(filePath, 'utf8', (err, contents) => {
-            if (err) {
-              console.error(`Error reading file: ${err}`);
-              return;
-            }
-      
-            console.log(`File Name: ${file}`);
-            console.log(`Contents: ${contents}`);
-          });
-        });
-      });
+    const files = fs.readdirSync(folder);
 
-    fs.rmdir(folder, { recursive: true }, (err) => {
-        if (err) {
-            console.error(`Error deleting folder: ${err}`)
-        } else {
-            console.log("Folder deleted successfully")
-        }
-    })
+    if (files.length === 0) {
+        console.error('No files found in the directory');
+        return;
+    }
+    if (files.length > 1) {
+        console.error('More than one file found in the directory');
+        return;
+    }
 
-    // TODO: make stakeRequest here
+    const file = files[0];
+    const filePath = path.join(folder, file);
+    const contents = fs.readFileSync(filePath, 'utf8');
 
-    return ""
+    console.log(`File Name: ${file}`);
+    console.log(`Contents: ${contents}`);
+
+    const depositDataList = JSON.parse(contents);
+    const validatorKeystoreList = keystores.map((keystore, index) => {
+      return {
+        keystoreName: keystoreNames[index],
+        keystoreData: JSON.parse(keystore),
+      };
+    });
+    const nodeOperatorPubKeys = stakeInfo.map((info) => info.bidderPublicKey);
+  
+    console.log(depositDataList, validatorKeystoreList, validator_ids, password);
+  
+    const stakeRequestJSON = _from_deposit_data_and_keystore_to_stake_request_list(
+      depositDataList,
+      validatorKeystoreList,
+      validator_ids,
+      password,
+      nodeOperatorPubKeys
+    );
+  
+    fs.rmdirSync(folder, { recursive: true });
+    console.log("Folder deleted successfully");
+
+    console.log("req got:", stakeRequestJSON)
+
+    return stakeRequestJSON
 
 }
 
@@ -440,7 +453,7 @@ const _new_flow = async (
     }
 
 
-    const stakeRequestJSON = await _from_deposit_data_and_keystore_to_stake_request_list(
+    const stakeRequestJSON =  _from_deposit_data_and_keystore_to_stake_request_list(
         depositDataList,
         validatorKeystoreList,
         validatorIDs,
@@ -462,7 +475,7 @@ const _new_flow = async (
  *
  * @returns {undefined} - Returns nothing, saves the encrypted data to a stake request file in the given folder path.
  */
-const _from_deposit_data_and_keystore_to_stake_request_list = async (
+const _from_deposit_data_and_keystore_to_stake_request_list = (
     depositDataList,
     validatorKeystoreList,
     validatorIDs,
@@ -558,7 +571,7 @@ const _encryptValidatorKeys = async (
 
     console.log(depositDataList)
 
-    const stakeRequestJSON = await _from_deposit_data_and_keystore_to_stake_request_list(
+    const stakeRequestJSON = _from_deposit_data_and_keystore_to_stake_request_list(
         depositDataList,
         validatorKeystoreList,
         validatorIDs,

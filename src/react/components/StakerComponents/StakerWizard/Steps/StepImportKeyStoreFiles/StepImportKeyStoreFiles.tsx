@@ -51,6 +51,7 @@ const StepImportKeyStoreFiles: React.FC<StepImportKeyStoreFilesProps> = ({
       return {
         stakeInfo,
         keystoreFile,
+        keystoreFileName: fileName
       };
     });
     console.log("makeing pairlist:", pairList, stakeInfoList, files)
