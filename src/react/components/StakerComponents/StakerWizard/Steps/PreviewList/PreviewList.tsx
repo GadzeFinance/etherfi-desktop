@@ -29,10 +29,11 @@ const PreviewList: React.FC<PreviewListProps> = ({
       ) => {
           if (result === 0) {
             console.log("importing flow")
-            console.log({
-              stakeRequest: JSON.parse(stakeRequestJSON),
-                  code: stakingCode,
-              })
+            console.log(stakeRequestJSON, typeof(stakeRequestJSON))
+            console.log(JSON.stringify({
+              stakeRequest: stakeRequestJSON,
+              code: stakingCode,
+          }))
 
             fetch(`${dappUrl}/api/stakeRequest/upload`, {
                         method: "POST",
@@ -40,7 +41,7 @@ const PreviewList: React.FC<PreviewListProps> = ({
                             "Content-Type": "application/json",
                         },
                         body: JSON.stringify({
-                            stakeRequest: JSON.parse(stakeRequestJSON),
+                            stakeRequest: stakeRequestJSON,
                             code: stakingCode,
                         }),
                     })
@@ -74,7 +75,7 @@ const PreviewList: React.FC<PreviewListProps> = ({
             <Th>Withdrawal Safe</Th>
           </Tr>
         </Thead>
-        <Tbody>
+        <Tbody color={"white"}>
           {
             pairList.map((pair, index) => {
               return (

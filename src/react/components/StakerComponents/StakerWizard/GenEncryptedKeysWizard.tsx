@@ -105,11 +105,6 @@ const GenEncryptedKeysWizard: React.FC<WizardProps> = (props) => {
         }
     }, [typeWalletAddress, dropWalletAddress])
 
-    const wordsToConfirmIndicies = useMemo(
-        () => getMenomicWordsToConfirmIndicies(),
-        [mnemonic]
-    )
-
     return (
         <Center>
             <Flex
