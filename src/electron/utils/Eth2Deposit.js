@@ -566,10 +566,6 @@ const generateDepositData = async (
     }
 
     const { stdout, stderr } = await execFileProm(executable, args, { env: env })
-    // const depositDataResultString = stdout.toString()
-    // const resultJson = JSON.parse(depositDataResultString)
-    // console.log("parsed deposit data:", resultJson)
-    // return resultJson
 }
 
 

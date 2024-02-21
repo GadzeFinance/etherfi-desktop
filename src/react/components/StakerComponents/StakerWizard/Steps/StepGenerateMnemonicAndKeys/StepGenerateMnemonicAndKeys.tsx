@@ -68,11 +68,6 @@ const StepGenerateMnemonicAndKeys: React.FC<StepCreateKeysProps> = (props) => {
                 errorMessage: string
             ) => {
                 if (stakeRequest) {
-                    console.log("generating flow")
-                    console.log(JSON.stringify({
-                        stakeRequest,
-                        code: props.code
-                    }))
                     fetch(`${dappUrl}/api/stakeRequest/upload`, {
                         method: "POST",
                         headers: {

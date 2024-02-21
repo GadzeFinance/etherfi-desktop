@@ -30,13 +30,6 @@ const PreviewList: React.FC<PreviewListProps> = ({
           errorMessage: string
       ) => {
           if (result === 0) {
-            console.log("importing flow")
-            console.log(stakeRequestJSON, typeof(stakeRequestJSON))
-            console.log(JSON.stringify({
-              stakeRequest: stakeRequestJSON,
-              code: stakingCode,
-          }))
-
             fetch(`${dappUrl}/api/stakeRequest/upload`, {
                         method: "POST",
                         headers: {
@@ -58,7 +51,6 @@ const PreviewList: React.FC<PreviewListProps> = ({
       }
     )
 
-    console.log("when confirm:", pairList, password)
     // now we ensure the order is correct
     const keystores = pairList.map(pair => pair.keystoreFile)
     const stakeInfo = pairList.map(pair => pair.stakeInfo)

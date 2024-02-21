@@ -388,9 +388,6 @@ const generateStakeRequestOnImportKeys = async (
     const filePath = path.join(folder, file);
     const contents = fs.readFileSync(filePath, 'utf8');
 
-    console.log(`File Name: ${file}`);
-    console.log(`Contents: ${contents}`);
-
     const depositDataList = JSON.parse(contents);
     const validatorKeystoreList = keystores.map((keystore, index) => {
       return {
@@ -399,8 +396,6 @@ const generateStakeRequestOnImportKeys = async (
       };
     });
     const nodeOperatorPubKeys = stakeInfo.map((info) => info.bidderPublicKey);
-  
-    console.log(depositDataList, validatorKeystoreList, validator_ids, password);
   
     const stakeRequestJSON = _from_deposit_data_and_keystore_to_stake_request_list(
       depositDataList,
@@ -412,8 +407,6 @@ const generateStakeRequestOnImportKeys = async (
   
     fs.rmdirSync(folder, { recursive: true });
     console.log("Folder deleted successfully");
-
-    console.log("req got:", stakeRequestJSON)
 
     return stakeRequestJSON
 
@@ -438,11 +431,6 @@ const _from_deposit_data_and_keystore_to_stake_request_list = (
     password,
     nodeOperatorPubKeys
 ) => {
-    console.log("key func:", depositDataList,
-    validatorKeystoreList,
-    validatorIDs,
-    password,
-    nodeOperatorPubKeys)
     const curve = new EC("secp256k1")
     const stakeRequestJSON = []
 
@@ -529,8 +517,6 @@ const _encryptValidatorKeys = async (
     // need to convert the folder path to a list of keystore paths and a deposit data file path
     const { depositDataList, validatorKeystoreList } =
         await _getDepositDataAndKeystoresJSON(folderPath)
-
-    console.log(depositDataList)
 
     const stakeRequestJSON = _from_deposit_data_and_keystore_to_stake_request_list(
         depositDataList,

@@ -2,6 +2,7 @@ import React, { useState, useCallback } from 'react';
 import { Box, Button, Input, Text, useToast } from '@chakra-ui/react';
 import { FileMap, StakeInfo } from '../../GenEncryptedKeysWizard';
 import PreviewList from '../PreviewList/PreviewList';
+import { useFormContext } from "react-hook-form";
 
 interface StepImportKeyStoreFilesProps {
   goBackStep: () => void;
@@ -12,6 +13,7 @@ interface StepImportKeyStoreFilesProps {
   files: FileMap;
   setFiles: (files: FileMap) => void;
   stakingCode: string;
+  address: string;
 }
 
 const StepImportKeyStoreFiles: React.FC<StepImportKeyStoreFilesProps> = ({ 
@@ -22,20 +24,65 @@ const StepImportKeyStoreFiles: React.FC<StepImportKeyStoreFilesProps> = ({
   setPassword,
   setFiles,
   stakingCode,
-  files
+  files,
+  address
 }) => {
   const [directoryHandle, setDirectoryHandle] = useState<any>(null);
   const [showPreview, setShowPreview] = useState(false);
   const [selected, setSelected] = useState(false)
+  const [loading, setLoading] = useState(false)
 
   const toast = useToast()
+  const { watch } = useFormContext();
+  const loginPassword = watch("loginPassword")
 
   const importFiles = () => {
     if (!directoryHandle) return;
 
     readFilesAsJson(directoryHandle).then((files: FileMap) => {
-      setFiles(files);
-      setShowPreview(true)
+      window.encryptionApi.receiveStoredValidators(
+        (
+          event: Electron.IpcMainEvent,
+          result: number,
+          validators: string,
+          errorMessage: string
+        ) => {
+          if (result === 0) {
+            setLoading(false)
+
+            const vals = JSON.parse(validators);
+            const storePubKeys = Object.values(vals).map((validator: any) => {
+              const keystore = JSON.parse(validator.keystore);
+              return keystore.pubkey;
+            });
+
+            const importedPubKeys = Object.values(files).map((file: any) => {
+              const keystore = JSON.parse(file);
+              return keystore.pubkey;
+            });
+
+            const duplicates = storePubKeys.filter((pubkey: string) => importedPubKeys.includes(pubkey));
+            if (duplicates.length > 0) {
+              toast({
+                title: "Error",
+                description: "Duplicate public keys found in the imported files and the stored validators",
+                status: "error",
+                position: "top-right",
+                duration: 9000,
+                isClosable: true,
+              })
+              return;
+            }
+
+            setFiles(files);
+            // setShowPreview(true)
+          } else {
+            console.error("Error finding stored validators")
+          }
+        }
+      );
+      setLoading(true)
+      window.encryptionApi.reqStoredValidators(address, loginPassword);
     });
 
 

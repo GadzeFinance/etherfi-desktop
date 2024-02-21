@@ -14,7 +14,6 @@ import StepCreateKeys from "./Steps/StepCreateKeys/StepCreateKeys"
 import StepFinish from "./Steps/StepFinish/StepFinish"
 import StepGenerateMnemonicAndKeys from "./Steps/StepGenerateMnemonicAndKeys/StepGenerateMnemonicAndKeys"
 import StepImportKeyStoreFiles from "./Steps/StepImportKeyStoreFiles/StepImportKeyStoreFiles"
-import PreviewList from "./Steps/PreviewList/PreviewList"
 
 const content = <Flex py={4}></Flex>
 
@@ -59,9 +58,6 @@ const getMenomicWordsToConfirmIndicies = () => {
 
 const GenEncryptedKeysWizard: React.FC<WizardProps> = (props) => {
     const { nextStep, prevStep, activeStep, setStep } = useSteps({
-        initialStep: 0,
-    })
-    const { nextStep: nextStepImport, prevStep: prevStepImport, activeStep: activeStepImport, setStep: setStepImport } = useSteps({
         initialStep: 0,
     })
     const [stakeInfo, setStakeInfo] = React.useState<StakeInfo[]>([])
@@ -215,6 +211,7 @@ const GenEncryptedKeysWizard: React.FC<WizardProps> = (props) => {
                         )}
                         {activeStep === 2 && (
                             <StepImportKeyStoreFiles
+                                address={confirmedAddress}
                                 goBackStep={prevStep}
                                 goNextStep={nextStep}
                                 stakeInfoList={stakeInfo}
