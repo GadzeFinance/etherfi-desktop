@@ -75,7 +75,7 @@ const StepImportKeyStoreFiles: React.FC<StepImportKeyStoreFilesProps> = ({
             }
 
             setFiles(files);
-            // setShowPreview(true)
+            setShowPreview(true)
           } else {
             console.error("Error finding stored validators")
           }
