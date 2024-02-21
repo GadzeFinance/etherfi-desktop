@@ -1,5 +1,5 @@
 import React, { useState, useCallback } from 'react';
-import { Box, Button, Input, Text } from '@chakra-ui/react';
+import { Box, Button, Input, Text, useToast } from '@chakra-ui/react';
 import { FileMap, StakeInfo } from '../../GenEncryptedKeysWizard';
 import PreviewList from '../PreviewList/PreviewList';
 
@@ -26,15 +26,15 @@ const StepImportKeyStoreFiles: React.FC<StepImportKeyStoreFilesProps> = ({
 }) => {
   const [directoryHandle, setDirectoryHandle] = useState<any>(null);
   const [showPreview, setShowPreview] = useState(false);
+  const [selected, setSelected] = useState(false)
+
+  const toast = useToast()
 
   const importFiles = () => {
     if (!directoryHandle) return;
 
     readFilesAsJson(directoryHandle).then((files: FileMap) => {
-      console.log(files);
-
       setFiles(files);
-
       setShowPreview(true)
     });
 
@@ -42,21 +42,24 @@ const StepImportKeyStoreFiles: React.FC<StepImportKeyStoreFilesProps> = ({
   };
 
   const makePairList = () => {
-    const pairList = stakeInfoList.map(stakeInfo => {
-      const fileName = `validator-${stakeInfo.validatorID}-keystore.json`;
-      const keystoreFile = files[fileName];
-    
-      if (!keystoreFile) {
-        throw new Error(`No file found for etherfiID ${stakeInfo.validatorID}`);
-      }
-    
+    if (stakeInfoList.length !== Object.keys(files).length) {
+      toast({
+        title: "error",
+        description: "stakeInfoList and files length mismatch",
+        status: "error",
+        position: "top-right",
+        duration: 9000,
+        isClosable: true,
+      })
+    }
+
+    const pairList = Object.keys(files).map((fileName, i) => {
       return {
-        stakeInfo,
-        keystoreFile,
+        stakeInfo: stakeInfoList[i],
+        keystoreFile: files[fileName],
         keystoreFileName: fileName
       };
-    });
-    console.log("makeing pairlist:", pairList, stakeInfoList, files)
+    })
     return pairList;
   }
 
@@ -87,7 +90,7 @@ const StepImportKeyStoreFiles: React.FC<StepImportKeyStoreFilesProps> = ({
         try {
           const directoryHandle = await window.showDirectoryPicker();
           setDirectoryHandle(directoryHandle);
-          
+          setSelected(true)
         } catch (error) {
           console.error(error);
         }
@@ -99,14 +102,14 @@ const StepImportKeyStoreFiles: React.FC<StepImportKeyStoreFilesProps> = ({
 
   return (
     <Box>
-      { !showPreview && <Box>
-        <Text>Select the folder</Text>
-        <Button onClick={handleFolderSelect}>Select Folder</Button>
-        <Input type="password" placeholder="Enter password" value={password} onChange={(e) => setPassword(e.target.value)} />
-        <Button onClick={importFiles}>Import</Button>
-      </Box> }
+      { !showPreview && <Box color={"white"} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '20px' }}>
+          <Text fontSize={"20"} fontWeight="bold">Select the folder</Text>
+          <Button color={"black"} onClick={handleFolderSelect}>{ selected ? "Selected" : "Select Folder"}</Button>
+          <Input type="password" placeholder="Enter password" value={password} onChange={(e) => setPassword(e.target.value)} />
+          <Button color={"black"} onClick={importFiles}>Import</Button>
+        </Box> }
       {
-        showPreview && <PreviewList pairList={makePairList()} password={password} goNextStep={goNextStep} stakingCode={stakingCode} />
+        showPreview && <PreviewList setShowPreview={setShowPreview} pairList={makePairList()} password={password} goNextStep={goNextStep} stakingCode={stakingCode} />
       }
     </Box>
   );

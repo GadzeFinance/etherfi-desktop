@@ -9,13 +9,15 @@ interface PreviewListProps {
   pairList: { stakeInfo: StakeInfo; keystoreFile: string; keystoreFileName: string; }[];
   password: string;
   stakingCode: string;
+  setShowPreview: (showPreview: boolean) => void;
 }
 
 const PreviewList: React.FC<PreviewListProps> = ({ 
   pairList,
   password,
   stakingCode,
-  goNextStep 
+  goNextStep,
+  setShowPreview
 }) => {
 
   const confirm = () => {
@@ -89,6 +91,9 @@ const PreviewList: React.FC<PreviewListProps> = ({
           }
         </Tbody>
       </Table>
+      <Button onClick={() => setShowPreview(false)} mt={4} mr={4}>
+        Back
+      </Button>
       <Button onClick={confirm} colorScheme="blue" mt={4}>
         Confirm
       </Button>
