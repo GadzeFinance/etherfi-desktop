@@ -64,7 +64,7 @@ const GenEncryptedKeysWizard: React.FC<WizardProps> = (props) => {
     const [mnemonic, setMnemonic] = useState<string>("")
     const [code, setCode] = useState<string>("")
     const [stakingMode, setStakingMode] = useState<"solo" | "bnft">("bnft")
-    const [operationType, setOperationType] = useState<"new" | "import">("import")
+    const [operationType, setOperationType] = useState<"new" | "import">("new")
     const [files, setFiles] = useState<FileMap>({})
     const [password, setPassword] = useState<string>("")
 
