@@ -119,6 +119,12 @@ contextBridge.exposeInMainWorld("encryptionApi", {
         ipcRenderer.on("stake-request-on-import-keys", (event, ...args) =>
             func(event, ...args)
         )
+    },
+    reqDecrypt: function (cipherText, password) {
+        ipcRenderer.send("req-decrypt", [cipherText, password])
+    },
+    receiveDecrypt: function (func) {
+        ipcRenderer.once("receive-decrypt", (event, ...args) => func(event, ...args))
     }
 })
 

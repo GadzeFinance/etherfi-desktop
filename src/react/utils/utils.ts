@@ -1,17 +1,17 @@
-import forge from "node-forge";
-import { Buffer } from 'buffer';
-
-export function decrypt(encryptedJSONStr: string, password: string) {
-  const encryptedJSON = JSON.parse(encryptedJSONStr)
-  const iv = Buffer.from(encryptedJSON.iv, "hex").toString('binary');
-  const salt = Buffer.from(encryptedJSON.salt, "hex").toString('binary');
-  const encryptedData = Buffer.from(encryptedJSON.data, "hex");
-  const key = forge.pkcs5.pbkdf2(password, salt, 100000, 32, "sha256");
-  var decipher = forge.cipher.createDecipher('AES-CBC', key);
-  decipher.start({iv: iv});
-  decipher.update(forge.util.createBuffer(encryptedData));
-  var result = decipher.finish(); // check 'result' for true/false
-  // outputs decrypted hex
-  console.log(decipher.output.toString());
-  return decipher.output.toString();
-};
+export function decrypt(text: string, dbPassword: string): Promise<string> {
+  return new Promise((resolve, reject) => {
+    // Setup the receiveDecrypt listener
+    window.encryptionApi.receiveDecrypt(
+      (event: Electron.IpcMainEvent, result: number, decrypted: string, errorMessage: string) => {
+        if (result === 0) {
+          resolve(decrypted);
+        } else {
+          console.error("Error during decryption");
+          reject(new Error(errorMessage));
+        }
+      }
+    );
+    // Trigger the decryption request
+    window.encryptionApi.reqDecrypt(text, dbPassword);
+  });
+}

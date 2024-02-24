@@ -18,6 +18,7 @@ const {
     validatePassword,
     fetchStoredMnemonics,
     generateStakeRequestOnImportKeys,
+    storageDecrypt,
 } = require("./listeners")
 
 const { validateJsonFile } = require("./utils/validateFile")
@@ -502,6 +503,27 @@ ipcMain.on("req-get-staker-address-list", async (event, args) => {
             "receive-get-staker-address-list",
             standardResultCodes.ERROR,
             {},
+            error.message
+        )
+    }
+})
+
+ipcMain.on("req-decrypt", async (event, args) => {
+    try {
+        const [cipherText, password] = args
+        const decrypted = await storageDecrypt(cipherText, password)
+        event.sender.send(
+            "receive-decrypt",
+            standardResultCodes.SUCCESS,
+            decrypted,
+            ""
+        )
+    } catch (error) {
+        logger.error("Error decrypting:", error)
+        event.sender.send(
+            "receive-decrypt",
+            standardResultCodes.ERROR,
+            "",
             error.message
         )
     }

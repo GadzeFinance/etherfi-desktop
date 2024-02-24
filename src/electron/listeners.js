@@ -886,6 +886,10 @@ const testWholeEncryptDecryptFlow = (event, arg) => {
     logger.info("-----------------------------------")
 }
 
+const storageDecrypt = (ciphertext, password) => {
+    return storage.decrypt(ciphertext, password)
+}
+
 module.exports = {
     genNodeOperatorKeystores,
     genMnemonic,
@@ -902,5 +906,6 @@ module.exports = {
     setPassword,
     validatePassword,
     getValidatorIndices,
-    generateStakeRequestOnImportKeys 
+    generateStakeRequestOnImportKeys,
+    storageDecrypt
 }

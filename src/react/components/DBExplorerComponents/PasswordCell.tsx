@@ -5,12 +5,17 @@ import { decrypt } from '../../utils/utils';
 
 const PasswordCell = ({ password, dbPassword }: {password: string, dbPassword: string}) => {
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
-  const [passwordValue, setPasswordValue] = useState("MQnLd5N0tqWvA$iGT4ap");
+  const [passwordValue, setPasswordValue] = useState("MMMMMMM0tqWvA$iGT4ap");
+  const [loading, setLoading] = useState(false);
 
-  const handleToggleVisibility = () => {
-    // TODO: add loading spinner or something
-    if (!isPasswordVisible) setPasswordValue(decrypt(password, dbPassword));
+  const handleToggleVisibility = async () => {
+
+    const decrypted = await decrypt(password, dbPassword);
+    if (!isPasswordVisible) {
+      setPasswordValue(decrypted);
+    }
     setIsPasswordVisible((prevState) => !prevState);
+    
   };
 
   return (
