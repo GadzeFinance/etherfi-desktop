@@ -31,9 +31,10 @@ interface DataTableProps {
   title: string
   dataCount: number
   data: any
+  dbPassword: string
 }
 
-const DataTable = ({title, dataCount, data}: DataTableProps) => {
+const DataTable = ({title, dataCount, data, dbPassword}: DataTableProps) => {
 
   const [selectedCode, setSelectedCode] = useState<any>("")
   const [authenticated, setAuthenticated] = useState(false)
@@ -119,7 +120,7 @@ const DataTable = ({title, dataCount, data}: DataTableProps) => {
                       </Text>
                     </Td>
                   )}
-                  <PasswordCell password={content.password}/>
+                  <PasswordCell password={content.password} dbPassword={dbPassword}/>
                   <Td w="90px" cursor={"pointer"} onClick={() => { viewData(title === "mnemonics" ? content.mnemonic: content.keystore); }} textAlign={"center"}><ViewIcon/></Td>
                   <Td w="90px" cursor={"pointer"} onClick={() => { copyData(title === "mnemonics" ? content.mnemonic : content.keystore);}} textAlign={"center"}><CopyIcon/></Td>
                 </Tr>

@@ -729,29 +729,13 @@ const setPassword = async (password) => {
 
 const getStakerAddress = async (password) => {
     const allStakers = await storage.getAllStakerAddresses()
+
+    console.log(JSON.stringify(allStakers))
+
     if (!allStakers || !password) {
         return {}
     }
-    // Decrypt here if efficiency allows
-    for (const [addr, stakerInfo] of Object.entries(allStakers)) {
-        const { validators, mnemonics } = stakerInfo
-        for (const [id, validator] of Object.entries(
-            validators ? validators : {}
-        )) {
-            validators[id] = {
-                keystore: await storage.decrypt(validator.keystore, password),
-                password: await storage.decrypt(validator.password, password),
-            }
-        }
-        for (const [id, mnemonic] of Object.entries(
-            mnemonics ? mnemonics : {}
-        )) {
-            mnemonics[id] = {
-                mnemonic: await storage.decrypt(mnemonic.mnemonic, password),
-                password: await storage.decrypt(mnemonic.password, password),
-            }
-        }
-    }
+    
     return allStakers
 }
 

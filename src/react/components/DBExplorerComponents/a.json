@@ -1,0 +1,44 @@
+{
+  "0xf3DACfAff3bff819C4e8c06aDbc84F388e86737D": {
+    "validators": {
+      "12669": {
+        "keystore": "{\"crypto\": {\"kdf\": {\"function\": \"scrypt\", \"params\": {\"dklen\": 32, \"n\": 262144, \"r\": 8, \"p\": 1, \"salt\": \"8573d2eb7419e36ebc09c32879c3c455b163ee4fb31c98c1e543cea49ae9a631\"}, \"message\": \"\"}, \"checksum\": {\"function\": \"sha256\", \"params\": {}, \"message\": \"ab4b2b716ab3531c5af6bd0f33f5e8a8c6e9d6c23461c43d2dfda00cac1c7d23\"}, \"cipher\": {\"function\": \"aes-128-ctr\", \"params\": {\"iv\": \"e3c1ca09f13e33c9c4b5b187b2054f0a\"}, \"message\": \"836b8d250f54231ee45b297e14317075a047e4641fe79872598de0a3a15b80d4\"}}, \"description\": \"\", \"pubkey\": \"ad4f5a8a9aa671a4efd18af3a598cbc04fd173a272bd1a641058d4876eda6b03395fbb3cbed110180da19e9fab05fdd5\", \"path\": \"m/12381/3600/12669/0/0\", \"uuid\": \"5b10342b-0556-44d9-baee-a9ddc64dac96\", \"version\": 4}",
+        "password": "#hknDxUui8mphc00xv#k"
+      },
+      "12670": {
+        "keystore": "{\"crypto\": {\"kdf\": {\"function\": \"scrypt\", \"params\": {\"dklen\": 32, \"n\": 262144, \"r\": 8, \"p\": 1, \"salt\": \"685db218b62cea479123ff8dc477fc87520494f211f71768c5718a4019fabe2c\"}, \"message\": \"\"}, \"checksum\": {\"function\": \"sha256\", \"params\": {}, \"message\": \"ab17ad66bcfaa8ce84ca43f99549d7bbe377bca986300470d37929e5736d3e6a\"}, \"cipher\": {\"function\": \"aes-128-ctr\", \"params\": {\"iv\": \"e0512cf6d5c2bfe1ac4d84e34069b10f\"}, \"message\": \"e0efdc2f283024c0a760f31acaae266edb27c875bc657c9d5e1c1e0a336417b7\"}}, \"description\": \"\", \"pubkey\": \"b36245ff3d278234b04f2ada6e031b75b2f07f6ca04fb31ed62e87defb48f94c181563842c79ff541d5f9a3ad3b3d8cc\", \"path\": \"m/12381/3600/12670/0/0\", \"uuid\": \"8826986f-129f-471e-94c6-3103a37643ef\", \"version\": 4}",
+        "password": "#hknDxUui8mphc00xv#k"
+      }
+    },
+    "mnemonics": {
+      "sun menu cross marine witness town input hybrid rose general crunch card load shop future light stone dune unknown cabbage message frown coconut segment": {
+        "mnemonic": "sun menu cross marine witness town input hybrid rose general crunch card load shop future light stone dune unknown cabbage message frown coconut segment",
+        "password": "MQnLd5N0tqWvA$iGT4ap"
+      },
+      "tenant apart hope first cradle index accident off about body bone grocery blood item evil knock fantasy process slice foot salt cart section silent": {
+        "mnemonic": "tenant apart hope first cradle index accident off about body bone grocery blood item evil knock fantasy process slice foot salt cart section silent",
+        "password": "ov79S6AfxhjAz8vlPa9i"
+      },
+      "mansion crane globe defense invite eight urban citizen soap weapon desert rib grit news board loud endorse swim anxiety trigger weapon chimney swallow plate": {
+        "mnemonic": "mansion crane globe defense invite eight urban citizen soap weapon desert rib grit news board loud endorse swim anxiety trigger weapon chimney swallow plate",
+        "password": "37rQxggYmbbfUkAY5eGK"
+      },
+      "unfair turn toast zero present life fun fabric width evil miss stock vacuum school sock imitate snow pitch slice pond oxygen hat mix child": {
+        "mnemonic": "unfair turn toast zero present life fun fabric width evil miss stock vacuum school sock imitate snow pitch slice pond oxygen hat mix child",
+        "password": "17zzKd#!wATb@b-KjF!u"
+      },
+      "long toy fresh awful regular spoon inch message today practice destroy basic cat gun around thing exist struggle cute excess excess bracket jar swamp": {
+        "mnemonic": "long toy fresh awful regular spoon inch message today practice destroy basic cat gun around thing exist struggle cute excess excess bracket jar swamp",
+        "password": "6Wc6PKz5CL0Ak7BEaC9-"
+      },
+      "eager cost fringe suffer ugly arch family loyal album cloth energy hotel thank own carbon belt crowd refuse flush reflect belt question furnace evolve": {
+        "mnemonic": "eager cost fringe suffer ugly arch family loyal album cloth energy hotel thank own carbon belt crowd refuse flush reflect belt question furnace evolve",
+        "password": "k#th2tHF4YgbJWCvxeqF"
+      },
+      "scout humble approve thumb update hundred canoe dolphin supreme hour describe often one level protect fancy basket client endless post gain camp nerve father": {
+        "mnemonic": "scout humble approve thumb update hundred canoe dolphin supreme hour describe often one level protect fancy basket client endless post gain camp nerve father",
+        "password": "#hknDxUui8mphc00xv#k"
+      }
+    }
+  }
+}

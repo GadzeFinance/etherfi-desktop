@@ -75,6 +75,8 @@ const SavedDataWidget = (props: SavedDataWidgetProps) => {
         errorMessage: string
       ) => {
         if (result === 0) {
+          console.log("AllStakerAddresses: ", JSON.stringify(data))
+
           setAllStakers(data);
           setAddressList(Object.keys(data));
           setCurrAddress(Object.keys(data).length > 0 ? Object.keys(data)[0] : "")
@@ -133,10 +135,10 @@ const SavedDataWidget = (props: SavedDataWidgetProps) => {
                 </Center>
                 <TabPanels>
                   <TabPanel sx={{ width: "100%" }}>
-                    <DataTable title="mnemonics" dataCount={mnemonicCount} data={mnemonics} /> 
+                    <DataTable title="mnemonics" dataCount={mnemonicCount} data={mnemonics} dbPassword={dbPassword} /> 
                   </TabPanel>
                   <TabPanel sx={{ width: "100%" }}>
-                    <DataTable title="validators" dataCount={validatorCount} data={validators} />   
+                    <DataTable title="validators" dataCount={validatorCount} data={validators} dbPassword={dbPassword} />   
                   </TabPanel>
                 </TabPanels>
               </Tabs>        
