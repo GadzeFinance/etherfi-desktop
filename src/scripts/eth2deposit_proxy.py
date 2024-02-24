@@ -5,6 +5,7 @@ internals. It exposes some eth2-deposit-cli functions as easy to use commands th
 on the CLI.
 """
 
+from ast import List
 import os
 import argparse
 import json
@@ -83,6 +84,7 @@ def generate_keys(args):
             - password: password that will protect the resulting keystore(s)
             - eth1_withdrawal_address: (Optional) eth1 address that will be used to create the
                                        withdrawal credentials
+            - staking_mode: (Optional) staking mode to generate keys for, possible values are 'solo' or 'bnft'
     """
     
     eth1_withdrawal_address = None
@@ -112,7 +114,8 @@ def generate_keys(args):
     )
 
     keystore_filefolders = credentials.export_keystores(password=args.password, folder=folder)
-    deposits_file = credentials.export_deposit_data_json(folder=folder)
+    # TODO: determine if in the BNFT flow when exporting deposit data
+    deposits_file = credentials.export_deposit_data_json(folder=folder, staking_mode=args.staking_mode)
     if not credentials.verify_keystores(keystore_filefolders=keystore_filefolders, password=args.password):
         raise ValidationError("Failed to verify the keystores.")
     if not verify_deposit_data_json(deposits_file, credentials.credentials):
@@ -201,6 +204,53 @@ def generate_exit_message(args):
         'filefolder': filefolder
     }))
 
+def generate_deposit_data(args):
+    eth1_withdrawal_addresses = json.loads(args.eth1_withdrawal_addresses)
+    for i, eth1_withdrawal_address in enumerate(eth1_withdrawal_addresses):
+        if not is_hex_address(eth1_withdrawal_address):
+            raise ValueError("The given Eth1 address is not in hexadecimal encoded form.")
+        eth1_withdrawal_addresses[i] = to_normalized_address(eth1_withdrawal_address)
+
+    folder = args.folder
+    network = args.network
+    validator_ids = json.loads(args.validator_ids)
+    amounts = [MAX_DEPOSIT_AMOUNT for _ in range(len(validator_ids))]
+    staking_mode = args.staking_mode
+    keystores = json.loads(args.keystores)
+    chain_setting = get_chain_setting(network)
+    keystore_password = args.keystore_password
+    if not os.path.exists(folder):
+        os.mkdir(folder)
+    
+    validator_keys = []
+    for keystore in keystores:
+        saved_keystore = Keystore.from_json(json.loads(keystore))
+        
+        try:
+            secret_bytes = saved_keystore.decrypt(keystore_password)
+        except Exception:
+            raise ValueError(f"The given password is incorrect for keystore file {keystore}.")
+        
+        signing_key = int.from_bytes(secret_bytes, 'big')
+        validator_keys.append(signing_key)
+
+    credentials = CredentialList.from_validator_keys(
+        validator_keys=validator_keys,
+        amounts=amounts,
+        indices=[int(index) for index in validator_ids],
+        chain_setting=chain_setting,
+        hex_eth1_withdrawal_addresses=eth1_withdrawal_addresses,
+    )
+
+    deposits_file = credentials.export_deposit_data_json(folder=folder, staking_mode=staking_mode)
+
+    if not verify_deposit_data_json(deposits_file, credentials.credentials):
+        raise ValidationError("Failed to verify the deposit data JSON files.")
+
+    print("deposits_file: ", deposits_file)
+
+
+
 def main():
     """The application starting point.
     """
@@ -222,6 +272,7 @@ def main():
     generate_parser.add_argument("network", help="For which network to create these keys for", type=str)
     generate_parser.add_argument("password", help="Password for the keystore files", type=str)
     generate_parser.add_argument("--eth1_withdrawal_address", help="Optional eth1 withdrawal address", type=str)
+    generate_parser.add_argument("--staking_mode", help="Optional staking mode", type=str)
     generate_parser.set_defaults(func=parse_generate_keys)
 
     validate_parser = subparsers.add_parser("validate_mnemonic")
@@ -237,6 +288,16 @@ def main():
     generate_exit_message_parser.add_argument("epoch", help="Epoch to Exit at", type=int)
     generate_exit_message_parser.add_argument("save_folder", help="Path to save exit message to", type=str)
     generate_exit_message_parser.set_defaults(func=generate_exit_message)
+
+    import_key_parser = subparsers.add_parser("generate_deposit_data")
+    import_key_parser.add_argument("eth1_withdrawal_addresses", help="Eth1 withdrawal address", type=str)
+    import_key_parser.add_argument("folder", help="Folder path for the resulting deposit_data files", type=str)
+    import_key_parser.add_argument("network", help="Network setting for the signing domain", type=str)
+    import_key_parser.add_argument("validator_ids", help="Validator Ether.fi ID", type=str)
+    import_key_parser.add_argument("staking_mode", help="bnft or normal", type=str)
+    import_key_parser.add_argument("keystores", help="Keystore files", type=str)
+    import_key_parser.add_argument("keystore_password", help="Password for the keystore file", type=str)
+    import_key_parser.set_defaults(func=generate_deposit_data)
 
     args = main_parser.parse_args()
     if not args or 'func' not in args:

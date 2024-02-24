@@ -95,7 +95,7 @@ const DataTable = ({title, dataCount, data}: DataTableProps) => {
   }
 
   return (
-    <Box h={"580px"} overflowY="auto" py="5">
+    <Box h={"300px"} overflowY="auto" py="5">
       { dataCount === 0 && <Center><Text color="white">There are no {title} stored.</Text></Center> }
       { dataCount > 0 && (
         <Table mt={2} color={"white"}>

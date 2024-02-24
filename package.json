@@ -22,10 +22,13 @@
     "productName": "etherfi-desktop",
     "appId": "com.etherfi.etherfi-desktop",
     "files": [
+      "build/bin/eth2deposit_proxy/**/*",
+      "build/bin/**/*",
       "build/**/*",
       "package.json"
     ],
     "extraFiles": [
+      "build/bin/eth2deposit_proxy",
       "build/bin/*",
       "build/word_lists/*",
       "resources/icon.png"

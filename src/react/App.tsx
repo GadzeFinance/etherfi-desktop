@@ -14,6 +14,7 @@ declare global {
     fileSystemApi: any;
     utilsApi: any
     exitMessageApi: any
+    showDirectoryPicker?: any;
   }
 }
 

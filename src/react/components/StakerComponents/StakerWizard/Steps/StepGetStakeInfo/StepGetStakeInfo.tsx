@@ -11,11 +11,12 @@ import {
 import WizardNavigator from "../../WizardNavigator";
 import { IconAlertTriangle } from "../../../../Icons";
 import { dappUrl } from "../../../../../../electron/utils/getDappUrl";
+import { StakeInfo } from "../../GenEncryptedKeysWizard";
 
 interface StepGetStakeInfoProps {
   goNextStep: () => void;
   goBackStep: () => void;
-  setStakeInfo: (stakeInfo: { [key: string]: string }[]) => void;
+  setStakeInfo: (stakeInfo: StakeInfo[]) => void;
   setCode: (code: string) => void;
 }
 
