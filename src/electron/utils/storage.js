@@ -77,23 +77,26 @@ class Database {
     }
 
     addMnemonic(address, mnemonic, validatorPassword, password) {
-        this._store.set(`stakerAddress.${address}.mnemonics.${mnemonic}`, {
+        const encryptedMnemonic = this.encrypt(mnemonic, password);
+        this._store.set(`stakerAddress.${address}.mnemonics.${encryptedMnemonic}`, {
             password: this.encrypt(validatorPassword, password),
-            mnemonic: this.encrypt(mnemonic, password),
+            mnemonic: encryptedMnemonic,
             dateCreated: new Date().toLocaleDateString()
         });
     }
 
     getMnemonics(address, password) {
-        let decrypedObject = this._store.get(`stakerAddress.${address}.mnemonics`);
-        if (!decrypedObject) {
+        let oldDecrypedObject = this._store.get(`stakerAddress.${address}.mnemonics`);
+        if (!oldDecrypedObject) {
             return {}
         }
-        Object.keys(decrypedObject).forEach((key, index) => {
-            decrypedObject[key] = {
-                password: this.decrypt(decrypedObject[key].password, password),
-                mnemonic: this.decrypt(decrypedObject[key].mnemonic, password),
-                dateCreated: decrypedObject[key].dateCreated
+        const decrypedObject = {}
+        Object.keys(oldDecrypedObject).forEach((key, index) => {
+            const decryptedKey = this.decrypt(key, password)
+            decrypedObject[decryptedKey] = {
+                password: this.decrypt(oldDecrypedObject[key].password, password),
+                mnemonic: this.decrypt(oldDecrypedObject[key].mnemonic, password),
+                dateCreated: oldDecrypedObject[key].dateCreated
             };
         });
         return decrypedObject;
