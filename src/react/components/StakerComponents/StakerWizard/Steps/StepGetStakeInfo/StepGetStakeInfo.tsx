@@ -56,32 +56,48 @@ const StepGetStakeInfo: React.FC<StepGetStakeInfoProps> = (
   const handleSubmit: React.FormEventHandler<HTMLFormElement> = (e) => {
     e.preventDefault();
     setIsLoading(true);
-    fetch(`${dappUrl}/api/stakeInfo/${stakingCode}`)
-      .then(res => {
-        if (!res.ok) {
-          throw new Error("Your code is invalid. Check the code in the web app and try again.");
-        }
-        return res
-      })
-      .then(res => res.json())
-      .then(async (stakeInfo: { [key: string]: string }[]) => {
-        props.setStakeInfo(stakeInfo);
-        props.setCode(stakingCode);
+    props.setStakeInfo([{
+      "bidderPublicKey": "049d526be3f1ad95a964a80f08eb975cbc8f3cec871142470bf0f1ab083af5d832030c2fac0c75add2a58d72470f3d0548a99cfb3ec8d51895fc0b2e5a4e48edad",
+      "etherfiDesktopAppVersion": "1.1.1",
+      "networkName": "mainnet",
+      "validatorID": 12671,
+      "withdrawalSafeAddress": "0x392B611423edBbe3BC76fca433c623c487fC7462"
+    },
+    {
+      "bidderPublicKey": "04a8fc872c630dc37a0d6e9e315c2ccd22138aa01640f50de830384f610dda91924adb230d31244fb8beab9cee2d07435d1b44bd7a2f8ade19a6bc23f3e034f7aa",
+      "etherfiDesktopAppVersion": "1.1.1",
+      "networkName": "mainnet",
+      "validatorID": 12672,
+      "withdrawalSafeAddress": "0x5B2e386E99dB63EC80185450a25a0ed6b4056016"
+    }])
+    props.setCode(stakingCode);
         props.goNextStep();
-      })
-      .catch(err => {
-        toast({
-          title: "Error fetching stake info",
-          description: 'Unable to fetch stake info. Your country may be blocked.',
-          status: "error",
-          duration: 5000,
-          isClosable: true,
-        });
-      })
-      .finally(() => {
-        setIsLoading(false);
-        setStakingCode("");
-      });
+  //   fetch(`${dappUrl}/api/stakeInfo/${stakingCode}`)
+  //     .then(res => {
+  //       if (!res.ok) {
+  //         throw new Error("Your code is invalid. Check the code in the web app and try again.");
+  //       }
+  //       return res
+  //     })
+  //     .then(res => res.json())
+  //     .then(async (stakeInfo: { [key: string]: string }[]) => {
+  //       props.setStakeInfo(stakeInfo);
+  //       props.setCode(stakingCode);
+  //       props.goNextStep();
+  //     })
+  //     .catch(err => {
+  //       toast({
+  //         title: "Error fetching stake info",
+  //         description: 'Unable to fetch stake info. Your country may be blocked.',
+  //         status: "error",
+  //         duration: 5000,
+  //         isClosable: true,
+  //       });
+  //     })
+  //     .finally(() => {
+  //       setIsLoading(false);
+  //       setStakingCode("");
+  //     });
   }
 
   return (

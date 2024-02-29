@@ -404,6 +404,19 @@ const generateStakeRequestOnImportKeys = async (
       password,
       nodeOperatorPubKeys
     );
+
+    // Add to history
+    logger.info("start to add history...")
+    const fileContent = JSON.stringify(stakeInfo)
+    const historyData = encodeGenerateKeysData(
+        address,
+        "stakeInfo",
+        fileContent,
+        "",
+        validator_ids,
+        ""
+    )
+    addHistoryRecord(historyData)
   
     fs.rmdirSync(folder, { recursive: true });
     console.log("Folder deleted successfully");
@@ -442,7 +455,7 @@ const _from_deposit_data_and_keystore_to_stake_request_list = (
 
         if (matchesFound.length !== 1) {
             logger.error(
-                "'_encryptValidatorKeys' more than one validator key found for deposit data",
+                "'_encryptValidatorKeys' more than one or zero validator key found for deposit data",
                 depositDataList[i],
                 matchesFound
             )
