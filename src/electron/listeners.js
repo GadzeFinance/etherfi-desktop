@@ -754,8 +754,6 @@ const setPassword = async (password) => {
 const getStakerAddress = async (password) => {
     const allStakers = await storage.getAllStakerAddresses()
 
-    console.log(JSON.stringify(allStakers))
-
     if (!allStakers || !password) {
         return {}
     }

@@ -66,7 +66,7 @@ const GenEncryptedKeysWizard: React.FC<WizardProps> = (props) => {
     const [stakingMode, setStakingMode] = useState<"solo" | "bnft">("bnft")
     const [operationType, setOperationType] = useState<"new" | "import">("new")
     const [files, setFiles] = useState<FileMap>({})
-    const [password, setPassword] = useState<string>("")
+    const [password, setPassword] = useState<string>("") // this is the password for the keystore files when importing
 
     const [importMnemonicPassword, setImportMnemonicPassword] =
         useState<string>("")
@@ -88,7 +88,7 @@ const GenEncryptedKeysWizard: React.FC<WizardProps> = (props) => {
         setValue("address", "")
         setValue("dropdownAddress", "")
         setFiles({})
-        
+        setPassword("")        
 
         setStep(0)
     }

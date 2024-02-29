@@ -24,7 +24,10 @@ const PreviewList: React.FC<PreviewListProps> = ({
   databasePassword
 }) => {
 
+  const [clickedConfirm, setClickedConfirm] = React.useState(false)
+
   const confirm = () => {
+    setClickedConfirm(true)
 
     window.encryptionApi.stakeRequestOnImportKeys(
       (
@@ -46,11 +49,12 @@ const PreviewList: React.FC<PreviewListProps> = ({
                     })
 
             goNextStep();
-
+              setClickedConfirm(false)
           } else {
               console.error("Error generating validator keys")
               console.error(errorMessage)
               // TODO: Show error screen on failure.
+              setClickedConfirm(false)
           }
       }
     )
@@ -90,7 +94,7 @@ const PreviewList: React.FC<PreviewListProps> = ({
       <Button onClick={() => setShowPreview(false)} mt={4} mr={4}>
         Back
       </Button>
-      <Button onClick={confirm} colorScheme="blue" mt={4}>
+      <Button onClick={confirm} isDisabled={clickedConfirm} colorScheme="blue" mt={4}>
         Confirm
       </Button>
     </Box>
