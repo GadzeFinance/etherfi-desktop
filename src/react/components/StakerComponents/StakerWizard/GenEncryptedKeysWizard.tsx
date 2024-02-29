@@ -87,6 +87,8 @@ const GenEncryptedKeysWizard: React.FC<WizardProps> = (props) => {
         setConfirmedAddress("")
         setValue("address", "")
         setValue("dropdownAddress", "")
+        setFiles({})
+        
 
         setStep(0)
     }
