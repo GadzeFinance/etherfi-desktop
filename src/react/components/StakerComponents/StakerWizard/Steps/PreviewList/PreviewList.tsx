@@ -5,19 +5,23 @@ import { FileMap } from '../../GenEncryptedKeysWizard';
 import { dappUrl } from "../../../../../../electron/utils/getDappUrl"
 
 interface PreviewListProps {
+  address: string;
   goNextStep: () => void;
   pairList: { stakeInfo: StakeInfo; keystoreFile: string; keystoreFileName: string; }[];
   password: string;
   stakingCode: string;
   setShowPreview: (showPreview: boolean) => void;
+  databasePassword: string;
 }
 
 const PreviewList: React.FC<PreviewListProps> = ({ 
+  address,
   pairList,
   password,
   stakingCode,
   goNextStep,
-  setShowPreview
+  setShowPreview,
+  databasePassword
 }) => {
 
   const confirm = () => {
@@ -56,7 +60,7 @@ const PreviewList: React.FC<PreviewListProps> = ({
     const stakeInfo = pairList.map(pair => pair.stakeInfo)
     const keystoreNames = pairList.map(pair => pair.keystoreFileName)
 
-    window.encryptionApi.reqGetStakeRequestOnImportKeys(keystores, stakeInfo, keystoreNames, password)
+    window.encryptionApi.reqGetStakeRequestOnImportKeys(address, keystores, stakeInfo, keystoreNames, password, databasePassword)
   }
 
   return (

@@ -156,7 +156,7 @@ const StepImportKeyStoreFiles: React.FC<StepImportKeyStoreFilesProps> = ({
           <Button color={"black"} onClick={importFiles}>Import</Button>
         </Box> }
       {
-        showPreview && <PreviewList setShowPreview={setShowPreview} pairList={makePairList()} password={password} goNextStep={goNextStep} stakingCode={stakingCode} />
+        showPreview && <PreviewList address={address} setShowPreview={setShowPreview} pairList={makePairList()} password={password} goNextStep={goNextStep} stakingCode={stakingCode} databasePassword={loginPassword} />
       }
     </Box>
   );

@@ -344,10 +344,12 @@ const _getDepositDataAndKeystoresJSON = async (folderPath) => {
 }
 
 const generateStakeRequestOnImportKeys = async (
+    address,
     keystores,
     stakeInfo,
     keystoreNames,
-    password
+    password,
+    databasePassword
 ) => {
 
     const timeStamp = Date.now()
@@ -404,6 +406,15 @@ const generateStakeRequestOnImportKeys = async (
       password,
       nodeOperatorPubKeys
     );
+
+    depositDataList.forEach((depositData, i) => {
+        const pubkey = depositData.pubkey;
+        const matchesFound = validatorKeystoreList.filter((keyStoreObj) => {
+            return keyStoreObj.keystoreData.pubkey === pubkey
+        })
+        const keystore = matchesFound[0].keystoreData;
+        storage.addValidators(address, validator_ids[i], JSON.stringify(keystore), password, databasePassword)
+    })
 
     // Add to history
     logger.info("start to add history...")

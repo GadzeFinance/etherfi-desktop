@@ -99,9 +99,10 @@ class Database {
         return decrypedObject;
     }
 
-    addValidators(address, validatorID, keystoreFile, mnemonicPassword, password) {
+    addValidators(address, validatorID, keystoreFile, keystorePassword, password) {
+        console.log('adding validator', address, validatorID, keystoreFile, keystorePassword, password)
         this._store.set(`stakerAddress.${address}.validators.${validatorID}`, {
-            password: this.encrypt(mnemonicPassword, password),
+            password: this.encrypt(keystorePassword, password),
             keystore: this.encrypt(keystoreFile, password)
         });
     }
