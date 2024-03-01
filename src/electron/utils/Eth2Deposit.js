@@ -432,7 +432,7 @@ const generateSignedExitMessage = async (
         })
     }
 
-    const allWallets = await storage.getAllStakerAddresses()
+    const allWallets = await storage.getAllStakerAddresses(databasePassword)
     if (allWallets == undefined || !(address in allWallets)) {
         await storage.addStakerAddress(address)
     }

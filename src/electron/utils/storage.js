@@ -72,8 +72,34 @@ class Database {
         return this._store.get(path);
     }
 
-    getAllStakerAddresses() {
-        return this._store.get("stakerAddress");
+    getAllStakerAddresses(dbPassword) {
+        const allStakerAddress = this._store.get("stakerAddress");
+
+        let is_legacy = true
+        for (const address in allStakerAddress) {
+            const mnemonics = allStakerAddress[address].mnemonics
+            if (Object.keys(mnemonics).length === 0) { // empty array, no need to convert to new format
+                is_legacy = false
+                break
+            }
+            if (Object.keys(mnemonics)[0].startsWith("{")) { // already in new format
+                is_legacy = false
+                break
+            }
+            // convert to new format
+            const newMnemonics = {}
+            for (const mnemonic in mnemonics) {
+                const encryptedMnemonic = this.encrypt(mnemonic, dbPassword);
+                newMnemonics[encryptedMnemonic] = mnemonics[mnemonic]
+            }
+            allStakerAddress[address].mnemonics = newMnemonics
+        }
+
+        if (is_legacy) {
+            this._store.set("stakerAddress", allStakerAddress)
+        }
+
+        return allStakerAddress;
     }
 
     addMnemonic(address, mnemonic, validatorPassword, password) {
@@ -92,12 +118,22 @@ class Database {
         }
         const decrypedObject = {}
         Object.keys(oldDecrypedObject).forEach((key, index) => {
-            const decryptedKey = this.decrypt(key, password)
-            decrypedObject[decryptedKey] = {
-                password: this.decrypt(oldDecrypedObject[key].password, password),
-                mnemonic: this.decrypt(oldDecrypedObject[key].mnemonic, password),
-                dateCreated: oldDecrypedObject[key].dateCreated
-            };
+            // in new flow it's a json
+            if (key.startsWith("{")) {
+                const decryptedKey = this.decrypt(key, password)
+                decrypedObject[decryptedKey] = {
+                    password: this.decrypt(oldDecrypedObject[key].password, password),
+                    mnemonic: this.decrypt(oldDecrypedObject[key].mnemonic, password),
+                    dateCreated: oldDecrypedObject[key].dateCreated
+                };
+            } else { // in old flow it's plain text
+                decrypedObject[key] = {
+                    password: this.decrypt(oldDecrypedObject[key].password, password),
+                    mnemonic: this.decrypt(oldDecrypedObject[key].mnemonic, password),
+                    dateCreated: oldDecrypedObject[key].dateCreated
+                };
+            }
+            
         });
         return decrypedObject;
     }

@@ -52,11 +52,12 @@ const genNodeOperatorKeystores = async (
     numKeys,
     saveFolder,
     privKeysPassword,
-    address
+    address,
+    dbPassword
 ) => {
     logger.info("genNodeOperatorKeystores: Start")
 
-    const allWallets = await storage.getAllStakerAddresses()
+    const allWallets = await storage.getAllStakerAddresses(dbPassword)
     if (allWallets == undefined || !(address in allWallets)) {
         await storage.addStakerAddress(address)
     }
@@ -185,7 +186,7 @@ const genValidatorKeysAndEncrypt = async (
     stakingMode
 ) => {
     logger.info("genEncryptedKeys: Start")
-    const allWallets = await storage.getAllStakerAddresses()
+    const allWallets = await storage.getAllStakerAddresses(databasePassword)
     if (allWallets == undefined || !(address in allWallets)) {
         await storage.addStakerAddress(address)
     }
@@ -752,7 +753,7 @@ const setPassword = async (password) => {
 }
 
 const getStakerAddress = async (password) => {
-    const allStakers = await storage.getAllStakerAddresses()
+    const allStakers = await storage.getAllStakerAddresses(password)
 
     if (!allStakers || !password) {
         return {}
@@ -773,8 +774,8 @@ const validatePassword = async (password) => {
     return await storage.validatePassword(password)
 }
 
-const getStakerAddressList = async () => {
-    return await storage.getAllStakerAddresses()
+const getStakerAddressList = async (dbPassword) => {
+    return await storage.getAllStakerAddresses(dbPassword)
 }
 
 /**

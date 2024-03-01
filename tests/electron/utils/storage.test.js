@@ -20,7 +20,7 @@ describe("Test Basic Flow", () => {
         db.addStakerAddress("0xABC")
         db.addStakerAddress("0xDEF")
 
-        const arrayOfStakers = Object.keys(db.getAllStakerAddresses())
+        const arrayOfStakers = Object.keys(db.getAllStakerAddresses(""))
         expect(arrayOfStakers).toContain("0xABC")
     })
 

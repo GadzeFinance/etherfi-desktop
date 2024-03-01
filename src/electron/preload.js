@@ -5,11 +5,13 @@ const { ipcRenderer, contextBridge } = require("electron")
 // without exposing the entire object
 contextBridge.exposeInMainWorld("encryptionApi", {
     // Function used in Node Operator Tab to generate public keys that will be registerd and private keys for decrypting
-    reqGenNodeOperatorKeys: function (numKeys, saveFolder, privKeysPassword) {
+    reqGenNodeOperatorKeys: function (numKeys, saveFolder, privKeysPassword, address, dbPassword) {
         ipcRenderer.send("req-gen-node-operator-keys", [
             numKeys,
             saveFolder,
             privKeysPassword,
+            "",
+            dbPassword
         ])
     },
     // Function called when node operator keys are generated.
@@ -89,8 +91,9 @@ contextBridge.exposeInMainWorld("encryptionApi", {
             func(event, ...args)
         )
     },
-    reqGetStakerAddresses: function () {
-        ipcRenderer.send("req-get-staker-address", [])
+    // This seems to be a legacy function, no one is using it.
+    reqGetStakerAddresses: function (password) {
+        ipcRenderer.send("req-get-staker-address", [password])
     },
     receieveGetStakerAddresses: function (func) {
         ipcRenderer.once("receive-get-staker-address", (event, ...args) =>
@@ -296,8 +299,8 @@ contextBridge.exposeInMainWorld("databaseApi", {
             func(event, ...args)
         )
     },
-    reqGetStakerAddressList: function () {
-        ipcRenderer.send("req-get-staker-address-list", [])
+    reqGetStakerAddressList: function (dbPassword) {
+        ipcRenderer.send("req-get-staker-address-list", [dbPassword])
     },
     receiveGetStakerAddressList: function (func) {
         ipcRenderer.once("receive-get-staker-address-list", (event, ...args) =>

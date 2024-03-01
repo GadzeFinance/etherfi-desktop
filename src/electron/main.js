@@ -102,14 +102,15 @@ app.on("window-all-closed", function () {
 /* ------------------------------------------------------------- */
 // Returns (result, pubkeyFilePath| '', privKeyFilePath | '', errorMessag e| '') to frontend
 ipcMain.on("req-gen-node-operator-keys", async (event, args) => {
-    const [numKeys, saveFolder, privKeysPassword, address] = args
+    const [numKeys, saveFolder, privKeysPassword, address, dbPassword] = args
     try {
         const [pubKeysFilePath, privKeysFilePath] =
             await genNodeOperatorKeystores(
                 numKeys,
                 saveFolder,
                 privKeysPassword,
-                address
+                address,
+                dbPassword
             )
         event.sender.send(
             "receive-NO-keys-generated-result",
@@ -280,7 +281,8 @@ ipcMain.on("req-stored-validators", async (event, args) => {
 
 ipcMain.on("req-get-staker-address", async (event, args) => {
     try {
-        const stakers = await getStakerAddress()
+        const [password] = args
+        const stakers = await getStakerAddress(password)
         event.sender.send(
             "receive-get-staker-address",
             standardResultCodes.SUCCESS,
@@ -490,7 +492,8 @@ ipcMain.on("req-all-staker-addresses", async (event, args) => {
 
 ipcMain.on("req-get-staker-address-list", async (event, args) => {
     try {
-        const stakerAddressList = await getStakerAddressList()
+        const [dbPassword] = args
+        const stakerAddressList = await getStakerAddressList(dbPassword)
         event.sender.send(
             "receive-get-staker-address-list",
             standardResultCodes.SUCCESS,
