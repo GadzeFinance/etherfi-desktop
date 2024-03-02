@@ -339,4 +339,12 @@ contextBridge.exposeInMainWorld("databaseApi", {
             func(event, ...args)
         )
     },
+    reqSetAllStakerAddresses: function (stakerAddresses, dbPassword) {
+        ipcRenderer.send("req-set-all-staker-addresses", [stakerAddresses, dbPassword])
+    },
+    receiveSetAllStakerAddresses: function (func) {
+        ipcRenderer.once("receive-set-all-staker-addresses", (event, ...args) =>
+            func(event, ...args)
+        )
+    }
 })

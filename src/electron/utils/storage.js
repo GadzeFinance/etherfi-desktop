@@ -72,11 +72,16 @@ class Database {
         return this._store.get(path);
     }
 
+    setAllStakerAddresses(stakerAddresses, dbPassword) {
+        this._store.set("stakerAddress", stakerAddresses);
+    }
+
     getAllStakerAddresses(dbPassword) {
         const allStakerAddress = this._store.get("stakerAddress");
 
         let is_legacy = true
         for (const address in allStakerAddress) {
+            if (address === "undefined") continue // filter out empty address
             const mnemonics = allStakerAddress[address].mnemonics
             if (Object.keys(mnemonics).length === 0) { // empty array, no need to convert to new format
                 is_legacy = false

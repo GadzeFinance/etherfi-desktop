@@ -19,6 +19,7 @@ const {
     fetchStoredMnemonics,
     generateStakeRequestOnImportKeys,
     storageDecrypt,
+    setAllStakerAddresses,
 } = require("./listeners")
 
 const { validateJsonFile } = require("./utils/validateFile")
@@ -545,6 +546,27 @@ ipcMain.on("req-is-password-set", async (event, args) => {
         logger.error("Error checking password status", error)
         event.sender.send(
             "receive-is-password-set",
+            standardResultCodes.ERROR,
+            "",
+            error.message
+        )
+    }
+})
+
+ipcMain.on("req-set-all-staker-addresses", async (event, args) => {
+    const [stakerAddresses, dbPassword] = args
+    try {
+        await setAllStakerAddresses(stakerAddresses, dbPassword)
+        event.sender.send(
+            "receive-set-all-staker-addresses",
+            standardResultCodes.SUCCESS,
+            "",
+            ""
+        )
+    } catch (error) {
+        logger.error("Error setting all staker addresses", error)
+        event.sender.send(
+            "receive-set-all-staker-addresses",
             standardResultCodes.ERROR,
             "",
             error.message

@@ -13,10 +13,19 @@ import {
   Flex,
   Spacer,
   Button,
+  Modal,
+  ModalOverlay,
+  ModalContent,
+  ModalHeader,
+  ModalCloseButton,
+  ModalBody,
+  Input,
+  ModalFooter,
 } from "@chakra-ui/react";
 import { DownloadIcon } from '@chakra-ui/icons'
 import AddressSelect from "./AddressSelect";
 import DataTable from "./DataTable";
+import { useToast } from "@chakra-ui/react";
 
 interface StakerMap {
   [stakerAddress: string]: StakerInfo
@@ -44,8 +53,21 @@ const SavedDataWidget = (props: SavedDataWidgetProps) => {
   const [addressList, setAddressList] = useState([]);
   const [selectedTab, setSelectedTab] = useState<number>(0);
 
+  const [modalIsOpen, setModalIsOpen] = useState(false);
+  const [overwriteFile, setOverwriteFile] = useState<any | null>(null);
+
   const {watch} = useFormContext()
   const dbPassword = watch("loginPassword")
+
+  const toast = useToast();
+
+  const openModal = () => {
+    setModalIsOpen(true);
+  };
+
+  const closeModal = () => {
+    setModalIsOpen(false);
+  };
 
   const saveFile = async (blob: Blob) => {
     const a = document.createElement('a');
@@ -62,6 +84,59 @@ const SavedDataWidget = (props: SavedDataWidgetProps) => {
     const blob = new Blob([jsonData], { type: "application/json" });
     saveFile(blob);
   };
+
+  const handleMerge = () => {
+    // TODO: implement later
+  }
+
+  const handleFileSelect = (event: any) => {
+    const file = event.target.files[0];
+    const reader = new FileReader();
+
+    reader.onload = (event) => {
+      const fileContent = event.target.result as string;
+      const data = JSON.parse(fileContent);
+      console.log(data);
+      setOverwriteFile(data);
+    };
+
+    reader.readAsText(file);
+  };
+
+  const handleImport = () => {
+    window.databaseApi.receiveSetAllStakerAddresses(
+      (
+        event: Electron.IpcMainEvent,
+        result: number,
+        errorMessage: string
+      ) => {
+        if (result === 0) {
+          console.log("SetAllStakerAddresses: Success");
+          toast({
+            title: "Success.",
+            description: "Overwrite was successful.",
+            status: "success",
+            duration: 5000,
+            isClosable: true,
+          });
+          closeModal();
+        } else {
+          console.error("Error SetAllStakerAddresses");
+          console.error(errorMessage);
+        }
+      }
+    )
+
+    toast({
+      title: "Operation in progress.",
+      description: "Please wait...",
+      status: "info",
+      duration: null,
+      isClosable: true,
+    });
+
+    window.databaseApi.reqSetAllStakerAddresses(overwriteFile, dbPassword);
+  }
 
   useEffect(() => {
 
@@ -117,6 +192,12 @@ const SavedDataWidget = (props: SavedDataWidgetProps) => {
                 <Box p='2'>
                   <Button colorScheme="gray" onClick={handleDownload}><DownloadIcon/></Button>
                 </Box>
+                <Box p='2'>
+                  <Button colorScheme="gray" onClick={handleMerge}>Merge</Button>
+                </Box>
+                <Box p='2'>
+                  <Button colorScheme="gray" onClick={openModal}>Overwrite</Button>
+                </Box>
               </Flex>
               <Tabs
                 index={selectedTab}
@@ -144,6 +225,31 @@ const SavedDataWidget = (props: SavedDataWidgetProps) => {
               </Tabs>        
             </>
           )}
+           <Modal isOpen={modalIsOpen} onClose={closeModal}>
+            <ModalOverlay />
+            <ModalContent>
+              <ModalHeader>Dangerous: Overwriting DB</ModalHeader>
+              <ModalCloseButton />
+              <ModalBody>
+                <Text>
+                  This is a dangerous operation. It will overwrite the current database. Are you sure you want to continue?<br></br>
+                  You will lose all the data and can't recover it.<br></br>
+                  Please save a copy before this operation.<br></br><br></br><br></br>
+                  Choose a db file to import.
+                </Text>
+                <Input type="file" onChange={handleFileSelect} />
+              </ModalBody>
+
+              <ModalFooter>
+                <Button colorScheme="blue" mr={3} onClick={closeModal}>
+                  Close
+                </Button>
+                <Button colorScheme="red" onClick={handleImport}>
+                  Overwrite
+                </Button>
+              </ModalFooter>
+            </ModalContent>
+          </Modal>
         </Box>
       </Box>
     </Center></>

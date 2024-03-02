@@ -752,6 +752,10 @@ const setPassword = async (password) => {
     return await storage.setPassword(password)
 }
 
+const setAllStakerAddresses = async (stakerAddresses, password) => {
+    await storage.setAllStakerAddresses(stakerAddresses, password)
+}
+
 const getStakerAddress = async (password) => {
     const allStakers = await storage.getAllStakerAddresses(password)
 
@@ -930,5 +934,6 @@ module.exports = {
     validatePassword,
     getValidatorIndices,
     generateStakeRequestOnImportKeys,
-    storageDecrypt
+    storageDecrypt,
+    setAllStakerAddresses
 }
