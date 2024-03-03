@@ -54,7 +54,9 @@ const SavedDataWidget = (props: SavedDataWidgetProps) => {
   const [selectedTab, setSelectedTab] = useState<number>(0);
 
   const [modalIsOpen, setModalIsOpen] = useState(false);
+  const [mergeModalIsOpen, setMergeModalIsOpen] = useState(false);
   const [overwriteFile, setOverwriteFile] = useState<any | null>(null);
+  const [mergeFile, setMergeFile] = useState<any | null>(null);
 
   const {watch} = useFormContext()
   const dbPassword = watch("loginPassword")
@@ -67,6 +69,16 @@ const SavedDataWidget = (props: SavedDataWidgetProps) => {
 
   const closeModal = () => {
     setModalIsOpen(false);
+    setOverwriteFile(null);
+  };
+
+  const openMergeModal = () => {
+    setMergeModalIsOpen(true);
+  };
+
+  const closeMergeModal = () => {
+    setMergeModalIsOpen(false);
+    setMergeFile(null);
   };
 
   const saveFile = async (blob: Blob) => {
@@ -88,6 +100,20 @@ const SavedDataWidget = (props: SavedDataWidgetProps) => {
   const handleMerge = () => {
     // TODO: implement later
   }
+
+  const handleMergeFileSelect = (event: any) => {
+    const file = event.target.files[0];
+    const reader = new FileReader();
+
+    reader.onload = (event) => {
+      const fileContent = event.target.result as string;
+      const data = JSON.parse(fileContent);
+      console.log(data);
+      setMergeFile(data);
+    };
+
+    reader.readAsText(file);
+  };
 
   const handleFileSelect = (event: any) => {
     const file = event.target.files[0];
@@ -193,7 +219,7 @@ const SavedDataWidget = (props: SavedDataWidgetProps) => {
                   <Button colorScheme="gray" onClick={handleDownload}><DownloadIcon/></Button>
                 </Box>
                 <Box p='2'>
-                  <Button colorScheme="gray" onClick={handleMerge}>Merge</Button>
+                  <Button colorScheme="gray" onClick={openMergeModal}>Merge</Button>
                 </Box>
                 <Box p='2'>
                   <Button colorScheme="gray" onClick={openModal}>Overwrite</Button>
@@ -245,6 +271,28 @@ const SavedDataWidget = (props: SavedDataWidgetProps) => {
                   Close
                 </Button>
                 <Button colorScheme="red" onClick={handleImport}>
+                  Overwrite
+                </Button>
+              </ModalFooter>
+            </ModalContent>
+          </Modal>
+          <Modal isOpen={mergeModalIsOpen} onClose={closeMergeModal}>
+            <ModalOverlay />
+            <ModalContent>
+              <ModalHeader>Merge another DB</ModalHeader>
+              <ModalCloseButton />
+              <ModalBody>
+                <Text>
+                  Select the db to merge, it will fail if the two files have conflicting mnemonics or validator index
+                </Text>
+                <Input type="file" onChange={handleMergeFileSelect} />
+              </ModalBody>
+
+              <ModalFooter>
+                <Button colorScheme="blue" mr={3} onClick={closeMergeModal}>
+                  Close
+                </Button>
+                <Button colorScheme="red" onClick={handleMerge}>
                   Overwrite
                 </Button>
               </ModalFooter>

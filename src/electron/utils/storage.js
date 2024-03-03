@@ -89,10 +89,10 @@ class Database {
                 is_legacy = false
                 break
             }
-            if (Object.keys(mnemonics)[0].startsWith("{")) { // already in new format
-                is_legacy = false
-                break
-            }
+            // if (Object.keys(mnemonics)[0].startsWith("{")) { // already in new format
+            //     is_legacy = false
+            //     break
+            // }
             // convert to new format
             const newMnemonics = {}
             for (const mnemonic in mnemonics) {
