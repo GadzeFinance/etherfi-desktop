@@ -79,6 +79,8 @@ class Database {
     getAllStakerAddresses(dbPassword) {
         const allStakerAddress = this._store.get("stakerAddress");
 
+        console.log("backend: ", JSON.stringify(allStakerAddress))
+
         let is_legacy = true
         for (const address in allStakerAddress) {
             if (address === "undefined") continue // filter out empty address
@@ -94,7 +96,7 @@ class Database {
             // convert to new format
             const newMnemonics = {}
             for (const mnemonic in mnemonics) {
-                const encryptedMnemonic = this.encrypt(mnemonic, dbPassword);
+                const encryptedMnemonic = mnemonics[mnemonic].mnemonic
                 newMnemonics[encryptedMnemonic] = mnemonics[mnemonic]
             }
             allStakerAddress[address].mnemonics = newMnemonics
@@ -108,7 +110,7 @@ class Database {
     }
 
     addMnemonic(address, mnemonic, validatorPassword, password) {
-        const encryptedMnemonic = this.encrypt(mnemonic, password);
+        const encryptedMnemonic = this.encrypt(mnemonic, password); 
         this._store.set(`stakerAddress.${address}.mnemonics.${encryptedMnemonic}`, {
             password: this.encrypt(validatorPassword, password),
             mnemonic: encryptedMnemonic,
