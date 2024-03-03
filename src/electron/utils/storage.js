@@ -1,7 +1,7 @@
 const Store = require("electron-store");
 const crypto = require("crypto");
 const schema = require('./storageSchema');
-const { add } = require("winston");
+const { app } = require('electron')
 
 class Database {
     _store;
@@ -76,10 +76,24 @@ class Database {
         this._store.set("stakerAddress", stakerAddresses);
     }
 
+    // in previous version, we don't encrypt mnemonic in history record, this function is to encrypt them if they are plain text
+    // note: the generated encryption will not be the same as the one in db, this is because we generate random iv each time,
+    //       this is total fine, the decryption will succeed, and we don't have to over engineer to make them the same
+    encryptHistoryRecords(dbPassword) {
+        const tsToRecordMap = this._store.get("historyRecords");
+        for (const timestamp in tsToRecordMap) {
+            const record = tsToRecordMap[timestamp];
+            if (record.mnemonic !== "" && !record.mnemonic.startsWith("{")) {
+                record.mnemonic = this.encrypt(record.mnemonic, dbPassword)
+            }
+        }
+        this._store.set("historyRecords", tsToRecordMap);
+    }
+
     getAllStakerAddresses(dbPassword) {
         const allStakerAddress = this._store.get("stakerAddress");
 
-        console.log("backend: ", JSON.stringify(allStakerAddress))
+        this.encryptHistoryRecords(dbPassword)
 
         let is_legacy = true
         for (const address in allStakerAddress) {

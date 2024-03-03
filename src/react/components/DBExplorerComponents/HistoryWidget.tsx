@@ -54,6 +54,7 @@ const HistoryWidget = (props: HistoryWidgetProps) => {
   const toast = useToast()
   const { watch, setValue } = useFormContext();
   const password = watch("password")
+  const databasePassword = watch("loginPassword")
   
   const [authenticated, setAuthenticated] = useState(false)
   const [isPasswordValid, setIsPasswordValid] = useState<boolean>(false)
@@ -165,7 +166,7 @@ const HistoryWidget = (props: HistoryWidgetProps) => {
         }
       }
     );
-    window.databaseApi.reqHistoryByPage(page);
+    window.databaseApi.reqHistoryByPage(page, databasePassword);
 
   }, [props.tabIndex, page, pageCount])
 

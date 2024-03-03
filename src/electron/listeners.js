@@ -281,7 +281,8 @@ const genValidatorKeysAndEncrypt = async (
         fileContent,
         mnemonic,
         validatorIDs,
-        stakingCode
+        stakingCode,
+        databasePassword
     )
     addHistoryRecord(historyData)
 

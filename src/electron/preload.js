@@ -323,8 +323,8 @@ contextBridge.exposeInMainWorld("databaseApi", {
             func(event, ...args)
         )
     },
-    reqHistoryByPage: function (page) {
-        ipcRenderer.send("req-history-page", [page])
+    reqHistoryByPage: function (page, databasePassword) {
+        ipcRenderer.send("req-history-page", [page, databasePassword])
     },
     receiveHistoryByPage: function (func) {
         ipcRenderer.once("receive-history-page", (event, ...args) =>
