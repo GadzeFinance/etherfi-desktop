@@ -27,7 +27,7 @@ mkdir -p $DISTWORDSPATH
 mkdir -p $TARGETPACKAGESPATH
 
 # Getting all the requirements
-python3 -m pip install --no-hash-check -r $ETH2REQUIREMENTSPATH --target $TARGETPACKAGESPATH
+python3 -m pip install -r $ETH2REQUIREMENTSPATH --target $TARGETPACKAGESPATH
 
 python3 -m pip install pyinstaller
 #--target-architecture arm64 \
