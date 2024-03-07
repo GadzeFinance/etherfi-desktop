@@ -26,13 +26,16 @@ import { DownloadIcon } from '@chakra-ui/icons'
 import AddressSelect from "./AddressSelect";
 import DataTable from "./DataTable";
 import { useToast } from "@chakra-ui/react";
+import JSZip from 'jszip';
+import { saveAs } from 'file-saver';
+import { decrypt } from "../../utils/utils";
 
 interface StakerMap {
   [stakerAddress: string]: StakerInfo
 }
 
 interface ValidatorInfo {
-  keystore: object,
+  keystore: string,
   password: string
 }
 
@@ -55,8 +58,12 @@ const SavedDataWidget = (props: SavedDataWidgetProps) => {
 
   const [modalIsOpen, setModalIsOpen] = useState(false);
   const [mergeModalIsOpen, setMergeModalIsOpen] = useState(false);
+  const [exportModalIsOpen, setExportModalIsOpen] = useState(false);
   const [overwriteFile, setOverwriteFile] = useState<any | null>(null);
   const [mergeFile, setMergeFile] = useState<any | null>(null);
+  const [exportFile, setExportFile] = useState<any | null>(null);
+  const [directoryPath, setDirectoryPath] = useState<string>("");
+  const [exportList, setExportList] = useState<string>("");
 
   const {watch} = useFormContext()
   const dbPassword = watch("loginPassword")
@@ -80,6 +87,14 @@ const SavedDataWidget = (props: SavedDataWidgetProps) => {
     setMergeModalIsOpen(false);
     setMergeFile(null);
   };
+
+  const openExportModal = () => {
+    setExportModalIsOpen(true);
+  }
+
+  const closeExportModal = () => {
+    setExportModalIsOpen(false);
+  }
 
   const saveFile = async (blob: Blob) => {
     const a = document.createElement('a');
@@ -164,6 +179,47 @@ const SavedDataWidget = (props: SavedDataWidgetProps) => {
     window.databaseApi.reqSetAllStakerAddresses(overwriteFile, dbPassword);
   }
 
+  const handleExport = async () => {
+    if (exportList.trim() === "") {
+      toast({
+        title: "Error",
+        description: "Please enter a list of validator IDs",
+        status: "error",
+        duration: 5000,
+        isClosable: true,
+      });
+      closeExportModal()
+      return
+    }
+    const ids = exportList.split(",").map((id) => id.trim());
+    const files = []
+    const allValidators = allStakers[currAddress].validators
+    for (const id of ids) {
+      if (!allValidators[parseInt(id)]) {
+        continue
+      }
+      const keystore = await decrypt(allValidators[parseInt(id)].keystore, dbPassword)
+      const password = await decrypt(allValidators[parseInt(id)].password, dbPassword)
+      files.push({name: `keystore-ether-fi-${id}.json`, content: keystore})
+      files.push({name: `keystore-ether-fi-${id}.txt`, content: password})
+    }
+
+    const zip = new JSZip();
+
+    // Add each file to the zip
+    files.forEach(file => {
+        zip.file(file.name, file.content);
+    });
+
+    // Generate the zip file and trigger the download
+    zip.generateAsync({type:"blob"}).then(function(content: any) {
+        saveAs(content, `exported_validators_${ids.join(",")}.zip`);
+    });
+
+    setExportList("")
+    closeExportModal()
+  }
+
   useEffect(() => {
 
     if (props.selectedOption !== 0 || props.tabIndex !== 2) return
@@ -220,6 +276,9 @@ const SavedDataWidget = (props: SavedDataWidgetProps) => {
                 </Box>
                 <Box p='2'>
                   <Button colorScheme="gray" onClick={openMergeModal}>Merge</Button>
+                </Box>
+                <Box p='2'>
+                  <Button colorScheme="gray" onClick={openExportModal}>Export</Button>
                 </Box>
                 <Box p='2'>
                   <Button colorScheme="gray" onClick={openModal}>Overwrite</Button>
@@ -294,6 +353,29 @@ const SavedDataWidget = (props: SavedDataWidgetProps) => {
                 </Button>
                 <Button colorScheme="red" onClick={handleMerge}>
                   Overwrite
+                </Button>
+              </ModalFooter>
+            </ModalContent>
+          </Modal>
+          <Modal isOpen={exportModalIsOpen} onClose={closeExportModal}>
+            <ModalOverlay />
+            <ModalContent>
+              <ModalHeader>Export Validators</ModalHeader>
+              <ModalCloseButton />
+              <ModalBody>
+                <Text>
+                  Enter a list of validator IDs, separated by comma
+                </Text>
+                <Input type="text" onChange={(event) => setExportList(event.target.value)} />
+                {/* <Input type="file" onChange={handleExportFileSelect} /> */}
+              </ModalBody>
+
+              <ModalFooter>
+                <Button colorScheme="blue" mr={3} onClick={closeExportModal}>
+                  Close
+                </Button>
+                <Button colorScheme="red" onClick={handleExport}>
+                  Export
                 </Button>
               </ModalFooter>
             </ModalContent>
