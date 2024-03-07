@@ -213,7 +213,7 @@ const SavedDataWidget = (props: SavedDataWidgetProps) => {
 
     // Generate the zip file and trigger the download
     zip.generateAsync({type:"blob"}).then(function(content: any) {
-        saveAs(content, `exported_validators_${ids.join(",")}.zip`);
+        saveAs(content, `exported_validators_${new Date().toISOString()}.zip`);
     });
 
     setExportList("")
