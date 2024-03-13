@@ -366,6 +366,9 @@ const SavedDataWidget = (props: SavedDataWidgetProps) => {
                 <Text>
                   Enter a list of validator IDs, separated by comma
                 </Text>
+                <Text>
+                  Count: {exportList.split(",").map((id) => id.trim()).filter((id) => id !== "").length}
+                </Text>
                 <Input type="text" onChange={(event) => setExportList(event.target.value)} />
                 {/* <Input type="file" onChange={handleExportFileSelect} /> */}
               </ModalBody>
