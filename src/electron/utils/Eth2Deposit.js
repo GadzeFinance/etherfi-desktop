@@ -249,7 +249,7 @@ const generateKeys = async (
     validatorID, // number
     databasePassword, // string
     address, // string
-    stakingMode // "solo" | "bnft"
+    stakingMode, // "solo" | "bnft"
 ) => {
     logger.info("generateKeys ")
 
@@ -333,16 +333,10 @@ const generateKeys = async (
     }
 
     await execFileProm(executable, args, { env: env })
-    const { file } = getMostRecentFile(folder)
-    const filePathToKeystore = `${folder}/${file}`
-    const keystore = readFileSync(filePathToKeystore, "utf8")
-    storage.addValidators(
-        address,
-        validatorID,
-        keystore,
-        password,
-        databasePassword
-    )
+    // const { file } = getMostRecentFile(folder)
+    // const filePathToKeystore = `${folder}/${file}`
+    // const keystore = readFileSync(filePathToKeystore, "utf8")
+    
 }
 
 /**
