@@ -1,12 +1,21 @@
 import { useState } from 'react';
 import { Input, IconButton, Td, InputGroup, InputRightElement } from '@chakra-ui/react';
 import { ViewOffIcon, ViewIcon } from "@chakra-ui/icons";
+import { decrypt } from '../../utils/utils';
 
-const PasswordCell = ({ password }: {password: string}) => {
+const PasswordCell = ({ password, dbPassword }: {password: string, dbPassword: string}) => {
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
+  const [passwordValue, setPasswordValue] = useState("MMMMMMM0tqWvA$iGT4ap");
+  const [loading, setLoading] = useState(false);
 
-  const handleToggleVisibility = () => {
+  const handleToggleVisibility = async () => {
+
+    const decrypted = await decrypt(password, dbPassword);
+    if (!isPasswordVisible) {
+      setPasswordValue(decrypted);
+    }
     setIsPasswordVisible((prevState) => !prevState);
+    
   };
 
   return (
@@ -14,7 +23,7 @@ const PasswordCell = ({ password }: {password: string}) => {
         <InputGroup>
             <Input
                 type={isPasswordVisible ? 'text' : 'password'}
-                value={password}
+                value={passwordValue}
                 readOnly
                 pr="3rem"
             />

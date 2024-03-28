@@ -5,11 +5,13 @@ const { ipcRenderer, contextBridge } = require("electron")
 // without exposing the entire object
 contextBridge.exposeInMainWorld("encryptionApi", {
     // Function used in Node Operator Tab to generate public keys that will be registerd and private keys for decrypting
-    reqGenNodeOperatorKeys: function (numKeys, saveFolder, privKeysPassword) {
+    reqGenNodeOperatorKeys: function (numKeys, saveFolder, privKeysPassword, address, dbPassword) {
         ipcRenderer.send("req-gen-node-operator-keys", [
             numKeys,
             saveFolder,
             privKeysPassword,
+            "",
+            dbPassword
         ])
     },
     // Function called when node operator keys are generated.
@@ -89,8 +91,9 @@ contextBridge.exposeInMainWorld("encryptionApi", {
             func(event, ...args)
         )
     },
-    reqGetStakerAddresses: function () {
-        ipcRenderer.send("req-get-staker-address", [])
+    // This seems to be a legacy function, no one is using it.
+    reqGetStakerAddresses: function (password) {
+        ipcRenderer.send("req-get-staker-address", [password])
     },
     receieveGetStakerAddresses: function (func) {
         ipcRenderer.once("receive-get-staker-address", (event, ...args) =>
@@ -108,17 +111,25 @@ contextBridge.exposeInMainWorld("encryptionApi", {
         )
     },
     reqGetStakeRequestOnImportKeys: function (
+        address,
         keystores,
         stakeInfo,
         keystoreNames,
-        password
+        password,
+        databasePassword
     ) {
-        ipcRenderer.send("req-get-stake-request-on-import-keys", [keystores, stakeInfo, keystoreNames, password])
+        ipcRenderer.send("req-get-stake-request-on-import-keys", [address, keystores, stakeInfo, keystoreNames, password, databasePassword])
     },
     stakeRequestOnImportKeys: function (func) {
         ipcRenderer.on("stake-request-on-import-keys", (event, ...args) =>
             func(event, ...args)
         )
+    },
+    reqDecrypt: function (cipherText, password) {
+        ipcRenderer.send("req-decrypt", [cipherText, password])
+    },
+    receiveDecrypt: function (func) {
+        ipcRenderer.once("receive-decrypt", (event, ...args) => func(event, ...args))
     }
 })
 
@@ -288,8 +299,8 @@ contextBridge.exposeInMainWorld("databaseApi", {
             func(event, ...args)
         )
     },
-    reqGetStakerAddressList: function () {
-        ipcRenderer.send("req-get-staker-address-list", [])
+    reqGetStakerAddressList: function (dbPassword) {
+        ipcRenderer.send("req-get-staker-address-list", [dbPassword])
     },
     receiveGetStakerAddressList: function (func) {
         ipcRenderer.once("receive-get-staker-address-list", (event, ...args) =>
@@ -312,8 +323,8 @@ contextBridge.exposeInMainWorld("databaseApi", {
             func(event, ...args)
         )
     },
-    reqHistoryByPage: function (page) {
-        ipcRenderer.send("req-history-page", [page])
+    reqHistoryByPage: function (page, databasePassword) {
+        ipcRenderer.send("req-history-page", [page, databasePassword])
     },
     receiveHistoryByPage: function (func) {
         ipcRenderer.once("receive-history-page", (event, ...args) =>
@@ -328,4 +339,12 @@ contextBridge.exposeInMainWorld("databaseApi", {
             func(event, ...args)
         )
     },
+    reqSetAllStakerAddresses: function (stakerAddresses, dbPassword) {
+        ipcRenderer.send("req-set-all-staker-addresses", [stakerAddresses, dbPassword])
+    },
+    receiveSetAllStakerAddresses: function (func) {
+        ipcRenderer.once("receive-set-all-staker-addresses", (event, ...args) =>
+            func(event, ...args)
+        )
+    }
 })

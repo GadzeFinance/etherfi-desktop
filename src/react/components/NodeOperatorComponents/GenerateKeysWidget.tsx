@@ -26,6 +26,7 @@ const GenerateKeysWidget: React.FC = () => {
 
     const { watch } = useFormContext()
     const { privKeyPassword } = watch();
+    const dbPassword = watch("loginPassword")
 
     const generateKeys = () => {
         window.encryptionApi.receiveNOKeysConfirmation(
@@ -41,7 +42,7 @@ const GenerateKeysWidget: React.FC = () => {
                 }
             })
         // Send request to backend to make the public and private key files
-        window.encryptionApi.reqGenNodeOperatorKeys(numKeys, savePath, privKeyPassword);
+        window.encryptionApi.reqGenNodeOperatorKeys(numKeys, savePath, privKeyPassword, "", dbPassword);
         setKeysGenerating(true)
     }
 

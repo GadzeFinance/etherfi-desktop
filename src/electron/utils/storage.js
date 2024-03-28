@@ -1,7 +1,7 @@
 const Store = require("electron-store");
 const crypto = require("crypto");
 const schema = require('./storageSchema');
-const { add } = require("winston");
+const { app } = require('electron')
 
 class Database {
     _store;
@@ -72,36 +72,97 @@ class Database {
         return this._store.get(path);
     }
 
-    getAllStakerAddresses() {
-        return this._store.get("stakerAddress");
+    setAllStakerAddresses(stakerAddresses, dbPassword) {
+        this._store.set("stakerAddress", stakerAddresses);
+    }
+
+    // in previous version, we don't encrypt mnemonic in history record, this function is to encrypt them if they are plain text
+    // note: the generated encryption will not be the same as the one in db, this is because we generate random iv each time,
+    //       this is total fine, the decryption will succeed, and we don't have to over engineer to make them the same
+    encryptHistoryRecords(dbPassword) {
+        const tsToRecordMap = this._store.get("historyRecords");
+        for (const timestamp in tsToRecordMap) {
+            const record = tsToRecordMap[timestamp];
+            if (record.mnemonic !== "" && !record.mnemonic.startsWith("{")) {
+                record.mnemonic = this.encrypt(record.mnemonic, dbPassword)
+            }
+        }
+        this._store.set("historyRecords", tsToRecordMap);
+    }
+
+    getAllStakerAddresses(dbPassword) {
+        const allStakerAddress = this._store.get("stakerAddress");
+
+        this.encryptHistoryRecords(dbPassword)
+
+        let is_legacy = true
+        for (const address in allStakerAddress) {
+            if (address === "undefined") continue // filter out empty address
+            const mnemonics = allStakerAddress[address].mnemonics
+            if (Object.keys(mnemonics).length === 0) { // empty array, no need to convert to new format
+                is_legacy = false
+                break
+            }
+            // if (Object.keys(mnemonics)[0].startsWith("{")) { // already in new format
+            //     is_legacy = false
+            //     break
+            // }
+            // convert to new format
+            const newMnemonics = {}
+            for (const mnemonic in mnemonics) {
+                const encryptedMnemonic = mnemonics[mnemonic].mnemonic
+                newMnemonics[encryptedMnemonic] = mnemonics[mnemonic]
+            }
+            allStakerAddress[address].mnemonics = newMnemonics
+        }
+
+        if (is_legacy) {
+            this._store.set("stakerAddress", allStakerAddress)
+        }
+
+        return allStakerAddress;
     }
 
     addMnemonic(address, mnemonic, validatorPassword, password) {
-        this._store.set(`stakerAddress.${address}.mnemonics.${mnemonic}`, {
+        const encryptedMnemonic = this.encrypt(mnemonic, password); 
+        this._store.set(`stakerAddress.${address}.mnemonics.${encryptedMnemonic}`, {
             password: this.encrypt(validatorPassword, password),
-            mnemonic: this.encrypt(mnemonic, password),
+            mnemonic: encryptedMnemonic,
             dateCreated: new Date().toLocaleDateString()
         });
     }
 
     getMnemonics(address, password) {
-        let decrypedObject = this._store.get(`stakerAddress.${address}.mnemonics`);
-        if (!decrypedObject) {
+        let oldDecrypedObject = this._store.get(`stakerAddress.${address}.mnemonics`);
+        if (!oldDecrypedObject) {
             return {}
         }
-        Object.keys(decrypedObject).forEach((key, index) => {
-            decrypedObject[key] = {
-                password: this.decrypt(decrypedObject[key].password, password),
-                mnemonic: this.decrypt(decrypedObject[key].mnemonic, password),
-                dateCreated: decrypedObject[key].dateCreated
-            };
+        const decrypedObject = {}
+        Object.keys(oldDecrypedObject).forEach((key, index) => {
+            // in new flow it's a json
+            if (key.startsWith("{")) {
+                const decryptedKey = this.decrypt(key, password)
+                decrypedObject[decryptedKey] = {
+                    password: this.decrypt(oldDecrypedObject[key].password, password),
+                    mnemonic: this.decrypt(oldDecrypedObject[key].mnemonic, password),
+                    dateCreated: oldDecrypedObject[key].dateCreated
+                };
+            } else { // in old flow it's plain text
+                decrypedObject[key] = {
+                    password: this.decrypt(oldDecrypedObject[key].password, password),
+                    mnemonic: this.decrypt(oldDecrypedObject[key].mnemonic, password),
+                    dateCreated: oldDecrypedObject[key].dateCreated
+                };
+            }
+            
         });
         return decrypedObject;
     }
 
-    addValidators(address, validatorID, keystoreFile, mnemonicPassword, password) {
+    addValidators(address, validatorID, keystoreFile, keystorePassword, password) {
+        console.log('adding validator', address, validatorID, keystoreFile, keystorePassword, password)
         this._store.set(`stakerAddress.${address}.validators.${validatorID}`, {
-            password: this.encrypt(mnemonicPassword, password),
+            password: this.encrypt(keystorePassword, password),
             keystore: this.encrypt(keystoreFile, password)
         });
     }
