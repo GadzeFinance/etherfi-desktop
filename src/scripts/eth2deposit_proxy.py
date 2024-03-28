@@ -20,7 +20,7 @@ from typing import Any, Dict
 from py_ecc.bls import G2ProofOfPossession as bls
 from staking_deposit.exceptions import ValidationError
 from staking_deposit.key_handling.keystore import Keystore
-from staking_deposit.utils.ssz import SignedVoluntaryExit, VoluntaryExit, compute_signing_root, compute_voluntary_exit_domain
+# from staking_deposit.utils.ssz import SignedVoluntaryExit, VoluntaryExit, compute_signing_root, compute_voluntary_exit_domain
 from staking_deposit.utils.intl import (
     closest_match,
     load_text,
@@ -153,56 +153,57 @@ def parse_validate_mnemonic(args):
             - epoch: the epoch to exit the validator 
     """
 def generate_exit_message(args):
+    raise NotImplementedError("This function is not implemented yet.")
     
-    saved_keystore = Keystore.from_file(args.keystore_path)
-    
-    try:
-        secret_bytes = saved_keystore.decrypt(args.keystore_password)
-    except Exception:
-        raise ValidationError(load_text(['arg_generate_exit_transaction_keystore_password', 'mismatch']))
-    
-    signing_key = int.from_bytes(secret_bytes, 'big')
-
-    message = VoluntaryExit(
-        epoch=args.epoch,
-        validator_index=args.validator_index
-    )
-
-    chain_settings = get_chain_setting(args.chain)
-    domain = compute_voluntary_exit_domain(
-        fork_version=chain_settings.CURRENT_FORK_VERSION,
-        genesis_validators_root=chain_settings.GENESIS_VALIDATORS_ROOT
-    )
-
-    signing_root = compute_signing_root(message, domain)
-    signature = bls.Sign(signing_key, signing_root)
-
-    signed_exit = SignedVoluntaryExit(
-        message=message,
-        signature=signature,
-    )
-
-    # Safe exit message to folder
-    folder = args.save_folder
-    filefolder = os.path.join(folder, 'signedExitMessage-%i.json' % time.time())
-
-    signed_exit_json: Dict[str, Any] = {}
-    message = {
-        'epoch': str(signed_exit.message.epoch),
-        'validator_index': str(signed_exit.message.validator_index),
-    }
-    signed_exit_json.update({'message': message})
-    signed_exit_json.update({'signature': '0x' + signed_exit.signature.hex()})
-
-    with open(filefolder, 'w') as f:
-        json.dump(signed_exit_json, f)
-    if os.name == 'posix':
-        os.chmod(filefolder, int('440', 8))  # Read for owner & group
-    
-    # Print exit message to stdout to be retrieved from NodeJS code
-    print(json.dumps({
-        'filefolder': filefolder
-    }))
+    # saved_keystore = Keystore.from_file(args.keystore_path)
+    #
+    # try:
+    #     secret_bytes = saved_keystore.decrypt(args.keystore_password)
+    # except Exception:
+    #     raise ValidationError(load_text(['arg_generate_exit_transaction_keystore_password', 'mismatch']))
+    #
+    # signing_key = int.from_bytes(secret_bytes, 'big')
+    #
+    # message = VoluntaryExit(
+    #     epoch=args.epoch,
+    #     validator_index=args.validator_index
+    # )
+    #
+    # chain_settings = get_chain_setting(args.chain)
+    # domain = compute_voluntary_exit_domain(
+    #     fork_version=chain_settings.CURRENT_FORK_VERSION,
+    #     genesis_validators_root=chain_settings.GENESIS_VALIDATORS_ROOT
+    # )
+    #
+    # signing_root = compute_signing_root(message, domain)
+    # signature = bls.Sign(signing_key, signing_root)
+    #
+    # signed_exit = SignedVoluntaryExit(
+    #     message=message,
+    #     signature=signature,
+    # )
+    #
+    # # Safe exit message to folder
+    # folder = args.save_folder
+    # filefolder = os.path.join(folder, 'signedExitMessage-%i.json' % time.time())
+    #
+    # signed_exit_json: Dict[str, Any] = {}
+    # message = {
+    #     'epoch': str(signed_exit.message.epoch),
+    #     'validator_index': str(signed_exit.message.validator_index),
+    # }
+    # signed_exit_json.update({'message': message})
+    # signed_exit_json.update({'signature': '0x' + signed_exit.signature.hex()})
+    #
+    # with open(filefolder, 'w') as f:
+    #     json.dump(signed_exit_json, f)
+    # if os.name == 'posix':
+    #     os.chmod(filefolder, int('440', 8))  # Read for owner & group
+    #
+    # # Print exit message to stdout to be retrieved from NodeJS code
+    # print(json.dumps({
+    #     'filefolder': filefolder
+    # }))
 
 def generate_deposit_data(args):
     eth1_withdrawal_addresses = json.loads(args.eth1_withdrawal_addresses)
