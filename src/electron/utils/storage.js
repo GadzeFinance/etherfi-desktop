@@ -130,6 +130,10 @@ class Database {
             mnemonic: encryptedMnemonic,
             dateCreated: new Date().toLocaleDateString()
         });
+        const mnemonics = this.getMnemonics(address, password) //unencrypts stored mnemonics
+        if(!mnemonics[mnemonic]) {
+            throw new Error("Generated mnemonic is not correctly encrypted or persisted");
+        }
     }
 
     getMnemonics(address, password) {
