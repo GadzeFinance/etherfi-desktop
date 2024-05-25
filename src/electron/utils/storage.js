@@ -165,6 +165,14 @@ class Database {
             password: this.encrypt(keystorePassword, password),
             keystore: this.encrypt(keystoreFile, password)
         });
+
+        // Make sure the key is correctly encrypted & persisted
+        let storedKey = this._store.get(`stakerAddress.${address}.validators.${validatorID}`);
+        if (!storedKey ||
+            keystorePassword != this.decrypt(storedKey.password, password) || 
+            keystoreFile != this.decrypt(storedKey.keystore, password)) {
+            throw new Error("Generated key is not correctly encrypted or persisted");
+        }
     }
 
     getValidators(address, password) {
