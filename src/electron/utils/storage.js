@@ -81,6 +81,7 @@ class Database {
     //       this is total fine, the decryption will succeed, and we don't have to over engineer to make them the same
     encryptHistoryRecords(dbPassword) {
         const tsToRecordMap = this._store.get("historyRecords");
+        if(!tsToRecordMap) return
         for (const timestamp in tsToRecordMap) {
             const record = tsToRecordMap[timestamp];
             if (record.mnemonic !== "" && !record.mnemonic.startsWith("{")) {
@@ -92,7 +93,7 @@ class Database {
 
     getAllStakerAddresses(dbPassword) {
         const allStakerAddress = this._store.get("stakerAddress");
-
+        if (!allStakerAddress) return allStakerAddress;
         this.encryptHistoryRecords(dbPassword)
 
         let is_legacy = true
