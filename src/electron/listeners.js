@@ -216,6 +216,14 @@ const genValidatorKeysAndEncrypt = async (
         withdrawalAddr2StakeInfo[info.withdrawalSafeAddress].push(info)
     }
 
+    for (const [withdrawalSafeAddress, infoArray] of Object.entries(withdrawalAddr2StakeInfo)) {
+        const ids = infoArray.map((i) => i.validatorID)
+        validatorIDs.push(...ids)
+    }
+    const isUnique = storage.checkUniqueValidatorIndices(validatorIDs, address)
+    if (!isUnique) {
+        throw new Error("Validator Indices have been used before")
+    }
     let startIndex = 0
     for (const [withdrawalSafeAddress, infoArray] of Object.entries(withdrawalAddr2StakeInfo)) {
         const pubkeys = infoArray.map((i) => i.bidderPublicKey)
@@ -223,7 +231,6 @@ const genValidatorKeysAndEncrypt = async (
         const eth1_withdrawal_address = withdrawalSafeAddress
         const networkName = infoArray[0].networkName
         nodeOperatorPublicKeys.push(...pubkeys)
-        validatorIDs.push(...ids)
         try {
             const startTime = new Date().getTime()
             await generateKeys(

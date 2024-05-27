@@ -54,6 +54,15 @@ class Database {
         return validator
     }
 
+    checkUniqueValidatorIndices(validatorIndices, stakingAddress) {
+        const obj = this._store.get('stakerAddress')
+        if (!obj) return true
+        for (const validatorIndex of validatorIndices) {
+            if (obj[stakingAddress] && obj[stakingAddress].validators && obj[stakingAddress].validators[validatorIndex]) return false
+        }
+        return true
+    }
+
     getValidatorPassword(address, validatorIndex, password) {
         const validator = this.getValidatorByIndex(validatorIndex)
         const encryptedPassword = validator.password
@@ -93,7 +102,7 @@ class Database {
 
     getAllStakerAddresses(dbPassword) {
         const allStakerAddress = this._store.get("stakerAddress");
-        if (!allStakerAddress) return allStakerAddress;
+        if (!allStakerAddress) return undefined;
         this.encryptHistoryRecords(dbPassword)
 
         let is_legacy = true
@@ -125,7 +134,7 @@ class Database {
     }
 
     addMnemonic(address, mnemonic, validatorPassword, password) {
-        const encryptedMnemonic = this.encrypt(mnemonic, password); 
+        const encryptedMnemonic = this.encrypt(mnemonic, password);
         this._store.set(`stakerAddress.${address}.mnemonics.${encryptedMnemonic}`, {
             password: this.encrypt(validatorPassword, password),
             mnemonic: encryptedMnemonic,
@@ -159,7 +168,7 @@ class Database {
                     dateCreated: oldDecrypedObject[key].dateCreated
                 };
             }
-            
+
         });
         return decrypedObject;
     }
@@ -174,7 +183,7 @@ class Database {
         // Make sure the key is correctly encrypted & persisted
         let storedKey = this._store.get(`stakerAddress.${address}.validators.${validatorID}`);
         if (!storedKey ||
-            keystorePassword != this.decrypt(storedKey.password, password) || 
+            keystorePassword != this.decrypt(storedKey.password, password) ||
             keystoreFile != this.decrypt(storedKey.keystore, password)) {
             throw new Error("Generated key is not correctly encrypted or persisted");
         }
@@ -256,8 +265,8 @@ class Database {
     generatePassword () {
         const wishlist = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz~!@-#$'
         return Array.from(crypto.randomFillSync(new Uint32Array(20)))
-        .map((x) => wishlist[x % wishlist.length])
-        .join('')
+            .map((x) => wishlist[x % wishlist.length])
+            .join('')
     }
 
     encrypt = (jsonData, privKeysPassword) => {
@@ -277,7 +286,7 @@ class Database {
         };
         return JSON.stringify(encryptedJSON);
     };
-    
+
     decrypt = (privateKeysJSON, privKeysPassword) => {
         privateKeysJSON = JSON.parse(privateKeysJSON)
         const iv = Buffer.from(privateKeysJSON.iv, "hex");
