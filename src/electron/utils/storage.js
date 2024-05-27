@@ -109,7 +109,7 @@ class Database {
         for (const address in allStakerAddress) {
             if (address === "undefined") continue // filter out empty address
             const mnemonics = allStakerAddress[address].mnemonics
-            if (Object.keys(mnemonics).length === 0) { // empty array, no need to convert to new format
+            if (mnemonics && Object.keys(mnemonics).length === 0) { // empty array, no need to convert to new format
                 is_legacy = false
                 break
             }
