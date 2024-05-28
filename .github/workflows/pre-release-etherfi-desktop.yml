@@ -16,9 +16,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          target_commitish: ${{ steps.extract_branch.outputs.branch }}
-          tag_name: v${{ steps.extract_version.outputs.version }}-${{ steps.extract_branch.outputs.branch }}-alpha
-          release_name: Release v${{ steps.extract_version.outputs.version }}-${{ steps.extract_branch.outputs.branch }}-alpha
+          release_name: Release v${{ steps.extract_version.outputs.version }}-${{ github.ref }}-alpha
           draft: true
           prerelease: true
     outputs:
