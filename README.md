@@ -266,3 +266,9 @@ yarn run dist
 # NOTE: you can add flags to this command that will build the app for a specific architecture (Flag Examples: --x64, --arm64)
 # Electron builder is used under the hood to build
 ```
+
+### Unit Tests
+The unit test are in tests/electron/utils. To run the unit test use the command below: 
+```bash
+yarn test
+```

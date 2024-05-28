@@ -54,11 +54,11 @@ class Database {
         return validator
     }
 
-    checkUniqueValidatorIndices(validatorIndices, stakingAddress) {
+    checkUniqueValidatorIds(validatorIds, stakingAddress) {
         const obj = this._store.get('stakerAddress')
         if (!obj) return true
-        for (const validatorIndex of validatorIndices) {
-            if (obj[stakingAddress] && obj[stakingAddress].validators && obj[stakingAddress].validators[validatorIndex]) return false
+        for (const validatorId of validatorIds) {
+            if (obj[stakingAddress] && obj[stakingAddress].validators && obj[stakingAddress].validators[validatorId]) return false
         }
         return true
     }
@@ -141,7 +141,7 @@ class Database {
             dateCreated: new Date().toLocaleDateString()
         });
         const mnemonics = this.getMnemonics(address, password) //unencrypts stored mnemonics
-        if(!mnemonics[mnemonic]) {
+        if(!mnemonics[mnemonic] || mnemonics[mnemonic].password !== validatorPassword || mnemonics[mnemonic].mnemonic !== mnemonic) {
             throw new Error("Generated mnemonic is not correctly encrypted or persisted");
         }
     }

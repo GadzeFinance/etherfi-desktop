@@ -220,9 +220,9 @@ const genValidatorKeysAndEncrypt = async (
         const ids = infoArray.map((i) => i.validatorID)
         validatorIDs.push(...ids)
     }
-    const isUnique = storage.checkUniqueValidatorIndices(validatorIDs, address)
+    const isUnique = storage.checkUniqueValidatorIds(validatorIDs, address)
     if (!isUnique) {
-        throw new Error("Validator Indices have been used before")
+        throw new Error("Validator Ids have been used before")
     }
     let startIndex = 0
     for (const [withdrawalSafeAddress, infoArray] of Object.entries(withdrawalAddr2StakeInfo)) {
