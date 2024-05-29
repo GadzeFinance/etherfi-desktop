@@ -186,7 +186,6 @@ const genValidatorKeysAndEncrypt = async (
     stakingMode
 ) => {
     logger.info("genEncryptedKeys: Start")
-    logger.info("this is a release test")
     const allWallets = await storage.getAllStakerAddresses(databasePassword)
     if (allWallets == undefined || !(address in allWallets)) {
         await storage.addStakerAddress(address)
