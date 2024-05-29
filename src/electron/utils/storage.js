@@ -55,10 +55,18 @@ class Database {
     }
 
     checkUniqueValidatorIds(validatorIds, stakingAddress) {
+        const collidingIds = []
         const obj = this._store.get('stakerAddress')
         if (!obj) return true
         for (const validatorId of validatorIds) {
-            if (obj[stakingAddress] && obj[stakingAddress].validators && obj[stakingAddress].validators[validatorId]) return false
+            if (obj[stakingAddress]
+                && obj[stakingAddress].validators
+                && obj[stakingAddress].validators[validatorId]) {
+                collidingIds.push(validatorId)
+            }
+        }
+        if (collidingIds.length > 0) {
+            throw new Error(`Validator IDs ${collidingIds.join(', ')} already exist for this staking address`)
         }
         return true
     }
