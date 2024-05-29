@@ -220,7 +220,7 @@ const genValidatorKeysAndEncrypt = async (
         const ids = infoArray.map((i) => i.validatorID)
         validatorIDs.push(...ids)
     }
-    const isUnique = storage.checkUniqueValidatorIds(validatorIDs, address)
+    const isUnique = await storage.checkUniqueValidatorIds(validatorIDs, address)
     if (!isUnique) {
         throw new Error("Validator Ids have been used before")
     }

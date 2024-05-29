@@ -1,7 +1,9 @@
 const Store = require("electron-store");
 const crypto = require("crypto");
 const schema = require('./storageSchema');
+const ethers = require('ethers')
 const { app } = require('electron')
+const ABI = require("./nodemanager.json")
 
 class Database {
     _store;
@@ -54,7 +56,7 @@ class Database {
         return validator
     }
 
-    checkUniqueValidatorIds(validatorIds, stakingAddress) {
+    async checkUniqueValidatorIds(validatorIds, stakingAddress) {
         const collidingIds = []
         const obj = this._store.get('stakerAddress')
         if (!obj) return true
@@ -66,7 +68,33 @@ class Database {
             }
         }
         if (collidingIds.length > 0) {
-            throw new Error(`Validator IDs ${collidingIds.join(', ')} already exist for this staking address`)
+            await this.checkPhasesOfCollidingIds(collidingIds).catch(e => {
+                console.log(e.message)
+                throw new Error(e.message)
+            })
+        }
+        return true
+    }
+
+    async checkPhasesOfCollidingIds(collidingIds) {
+        console.log("checking phases of colliding ids", collidingIds)
+        const ALCHEMY_API_KEY = ''
+        const ALCHEMY_URL = `https://eth-mainnet.g.alchemy.com/v2/${ALCHEMY_API_KEY}`; 
+        const NODE_MANAGER_ADDRESS = '0x8b71140ad2e5d1e7018d2a7f8a288bd3cd38916f';
+        const validatorsInWrongPhase = []
+        const provider = new ethers.providers.JsonRpcProvider(ALCHEMY_URL);
+        const contract = new ethers.Contract(NODE_MANAGER_ADDRESS, ABI, provider);
+        for (const validatorId of collidingIds) {
+            try {
+            const phase = await contract.phase(validatorId);
+            if (phase != 1) validatorsInWrongPhase.push(validatorId)
+            } catch (e) {
+                console.log(e)
+                throw new Error(`Validator ID ${validatorId} does not exist`)
+            }
+        }
+        if (validatorsInWrongPhase.length > 0) {
+            throw new Error(`Validator IDs ${collidingIds.join(', ')} are not in phase 1`)
         }
         return true
     }
