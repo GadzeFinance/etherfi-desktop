@@ -78,7 +78,7 @@ class Database {
 
     async checkPhasesOfCollidingIds(collidingIds) {
         console.log("checking phases of colliding ids", collidingIds)
-        const ALCHEMY_API_KEY = ''
+        const ALCHEMY_API_KEY = 'Wo1ZTJHKM_EqFK5Q7weYMNeeR42VShY3'
         const ALCHEMY_URL = `https://eth-mainnet.g.alchemy.com/v2/${ALCHEMY_API_KEY}`; 
         const NODE_MANAGER_ADDRESS = '0x8b71140ad2e5d1e7018d2a7f8a288bd3cd38916f';
         const validatorsInWrongPhase = []
