@@ -4,6 +4,8 @@ const schema = require('./storageSchema');
 const ethers = require('ethers')
 const { app } = require('electron')
 const ABI = require("./nodemanager.json")
+const { Web3 } = require('web3');
+
 
 class Database {
     _store;
@@ -81,16 +83,16 @@ class Database {
         const ALCHEMY_API_KEY = 'Wo1ZTJHKM_EqFK5Q7weYMNeeR42VShY3'
         const ALCHEMY_URL = `https://eth-mainnet.g.alchemy.com/v2/${ALCHEMY_API_KEY}`; 
         const NODE_MANAGER_ADDRESS = '0x8b71140ad2e5d1e7018d2a7f8a288bd3cd38916f';
+        const web3=new Web3(ALCHEMY_URL);
         const validatorsInWrongPhase = []
-        const provider = new ethers.providers.JsonRpcProvider(ALCHEMY_URL);
-        const contract = new ethers.Contract(NODE_MANAGER_ADDRESS, ABI, provider);
+        const contract = new web3.eth.Contract(ABI, NODE_MANAGER_ADDRESS);
         for (const validatorId of collidingIds) {
             try {
-            const phase = await contract.phase(validatorId);
+            const phase = await contract.methods.phase(validatorId).call();
             if (phase != 1) validatorsInWrongPhase.push(validatorId)
             } catch (e) {
                 console.log(e)
-                throw new Error(`Validator ID ${validatorId} does not exist`)
+                throw new Error(`Error making request to NodeManager contract: ${e.message}`)
             }
         }
         if (validatorsInWrongPhase.length > 0) {
