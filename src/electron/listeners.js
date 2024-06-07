@@ -429,7 +429,9 @@ const generateStakeRequestOnImportKeys = async (
       validatorKeystoreList,
       validator_ids,
       password,
-      nodeOperatorPubKeys
+      nodeOperatorPubKeys, 
+      address,
+      databasePassword
     );
 
     depositDataList.forEach((depositData, i) => {
