@@ -40,6 +40,7 @@ const StepImportKeyStoreFiles: React.FC<StepImportKeyStoreFilesProps> = ({
     if (!directoryHandle) return;
 
     readFilesAsJson(directoryHandle).then((files: FileMap) => {
+      const ids = stakeInfoList.map((stakeInfo: StakeInfo) => stakeInfo.validatorID.toString());
       window.encryptionApi.receiveStoredValidators(
         (
           event: Electron.IpcMainEvent,
@@ -61,11 +62,12 @@ const StepImportKeyStoreFiles: React.FC<StepImportKeyStoreFilesProps> = ({
               return keystore.pubkey;
             });
 
-            const duplicates = storePubKeys.filter((pubkey: string) => importedPubKeys.includes(pubkey));
-            if (duplicates.length > 0) {
+            const duplicateIds = Object.keys(vals).filter((id: string) => ids.includes(id));
+            const duplicatesPubkeys = storePubKeys.filter((pubkey: string) => importedPubKeys.includes(pubkey));
+            if (duplicatesPubkeys.length > 0 || duplicateIds.length > 0) {
               toast({
                 title: "Error",
-                description: "Duplicate public keys found in the imported files and the stored validators",
+                description: "Duplicate public keys or ids found in the imported files and the stored validators",
                 status: "error",
                 position: "top-right",
                 duration: 9000,
