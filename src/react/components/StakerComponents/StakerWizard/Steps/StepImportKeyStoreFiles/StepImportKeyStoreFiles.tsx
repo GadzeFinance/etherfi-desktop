@@ -50,7 +50,9 @@ const StepImportKeyStoreFiles: React.FC<StepImportKeyStoreFilesProps> = ({
         ) => {
           if (result === 0) {
             setLoading(false)
-            const duplicateIds = ids.filter((id: string) => validatorIds.includes(id));
+            const validatorIdSet = new Set(validatorIds);
+            const duplicateIds = ids.filter(id => validatorIdSet.has(id));
+            console.log(duplicateIds)
             if (duplicateIds.length > 0) {
           toast({
             title: "Error",
