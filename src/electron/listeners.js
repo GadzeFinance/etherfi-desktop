@@ -810,7 +810,7 @@ const getStakerAddress = async (password) => {
 }
 
 const getValidatorIndices = async (password) => {
-    return await storage.getValidatorIndices(password)
+    return await storage.getAllValidatorIndices(password)
 }
 
 const isPasswordSet = async () => {

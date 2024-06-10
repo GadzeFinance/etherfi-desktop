@@ -20,6 +20,7 @@ const {
     generateStakeRequestOnImportKeys,
     storageDecrypt,
     setAllStakerAddresses,
+    getValidatorIndices,
 } = require("./listeners")
 
 const { validateJsonFile } = require("./utils/validateFile")
@@ -588,6 +589,27 @@ ipcMain.on("req-get-password", async (event, args) => {
         logger.error("Error getting password", error)
         event.sender.send(
             "receive-get-password",
+            standardResultCodes.ERROR,
+            "",
+            error.message
+        )
+    }
+})
+
+ipcMain.on("req-get-validator-indices", async (event, args) => {
+    const [password] = args
+    try {
+        const val_ids = await getValidatorIndices(password)
+        event.sender.send(
+            "receive-get-validator-indices",
+            standardResultCodes.SUCCESS,
+            val_ids,
+            ""
+        )
+    } catch (error) {
+        logger.error("Error validator ids", error)
+        event.sender.send(
+            "receive-get-validator-indices",
             standardResultCodes.ERROR,
             "",
             error.message

@@ -41,50 +41,37 @@ const StepImportKeyStoreFiles: React.FC<StepImportKeyStoreFilesProps> = ({
 
     readFilesAsJson(directoryHandle).then((files: FileMap) => {
       const ids = stakeInfoList.map((stakeInfo: StakeInfo) => stakeInfo.validatorID.toString());
-      window.encryptionApi.receiveStoredValidators(
+      window.databaseApi.recieveGetValidatorIndices(
         (
           event: Electron.IpcMainEvent,
           result: number,
-          validators: string,
+          validatorIds: string[],
           errorMessage: string
         ) => {
           if (result === 0) {
             setLoading(false)
+            const duplicateIds = ids.filter((id: string) => validatorIds.includes(id));
+            if (duplicateIds.length > 0) {
+          toast({
+            title: "Error",
+            description: "Duplicate public keys or ids found in the imported files and the stored validators",
+            status: "error",
+            position: "top-right",
+            duration: 9000,
+            isClosable: true,
+          })
+          return;
+        }
 
-            const vals = JSON.parse(validators);
-            const storePubKeys = Object.values(vals).map((validator: any) => {
-              const keystore = JSON.parse(validator.keystore);
-              return keystore.pubkey;
-            });
-
-            const importedPubKeys = Object.values(files).map((file: any) => {
-              const keystore = JSON.parse(file);
-              return keystore.pubkey;
-            });
-
-            const duplicateIds = Object.keys(vals).filter((id: string) => ids.includes(id));
-            const duplicatesPubkeys = storePubKeys.filter((pubkey: string) => importedPubKeys.includes(pubkey));
-            if (duplicatesPubkeys.length > 0 || duplicateIds.length > 0) {
-              toast({
-                title: "Error",
-                description: "Duplicate public keys or ids found in the imported files and the stored validators",
-                status: "error",
-                position: "top-right",
-                duration: 9000,
-                isClosable: true,
-              })
-              return;
-            }
-
-            setFiles(files);
-            setShowPreview(true)
+        setFiles(files);
+        setShowPreview(true)
           } else {
-            console.error("Error finding stored validators")
+            console.error("Error finding stored validators:", errorMessage)
           }
         }
       );
       setLoading(true)
-      window.encryptionApi.reqStoredValidators(address, loginPassword);
+      window.databaseApi.reqGetValidatorIndices(address);
     });
 
 
