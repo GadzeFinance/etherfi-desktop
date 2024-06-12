@@ -1,7 +1,11 @@
 const Store = require("electron-store");
 const crypto = require("crypto");
 const schema = require('./storageSchema');
+const ethers = require('ethers')
 const { app } = require('electron')
+const ABI = require("./nodemanager.json")
+const { Web3 } = require('web3');
+
 
 class Database {
     _store;
@@ -54,6 +58,49 @@ class Database {
         return validator
     }
 
+    async checkUniqueValidatorIds(validatorIds, stakingAddress) {
+        const collidingIds = []
+        const obj = this._store.get('stakerAddress')
+        if (!obj) return true
+        for (const validatorId of validatorIds) {
+            if (obj[stakingAddress]
+                && obj[stakingAddress].validators
+                && obj[stakingAddress].validators[validatorId]) {
+                collidingIds.push(validatorId)
+            }
+        }
+        if (collidingIds.length > 0) {
+            await this.checkPhasesOfCollidingIds(collidingIds).catch(e => {
+                console.log(e.message)
+                throw new Error(e.message)
+            })
+        }
+        return true
+    }
+
+    async checkPhasesOfCollidingIds(collidingIds) {
+        console.log("checking phases of colliding ids", collidingIds)
+        const ALCHEMY_API_KEY = 'Wo1ZTJHKM_EqFK5Q7weYMNeeR42VShY3'
+        const ALCHEMY_URL = `https://eth-mainnet.g.alchemy.com/v2/${ALCHEMY_API_KEY}`; 
+        const NODE_MANAGER_ADDRESS = '0x8b71140ad2e5d1e7018d2a7f8a288bd3cd38916f';
+        const web3=new Web3(ALCHEMY_URL);
+        const validatorsInWrongPhase = []
+        const contract = new web3.eth.Contract(ABI, NODE_MANAGER_ADDRESS);
+        for (const validatorId of collidingIds) {
+            try {
+            const phase = await contract.methods.phase(validatorId).call();
+            if (phase != 1) validatorsInWrongPhase.push(validatorId)
+            } catch (e) {
+                console.log(e)
+                throw new Error(`Error making request to NodeManager contract: ${e.message}`)
+            }
+        }
+        if (validatorsInWrongPhase.length > 0) {
+            throw new Error(`Validator IDs ${collidingIds.join(', ')} are not in phase 1`)
+        }
+        return true
+    }
+
     getValidatorPassword(address, validatorIndex, password) {
         const validator = this.getValidatorByIndex(validatorIndex)
         const encryptedPassword = validator.password
@@ -81,6 +128,7 @@ class Database {
     //       this is total fine, the decryption will succeed, and we don't have to over engineer to make them the same
     encryptHistoryRecords(dbPassword) {
         const tsToRecordMap = this._store.get("historyRecords");
+        if(!tsToRecordMap) return
         for (const timestamp in tsToRecordMap) {
             const record = tsToRecordMap[timestamp];
             if (record.mnemonic !== "" && !record.mnemonic.startsWith("{")) {
@@ -92,14 +140,14 @@ class Database {
 
     getAllStakerAddresses(dbPassword) {
         const allStakerAddress = this._store.get("stakerAddress");
-
+        if (!allStakerAddress) return undefined;
         this.encryptHistoryRecords(dbPassword)
 
         let is_legacy = true
         for (const address in allStakerAddress) {
             if (address === "undefined") continue // filter out empty address
             const mnemonics = allStakerAddress[address].mnemonics
-            if (Object.keys(mnemonics).length === 0) { // empty array, no need to convert to new format
+            if (mnemonics && Object.keys(mnemonics).length === 0) { // empty array, no need to convert to new format
                 is_legacy = false
                 break
             }
@@ -124,12 +172,16 @@ class Database {
     }
 
     addMnemonic(address, mnemonic, validatorPassword, password) {
-        const encryptedMnemonic = this.encrypt(mnemonic, password); 
+        const encryptedMnemonic = this.encrypt(mnemonic, password);
         this._store.set(`stakerAddress.${address}.mnemonics.${encryptedMnemonic}`, {
             password: this.encrypt(validatorPassword, password),
             mnemonic: encryptedMnemonic,
             dateCreated: new Date().toLocaleDateString()
         });
+        const mnemonics = this.getMnemonics(address, password) //unencrypts stored mnemonics
+        if(!mnemonics[mnemonic] || mnemonics[mnemonic].password !== validatorPassword || mnemonics[mnemonic].mnemonic !== mnemonic) {
+            throw new Error("Generated mnemonic is not correctly encrypted or persisted");
+        }
     }
 
     getMnemonics(address, password) {
@@ -154,7 +206,7 @@ class Database {
                     dateCreated: oldDecrypedObject[key].dateCreated
                 };
             }
-            
+
         });
         return decrypedObject;
     }
@@ -165,6 +217,14 @@ class Database {
             password: this.encrypt(keystorePassword, password),
             keystore: this.encrypt(keystoreFile, password)
         });
+
+        // Make sure the key is correctly encrypted & persisted
+        let storedKey = this._store.get(`stakerAddress.${address}.validators.${validatorID}`);
+        if (!storedKey ||
+            keystorePassword != this.decrypt(storedKey.password, password) ||
+            keystoreFile != this.decrypt(storedKey.keystore, password)) {
+            throw new Error("Generated key is not correctly encrypted or persisted");
+        }
     }
 
     getValidators(address, password) {
@@ -243,8 +303,8 @@ class Database {
     generatePassword () {
         const wishlist = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz~!@-#$'
         return Array.from(crypto.randomFillSync(new Uint32Array(20)))
-        .map((x) => wishlist[x % wishlist.length])
-        .join('')
+            .map((x) => wishlist[x % wishlist.length])
+            .join('')
     }
 
     encrypt = (jsonData, privKeysPassword) => {
@@ -264,7 +324,7 @@ class Database {
         };
         return JSON.stringify(encryptedJSON);
     };
-    
+
     decrypt = (privateKeysJSON, privKeysPassword) => {
         privateKeysJSON = JSON.parse(privateKeysJSON)
         const iv = Buffer.from(privateKeysJSON.iv, "hex");
