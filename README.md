@@ -2,6 +2,10 @@
 
 Set up guide: https://www.debugandrelease.com/creating-a-simple-electron-application/
 
+## Notes
+
+Python3.11 won't work, Python3.9 works
+
 ## Mac OS 11+ Set up guide
 
 ### Install Required Software:
@@ -261,4 +265,10 @@ yarn buildcli
 yarn run dist
 # NOTE: you can add flags to this command that will build the app for a specific architecture (Flag Examples: --x64, --arm64)
 # Electron builder is used under the hood to build
+```
+
+### Unit Tests
+The unit test are in tests/electron/utils. To run the unit test use the command below: 
+```bash
+yarn test
 ```
