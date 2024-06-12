@@ -1,10 +1,14 @@
 import { useEffect, useState } from 'react';
 import { useToast } from '@chakra-ui/react';
+import { useFormContext } from 'react-hook-form';
 
 export default function useGetStakerAddresses() {
   const [addressOptions, setData] = useState(null);
   const [error, setError] = useState(null);
   const toast = useToast();
+
+  const {watch} = useFormContext()
+  const dbPassword = watch("loginPassword")
 
   useEffect(() => {
     const fetchData = async () => {
@@ -24,7 +28,7 @@ export default function useGetStakerAddresses() {
               }
             }
           );
-          window.databaseApi.reqGetStakerAddressList();
+          window.databaseApi.reqGetStakerAddressList(dbPassword);
         });
 
         setData(result);

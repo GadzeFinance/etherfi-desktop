@@ -40,49 +40,40 @@ const StepImportKeyStoreFiles: React.FC<StepImportKeyStoreFilesProps> = ({
     if (!directoryHandle) return;
 
     readFilesAsJson(directoryHandle).then((files: FileMap) => {
-      window.encryptionApi.receiveStoredValidators(
+      const ids = stakeInfoList.map((stakeInfo: StakeInfo) => stakeInfo.validatorID.toString());
+      window.databaseApi.recieveGetValidatorIndices(
         (
           event: Electron.IpcMainEvent,
           result: number,
-          validators: string,
+          validatorIds: string[],
           errorMessage: string
         ) => {
           if (result === 0) {
             setLoading(false)
+            const validatorIdSet = new Set(validatorIds);
+            const duplicateIds = ids.filter(id => validatorIdSet.has(id));
+            console.log(duplicateIds)
+            if (duplicateIds.length > 0) {
+          toast({
+            title: "Error",
+            description: "Duplicate public keys or ids found in the imported files and the stored validators",
+            status: "error",
+            position: "top-right",
+            duration: 9000,
+            isClosable: true,
+          })
+          return;
+        }
 
-            const vals = JSON.parse(validators);
-            const storePubKeys = Object.values(vals).map((validator: any) => {
-              const keystore = JSON.parse(validator.keystore);
-              return keystore.pubkey;
-            });
-
-            const importedPubKeys = Object.values(files).map((file: any) => {
-              const keystore = JSON.parse(file);
-              return keystore.pubkey;
-            });
-
-            const duplicates = storePubKeys.filter((pubkey: string) => importedPubKeys.includes(pubkey));
-            if (duplicates.length > 0) {
-              toast({
-                title: "Error",
-                description: "Duplicate public keys found in the imported files and the stored validators",
-                status: "error",
-                position: "top-right",
-                duration: 9000,
-                isClosable: true,
-              })
-              return;
-            }
-
-            setFiles(files);
-            setShowPreview(true)
+        setFiles(files);
+        setShowPreview(true)
           } else {
-            console.error("Error finding stored validators")
+            console.error("Error finding stored validators:", errorMessage)
           }
         }
       );
       setLoading(true)
-      window.encryptionApi.reqStoredValidators(address, loginPassword);
+      window.databaseApi.reqGetValidatorIndices(address);
     });
 
 
@@ -156,7 +147,7 @@ const StepImportKeyStoreFiles: React.FC<StepImportKeyStoreFilesProps> = ({
           <Button color={"black"} onClick={importFiles}>Import</Button>
         </Box> }
       {
-        showPreview && <PreviewList setShowPreview={setShowPreview} pairList={makePairList()} password={password} goNextStep={goNextStep} stakingCode={stakingCode} />
+        showPreview && <PreviewList address={address} setShowPreview={setShowPreview} pairList={makePairList()} password={password} goNextStep={goNextStep} stakingCode={stakingCode} databasePassword={loginPassword} />
       }
     </Box>
   );

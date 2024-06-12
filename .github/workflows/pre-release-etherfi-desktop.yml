@@ -16,8 +16,9 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: v${{ steps.extract_version.outputs.version }}-alpha
-          release_name: Release v${{ steps.extract_version.outputs.version }}-alpha
+          commitish: ${{ github.ref }}
+          tag_name: ${{ github.ref }}
+          release_name: Release v${{ steps.extract_version.outputs.version }}-${{ github.ref }}-alpha
           draft: true
           prerelease: true
     outputs:
@@ -44,7 +45,7 @@ jobs:
       - name: Build ETH Python Cli
         run: yarn buildclimac
       - name: Build With Electron Builder
-        run: yarn dist --arm64
+        run: yarn dist --x64
       - name: List Dist folder
         run: ls dist
       - name: Extract version
@@ -57,8 +58,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ needs.create-pre-release.outputs.release_url }}
-          asset_path: dist/etherfi-desktop-${{ steps.extract_version.outputs.version }}-arm64-mac.tar.gz
-          asset_name: etherfi-desktop-v${{ steps.extract_version.outputs.version }}-arm64-mac.tar.gz
+          asset_path: dist/etherfi-desktop-${{ steps.extract_version.outputs.version }}-mac.tar.gz
+          asset_name: etherfi-desktop-v${{ steps.extract_version.outputs.version }}-mac.tar.gz
           asset_content_type: application/zip
           name: mac
 

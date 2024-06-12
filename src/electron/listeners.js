@@ -52,11 +52,12 @@ const genNodeOperatorKeystores = async (
     numKeys,
     saveFolder,
     privKeysPassword,
-    address
+    address,
+    dbPassword
 ) => {
     logger.info("genNodeOperatorKeystores: Start")
 
-    const allWallets = await storage.getAllStakerAddresses()
+    const allWallets = await storage.getAllStakerAddresses(dbPassword)
     if (allWallets == undefined || !(address in allWallets)) {
         await storage.addStakerAddress(address)
     }
@@ -185,7 +186,7 @@ const genValidatorKeysAndEncrypt = async (
     stakingMode
 ) => {
     logger.info("genEncryptedKeys: Start")
-    const allWallets = await storage.getAllStakerAddresses()
+    const allWallets = await storage.getAllStakerAddresses(databasePassword)
     if (allWallets == undefined || !(address in allWallets)) {
         await storage.addStakerAddress(address)
     }
@@ -207,33 +208,51 @@ const genValidatorKeysAndEncrypt = async (
     const nodeOperatorPublicKeys = []
     const validatorIDs = []
 
-    for (var i = 0; i < stakeInfoLength; i++) {
-        const eth1_withdrawal_address = stakeInfo[i].withdrawalSafeAddress
-        nodeOperatorPublicKeys.push(stakeInfo[i].bidderPublicKey)
-        validatorIDs.push(stakeInfo[i].validatorID)
-        const index = i
+    const withdrawalAddr2StakeInfo = {}
+    for (const info of stakeInfo) {
+        if (!withdrawalAddr2StakeInfo[info.withdrawalSafeAddress]) {
+            withdrawalAddr2StakeInfo[info.withdrawalSafeAddress] = []
+        }
+        withdrawalAddr2StakeInfo[info.withdrawalSafeAddress].push(info)
+    }
+
+    for (const [withdrawalSafeAddress, infoArray] of Object.entries(withdrawalAddr2StakeInfo)) {
+        const ids = infoArray.map((i) => i.validatorID)
+        validatorIDs.push(...ids)
+    }
+    const isUnique = await storage.checkUniqueValidatorIds(validatorIDs, address)
+    if (!isUnique) {
+        throw new Error("Validator Ids have been used before")
+    }
+    let startIndex = 0
+    for (const [withdrawalSafeAddress, infoArray] of Object.entries(withdrawalAddr2StakeInfo)) {
+        const pubkeys = infoArray.map((i) => i.bidderPublicKey)
+        const ids = infoArray.map((i) => i.validatorID)
+        const eth1_withdrawal_address = withdrawalSafeAddress
+        const networkName = infoArray[0].networkName
+        nodeOperatorPublicKeys.push(...pubkeys)
         try {
             const startTime = new Date().getTime()
             await generateKeys(
                 mnemonic,
-                1,
-                stakeInfo[i].networkName,
+                infoArray.length,
+                networkName,
                 password,
                 eth1_withdrawal_address,
                 folder,
-                stakeInfo[i].validatorID,
+                startIndex,
                 databasePassword,
                 address,
                 stakingMode
             )
             const endTime = new Date().getTime()
             const usedTime = (endTime - startTime) / 1000
-            event.sender.send(
-                "receive-generate-key",
-                index,
-                stakeInfoLength,
-                usedTime
-            )
+            // event.sender.send(
+            //     "receive-generate-key",
+            //     index,
+            //     stakeInfoLength,
+            //     usedTime
+            // )
         } catch (err) {
             logger.error(
                 "Error in 'genValidatorKeysAndEncrypt' when generating keys",
@@ -241,6 +260,7 @@ const genValidatorKeysAndEncrypt = async (
             )
             throw new Error("Couldn't generate validator keys")
         }
+        startIndex += infoArray.length
     }
 
     // now we need to encrypt the keys and generate "stakeRequest.json"
@@ -249,7 +269,9 @@ const genValidatorKeysAndEncrypt = async (
             folder,
             password,
             nodeOperatorPublicKeys,
-            validatorIDs
+            validatorIDs,
+            address,
+            databasePassword
         )
         event.sender.send("stake-request", stakeRequestJson)
     } catch (err) {
@@ -280,7 +302,8 @@ const genValidatorKeysAndEncrypt = async (
         fileContent,
         mnemonic,
         validatorIDs,
-        stakingCode
+        stakingCode,
+        databasePassword
     )
     addHistoryRecord(historyData)
 
@@ -310,6 +333,7 @@ const _getDepositDataAndKeystoresJSON = async (folderPath) => {
     const validatorKeyFilePaths = []
 
     fs.readdirSync(folderPath).forEach((fileName) => {
+        console.log("fileName:", fileName)
         if (fileName.includes("deposit_data")) {
             depositDataFilePaths.push(path.join(folderPath, fileName))
         } else if (fileName.includes("keystore")) {
@@ -322,10 +346,11 @@ const _getDepositDataAndKeystoresJSON = async (folderPath) => {
     })
     // depositDataList will be sorted in chronological order
     const depositDataList = depositDataFilePaths.map((filePath) => {
-        console.log(JSON.parse(fs.readFileSync(filePath)))
-        return JSON.parse(fs.readFileSync(filePath))[0]
-    })
+        console.log(filePath, JSON.parse(fs.readFileSync(filePath)))
+        return JSON.parse(fs.readFileSync(filePath))
+    }).flat()
     const validatorKeystoreList = validatorKeyFilePaths.map((filePath) => {
+        console.log(filePath, JSON.parse(fs.readFileSync(filePath)))
         return {
             keystoreName: path.parse(filePath).base,
             keystoreData: JSON.parse(fs.readFileSync(filePath)),
@@ -333,7 +358,7 @@ const _getDepositDataAndKeystoresJSON = async (folderPath) => {
     })
 
     if (validatorKeystoreList.length !== depositDataList.length) {
-        logger.warning(
+        console.log(
             "Error in '_getDepositDataAndKeystoresJSON' Deposit Data lenth != number of keys",
             `validatorKeystoreList.length: ${validatorKeystoreList.length}`,
             `depositDataList.length: ${depositDataList.length}`
@@ -344,10 +369,12 @@ const _getDepositDataAndKeystoresJSON = async (folderPath) => {
 }
 
 const generateStakeRequestOnImportKeys = async (
+    address,
     keystores,
     stakeInfo,
     keystoreNames,
-    password
+    password,
+    databasePassword
 ) => {
 
     const timeStamp = Date.now()
@@ -402,8 +429,32 @@ const generateStakeRequestOnImportKeys = async (
       validatorKeystoreList,
       validator_ids,
       password,
-      nodeOperatorPubKeys
+      nodeOperatorPubKeys, 
+      address,
+      databasePassword
     );
+
+    depositDataList.forEach((depositData, i) => {
+        const pubkey = depositData.pubkey;
+        const matchesFound = validatorKeystoreList.filter((keyStoreObj) => {
+            return keyStoreObj.keystoreData.pubkey === pubkey
+        })
+        const keystore = matchesFound[0].keystoreData;
+        storage.addValidators(address, validator_ids[i], JSON.stringify(keystore), password, databasePassword)
+    })
+
+    // Add to history
+    logger.info("start to add history...")
+    const fileContent = JSON.stringify(stakeInfo)
+    const historyData = encodeGenerateKeysData(
+        address,
+        "stakeInfo",
+        fileContent,
+        "",
+        validator_ids,
+        ""
+    )
+    addHistoryRecord(historyData)
   
     fs.rmdirSync(folder, { recursive: true });
     console.log("Folder deleted successfully");
@@ -429,10 +480,15 @@ const _from_deposit_data_and_keystore_to_stake_request_list = (
     validatorKeystoreList,
     validatorIDs,
     password,
-    nodeOperatorPubKeys
+    nodeOperatorPubKeys,
+    address,
+    databasePassword
 ) => {
     const curve = new EC("secp256k1")
     const stakeRequestJSON = []
+
+    console.log(JSON.stringify(depositDataList))
+    console.log(JSON.stringify(validatorKeystoreList))
 
     for (var i = 0; i < depositDataList.length; i++) {
         // Step 1: Get the keystore corresponding to the depsoit data element
@@ -442,7 +498,7 @@ const _from_deposit_data_and_keystore_to_stake_request_list = (
 
         if (matchesFound.length !== 1) {
             logger.error(
-                "'_encryptValidatorKeys' more than one validator key found for deposit data",
+                "'_encryptValidatorKeys' more than one or zero validator key found for deposit data",
                 depositDataList[i],
                 matchesFound
             )
@@ -490,6 +546,14 @@ const _from_deposit_data_and_keystore_to_stake_request_list = (
         }
 
         stakeRequestJSON.push(stakeRequestItem)
+
+        storage.addValidators(
+            address,
+            validatorIDs[i],
+            validatorKey,
+            password,
+            databasePassword
+        )
     }
 
     return stakeRequestJSON
@@ -511,7 +575,9 @@ const _encryptValidatorKeys = async (
     folderPath,
     password,
     nodeOperatorPubKeys,
-    validatorIDs
+    validatorIDs,
+    address,
+    databasePassword
 ) => {
     logger.info("_encryptValidatorKeys: Start")
     // need to convert the folder path to a list of keystore paths and a deposit data file path
@@ -523,7 +589,9 @@ const _encryptValidatorKeys = async (
         validatorKeystoreList,
         validatorIDs,
         password,
-        nodeOperatorPubKeys
+        nodeOperatorPubKeys,
+        address,
+        databasePassword
     )
 
     // dont need to save a private file for the staker right now
@@ -727,36 +795,22 @@ const setPassword = async (password) => {
     return await storage.setPassword(password)
 }
 
+const setAllStakerAddresses = async (stakerAddresses, password) => {
+    await storage.setAllStakerAddresses(stakerAddresses, password)
+}
+
 const getStakerAddress = async (password) => {
-    const allStakers = await storage.getAllStakerAddresses()
+    const allStakers = await storage.getAllStakerAddresses(password)
+
     if (!allStakers || !password) {
         return {}
     }
-    // Decrypt here if efficiency allows
-    for (const [addr, stakerInfo] of Object.entries(allStakers)) {
-        const { validators, mnemonics } = stakerInfo
-        for (const [id, validator] of Object.entries(
-            validators ? validators : {}
-        )) {
-            validators[id] = {
-                keystore: await storage.decrypt(validator.keystore, password),
-                password: await storage.decrypt(validator.password, password),
-            }
-        }
-        for (const [id, mnemonic] of Object.entries(
-            mnemonics ? mnemonics : {}
-        )) {
-            mnemonics[id] = {
-                mnemonic: await storage.decrypt(mnemonic.mnemonic, password),
-                password: await storage.decrypt(mnemonic.password, password),
-            }
-        }
-    }
+    
     return allStakers
 }
 
 const getValidatorIndices = async (password) => {
-    return await storage.getValidatorIndices(password)
+    return await storage.getAllValidatorIndices(password)
 }
 
 const isPasswordSet = async () => {
@@ -767,8 +821,8 @@ const validatePassword = async (password) => {
     return await storage.validatePassword(password)
 }
 
-const getStakerAddressList = async () => {
-    return await storage.getAllStakerAddresses()
+const getStakerAddressList = async (dbPassword) => {
+    return await storage.getAllStakerAddresses(dbPassword)
 }
 
 /**
@@ -902,6 +956,10 @@ const testWholeEncryptDecryptFlow = (event, arg) => {
     logger.info("-----------------------------------")
 }
 
+const storageDecrypt = (ciphertext, password) => {
+    return storage.decrypt(ciphertext, password)
+}
+
 module.exports = {
     genNodeOperatorKeystores,
     genMnemonic,
@@ -918,5 +976,7 @@ module.exports = {
     setPassword,
     validatePassword,
     getValidatorIndices,
-    generateStakeRequestOnImportKeys 
+    generateStakeRequestOnImportKeys,
+    storageDecrypt,
+    setAllStakerAddresses
 }

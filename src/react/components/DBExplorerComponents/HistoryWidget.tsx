@@ -54,6 +54,7 @@ const HistoryWidget = (props: HistoryWidgetProps) => {
   const toast = useToast()
   const { watch, setValue } = useFormContext();
   const password = watch("password")
+  const databasePassword = watch("loginPassword")
   
   const [authenticated, setAuthenticated] = useState(false)
   const [isPasswordValid, setIsPasswordValid] = useState<boolean>(false)
@@ -165,7 +166,7 @@ const HistoryWidget = (props: HistoryWidgetProps) => {
         }
       }
     );
-    window.databaseApi.reqHistoryByPage(page);
+    window.databaseApi.reqHistoryByPage(page, databasePassword);
 
   }, [props.tabIndex, page, pageCount])
 
@@ -203,7 +204,7 @@ const HistoryWidget = (props: HistoryWidgetProps) => {
                   onClick={() => showRecordModule(timestamp, record)}
                 >
                   <Box color="white" fontSize="18px" mb="12px">
-                    {`${new Date(Number(timestamp)).toDateString()}, ${new Date(Number(timestamp)).toLocaleTimeString()} =>`}  you generated {record.validatorIds.length} validators
+                    {`${new Date(Number(timestamp)).toDateString()}, ${new Date(Number(timestamp)).toLocaleTimeString()} =>`}  you {record.mnemonic.length > 0 ? "generated" : "imported"} {record.validatorIds.length} validators
                   </Box>
                   <Box py="2px">Address: {record.address}</Box>
                   <Box py="2px">StakeInfo File: {record.stakeInfoFile.name}</Box>

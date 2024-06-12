@@ -53,7 +53,45 @@ const StepGetStakeInfo: React.FC<StepGetStakeInfoProps> = (
     setStakingCode(e.target.value.toUpperCase());
   }
 
+const generateStakingInfo = (digits: number): { [key: string]: string; }[] => {
+    const conf = [{
+        bidderPublicKey: "04ecdaf0bae414e21ec59d5d2a2d78bea20d491d8004d51cb39e30a698b533d8d48801edf723983e44af6fc399d2dcde051c1aa6291a7adf294ba000b33cfe94d6",
+        etherfiDesktopAppVersion: "1.1.1",
+        networkName: "mainnet",
+        validatorID: 26894,
+        withdrawalSafeAddress: "0x9EfD757A4B0245b47A4d31fB9B09f14e999A7033"
+    }];
+
+    const validators: { [key: string]: string; }[] = [];
+    let startingValidatorId = 10000;
+
+    console.log(Math.pow(10, digits));
+
+    for (let i = 0; i < Math.pow(10, digits); i++) {
+        const startingPubkey = conf[0].bidderPublicKey.slice(0, 130 - digits);
+        const startWs = conf[0].withdrawalSafeAddress.slice(0, 42 - digits);
+        const endingPubkey = i.toString(16).padStart(digits, '0');
+        const endingWs = i.toString(16).padStart(digits, '0');
+
+        console.log(startingPubkey + endingPubkey);
+        console.log(startWs + endingWs);
+        console.log("newline");
+
+        validators.push({
+            "bidderPublicKey": startingPubkey + endingPubkey,
+            "etherfiDesktopAppVersion": conf[0].etherfiDesktopAppVersion,
+            "networkName": conf[0].networkName,
+            "validatorID": (startingValidatorId + i).toString(),
+            "withdrawalSafeAddress": startWs + endingWs
+        });
+    }
+
+    return validators;
+};
+
+
   const handleSubmit: React.FormEventHandler<HTMLFormElement> = (e) => {
+    const isTest = false
     e.preventDefault();
     setIsLoading(true);
     fetch(`${dappUrl}/api/stakeInfo/${stakingCode}`)
@@ -65,6 +103,9 @@ const StepGetStakeInfo: React.FC<StepGetStakeInfoProps> = (
       })
       .then(res => res.json())
       .then(async (stakeInfo: { [key: string]: string }[]) => {
+        if (isTest) {
+          stakeInfo = generateStakingInfo(2);
+        }
         props.setStakeInfo(stakeInfo);
         props.setCode(stakingCode);
         props.goNextStep();
