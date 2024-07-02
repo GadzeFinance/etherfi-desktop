@@ -148,6 +148,7 @@
     "react-hook-form": "^7.43.9",
     "react-is-dev": "^1.0.5",
     "react-query": "^3.39.3",
+    "react-virtualized-auto-sizer": "^1.0.24",
     "react-window": "^1.8.10",
     "tmp": "^0.2.1",
     "uuid": "^9.0.0",
