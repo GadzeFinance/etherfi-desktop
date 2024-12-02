@@ -57,9 +57,9 @@ def validate_deposit(deposit_data_dict: Dict[str, Any], credential: Credential) 
     '''
     pubkey = BLSPubkey(bytes.fromhex(deposit_data_dict['pubkey']))
     withdrawal_credentials = bytes.fromhex(deposit_data_dict['withdrawal_credentials'])
-    amount = deposit_data_dict['amount']
-    signature = BLSSignature(bytes.fromhex(deposit_data_dict['signature']))
-    deposit_message_root = bytes.fromhex(deposit_data_dict['deposit_data_root'])
+    amount = deposit_data_dict['registerValidator']['amount']
+    signature = BLSSignature(bytes.fromhex(deposit_data_dict['registerValidator']['signature']))
+    deposit_message_root = bytes.fromhex(deposit_data_dict['registerValidator']['deposit_data_root'])
     fork_version = bytes.fromhex(deposit_data_dict['fork_version'])
 
     # Verify pubkey
@@ -85,7 +85,7 @@ def validate_deposit(deposit_data_dict: Dict[str, Any], credential: Credential) 
         return False
 
     # Verify deposit amount
-    if not MIN_DEPOSIT_AMOUNT < amount <= MAX_DEPOSIT_AMOUNT:
+    if not MIN_DEPOSIT_AMOUNT <= amount <= MAX_DEPOSIT_AMOUNT:
         return False
 
     # Verify deposit signature && pubkey

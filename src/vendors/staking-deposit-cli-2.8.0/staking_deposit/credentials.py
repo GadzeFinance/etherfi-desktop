@@ -145,6 +145,54 @@ class Credential:
         datum_dict.update({'network_name': self.chain_setting.NETWORK_NAME})
         datum_dict.update({'deposit_cli_version': DEPOSIT_CLI_VERSION})
         return datum_dict
+    
+    @property
+    def bnft_deposit_datum_dict(self) -> Dict[str, bytes]:
+        """
+        Return a single deposit datum for 1 validator including all
+        the information needed to verify and process the deposit.
+        """
+
+        register_amount = 1000000000
+        datum_dict = {
+            'pubkey': self.signing_pk,
+            'withdrawal_credentials': self.withdrawal_credentials,
+        }
+        register = self.sign_deposit_amount(register_amount)
+        register_validator_dict = {
+            'amount': register_amount,
+            'signature': register.signature,
+            'deposit_data_root': register.hash_tree_root,
+        }
+
+        approve_amount = 31000000000
+        approve = self.sign_deposit_amount(approve_amount)
+        approve_validator_dict = {
+            'amount': approve_amount,
+            'signature': approve.signature,
+            'deposit_data_root': approve.hash_tree_root,
+        }
+
+        datum_dict.update({'registerValidator': register_validator_dict})
+        datum_dict.update({'approveValidator': approve_validator_dict})
+        datum_dict.update({'fork_version': self.chain_setting.GENESIS_FORK_VERSION})
+        datum_dict.update({'network_name': self.chain_setting.NETWORK_NAME})
+        datum_dict.update({'deposit_cli_version': DEPOSIT_CLI_VERSION})
+        return datum_dict
+    
+    def sign_deposit_amount(self, amount) -> DepositData:
+        domain = compute_deposit_domain(fork_version=self.chain_setting.GENESIS_FORK_VERSION)
+        deposit_msg = DepositMessage(
+            pubkey=self.signing_pk,
+            withdrawal_credentials=self.withdrawal_credentials,
+            amount=amount,
+        )
+        signing_root = compute_signing_root(deposit_msg, domain)
+        signed_deposit = DepositData(
+            **deposit_msg.as_dict(),
+            signature=bls.Sign(self.signing_sk, signing_root)
+        )
+        return signed_deposit
 
     def signing_keystore(self, password: str) -> Keystore:
         secret = self.signing_sk.to_bytes(32, 'big')
@@ -238,10 +286,10 @@ class CredentialList:
                                show_percent=False, show_pos=True) as credentials:
             return [credential.save_signing_keystore(password=password, folder=folder) for credential in credentials]
 
-    def export_deposit_data_json(self, folder: str) -> str:
+    def export_deposit_data_json(self, folder: str, staking_mode: str) -> str:
         with click.progressbar(self.credentials, label=load_text(['msg_depositdata_creation']),
                                show_percent=False, show_pos=True) as credentials:
-            deposit_data = [cred.deposit_datum_dict for cred in credentials]
+            deposit_data = [cred.bnft_deposit_datum_dict for cred in credentials] if staking_mode == 'bnft' else [cred.deposit_datum_dict for cred in credentials] 
         filefolder = os.path.join(folder, 'deposit_data-%i.json' % time.time())
         with open(filefolder, 'w') as f:
             json.dump(deposit_data, f, default=lambda x: x.hex())
