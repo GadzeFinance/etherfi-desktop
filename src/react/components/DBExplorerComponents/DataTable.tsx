@@ -1,4 +1,5 @@
 import { useState } from "react";
+import AutoSizer from 'react-virtualized-auto-sizer';
 import {
   Text,
   Table,
@@ -21,6 +22,7 @@ import {
   Center,
   useToast
 } from "@chakra-ui/react";
+import { FixedSizeList as List } from "react-window";
 import { CopyIcon, ViewIcon } from "@chakra-ui/icons";
 import useCopy from "../../hooks/useCopy";
 import { useFormContext } from "react-hook-form";
@@ -35,8 +37,8 @@ interface DataTableProps {
   dbPassword: string
 }
 
-const DataTable = ({title, dataCount, data, dbPassword}: DataTableProps) => {
-
+const DataTable = ({ title, dataCount, data, dbPassword }: DataTableProps) => {
+  const dataArr = Object.entries(data) as any
   const [selectedCode, setSelectedCode] = useState<any>("")
   const [authenticated, setAuthenticated] = useState(false)
   const [isPasswordValid, setIsPasswordValid] = useState<boolean>(false)
@@ -58,8 +60,8 @@ const DataTable = ({title, dataCount, data, dbPassword}: DataTableProps) => {
   };
 
   const showToast = (
-    title: string, 
-    description: string, 
+    title: string,
+    description: string,
     status: "warning" | "info" | "success" | "error" | "loading"
   ) => {
     toast({
@@ -111,21 +113,36 @@ const DataTable = ({title, dataCount, data, dbPassword}: DataTableProps) => {
             </Tr>
           </Thead>
           <Tbody>
-            { Object.entries(data).map(([idx, content]: [any, any], index) => <>
-                <Tr key={idx}>
-                  <Td w="100px" textAlign={"center"}>{title === "mnemonics" ? index : idx }</Td>
-                  {title === "validators" && (
-                    <Td>
-                      <Text>
-                        {`validator-${idx}-keystore.json`}
-                      </Text>
-                    </Td>
-                  )}
-                  <PasswordCell password={content.password} dbPassword={dbPassword}/>
-                  <Td w="90px" cursor={"pointer"} onClick={async () => { viewData(title === "mnemonics" ? await decrypt(content.mnemonic, dbPassword) : await decrypt(content.keystore, dbPassword)); }} textAlign={"center"}><ViewIcon/></Td>
-                  <Td w="90px" cursor={"pointer"} onClick={async () => { copyData(title === "mnemonics" ? await decrypt(content.mnemonic, dbPassword) : await decrypt(content.keystore, dbPassword))}} textAlign={"center"}><CopyIcon/></Td>
-                </Tr>
-              </>)}
+
+
+            <AutoSizer>
+              {({ height, width }: { height: number, width: number }) => (
+
+                <List height={650} itemCount={dataCount} itemSize={72.5} width={width}>
+
+                  {({ index, style }) => {
+                    return (
+                      <Tr key={dataArr[index][0]} style={style}>
+                        <Td w="100px" textAlign={"center"}>{title === "mnemonics" ? index : dataArr[index][0]}</Td>
+                        {title === "validators" && (
+                          <Td>
+                            <Text>
+                              {`validator-${dataArr[index][0]}-keystore.json`}
+                            </Text>
+                          </Td>
+                        )}
+                        <PasswordCell password={dataArr[index][1].password} dbPassword={dbPassword} />
+                        <Td w="90px" cursor={"pointer"} onClick={async () => { viewData(title === "mnemonics" ? await decrypt(dataArr[index][1].mnemonic, dbPassword) : await decrypt(dataArr[index][1].keystore, dbPassword)); }} textAlign={"center"}><ViewIcon /></Td>
+                        <Td w="90px" cursor={"pointer"} onClick={async () => { copyData(title === "mnemonics" ? await decrypt(dataArr[index][1].mnemonic, dbPassword) : await decrypt(dataArr[index][1].keystore, dbPassword)) }} textAlign={"center"}><CopyIcon /></Td>
+                      </Tr>
+                    )
+                  }}
+                </List>
+              )}
+            </AutoSizer>
+
+
+
           </Tbody>
         </Table>)}
       <Modal size={!authenticated || title === "mnemonics" ? "lg" : "full"} isOpen={selectedCode !== ""} onClose={closeModal}>
@@ -137,22 +154,22 @@ const DataTable = ({title, dataCount, data, dbPassword}: DataTableProps) => {
             {!authenticated && (
               <>
                 <PasswordInput
-                  isPasswordValid={isPasswordValid} 
-                  setIsPasswordValid={setIsPasswordValid} 
-                  shouldDoValidation={false} 
+                  isPasswordValid={isPasswordValid}
+                  setIsPasswordValid={setIsPasswordValid}
+                  shouldDoValidation={false}
                   registerText="password"
                   noText
                 />
               </>
             )}
-            { title === "mnemonics" && authenticated && (
-            <Grid
-              templateColumns="repeat(4, 1fr)"
-              templateRows="repeat(6, 1fr)"
-              gap={2}
-            >
-              {selectedCode.split(" ").map((word: string, index: string) => (
-                <GridItem key={index} colSpan={1} rowSpan={1} >
+            {title === "mnemonics" && authenticated && (
+              <Grid
+                templateColumns="repeat(4, 1fr)"
+                templateRows="repeat(6, 1fr)"
+                gap={2}
+              >
+                {selectedCode.split(" ").map((word: string, index: string) => (
+                  <GridItem key={index} colSpan={1} rowSpan={1} >
                     <Box
                       borderWidth="1px"
                       borderStyle="solid"
@@ -169,9 +186,9 @@ const DataTable = ({title, dataCount, data, dbPassword}: DataTableProps) => {
                     </Box>
                   </GridItem>
                 ))
-              }
-            </Grid >) }
-            { title !== "mnemonics" && authenticated && 
+                }
+              </Grid >)}
+            {title !== "mnemonics" && authenticated &&
               <Code
                 colorScheme="purple.dark"
                 fontSize="sm"
@@ -185,7 +202,7 @@ const DataTable = ({title, dataCount, data, dbPassword}: DataTableProps) => {
             }
           </ModalBody>
           <ModalFooter>
-            <Button onClick={() => {authenticated ? copyData(selectedCode) : reqAuthenticate()}}>{authenticated? "Copy": "Submit"}</Button>
+            <Button onClick={() => { authenticated ? copyData(selectedCode) : reqAuthenticate() }}>{authenticated ? "Copy" : "Submit"}</Button>
           </ModalFooter>
         </ModalContent>
       </Modal>

@@ -9,7 +9,7 @@
       <change beforePath="$PROJECT_DIR$/../electron/utils/Eth2Deposit.js" beforeDir="false" afterPath="$PROJECT_DIR$/../electron/utils/Eth2Deposit.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/bundle_proxy_mac.sh" beforeDir="false" afterPath="$PROJECT_DIR$/bundle_proxy_mac.sh" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/eth2deposit_proxy.py" beforeDir="false" afterPath="$PROJECT_DIR$/eth2deposit_proxy.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../vendors/staking-deposit-cli-2.4.0/staking_deposit/cli/generate_keys.py" beforeDir="false" afterPath="$PROJECT_DIR$/../vendors/staking-deposit-cli-2.4.0/staking_deposit/cli/generate_keys.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../vendors/staking-deposit-cli-2.8.0/staking_deposit/cli/generate_keys.py" beforeDir="false" afterPath="$PROJECT_DIR$/../vendors/staking-deposit-cli-2.8.0/staking_deposit/cli/generate_keys.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
