@@ -41,7 +41,7 @@ const logger = require("../utils/logger.js")
  */
 const execFileProm = promisify(execFile)
 
-const ETH2_DEPOSIT_DIR_NAME = "staking-deposit-cli-2.4.0"
+const ETH2_DEPOSIT_DIR_NAME = "staking-deposit-cli-2.8.0"
 
 /**
  * Paths needed to call the eth2deposit_proxy application using the Python 3 version installed on
