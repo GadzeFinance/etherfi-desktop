@@ -46,21 +46,11 @@ class Credential:
     A Credential object contains all of the information for a single validator and the corresponding functionality.
     Once created, it is the only object that should be required to perform any processing for a validator.
     """
-    def __init__(self, *, mnemonic: str, mnemonic_password: str,
-                 index: int, amount: int, chain_setting: BaseChainSetting,
-                 hex_eth1_withdrawal_address: Optional[HexAddress]):
-        # Set path as EIP-2334 format
-        # https://eips.ethereum.org/EIPS/eip-2334
-        purpose = '12381'
-        coin_type = '3600'
-        account = str(index)
-        withdrawal_key_path = f'm/{purpose}/{coin_type}/{account}/0'
-        self.signing_key_path = f'{withdrawal_key_path}/0'
-
-        self.withdrawal_sk = mnemonic_and_path_to_key(
-            mnemonic=mnemonic, path=withdrawal_key_path, password=mnemonic_password)
-        self.signing_sk = mnemonic_and_path_to_key(
-            mnemonic=mnemonic, path=self.signing_key_path, password=mnemonic_password)
+    def __init__(self, *, signing_key_path: str, withdrawal_sk: Optional[int], signing_sk: int, 
+                 amount: int, chain_setting: BaseChainSetting, hex_eth1_withdrawal_address: Optional[HexAddress]):
+        self.signing_key_path = signing_key_path
+        self.withdrawal_sk = withdrawal_sk
+        self.signing_sk = signing_sk
         self.amount = amount
         self.chain_setting = chain_setting
         self.hex_eth1_withdrawal_address = hex_eth1_withdrawal_address
@@ -229,6 +219,18 @@ class Credential:
             message=message,
             signature=signature,
         )
+        
+    @classmethod
+    def from_signing_key(cls, *, index: int, amount: int, chain_setting: BaseChainSetting, 
+                 signing_sk: int, hex_eth1_withdrawal_address: Optional[HexAddress]):
+        purpose = '12381'
+        coin_type = '3600'
+        account = str(index)
+        withdrawal_key_path = f'm/{purpose}/{coin_type}/{account}/0'
+        signing_key_path = f'{withdrawal_key_path}/0'
+        withdrawal_sk = None
+        return cls(signing_key_path=signing_key_path, withdrawal_sk=withdrawal_sk, signing_sk=signing_sk,
+                     amount=amount, chain_setting=chain_setting, hex_eth1_withdrawal_address=hex_eth1_withdrawal_address)
 
     def get_bls_to_execution_change_dict(self, validator_index: int) -> Dict[str, bytes]:
         result_dict: Dict[str, Any] = {}
@@ -280,6 +282,29 @@ class CredentialList:
                                    index=index, amount=amounts[index - start_index], chain_setting=chain_setting,
                                    hex_eth1_withdrawal_address=hex_eth1_withdrawal_address)
                         for index in indices])
+               
+    @classmethod
+    def from_validator_keys(cls,
+                      *,
+                      validator_keys: List[int],
+                      amounts: List[int],
+                      indices: List[int],
+                      chain_setting: BaseChainSetting,
+                      hex_eth1_withdrawal_addresses: List[HexAddress]) -> 'CredentialList':
+        if not (len(validator_keys) == len(amounts) == len(indices) == len(hex_eth1_withdrawal_addresses)):
+            raise ValueError(
+                f"The lengths are not equal: validator_keys={len(validator_keys)}, amounts={len(amounts)}, "
+                f"indices={len(indices)}, hex_eth1_withdrawal_addresses={len(hex_eth1_withdrawal_addresses)}."
+            )
+        return cls([
+            Credential.from_signing_key(
+                index=indices[i], 
+                amount=amounts[i], 
+                chain_setting=chain_setting, 
+                signing_sk=validator_keys[i], 
+                hex_eth1_withdrawal_address=hex_eth1_withdrawal_addresses[i])
+            for i in range(len(validator_keys))
+            ])
 
     def export_keystores(self, password: str, folder: str) -> List[str]:
         with click.progressbar(self.credentials, label=load_text(['msg_keystore_creation']),
