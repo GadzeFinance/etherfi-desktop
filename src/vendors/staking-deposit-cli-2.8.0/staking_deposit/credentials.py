@@ -55,6 +55,24 @@ class Credential:
         self.chain_setting = chain_setting
         self.hex_eth1_withdrawal_address = hex_eth1_withdrawal_address
 
+    @classmethod
+    def from_mnemonic(cls, *, mnemonic: str, mnemonic_password: str,
+                 index: int, amount: int, chain_setting: BaseChainSetting,
+                 hex_eth1_withdrawal_address: Optional[HexAddress]):
+        # Set path as EIP-2334 format
+        # https://eips.ethereum.org/EIPS/eip-2334
+        purpose = '12381'
+        coin_type = '3600'
+        account = str(index)
+        withdrawal_key_path = f'm/{purpose}/{coin_type}/{account}/0'
+        signing_key_path = f'{withdrawal_key_path}/0'
+        withdrawal_sk = mnemonic_and_path_to_key(
+            mnemonic=mnemonic, path=withdrawal_key_path, password=mnemonic_password)
+        signing_sk = mnemonic_and_path_to_key(
+            mnemonic=mnemonic, path=signing_key_path, password=mnemonic_password)
+        return cls(signing_key_path=signing_key_path, withdrawal_sk=withdrawal_sk, signing_sk=signing_sk,
+                     amount=amount, chain_setting=chain_setting, hex_eth1_withdrawal_address=hex_eth1_withdrawal_address)
+
     @property
     def signing_pk(self) -> bytes:
         return bls.SkToPk(self.signing_sk)
@@ -278,7 +296,7 @@ class CredentialList:
         key_indices = range(start_index, start_index + num_keys)
         with click.progressbar(key_indices, label=load_text(['msg_key_creation']),
                                show_percent=False, show_pos=True) as indices:
-            return cls([Credential(mnemonic=mnemonic, mnemonic_password=mnemonic_password,
+            return cls([Credential.from_mnemonic(mnemonic=mnemonic, mnemonic_password=mnemonic_password,
                                    index=index, amount=amounts[index - start_index], chain_setting=chain_setting,
                                    hex_eth1_withdrawal_address=hex_eth1_withdrawal_address)
                         for index in indices])
